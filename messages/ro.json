@@ -1,0 +1,17 @@
+{
+	"Index": {
+		"title": "Buna world!",
+		"hero": "Buna Hero!"
+	},
+	"LocaleSwitcher": {
+		"en": "Engleză",
+		"ro": "Românesc"
+	},
+	"Navigation": {
+		"home": "Acasă",
+		"map": "Hartă"
+	},
+	"Map": {
+		"title": "Hartă"
+	}
+}

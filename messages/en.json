@@ -1,0 +1,29 @@
+{
+	"Index": {
+		"title": "T&P Funding",
+		"hero": "Our Presence, Your Opportunities."
+	},
+	"LocaleSwitcher": {
+		"en": "English",
+		"ro": "Romanian"
+	},
+	"Navigation": {
+		"poe": "POE",
+		"yourAccess": "YOUR ACCESS",
+		"whoWeAre": "WHO WE ARE",
+		"aboutUs": "ABOUT US",
+		"ourTeam": "OUR TEAM",
+		"services": "SERVICES",
+		"whyUs": "WHY US",
+		"overview": "OVERVIEW",
+		"sectorExpertise": "SECTOR EXPERTISE",
+		"partnersPortfolios": "PARTNERS & PORTFOLIOS",
+		"endorsements": "ENDORSEMENTS",
+		"publications": "PUBLICATIONS",
+		"clientCodex": "CLIENT CODEX",
+		"contact": "CONTACT"
+	},
+	"Map": {
+		"title": "Map"
+	}
+}
