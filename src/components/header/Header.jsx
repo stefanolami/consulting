@@ -68,7 +68,7 @@ export default function Header(messages) {
 						href="/"
 					>
 						<Image
-							src="/logos/funding-white.png"
+							src="/logos/consulting-white.png"
 							alt="T&P Logo"
 							fill
 							sizes="(max-width: 640px) 40vw, 25vw"
