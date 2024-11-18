@@ -5,25 +5,25 @@ import { jose, unna } from '@/app/fonts'
 
 export const metadata: Metadata = {
 	title: {
-		default: 'Time&Place Funding',
-		template: '%s - Time&Place Funding',
+		default: 'Time&Place Consulting',
+		template: '%s - Time&Place Consulting',
 	},
-	description: 'Time&Place Funding',
+	description: 'Time&Place Consulting',
 	openGraph: {
-		title: 'Time&Place Funding',
+		title: 'Time&Place Consulting',
 		description: 'Our Presence, Your Opportunities.',
-		url: 'https://www.fundingontap.com',
-		siteName: 'Time&Place Funding',
+		url: 'https://www.consultingontap.com',
+		siteName: 'Time&Place Consulting',
 		images: [
 			{
-				url: 'https://funding-kohl.vercel.app/web-app-manifest-1024x1024.png', // Must be an absolute URL
-				width: 1024,
-				height: 1024,
-			},
-			{
-				url: 'https://funding-kohl.vercel.app/web-app-manifest-512x512.png', // Must be an absolute URL
+				url: 'https://consulting-one.vercel.app/web-app-manifest-512x512.png', // Must be an absolute URL
 				width: 512,
 				height: 512,
+			},
+			{
+				url: 'https://consulting-one.vercel.app/web-app-manifest-192x192.png', // Must be an absolute URL
+				width: 192,
+				height: 192,
 			},
 		],
 		locale: 'en_US',
