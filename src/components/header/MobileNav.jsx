@@ -171,6 +171,12 @@ export default function MobileNav({ messages }) {
 							>
 								{messages.services}
 							</Link>
+							<Link
+								onClick={() => setActive(false)}
+								href="/services"
+							>
+								{messages.sectors}
+							</Link>
 							<div className="flex flex-row justify-start items-center gap-3">
 								<span
 									className="text-center relative block"

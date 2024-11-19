@@ -3,7 +3,7 @@
 import { Link } from '@/i18n/routing'
 import DesktopLocaleSwitcher from './DesktopLocaleSwitcher'
 
-export default function DesktopNav({ messages, inverted }) {
+export default function DesktopNav({ messages }) {
 	return (
 		<div
 			id="desktop-nav"
@@ -14,65 +14,41 @@ export default function DesktopNav({ messages, inverted }) {
 				id="desktop-nav"
 				className="grid grid-cols-6 text-center uppercase h-full *:px-4 text-base"
 			>
-				<Link
-					className={
-						inverted
-							? 'hover:text-white hover:bg-primary'
-							: 'hover:bg-primary-light'
-					}
-					href="/poe"
-				>
-					{messages.poe}
-				</Link>
-				<Link
-					className={
-						inverted
-							? 'hover:text-white hover:bg-primary'
-							: 'hover:bg-primary-light'
-					}
-					href="/your-access"
-				>
-					{messages.yourAccess}
-				</Link>
 				<div className="group relative flex items-center justify-center cursor-pointer">
 					<span>{messages.whoWeAre}</span>
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
 							href="/about-us"
-							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:scale-110 hover:shadow-xl mt-1 ${
-								inverted ? 'text-white' : ''
-							}`}
+							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:bg-primary-light hover:scale-110 hover:shadow-xl mt-1 $`}
 						>
 							{messages.aboutUs}
 						</Link>
 						<Link
 							href="/our-team"
-							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:scale-110 hover:shadow-xl mt-1 ${
-								inverted ? 'text-white' : ''
-							}`}
+							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:bg-primary-light hover:scale-110 hover:shadow-xl mt-1 $`}
 						>
 							{messages.ourTeam}
 						</Link>
 					</div>
 				</div>
 				<Link
-					className={
-						inverted
-							? 'hover:text-white hover:bg-primary'
-							: 'hover:bg-primary-light'
-					}
+					className="hover:bg-primary-light"
 					href="/services"
 				>
 					{messages.services}
+				</Link>
+				<Link
+					className="hover:bg-primary-light"
+					href="/sectors"
+				>
+					{messages.sectors}
 				</Link>
 				<div className="group relative flex items-center justify-center cursor-pointer">
 					<span>{messages.whyUs}</span>
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
 							href="/about-us"
-							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:scale-110 hover:shadow-xl mt-1 ${
-								inverted ? 'text-white' : ''
-							}`}
+							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:bg-primary-light hover:scale-110 hover:shadow-xl mt-1 $`}
 						>
 							{messages.overview}
 						</Link>
@@ -110,20 +86,14 @@ export default function DesktopNav({ messages, inverted }) {
 						</Link> */}
 						<Link
 							href="/about-us"
-							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:scale-110 hover:shadow-xl mt-1 ${
-								inverted ? 'text-white' : ''
-							}`}
+							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:bg-primary-light hover:scale-110 hover:shadow-xl mt-1 $`}
 						>
 							{messages.clientCodex}
 						</Link>
 					</div>
 				</div>
 				<Link
-					className={
-						inverted
-							? 'hover:text-white hover:bg-primary'
-							: 'hover:bg-primary-light'
-					}
+					className="hover:bg-primary-light"
 					href="/contact"
 				>
 					{messages.contact}

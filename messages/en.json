@@ -1,6 +1,6 @@
 {
 	"Index": {
-		"title": "T&P Funding",
+		"title": "T&P Consulting",
 		"hero": "Our Presence, Your Opportunities."
 	},
 	"LocaleSwitcher": {
@@ -8,12 +8,11 @@
 		"ro": "Romanian"
 	},
 	"Navigation": {
-		"poe": "POE",
-		"yourAccess": "YOUR ACCESS",
 		"whoWeAre": "WHO WE ARE",
 		"aboutUs": "ABOUT US",
 		"ourTeam": "OUR TEAM",
 		"services": "SERVICES",
+		"sectors": "SECTORS",
 		"whyUs": "WHY US",
 		"overview": "OVERVIEW",
 		"sectorExpertise": "SECTOR EXPERTISE",
