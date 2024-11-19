@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 	description: 'Time&Place Consulting',
 	openGraph: {
 		title: 'Time&Place Consulting',
-		description: 'Our Presence, Your Opportunities.',
+		description: 'Your Line of Communication',
 		url: 'https://www.consultingontap.com',
 		siteName: 'Time&Place Consulting',
 		images: [

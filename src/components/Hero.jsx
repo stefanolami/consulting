@@ -28,10 +28,10 @@ export default function Hero() {
 				/>
 			</div>
 			<h1 className="text-white text-balance font-unna text-[30px] mt-20 mb-6 ml-6 md:hidden z-20 invisible">
-				Right TIME. <br></br>Right PLACE. <br></br>Your IMPACT.
+				Your Line <br></br>of Communication.
 			</h1>
 			<h1 className="hidden md:block text-white font-unna text-[36px] text-center mb-[2%] mt-[2%] z-20 invisible">
-				Right TIME. Right PLACE. Your IMPACT.
+				Your Line of Communication.
 			</h1>
 		</div>
 	)

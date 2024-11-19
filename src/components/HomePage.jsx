@@ -5,23 +5,25 @@ export default function HomePage() {
 	return (
 		<div
 			id="home"
-			className="pb-16 xl:pb-32 w-full mx-auto"
+			className="pb-16 xl:pb-32 w-full xl:w-3/4 max-w-[1250px] mx-auto"
 		>
-			<div className="mt-6 xl:mt-16 relative mx-auto w-[55%] xl:w-[25%] aspect-[550/160]">
+			<div className="mt-6 xl:mt-16 relative mx-auto w-3/4 xl:w-[45%] aspect-[550/160]">
 				<Image
-					src={'/logos/funding-logo-home.png'}
+					src={'/logos/consulting-logo-home.png'}
 					alt="Group Logo"
 					fill
 					sizes="(max-width: 640px) 70vw, 40vw"
 				/>
 			</div>
-			<p className="my-10 lg:my-12 font-jose mx-auto w-4/5 xl:w-2/3 max-w-[1250px] text-primary text-sm lg:text-xl text-center">
-				As big business or SME, as NGO or local administration you can
-				benefit from international, national, regional and local public
-				funding, financing and tenders. Time&Place Funding: Your point
-				of access.
+			<p className="mt-2 font-jose mx-auto w-4/5 xl:w-4/5 text-primary text-sm xl:text-xl text-center">
+				We don’t use the word values, but instead, principles. Why? One
+				does not exclude the other. We understand our values to be what
+				we care about, whereas, our principles are the pillars at our
+				foundation. Our principles are based on our common understanding
+				of these pillars and determine what projects and/or clients we
+				work with.
 			</p>
-			<div className="bg-primary mx-auto h-[2px] w-4/5 xl:w-4/5 max-w-[1250px] mt-12 lg:mt-20"></div>
+			{/* <div className="bg-primary mx-auto h-[2px] w-4/5 xl:w-4/5 max-w-[1250px] mt-12 lg:mt-20"></div>
 			<div className="w-full">
 				<div className="mx-auto w-4/5 xl:w-2/3 max-w-[1250px] py-12 lg:py-20">
 					<h2 className="font-unna font-bold text-2xl xl:text-[40px] text-primary mb-10 text-center">
@@ -76,7 +78,7 @@ export default function HomePage() {
 						</Link>
 					</div>
 				</div>
-			</div>
+			</div> */}
 		</div>
 	)
 }
