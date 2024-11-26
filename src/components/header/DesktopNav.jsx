@@ -19,13 +19,13 @@ export default function DesktopNav({ messages }) {
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
 							href="/about-us"
-							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
 						>
 							{messages.aboutUs}
 						</Link>
 						<Link
 							href="/our-team"
-							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
 						>
 							{messages.ourTeam}
 						</Link>
@@ -48,7 +48,7 @@ export default function DesktopNav({ messages }) {
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
 							href="/about-us"
-							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
 						>
 							{messages.overview}
 						</Link>
@@ -86,7 +86,7 @@ export default function DesktopNav({ messages }) {
 						</Link> */}
 						<Link
 							href="/about-us"
-							className={`desktop-nav-li w-full h-full bg-primary py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
 						>
 							{messages.clientCodex}
 						</Link>
