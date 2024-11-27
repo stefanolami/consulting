@@ -12,14 +12,14 @@ export default function DesktopNav({ messages }) {
 			{/* CHANGE TO GRID-COLS-6 */}
 			<nav
 				id="desktop-nav"
-				className="grid grid-cols-6 text-center uppercase h-full *:px-4 text-base"
+				className="grid grid-cols-5 text-center uppercase h-full *:px-4 text-base"
 			>
 				<div className="group relative flex items-center justify-center cursor-pointer">
 					<span>{messages.whoWeAre}</span>
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
 							href="/about-us"
-							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 hover:shadow-xl mt-1 $`}
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 hover:shadow-xl mt-1`}
 						>
 							{messages.aboutUs}
 						</Link>

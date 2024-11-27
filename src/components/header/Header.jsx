@@ -91,17 +91,19 @@ export default function Header(messages) {
 					</Link>
 				</div>
 			)} */}
-			<Link
-				className="pl-6 md:pl-0 md:py-4 xl:py-7 w-[124px] xl:w-[231px] aspect-[694/186] relative xl:scale-75"
-				href="/"
-			>
-				<Image
-					src="/logos/consulting-white.png"
-					alt="T&P Logo"
-					fill
-					sizes="(max-width: 640px) 40vw, 40vw"
-				/>
-			</Link>
+			<div className="hidden xl:flex items-center justify-center w-[270px] h-full">
+				<Link
+					className="pl-6 md:pl-0 md:py-4 xl:py-7 w-[124px] xl:w-[231px] aspect-[694/186] relative xl:scale-75"
+					href="/"
+				>
+					<Image
+						src="/logos/consulting-white.png"
+						alt="T&P Logo"
+						fill
+						sizes="(max-width: 640px) 40vw, 40vw"
+					/>
+				</Link>
+			</div>
 
 			<DesktopNav
 				inverted={inverted}
