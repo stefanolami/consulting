@@ -1,9 +1,11 @@
 'use client'
 
 import { Link } from '@/i18n/routing'
+import { usePathname } from '@/i18n/routing'
 import DesktopLocaleSwitcher from './DesktopLocaleSwitcher'
 
 export default function DesktopNav({ messages }) {
+	const path = usePathname()
 	return (
 		<div
 			id="desktop-nav"
@@ -15,7 +17,13 @@ export default function DesktopNav({ messages }) {
 				className="grid grid-cols-5 text-center uppercase h-full *:px-4 text-base"
 			>
 				<div className="group relative flex items-center justify-center cursor-pointer">
-					<span>{messages.whoWeAre}</span>
+					<span
+						className={`block
+							${path == '/about-us' || path == '/our-team' ? 'active-link' : ''}
+							`}
+					>
+						{messages.whoWeAre}
+					</span>
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
 							href="/about-us"
@@ -32,19 +40,29 @@ export default function DesktopNav({ messages }) {
 					</div>
 				</div>
 				<Link
-					className="hover:bg-primary-light"
+					className={`hover:bg-primary-light relative ${
+						path == '/services' ? 'active-link' : ''
+					}`}
 					href="/services"
 				>
 					{messages.services}
 				</Link>
 				<Link
-					className="hover:bg-primary-light"
+					className={`hover:bg-primary-light relative ${
+						path == '/sectors' ? 'active-link' : ''
+					}`}
 					href="/sectors"
 				>
 					{messages.sectors}
 				</Link>
 				<div className="group relative flex items-center justify-center cursor-pointer">
-					<span>{messages.whyUs}</span>
+					<span
+						className={`block
+							${path == '/about-us' || path == '/our-team' ? 'active-link' : ''}
+							`}
+					>
+						{messages.whyUs}
+					</span>
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
 							href="/about-us"
@@ -93,7 +111,9 @@ export default function DesktopNav({ messages }) {
 					</div>
 				</div>
 				<Link
-					className="hover:bg-primary-light"
+					className={`hover:bg-primary-light relative ${
+						path == '/contact' ? 'active-link' : ''
+					}`}
 					href="/contact"
 				>
 					{messages.contact}
