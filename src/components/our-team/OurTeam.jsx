@@ -6,7 +6,7 @@ export default function OurTeam() {
 	const managingTeamArray = Object.values(managingTeam)
 	const teamArray = Object.values(team)
 	return (
-		<div className="pt-8 xl:pt-20 pb-16 xl:pb-32 w-[90%] xl:w-[75%] mx-auto">
+		<div className="pt-8 xl:pt-20 pb-16 xl:pb-32 w-[90%] xl:w-[75%] max-w-[1200px] mx-auto">
 			<h1 className="font-unna font-bold text-xl xl:text-[48px] text-center text-black mb-6 xl:mb-10">
 				OUR TEAM
 			</h1>
