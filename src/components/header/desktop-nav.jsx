@@ -65,10 +65,16 @@ export default function DesktopNav() {
 					</span>
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
-							href="/about-us"
+							href="/overview"
 							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
 						>
 							OVERVIEW
+						</Link>
+						<Link
+							href="/endorsements"
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
+						>
+							ENDORSEMENTS
 						</Link>
 						{/* <Link
 							href="/about-us"
@@ -103,7 +109,7 @@ export default function DesktopNav() {
 							{messages.publications}
 						</Link> */}
 						<Link
-							href="/about-us"
+							href="/client-codex"
 							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
 						>
 							CLIENT CODEX

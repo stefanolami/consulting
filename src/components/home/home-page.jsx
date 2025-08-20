@@ -1,3 +1,4 @@
+import EndorsementsHome from '../endorsements/endorsements-home'
 import Hero from './hero'
 
 export default function HomePage() {
@@ -35,6 +36,7 @@ export default function HomePage() {
 					</p>
 				</div>
 			</div>
+			<EndorsementsHome />
 		</>
 	)
 }
