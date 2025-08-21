@@ -1,5 +1,6 @@
 import EndorsementsHome from '../endorsements/endorsements-home'
 import Hero from './hero'
+import Partners from './partners'
 
 export default function HomePage() {
 	return (
@@ -13,7 +14,7 @@ export default function HomePage() {
 					<span className="block text-base lg:text-xl font-unna">
 						A SNAPSHOT OF
 					</span>
-					<span className="block text-2xl lg:text-4xl font-unna">
+					<span className="block text-2xl lg:text-4xl font-unna font-bold">
 						TIME&PLACE CONSULTING
 					</span>
 					<span className="block h-[2px] bg-primary w-48 mb-10"></span>
@@ -36,7 +37,7 @@ export default function HomePage() {
 					</p>
 				</div>
 			</div>
-			<EndorsementsHome />
+			<Partners />
 		</>
 	)
 }
