@@ -111,7 +111,7 @@ export const managingTeam = {
 			{
 				title: 'Chief People Officer',
 				content: [
-					'As the Chief People Officer of Time&Place Group, Corina is responsible for leading the organization’s people strategy, ensuring that the company attracts, develops, and retains top talent. She focuses on creating a supportive and inclusive workplace culture that fosters employee management and well-being. Corina works closely with leadership to align human resources initiatives with the company’s strategic objectives, managing areas such as recruitment, training and development, performance management, and employee relations.',
+					'As the Chief People Officer of Time&Place Group, Corina is responsible for leading the organisation’s people strategy, ensuring that the company attracts, develops, and retains top talent. She focuses on creating a supportive and inclusive workplace culture that fosters employee management and well-being. Corina works closely with leadership to align human resources initiatives with the company’s strategic objectives, managing areas such as recruitment, training and development, performance management, and employee relations.',
 				],
 				endorsement: {
 					content: [
@@ -132,7 +132,7 @@ export const managingTeam = {
 			{
 				title: 'Business Profiler',
 				content: [
-					"As a Business Profiler, Corina leverages her expertise as a forensic and psychological profiler and behavioral analyst to create detailed profiles of potential clients and collaborators. She applies her deep understanding of human behavior, motivations, and thought processes to analyze the key players within these organizations. Her analysis ensures that any collaboration aligns with the company's strategic goals and values, while also mitigating potential risks.",
+					"As a Business Profiler, Corina leverages her expertise as a forensic and psychological profiler and behavioral analyst to create detailed profiles of potential clients and collaborators. She applies her deep understanding of human behavior, motivations, and thought processes to analyze the key players within these organisations. Her analysis ensures that any collaboration aligns with the company's strategic goals and values, while also mitigating potential risks.",
 				],
 				endorsement: {
 					content: [
@@ -193,7 +193,7 @@ export const team = {
 			{
 				title: 'Areas of Expertise',
 				content: [
-					'In her previous role at ICLEI, Shumaila managed sustainable mobility projects across Asia, Africa, and Latin America, using her expertise in capacity building, stakeholder engagement, and project management. In her role with the Government of Sindh, she successfully implemented BRT bus projects in Karachi, addressing the ridership needs of approximately 500,000 passengers per line, per day, and created and monitored Key Performance Indicators (KPIs) to enhance system performance. Shumaila also expertly negotiated concession agreements on behalf of the Government with private partners and financial institutions, ensuring favorable outcomes for public projects. Additionally, she led the development and management of high-level events, including city-to-city dialogues, training workshops, and study tours involving diverse stakeholders such as city governments, multi-lateral development banks, private sector firms, NGOs, and civil society organizations.',
+					'In her previous role at ICLEI, Shumaila managed sustainable mobility projects across Asia, Africa, and Latin America, using her expertise in capacity building, stakeholder engagement, and project management. In her role with the Government of Sindh, she successfully implemented BRT bus projects in Karachi, addressing the ridership needs of approximately 500,000 passengers per line, per day, and created and monitored Key Performance Indicators (KPIs) to enhance system performance. Shumaila also expertly negotiated concession agreements on behalf of the Government with private partners and financial institutions, ensuring favorable outcomes for public projects. Additionally, she led the development and management of high-level events, including city-to-city dialogues, training workshops, and study tours involving diverse stakeholders such as city governments, multi-lateral development banks, private sector firms, NGOs, and civil society organisations.',
 				],
 				endorsement: {
 					content: [
@@ -370,7 +370,7 @@ export const team = {
 				endorsement: {
 					content: [
 						'“I had the pleasure of working with Flávia for over 10 years at MSA-Infor, where I was one of the founding partners. I also closely followed her work at Fumsoft. What stands out about Flávia is her determination at work, with a strong focus on efficiency and results. During her tenure as CEO, MSA-Infor won several awards as the most profitable company in the IT sector in Brazil.”',
-						'I was part of the group of entrepreneurs who attended the entrepreneurship training program at Stanford University in 2016, organized by Fumsoft under Flávia’s supervision. She worked tirelessly on the promotion, organization, and execution of the program. I continue to follow the group of entrepreneurs who participated in the event and other Fumsoft programs, and I can personally attest to how crucial Flávia’s role was in the success of these companies.',
+						'I was part of the group of entrepreneurs who attended the entrepreneurship training program at Stanford University in 2016, organized by Fumsoft under Flávia’s supervision. She worked tirelessly on the promotion, organisation, and execution of the program. I continue to follow the group of entrepreneurs who participated in the event and other Fumsoft programs, and I can personally attest to how crucial Flávia’s role was in the success of these companies.',
 						'With all this efficiency and dedication to her work, she still manages to be an incredibly kind person with refined manners.”',
 					],
 					name: 'Antonio Augusto Da Silva',
@@ -380,7 +380,7 @@ export const team = {
 			{
 				title: 'Executive Leadership in IT & Business Transformation (1990-2010)',
 				content: [
-					'At MSA-INFOR, Flávia advanced from systems analyst to CEO, leading 300 employees and positioning the company as one of the top private IT firms in Minas Gerais. She managed three ownership transitions, gaining expertise in organizational change and corporate strategy, and played a key role in the M&A process. After the acquisition by Spread Technology, she ensured a smooth knowledge transfer and restructured the Government sales division in São Paulo, securing a major public bid for Brazil’s Ministry of Social Development (MDS).',
+					'At MSA-INFOR, Flávia advanced from systems analyst to CEO, leading 300 employees and positioning the company as one of the top private IT firms in Minas Gerais. She managed three ownership transitions, gaining expertise in organisational change and corporate strategy, and played a key role in the M&A process. After the acquisition by Spread Technology, she ensured a smooth knowledge transfer and restructured the Government sales division in São Paulo, securing a major public bid for Brazil’s Ministry of Social Development (MDS).',
 				],
 			},
 		],
@@ -537,7 +537,7 @@ export const team = {
 				title: 'Previous experience',
 				content: [
 					"Academically, Edoardo has built a strong foundation in international governance and policy analysis. He earned a Bachelor's degree in International Relations and Diplomatic Sciences from the University of Trieste and later pursued a Master’s in Public Administration, International, and European Governance at Leiden University. His academic journey has fueled his passion for European Union affairs, with a particular focus on EU funding mechanisms and policy discourse.",
-					'Edoardo has a strong interest in the EU’s Common Security and Defence Policy (CSDP), an area in which he conducted in-depth research. His work on CSDP included contributions from high-level representatives of EU institutions and organizations, providing him with valuable insights into the complexities of European defense policy and security governance.',
+					'Edoardo has a strong interest in the EU’s Common Security and Defence Policy (CSDP), an area in which he conducted in-depth research. His work on CSDP included contributions from high-level representatives of EU institutions and organisations, providing him with valuable insights into the complexities of European defense policy and security governance.',
 					'Professionally, he has gained hands-on experience in EU affairs, funds and project management through his role as a Research and Policy Assistant at Moverim Consulting in Brussels. During this internship, he was actively involved in various aspects of EU-funded projects, assisting in project proposal development, drafting reports and policy analyses for clients, and supporting them throughout the entire project management cycle, from conception to implementation and final evaluation.',
 				],
 			},

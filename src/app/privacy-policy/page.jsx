@@ -14,8 +14,8 @@ export default function PrivacyPolicyPage() {
 			</h1>
 			<div className="space-y-6 font-jose text-sm xl:text-base">
 				<p>
-					Time&Place Funding is committed to protecting your privacy
-					and ensuring that your personal data is handled in
+					Time&Place Consulting is committed to protecting your
+					privacy and ensuring that your personal data is handled in
 					compliance with applicable laws, including the General Data
 					Protection Regulation (EU) 2016/679 (GDPR). This Privacy
 					Policy explains how we collect, use, disclose, and protect
@@ -30,7 +30,7 @@ export default function PrivacyPolicyPage() {
 					data is:
 				</p>
 				<p>
-					Time&Place Funding <br />
+					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels, Belgium <br />
 					Email: info@fundingontap.com
@@ -228,7 +228,7 @@ export default function PrivacyPolicyPage() {
 				<p>
 					<strong>9. Security of Your Data</strong>
 					<br />
-					We implement appropriate technical and organizational
+					We implement appropriate technical and organisational
 					measures to protect your personal data against unauthorized
 					access, loss, destruction, or alteration. However, please
 					note that no method of transmission over the internet or
@@ -295,7 +295,7 @@ export default function PrivacyPolicyPage() {
 					rights, please contact us at:
 				</p>
 				<p>
-					Time&Place Funding
+					Time&Place Consulting
 					<br />
 					Rue de la Loi 81A,
 					<br />

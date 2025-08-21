@@ -34,7 +34,7 @@ const ClientCodex = () => {
 				partnership goes without a discussion about a competitive price.
 				This is also why we promote a flexible workforce policy where
 				contracts do not have to cover non-profitable branches of one’s
-				organization.
+				organisation.
 			</p>
 			<h2 className="font-unna font-bold text-lg md:text-xl lg:text-2xl mb-3 lg:mb-5">
 				If we can’t do it, we don’t pretend we can

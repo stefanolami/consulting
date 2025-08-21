@@ -14,8 +14,8 @@ export default function CookieUsePage() {
 			</h1>
 			<div className="space-y-6 font-jose text-sm xl:text-base">
 				<p>
-					Time&Place Funding, headquartered in Brussels, Belgium, is
-					committed to ensuring the privacy and protection of your
+					Time&Place Consulting, headquartered in Brussels, Belgium,
+					is committed to ensuring the privacy and protection of your
 					personal data while visiting our website. This Cookie Policy
 					outlines how we use cookies and similar technologies, in
 					compliance with Regulation (EU) 2016/679 (General Data
@@ -38,7 +38,7 @@ export default function CookieUsePage() {
 					<br />
 					We use both “first-party” and “third-party cookies” on our
 					website. First-party cookies are set by “Time&Place
-					Funding”, while third-party cookies are set by external
+					Consulting”, while third-party cookies are set by external
 					service providers.
 				</p>
 
@@ -253,7 +253,7 @@ export default function CookieUsePage() {
 				</p>
 
 				<p>
-					Time&Place Funding <br />
+					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels, Belgium <br />
 					Email: info@fundingontap.com

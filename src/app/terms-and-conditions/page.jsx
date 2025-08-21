@@ -14,9 +14,9 @@ export default function TermsPage() {
 			</h1>
 			<div className="space-y-6 font-jose text-sm xl:text-base">
 				<p>
-					Welcome to the Time&Place Funding website. These Terms and
-					Conditions govern your use of our website and services. By
-					accessing or using our website, you agree to be bound by
+					Welcome to the Time&Place Consulting website. These Terms
+					and Conditions govern your use of our website and services.
+					By accessing or using our website, you agree to be bound by
 					these terms. If you do not agree with any part of these
 					Terms and Conditions, you must refrain from using the
 					website.
@@ -34,7 +34,7 @@ export default function TermsPage() {
 				</h2>
 
 				<p>
-					Time&Place Funding <br />
+					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels, Belgium <br />
 					Email: info@fundingontap.com
@@ -56,14 +56,14 @@ export default function TermsPage() {
 
 				<h2 className="text-lg font-semibold">3. Website Content</h2>
 				<p>
-					All content available on the Time&Place Funding website,
+					All content available on the Time&Place Consulting website,
 					including but not limited to text, images, graphics, logos,
 					and software, is the intellectual property of Time&Place
-					Funding unless otherwise indicated. You are permitted to
+					Consulting unless otherwise indicated. You are permitted to
 					view, download, and print content from this website for
 					personal, non-commercial use, provided that you do not
 					modify, reproduce, distribute, or exploit the content
-					without prior written consent from Time&Place Funding.
+					without prior written consent from Time&Place Consulting.
 				</p>
 
 				<h2 className="text-lg font-semibold">4. User Accounts</h2>
@@ -118,11 +118,11 @@ export default function TermsPage() {
 				</h2>
 				<p>
 					All intellectual property rights related to the website and
-					its content are owned by or licensed to Time&Place Funding.
-					The website and its content are protected by copyright,
-					trademark, and other intellectual property laws. You may not
-					use, reproduce, distribute, or modify any content without
-					our express written permission.
+					its content are owned by or licensed to Time&Place
+					Consulting. The website and its content are protected by
+					copyright, trademark, and other intellectual property laws.
+					You may not use, reproduce, distribute, or modify any
+					content without our express written permission.
 				</p>
 				<p>
 					Any unauthorized use of our intellectual property may result
@@ -133,16 +133,16 @@ export default function TermsPage() {
 				<p>
 					This website may contain links to external websites operated
 					by third parties. These links are provided for your
-					convenience only, and Time&Place Funding has no control over
-					the content or availability of such websites. We are not
-					responsible for the accuracy, reliability, or legality of
-					any third-party content or services provided through linked
-					websites.
+					convenience only, and Time&Place Consulting has no control
+					over the content or availability of such websites. We are
+					not responsible for the accuracy, reliability, or legality
+					of any third-party content or services provided through
+					linked websites.
 				</p>
 				<p>
 					The inclusion of any link does not imply endorsement by
-					Time&Place Funding. Use of third-party websites is at your
-					own risk, and we encourage you to review the terms and
+					Time&Place Consulting. Use of third-party websites is at
+					your own risk, and we encourage you to review the terms and
 					policies of any third-party sites you visit.
 				</p>
 
@@ -151,37 +151,37 @@ export default function TermsPage() {
 				</h2>
 				<p>
 					While we make every effort to ensure that the content of
-					this website is accurate and up to date, Time&Place Funding
-					does not guarantee the completeness, accuracy, or
+					this website is accurate and up to date, Time&Place
+					Consulting does not guarantee the completeness, accuracy, or
 					reliability of the information provided. The website and its
 					content are provided &quot;as is&quot; without any
 					warranties, express or implied.
 				</p>
 				<p>
-					To the fullest extent permitted by law, Time&Place Funding
-					excludes all liability for any loss or damage, including but
-					not limited to indirect or consequential loss or damage,
-					arising from your use of or inability to use this website or
-					any information contained therein.
+					To the fullest extent permitted by law, Time&Place
+					Consulting excludes all liability for any loss or damage,
+					including but not limited to indirect or consequential loss
+					or damage, arising from your use of or inability to use this
+					website or any information contained therein.
 				</p>
 
 				<h2 className="text-lg font-semibold">10. Indemnification</h2>
 				<p>
 					You agree to indemnify, defend, and hold harmless Time&Place
-					Funding, its officers, directors, employees, and agents from
-					and against any claims, liabilities, damages, losses, or
-					expenses, including reasonable legal fees, arising out of or
-					related to your use of the website or any violation of these
-					Terms and Conditions.
+					Consulting, its officers, directors, employees, and agents
+					from and against any claims, liabilities, damages, losses,
+					or expenses, including reasonable legal fees, arising out of
+					or related to your use of the website or any violation of
+					these Terms and Conditions.
 				</p>
 
 				<h2 className="text-lg font-semibold">
 					11. Modifications to Terms and Website
 				</h2>
 				<p>
-					Time&Place Funding reserves the right to modify these Terms
-					and Conditions at any time. Any changes will be posted on
-					this page, and we will indicate the date of the latest
+					Time&Place Consulting reserves the right to modify these
+					Terms and Conditions at any time. Any changes will be posted
+					on this page, and we will indicate the date of the latest
 					revision at the top of this page. Your continued use of the
 					website after any modifications constitutes your acceptance
 					of the updated Terms and Conditions.
@@ -211,7 +211,7 @@ export default function TermsPage() {
 					Conditions, please contact us at:
 				</p>
 				<p>
-					Time&Place Funding <br />
+					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels, Belgium <br />
 					Email: info@fundingontap.com

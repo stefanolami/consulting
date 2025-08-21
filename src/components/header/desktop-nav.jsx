@@ -58,7 +58,7 @@ export default function DesktopNav() {
 				<div className="group relative flex items-center justify-center cursor-pointer">
 					<span
 						className={`block
-							${path == '/overview' || path == '/client-codex' ? 'active-link' : ''}
+							${path.startsWith('/why-us') ? 'active-link' : ''}
 							`}
 					>
 						WHY US
