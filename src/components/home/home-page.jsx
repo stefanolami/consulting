@@ -27,9 +27,9 @@ export default function HomePage() {
 						project management agency, our global team focuses on
 						nourishing your decision-making capacities and building
 						your channels of impact. We are your strategic point of
-						access and line of communication to governments,
-						regulatory bodies, public opinion, as well as public
-						procurement, financing and funding agencies.
+						access to enter markets, and line of communication to
+						governments, regulatory bodies, public opinion, as well
+						as public procurement, financing and funding agencies.
 					</p>
 					<p className="text-center text-sm md:text-base lg:text-xl font-jose">
 						Powered by people, and just a little bit of AI.

@@ -24,7 +24,7 @@ const OurSectors = () => {
 					and effective support.
 				</p>
 			</div>
-			<div className="w-[90%] sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3 mt-10 lg:mt-20">
+			<div className="w-[90%] sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
 				{sectors.map((sector, index) => (
 					<div
 						key={index}
@@ -38,6 +38,18 @@ const OurSectors = () => {
 								sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 								className="object-contain"
 							/>
+							<div className="absolute inset-0 bg-black transition-opacity duration-300 text-white text-center font-jose text-xs">
+								{/* <span className="block text-xl">AGRIFOOD</span> */}
+								Lorem ipsum dolor sit amet, consectetur
+								adipiscing elit, sed do eiusmod tempor
+								incididunt ut labore et dolore magna aliqua. Ut
+								enim ad minim veniam, quis nostrud exercitation
+								ullamco laboris nisi ut aliquip ex ea commodo
+								consequat. Duis aute irure dolor in
+								reprehenderit in voluptate velit esse cillum
+								dolore eu fugiat nulla pariatur. Excepteur sint
+								occaecat cupidatat non proident, sunt
+							</div>
 						</div>
 						<div className="-mt-1 pt-1 w-full h-10 flex items-center justify-center bg-primary text-white text-center font-jose font-bold text-sm lg:text-lg">
 							{sector.label}

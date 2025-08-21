@@ -12,14 +12,14 @@ export default function ContactForm() {
 
 	return (
 		<div className="w-full">
-			<h1 className="font-unna font-bold text-xl xl:text-[36px] text-primary mb-4 xl:mb-10">
+			<h1 className="font-unna text-center lg:text-left font-bold text-xl lg:text-[48px] text-primary mb-4 xl:mb-10">
 				CONTACT
 			</h1>
 			<form
-				className="text-sm xl:text-base"
+				className="text-sm lg:text-base"
 				onSubmit={handleSubmit(onSubmit)}
 			>
-				<div className="xl:flex flex-row items-center justify-center gap-3">
+				<div className=":flex flex-row items-center justify-center gap-3">
 					<input
 						type="text"
 						placeholder="Name"

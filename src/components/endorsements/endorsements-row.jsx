@@ -18,7 +18,7 @@ export default function EndorsementsRow({
 				return (
 					<div
 						key={t.id}
-						className="shrink-0 w-[500px] grid grid-rows-[2fr_3fr] rounded-lg overflow-hidden relative bg-white"
+						className="shrink-0 w-[500px] grid grid-rows-[2fr_3fr] rounded-lg overflow-hidden relative bg-white font-jose"
 					>
 						<img
 							src={t.img}

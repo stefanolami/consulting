@@ -5,10 +5,10 @@ export default function AboutUs() {
 		<div className="bg-white pt-8 xl:pt-20 pb-16 xl:pb-32">
 			<div className="bg-white w-full absolute top-0 h-16 xl:h-24"></div>
 			<div className="w-[90%] xl:w-[75%] max-w-[1100px] mx-auto">
-				<h1 className="font-unna font-bold text-xl xl:text-[48px] text-center text-primary mb-10">
+				<h1 className="font-unna font-bold text-xl lg:text-[48px] text-center text-primary mb-10">
 					ABOUT US
 				</h1>
-				<div className="font-jose text-xs xl:text-lg text-primary text-justify">
+				<div className="font-jose text-xs md:text-sm lg:text-lg text-primary text-justify">
 					<p className="mb-4">
 						Time&Place Funding was the brainchild of Kjeld B. Olesen
 						and Glenn Cezanne in 2017 (after becoming friends during

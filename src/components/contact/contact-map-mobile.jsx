@@ -19,8 +19,8 @@ export default function ContactMapMobile() {
 	}, [selectedCountry])
 
 	return (
-		<div className="w-full xl:hidden">
-			<h1 className="font-unna font-bold text-xl xl:text-[36px] text-primary mb-4 xl:mb-10">
+		<div className="w-full lg:hidden">
+			<h1 className="font-unna font-bold text-xl lg:text-[36px] text-primary mb-4 lg:mb-10">
 				OUR OFFICES, YOUR ACCESS
 			</h1>
 			<div className="w-full">
