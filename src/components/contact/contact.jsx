@@ -43,7 +43,7 @@ export default function Contact() {
 								</div>
 								<div>
 									<span className="block font-jose text-xs lg:text-lg font-primary">
-										info@fundingontap.com
+										info@consultingontap.com
 									</span>
 								</div>
 							</div>

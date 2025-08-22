@@ -37,7 +37,7 @@ export default function TermsPage() {
 					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels, Belgium <br />
-					Email: info@fundingontap.com
+					Email: info@consultingontap.com
 				</p>
 				<p>
 					Time&Place Funding is a Brussels-based provider of public
@@ -214,7 +214,7 @@ export default function TermsPage() {
 					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels, Belgium <br />
-					Email: info@fundingontap.com
+					Email: info@consultingontap.com
 				</p>
 			</div>
 		</div>

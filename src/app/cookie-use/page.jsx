@@ -256,7 +256,7 @@ export default function CookieUsePage() {
 					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels, Belgium <br />
-					Email: info@fundingontap.com
+					Email: info@consultingontap.com
 				</p>
 			</div>
 		</div>

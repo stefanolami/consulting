@@ -33,7 +33,7 @@ export default function PrivacyPolicyPage() {
 					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels, Belgium <br />
-					Email: info@fundingontap.com
+					Email: info@consultingontap.com
 				</p>
 
 				<p>
@@ -301,7 +301,7 @@ export default function PrivacyPolicyPage() {
 					<br />
 					1040 Brussels, Belgium
 					<br />
-					Email: info@fundingontap.com
+					Email: info@consultingontap.com
 				</p>
 			</div>
 		</div>
