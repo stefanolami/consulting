@@ -1,9 +1,7 @@
 import Link from 'next/link'
 
-export async function generateMetadata() {
-	return {
-		title: 'Terms and Conditions',
-	}
+export const metadata = {
+	title: 'Terms and Conditions',
 }
 
 export default function TermsPage() {

@@ -1,5 +1,8 @@
 import HomePage from '@/components/home/home-page'
-import Image from 'next/image'
+
+export const metadata = {
+	title: 'Home - Time&Place Consulting',
+}
 
 export default function Home() {
 	return <HomePage />

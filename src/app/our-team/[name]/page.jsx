@@ -2,22 +2,24 @@ import TeamMember from '@/components/our-team/team-member'
 import { team, managingTeam } from '@/data/team'
 
 export async function generateMetadata({ params }) {
-	let name
-	if (params.name == 'glenn-cezanne' || params.name == 'corina-gheorgheza') {
-		name = Object.values(managingTeam).find(
-			(member) => member.path === params.name
+	let metaName
+	const { name } = await params
+	if (name == 'glenn-cezanne' || name == 'corina-gheorgheza') {
+		metaName = Object.values(managingTeam).find(
+			(member) => member.path === name
 		).name
 	} else {
-		name = Object.values(team).find(
-			(member) => member.path === params.name
+		metaName = Object.values(team).find(
+			(member) => member.path === name
 		).name
 	}
 
 	return {
-		title: name,
+		title: metaName,
 	}
 }
 
-export default function TeamMemberPage({ params }) {
-	return <TeamMember name={params.name} />
+export default async function TeamMemberPage({ params }) {
+	const { name } = await params
+	return <TeamMember name={name} />
 }

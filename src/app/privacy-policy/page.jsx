@@ -1,9 +1,7 @@
 import Link from 'next/link'
 
-export async function generateMetadata() {
-	return {
-		title: 'Privacy Policy',
-	}
+export const metadata = {
+	title: 'Privacy Policy',
 }
 
 export default function PrivacyPolicyPage() {
