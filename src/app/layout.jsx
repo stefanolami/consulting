@@ -11,7 +11,7 @@ export const metadata = {
 		default: 'Time&Place Consulting',
 		template: '%s - Time&Place Consulting',
 	},
-	description: 'Time&Place Consulting',
+	description: 'Your Line of Communication',
 	openGraph: {
 		title: 'Time&Place Consulting',
 		description: 'Your Line of Communication',
@@ -19,12 +19,12 @@ export const metadata = {
 		siteName: 'Time&Place Consulting',
 		images: [
 			{
-				url: 'https://consulting-one.vercel.app/web-app-manifest-512x512.png', // Must be an absolute URL
+				url: 'https://www.consultingontap.com/web-app-manifest-512x512.png',
 				width: 512,
 				height: 512,
 			},
 			{
-				url: 'https://consulting-one.vercel.app/web-app-manifest-192x192.png', // Must be an absolute URL
+				url: 'https://www.consultingontap.com/web-app-manifest-192x192.png',
 				width: 192,
 				height: 192,
 			},
