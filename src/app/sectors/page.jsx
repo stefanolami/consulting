@@ -4,8 +4,8 @@ export const metadata = {
 	title: 'Sectors',
 }
 
-const OurSectorsPage = () => {
+const SectorsPage = () => {
 	return <OurSectors />
 }
 
-export default OurSectorsPage
+export default SectorsPage
