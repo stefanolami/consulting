@@ -26,7 +26,6 @@ export default function sitemap() {
 			url: `${baseUrl}/why-us`,
 			priority: 0.8,
 		},
-
 		{
 			url: `${baseUrl}/contact`,
 			priority: 0.8,

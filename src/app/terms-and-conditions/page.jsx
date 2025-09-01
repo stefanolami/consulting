@@ -32,7 +32,7 @@ export default function TermsPage() {
 				</h2>
 
 				<p>
-					Time&Place Consulting <br />
+					Time&Place Group <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels,
 					<br />
@@ -211,7 +211,7 @@ export default function TermsPage() {
 					Conditions, please contact us at:
 				</p>
 				<p>
-					Time&Place Consulting <br />
+					Time&Place Group <br />
 					Rue de la Loi 81A, <br />
 					1040 Brussels,
 					<br />

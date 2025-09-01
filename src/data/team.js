@@ -259,6 +259,48 @@ export const team = {
 			},
 		],
 	},
+	omar: {
+		name: 'Omar Cutajar',
+		path: 'omar-cutajar',
+		img: '/team/omar.png',
+		imgName: 'Omar Cutajar',
+		imgTitle: 'Senior Adviser',
+		titles: ['Senior Adviser – Time&Place Group'],
+		contact: {
+			email: 'omar.cutajar@groupontap.com',
+		},
+		introduction: [
+			'Omar Cutajar is an experienced EU public affairs professional with 20+ years’ experience in front line representation and advocacy roles, spanning both the private and public sector, at EU and national Member State level.',
+		],
+		paragraphs: [
+			{
+				title: 'Early Career',
+				content: [
+					'Omar started his career as an EU affairs policy advisory with the Malta Business Bureau (www.mbb.org.mt) in 2004 – the joint EU advisory office of the Malta Chamber of Commerce, the Federation of Industry and the Malta Hotels & Restaurants Association.',
+					'Having moved to Brussels in early 2007, Omar’s career progressed to the role of Head of Brussels Office and Permanent Delegate to BusinessEurope, Eurochambres and HOTREC – key EU-level umbrella industry associations spanning the manufacturing industry, services, retail and hospitality sectors. In this role, Omar worked on several business advocacy campaigns, centred on internal market files, SME policy, trade and customs issues, often coordinating the formulation and implementation of such advocacy campaigns with senior Commission officials, MEPs, EP Secretariat officials, and civil society representatives within the European Economic & Social Committee.',
+					'Omar further enhanced his in-depth knowledge of the EU institutional decision-making landscape following his career move to the position of Technical Attache (Industry & Competitiveness) within the Permanent Representation of Malta to the EU, in mid-2015. This brought him to a front-line role in EU decision-making, having chaired the Research Working Party in the Council of Ministers during Malta’s first tenure of the EU Presidency in the first semester of 2017. Omar secured the political agreement by consensus amongst the Member States leading to the inception of the PRIMA program – the Partnership for Research & Innovation in the Mediterranean area, with a budgetary allocation of Eur220 million. He subsequently successfully concluded the trilogue negotiations with the EP, thus paving the way for the timely establishment and launch of this Euro Mediterranean R&I collaborative program in early 2018.',
+				],
+			},
+			{
+				title: 'EU Council of Ministers in the areas of Research, Innovation and Space',
+				content: [
+					'Having been Malta’s representative within the EU Council of Ministers in the areas of Research, Innovation and Space, for over six years, Omar has steered the Government of Malta’s position on major pieces of EU legislation including all the EU flagship funding programs in the areas of research and space, notably Horizon Europe (2021 – 2027) – the EU Framework Programme for R&I, and its Joint Undertakings, the Space Programme of the Union, the Regulation establishing the European Institute of Technology (EIT) and the Euratom R&T Program. This extensive hands-on experience with the EU legislative negotiation processes concerning key EU budgetary files gives Omar a deep knowledge and strategic foresight of the dynamics and interests that will shape the outcomes of the current Multiannual Financial Framework (MFF) proposal as adopted by the European Commission in mid-July.',
+				],
+			},
+			{
+				title: 'Malta Council for Science & Technology (Science Malta Agency)',
+				content: [
+					'Moving on to a senior management role within the Malta Council for Science & Technology, Omar has overseen the restructuring of this governmental body into a fully-fledged governmental agency, rebranded into Science Malta Agency (Xjenza Malta) and mandated by law to regulate Malta’s R&I and Space policy and programming efforts. Over the years, Omar has been entrusted with the steering of strategic and challenging initiatives within the Maltese public sector, having notably chaired the Malta Space Task Force, entrusted with the drafting of Malta’s first National Space Strategy and now focused on the ushering of Malta’s first-ever legal framework for Space commercial activities. Over recent years, Omar has also led and concluded the technical-level process leading to Malta’s adhesion to the PECS Program of the European Space Agency (ESA), securing an annual national budgetary envelope of Eur1.5mln for a five-year period.',
+				],
+			},
+			{
+				title: 'Recent Roles and Outgoing Impact',
+				content: [
+					'Omar maintains a well-diversified institutional and private sector network spanning industry and lobby groups, Permanent Representations, the Council of Ministers, the EP and EESC besides Commission services, notably at DG RTD, DG GROW and DG DEFIS amongst others. With his experience in handling legislative and advocacy work coupled with his extensive professional network at the Brussels level, Omar delivers results-oriented work with a keen eye for detail coupled with unwavering commitment to achieve the best possible outcomes for clients, not least by way of establishing sound working relationships.',
+				],
+			},
+		],
+	},
 	guilherme: {
 		name: 'Guilherme Crispim Ferreira',
 		path: 'guilherme-ferreira',
