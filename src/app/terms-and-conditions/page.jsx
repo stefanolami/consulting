@@ -34,7 +34,9 @@ export default function TermsPage() {
 				<p>
 					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
-					1040 Brussels, Belgium <br />
+					1040 Brussels,
+					<br />
+					Belgium <br />
 					Email: info@consultingontap.com
 				</p>
 				<p>
@@ -211,7 +213,9 @@ export default function TermsPage() {
 				<p>
 					Time&Place Consulting <br />
 					Rue de la Loi 81A, <br />
-					1040 Brussels, Belgium <br />
+					1040 Brussels,
+					<br />
+					Belgium <br />
 					Email: info@consultingontap.com
 				</p>
 			</div>

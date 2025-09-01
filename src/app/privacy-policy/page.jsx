@@ -28,9 +28,10 @@ export default function PrivacyPolicyPage() {
 					data is:
 				</p>
 				<p>
-					Time&Place Consulting <br />
+					Time&Place Group <br />
 					Rue de la Loi 81A, <br />
-					1040 Brussels, Belgium <br />
+					1040 Brussels, <br />
+					Belgium <br />
 					Email: info@consultingontap.com
 				</p>
 
@@ -293,12 +294,13 @@ export default function PrivacyPolicyPage() {
 					rights, please contact us at:
 				</p>
 				<p>
-					Time&Place Consulting
+					Time&Place Group
 					<br />
 					Rue de la Loi 81A,
 					<br />
-					1040 Brussels, Belgium
+					1040 Brussels,
 					<br />
+					Belgium <br />
 					Email: info@consultingontap.com
 				</p>
 			</div>

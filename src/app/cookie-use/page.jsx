@@ -251,9 +251,12 @@ export default function CookieUsePage() {
 				</p>
 
 				<p>
-					Time&Place Consulting <br />
+					Time&Place Group
+					<br />
 					Rue de la Loi 81A, <br />
-					1040 Brussels, Belgium <br />
+					1040 Brussels, <br />
+					Belgium
+					<br />
 					Email: info@consultingontap.com
 				</p>
 			</div>
