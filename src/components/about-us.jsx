@@ -2,14 +2,23 @@ import Image from 'next/image'
 
 export default function AboutUs() {
 	return (
-		<div className="bg-white pt-8 xl:pt-20 pb-16 xl:pb-32">
-			<div className="bg-white w-full absolute top-0 h-16 xl:h-24"></div>
+		<div className="bg-white pt-8 lg:pt-20 pb-10 lg:pb-24 h-[calc(100vh-4rem)] lg:h-[calc(100vh-6rem)] relative flex items-center justify-center">
+			<div className="bg-white w-full absolute top-0 h-16 lg:h-24"></div>
 			<div className="w-[90%] xl:w-[75%] max-w-[1100px] mx-auto">
 				<h1 className="font-unna font-bold text-xl lg:text-[48px] text-center text-primary mb-10">
 					ABOUT US
 				</h1>
 				<div className="font-jose text-xs md:text-sm lg:text-lg text-primary text-justify">
-					<p className="mb-4">
+					<p>
+						Time&Place Consulting was founded in 2016 in Brussels.
+						Our main purpose then: Create dialogue with EU and
+						national policy decision-makers for our clients. We have
+						grown over the years, expanding our offer in services
+						and sectors based on tacit knowledge, increasingly
+						global coordinated presence and the ability to have an
+						impact locally. Our pillars? Our team of colleagues.
+					</p>
+					{/* <p className="mb-4">
 						Time&Place Funding was the brainchild of Kjeld B. Olesen
 						and Glenn Cezanne in 2017 (after becoming friends during
 						motorcycle driving lessons), to address client needs in
@@ -56,7 +65,7 @@ export default function AboutUs() {
 						few – capacities to give a holistic approach to
 						impacting decision-making and supporting our clients’
 						agendas.
-					</p>
+					</p> */}
 				</div>
 			</div>
 		</div>
