@@ -140,6 +140,100 @@ export const sectors = [
 	},
 ]
 
+export const services = [
+	{
+		id: 'association-management',
+		title: 'Association Management',
+		excerpt:
+			'360°-association management services from building and leading your association to expanding its presence and policy output.',
+		text: '',
+	},
+	{
+		id: 'business-strategy-development',
+		title: 'Business & Strategy Development',
+		excerpt:
+			'Transforming ambition into tangible results by defining a clear growth direction and creating structured plans that align vision, resources, and execution.',
+		text: '',
+	},
+	{
+		id: 'compliance-certification',
+		title: 'Compliance & Certification',
+		excerpt:
+			'Interpreting regulations, identifying applicable standards, and defining compliance strategies to meet both national and international requirements.',
+		text: '',
+	},
+	{
+		id: 'engineering-technical-consulting',
+		title: 'Engineering & Technical Consulting',
+		excerpt:
+			'Transforming complex technologies into actionable business strategies, enabling you to take calculated risks that position you for long-term growth and high-value returns.',
+		text: '',
+	},
+	{
+		id: 'event-organisation',
+		title: 'Event Organisation',
+		excerpt:
+			'Be it closed-door roundtable dinners, online events, classical music festivals, or conferences, we take care of the pre-planning, execution and post-event echo.',
+		text: '',
+	},
+	{
+		id: 'funding-project-management',
+		title: 'Funding & Project Management',
+		excerpt:
+			'Navigate funding complexities with our end-to-end support. From idea to market, we secure public funds, manage projects, and offer comprehensive training for self-sufficiency.',
+		text: '',
+	},
+	{
+		id: 'government-relations',
+		title: 'Government Relations',
+		excerpt:
+			'Time&Place started with this service. From ensuring healthy market contexts to driving legislation based on your knowledge, we provide strategic engagement at technical, regulatory and political levels.',
+		text: '',
+	},
+	{
+		id: 'market-research',
+		title: 'Market Research',
+		excerpt:
+			'Supporting your resource-intense endeavour with information & assessments about market trends, key stakeholders, government support, as well as legislative & regulatory contexts.',
+		text: '',
+	},
+	{
+		id: 'project-management',
+		title: 'Project Management',
+		excerpt:
+			'From advisory to project leadership in a consortium, our services include business plan development, administrative support, team coordination, and internal as well as external communication.',
+		text: '',
+	},
+	{
+		id: 'public-funds-finance-procurement',
+		title: 'Public Funds, Finance & Procurement',
+		excerpt:
+			'Access public resources & contracts at international, national & regional levels; from monitoring & proposal drafting to project management for your innovative ideas, expertise & finished products.',
+		text: '',
+	},
+	{
+		id: 'reputation-management',
+		title: 'Reputation Management',
+		excerpt:
+			'From creating public awareness about what your organisation stands for, to being a thought leader in your field of expertise at political level; we provide the relevant strategy & tools.',
+		text: '',
+	},
+	{
+		id: 'stakeholder-management',
+		title: 'Stakeholder Management',
+		excerpt:
+			'From public relations and public affairs to customer growth, we build your strategic alliances and motivate audiences to share your vision and ambition.',
+		text: '',
+	},
+	{
+		id: 'visibility-communications',
+		title: 'Visibility & Communications',
+		excerpt:
+			'Strategy and tools to profile you, your products or your ideas or concerns; ranging from account-based marketing to public relations campaigns during legislative processes.',
+		text: '',
+	},
+]
+
 export const endorsements = {
 	top: [
 		{

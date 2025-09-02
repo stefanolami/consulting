@@ -1,5 +1,5 @@
-import { sectors } from '@/data/data'
-import Image from 'next/image'
+import { services } from '@/data/data'
+import CardSlide from '../card-slide/card-slide'
 
 const OurServices = () => {
 	return (
@@ -7,39 +7,39 @@ const OurServices = () => {
 			<h1 className="font-unna font-bold text-xl lg:text-[48px] text-center text-primary mb-6 lg:mb-10">
 				OUR SERVICES
 			</h1>
-			<div className="w-[90%] md:w-[80%] max-w-[1000px] mx-auto space-y-4 lg:space-y-6">
-				<p className="w-full font-jose text-center text-primary text-sm lg:text-lg ">
+			<div className="w-[90%] md:w-[80%] max-w-[1000px] mx-auto space-y-4 lg:space-y-6 font-jose text-center text-primary text-sm lg:text-lg">
+				<p>
 					An added value of Time&Place Consulting is that we combine
-					our services for a more holistic approach. Crisis management
-					needs? We link reputation management with legal services to
-					counteract negative impact on your products, services and
-					image. Looking to profile an issue which is affecting your
-					markets to get healthier regulatory conditions? This can be
-					solved by joining government and media relations strategies.
-					Or, the joint implementation of compliance standards and CSR
-					capacities can help you pre-empt regulatory and reputational
-					challenges in the future. We adapt our capacities to your
-					needs.
+					our services to provide you tailored strategies and tools
+					with a broader scope and concrete impact. Market entrance
+					interests? We link market research, business and strategy
+					development, and stakeholder management with visibility and
+					communication capabilities to facilitate your hitting the
+					ground running with your products, services and image.
 				</p>
+				<p>
+					Looking to profile an issue which is affecting your markets
+					to get healthier regulatory conditions? This could be solved
+					by joining government relations and reputation management to
+					strengthen the impact on regulatory decision-making.
+				</p>
+				<p>
+					Are you looking to drive or contribute to innovative ideas,
+					no matter if they are your own, or you are part of a
+					consortium? Our access to national and international public
+					funds and finance combined with project and stakeholder
+					management can see your project through; cradle-to-cradle,
+					and with government approval.
+				</p>
+				<p>We adapt our capacities to your needs.</p>
 			</div>
-			<div className="w-[90%] sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
-				{sectors.map((sector, index) => (
+			<div className="w-full sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
+				{services.map((sector, index) => (
 					<div
 						key={index}
-						className="w-full"
+						className="w-full aspect-square"
 					>
-						<div className="w-full aspect-square relative">
-							<Image
-								src={`/sectors/${sector.id}.png`}
-								alt={sector.label}
-								fill
-								sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-								className="object-contain"
-							/>
-						</div>
-						<div className="-mt-1 pt-1 w-full h-10 flex items-center justify-center bg-primary text-white text-center font-jose font-bold text-sm lg:text-lg">
-							{sector.label}
-						</div>
+						<CardSlide element={sector} />
 					</div>
 				))}
 			</div>
