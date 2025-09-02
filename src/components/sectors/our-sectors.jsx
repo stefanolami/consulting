@@ -28,9 +28,10 @@ const OurSectors = () => {
 				{sectors.map((sector, index) => (
 					<div
 						key={index}
-						className="w-full"
+						className="w-full flex items-center text-center aspect-square bg-primary-light text-white font-jose font-bold text-base lg:text-2xl justify-center px-2 lg:px-4"
 					>
-						<div className="w-full aspect-square relative">
+						{sector.label}
+						{/* <div className="w-full aspect-square relative">
 							<Image
 								src={`/sectors/${sector.id}.png`}
 								alt={sector.label}
@@ -41,7 +42,7 @@ const OurSectors = () => {
 						</div>
 						<div className="-mt-1 pt-1 w-full h-10 flex items-center justify-center bg-primary text-white text-center font-jose font-bold text-sm lg:text-lg">
 							{sector.label}
-						</div>
+						</div> */}
 					</div>
 				))}
 			</div>

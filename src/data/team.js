@@ -210,8 +210,8 @@ export const team = {
 		path: 'wilson-caldeira',
 		img: '/team/wilson.png',
 		imgName: 'Wilson Caldeira',
-		imgTitle: 'Senior Advisor',
-		titles: ['Senior Advisor – Time&Place Group '],
+		imgTitle: 'Senior Adviser',
+		titles: ['Senior Adviser – Time&Place Group'],
 		contact: {
 			email: 'caldeira@groupontap.com',
 		},
@@ -259,10 +259,47 @@ export const team = {
 			},
 		],
 	},
+	georgios: {
+		name: 'Georgios Chatziadam',
+		path: 'georgios-chatziadam',
+		img: '/team/georgios.jpg',
+		imgName: 'Georgios Chatziadam',
+		imgTitle: 'Visualization Manager',
+		titles: ['Visualization Manager – Time&Place Group'],
+		contact: {
+			email: 'georgios.chatziadam@groupontap.com',
+		},
+		introduction: [
+			'Georgios Chatziadam is a design & visualization expert whose knowledge is grounded in architecture and architectural visualization; a foundation to serve diverse design and communication needs. His background spans architectural design, front-end web development, and graphic design, enabling him to apply a multidisciplinary perspective that transforms complex concepts into clear, engaging, and impactful visuals.',
+		],
+		paragraphs: [
+			{
+				title: 'Educational Background',
+				content: [
+					'Georgios holds a BArchSc in Architectural Science from Ryerson University in Toronto, where he earned multiple scholarships, honors, and Dean’s List recognition, alongside a Minor in Philosophy. He completed his Master’s in Architecture at KU Leuven in Brussels, specializing in Urban Cultures, Architectural Development, and Façade Design. His thesis, ÓMVROS Hydro Kinetic Façade System, advanced research on rain-driven energy systems for building façades, integrating engineering, design innovation, and sustainability to explore new approaches to renewable energy and greywater recovery in urban environments.',
+				],
+			},
+			{
+				title: 'Professional Experience',
+				content: [
+					'Georgios has developed a versatile career across architecture, visualization, and design. At Ryerson University’s Ted Rogers School of Management, he worked as a Graphic Designer and Web Assistant, creating promotional materials and managing visual identity projects. He later joined RAWdesign in Toronto as an Architectural Assistant, contributing to permit drawings, detailing, massing analyses, and sun/shadow studies.',
+					'In Cologne, he worked with ARCTUM Architekten as an Architectural Designer & Visualizer, where his responsibilities included architectural research, technical drawings, 3D visualization, rendering, graphic design, video production, and image editing. His contributions extended to international competitions, most notably the winning project SKYPER: The Ribbon in Frankfurt am Main, where his design and visualization skills played a pivotal role.',
+					'Alongside his architectural practice, Georgios has independently designed logos, branding, and layouts for companies, radio stations, independent publications, and the poetry collection 25 by Angie Fourouli.',
+				],
+			},
+			{
+				title: 'At Time&Place',
+				content: [
+					'At Time&Place, he brings a signature focus on line art sketches and clear visual storytelling, distilling complex information into accessible and engaging formats that strengthen the company’s design and communication work for clients and stakeholders.',
+					'Georgios is bilingual in Greek and English, with working knowledge of French and German.',
+				],
+			},
+		],
+	},
 	omar: {
 		name: 'Omar Cutajar',
 		path: 'omar-cutajar',
-		img: '/team/omar.png',
+		img: '/team/omar.jpg',
 		imgName: 'Omar Cutajar',
 		imgTitle: 'Senior Adviser',
 		titles: ['Senior Adviser – Time&Place Group'],
