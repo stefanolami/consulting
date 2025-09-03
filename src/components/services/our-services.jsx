@@ -33,7 +33,7 @@ const OurServices = () => {
 				</p>
 				<p>We adapt our capacities to your needs.</p>
 			</div>
-			<div className="w-full sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
+			<div className="w-full sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
 				{services.map((sector, index) => (
 					<div
 						key={index}

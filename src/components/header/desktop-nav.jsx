@@ -16,31 +16,16 @@ export default function DesktopNav() {
 				id="desktop-nav"
 				className="grid grid-cols-5 text-center uppercase h-full *:px-4 text-xs lg:text-base"
 			>
-				<div className="group relative flex items-center justify-center cursor-pointer">
-					<span
-						className={`block
-							${path == '/about-us' || path == '/our-team' ? 'active-link' : ''}
-							`}
-					>
-						WHO WE ARE
-					</span>
-					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
-						<Link
-							href="/about-us"
-							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1`}
-						>
-							ABOUT US
-						</Link>
-						<Link
-							href="/our-team"
-							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1`}
-						>
-							OUR TEAM
-						</Link>
-					</div>
-				</div>
 				<Link
-					className={`hover:bg-primary-light relative ${
+					className={`hover:bg-primary-light hover:z-50 relative ${
+						path.startsWith('/who-we-are') ? 'active-link' : ''
+					}`}
+					href="/who-we-are"
+				>
+					WHO WE ARE
+				</Link>
+				<Link
+					className={`hover:bg-primary-light hover:z-50 relative ${
 						path == '/services' ? 'active-link' : ''
 					}`}
 					href="/services"
@@ -48,7 +33,7 @@ export default function DesktopNav() {
 					SERVICES
 				</Link>
 				<Link
-					className={`hover:bg-primary-light relative ${
+					className={`hover:bg-primary-light hover:z-50 relative ${
 						path == '/sectors' ? 'active-link' : ''
 					}`}
 					href="/sectors"
@@ -58,7 +43,7 @@ export default function DesktopNav() {
 				<div className="group relative flex items-center justify-center cursor-pointer">
 					<span
 						className={`block
-							${path.startsWith('/why-us') ? 'active-link' : ''}
+							${path.startsWith('/why-us') ? 'active-sub-link' : ''}
 							`}
 					>
 						WHY US
@@ -66,19 +51,19 @@ export default function DesktopNav() {
 					<div className="hidden group-hover:flex flex-col items-center justify-center gap-1 w-full absolute top-full">
 						<Link
 							href="/why-us"
-							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light hover:z-50 py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
 						>
 							OVERVIEW
 						</Link>
 						<Link
 							href="/why-us#client-codex"
-							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light hover:z-50 py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
 						>
 							CLIENT CODEX
 						</Link>
 						<Link
 							href="/why-us#endorsements"
-							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
+							className={`desktop-nav-li w-full h-full bg-primary hover:bg-primary-light hover:z-50 py-3 hover:scale-110 shadow-lg hover:shadow-xl mt-1 $`}
 						>
 							ENDORSEMENTS
 						</Link>
@@ -117,7 +102,7 @@ export default function DesktopNav() {
 					</div>
 				</div>
 				<Link
-					className={`hover:bg-primary-light relative ${
+					className={`hover:bg-primary-light hover:z-50 relative ${
 						path == '/contact' ? 'active-link' : ''
 					}`}
 					href="/contact"

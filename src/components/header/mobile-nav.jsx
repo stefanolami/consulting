@@ -121,48 +121,12 @@ export default function MobileNav() {
 							>
 								{messages.yourAccess}
 							</Link> */}
-							<div className="flex flex-row justify-start items-center gap-3">
-								<span
-									className="text-center relative block"
-									onClick={() => setWhoWeAre((pv) => !pv)}
-								>
-									WHO WE ARE
-									<motion.span
-										transition={{
-											duration: 0.2,
-										}}
-										className="absolute left-full ml-2 mt-1"
-										animate={whoWeAre ? 'open' : 'closed'}
-										variants={{
-											open: {
-												rotate: '180deg',
-											},
-											closed: {
-												rotate: '0deg',
-											},
-										}}
-									>
-										<FiChevronDown className="text-xl text-white" />
-									</motion.span>
-								</span>
-							</div>
-							{whoWeAre && (
-								<div className="flex flex-col justify-center gap-2 items-center text-sm">
-									<Link
-										onClick={() => setActive(false)}
-										href="/about-us"
-									>
-										ABOUT US
-									</Link>
-									<Link
-										onClick={() => setActive(false)}
-										href="/our-team"
-									>
-										OUR TEAM
-									</Link>
-								</div>
-							)}
-
+							<Link
+								onClick={() => setActive(false)}
+								href="/who-we-are"
+							>
+								WHO WE ARE
+							</Link>
 							<Link
 								onClick={() => setActive(false)}
 								href="/services"

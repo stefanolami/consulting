@@ -7,11 +7,7 @@ export default function sitemap() {
 			priority: 1,
 		},
 		{
-			url: `${baseUrl}/about-us`,
-			priority: 0.8,
-		},
-		{
-			url: `${baseUrl}/our-team`,
+			url: `${baseUrl}/who-we-are`,
 			priority: 0.8,
 		},
 		{

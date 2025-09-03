@@ -1,4 +1,4 @@
-import TeamMember from '@/components/our-team/team-member'
+import TeamMember from '@/components/who-we-are/team-member'
 import { team, managingTeam } from '@/data/team'
 
 export async function generateMetadata({ params }) {

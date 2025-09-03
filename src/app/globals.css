@@ -84,7 +84,8 @@
 	}
 }
 
-.active-link::after {
+.active-link::after,
+.active-sub-link::after {
 	content: '';
 	position: absolute;
 	bottom: 0;
@@ -93,9 +94,9 @@
 	height: 6px;
 	background-color: #fff;
 }
-/* .active-link:hover::after {
+.active-link:hover::after {
 	display: none;
-} */
+}
 .your-access-map {
 	width: calc(100% - 7% - 270px);
 }
