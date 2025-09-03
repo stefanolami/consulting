@@ -34,7 +34,6 @@ export default function CardSlide({ element }) {
 			onHoverStart={handleHover}
 			onHoverEnd={endHover}
 			onTouchStart={handleTouch}
-			onClick={handleTouch}
 		>
 			<CardFront element={element} />
 			<motion.div
