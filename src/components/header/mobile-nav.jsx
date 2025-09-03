@@ -29,7 +29,7 @@ export default function MobileNav() {
 				<motion.button
 					initial={false}
 					onClick={() => setActive((pv) => !pv)}
-					className="relative h-10 w-10 ml-3 rounded-full z-50 bg-primary-light scale-90"
+					className="relative h-10 w-10 ml-3 rounded-full z-50 bg-transparent scale-90"
 					animate={active ? 'open' : 'closed'}
 				>
 					<motion.span
