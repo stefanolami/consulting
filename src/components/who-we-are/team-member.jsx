@@ -85,7 +85,7 @@ export default function TeamMember({ name }) {
 			))}
 			{member.path === 'kjeld-olesen' && (
 				<p className="mb-4 xl:mb-6 font-jose text-xs xl:text-lg ">
-					Kjeld speaks Danish, English, and French.
+					Kjeld speaks Danish, English, French, and German.
 				</p>
 			)}
 			<div className="mt-10">

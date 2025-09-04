@@ -2,7 +2,7 @@ const Overview = () => {
 	return (
 		<div
 			id="overview"
-			className="font-jose text-xs md:text-sm lg:text-lg text-primary w-[90%] xl:w-[75%] max-w-[1200px] mx-auto"
+			className="font-jose text-xs md:text-sm lg:text-lg text-primary w-[90%] xl:w-[75%] max-w-[1200px] mx-auto pb-10 lg:pb-20"
 		>
 			<h2 className="font-unna font-bold text-lg md:text-xl lg:text-2xl mb-3 lg:mb-5">
 				Our Reputation

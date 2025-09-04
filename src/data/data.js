@@ -60,83 +60,143 @@ export const contactCountries = [
 export const sectors = [
 	{
 		id: 'agrifood',
-		label: 'Agrifood',
+		title: 'Agrifood',
+		excerpt:
+			'Technology-driven transformation and innovation at all steps; from production to consumption; efficiency to sustainability; and from government policy to best practices.',
+		text: '',
+	},
+	{
+		id: 'ai',
+		title: 'AI',
+		excerpt:
+			'Regulatory & technical advisory focusing on ethics, transparency, security, & accountability; helping companies adapt products, processes, and governance to evolving regulations; & impacting regulations.',
+		text: '',
 	},
 	{
 		id: 'anti-illicit-trade',
-		label: 'Anti-Illicit Trade',
+		title: 'Anti-Illicit Trade',
+		excerpt:
+			'Industry-driven experience in working with trade measures, public policy and enforcement; from products to services such as consumables and gambling; and from brick-and-mortar to digital.',
+		text: '',
 	},
 	{
 		id: 'aviation',
-		label: 'Aviation',
+		title: 'Aviation',
+		excerpt:
+			'We have a long-standing tradition in inter alia representing airports at the EU policy level; from safety to slots, and from electrification to passenger rights.',
+		text: '',
 	},
 	{
 		id: 'circular-economy',
-		label: 'Circular Economy',
+		title: 'Circular Economy',
+		excerpt:
+			'Impacting regulatory market conditions; raising your visibility as good practices leader; developing your business plan to comply with regulations, and/or public funding and financing opportunities.',
+		text: '',
 	},
 	{
 		id: 'culture-&-creativity',
-		label: 'Culture & Creativity',
+		title: 'Culture & Creativity',
+		excerpt:
+			'At the heart of our values and experience. We promote and organise events, but also find public funding/financing, all to support personal development and build your stage.',
+		text: '',
 	},
 	{
 		id: 'the-consumer',
-		label: 'The Consumer',
+		title: 'The Consumer',
+		excerpt:
+			'Our capacities range from market research, support for market entrance, developing profiling tools that impact more than marketing, to government relations for consumer protection issues.',
+		text: '',
 	},
 	{
-		id: 'defense',
-		label: 'Defense',
+		id: 'defence',
+		title: 'Defence',
+		excerpt:
+			'Our experience lies in assessing and advising on geopolitical dynamics, the dual use of defense and societal driven technology, accessing funds, and innovation collaboration.',
+		text: '',
 	},
 	{
 		id: 'e-mobility',
-		label: 'E-Mobility',
+		title: 'E-Mobility',
+		excerpt:
+			'All modes of transport & the whole eco-system from energy generation to the driver, standardisation to policy impact, technical advice to compliance, public funding to project management.',
+		text: '',
 	},
 	{
-		id: 'education',
-		label: 'Education',
-	},
-	{
-		id: 'environment-energy',
-		label: 'Environment & Energy',
-	},
-	{
-		id: 'financial-services',
-		label: 'Financial Services',
+		id: 'energy',
+		title: 'Energy',
+		excerpt:
+			'From strategic technology & market advisory to government relations; in renewable energy, energy management, energy generation & distribution.',
+		text: '',
 	},
 	{
 		id: 'gambling',
-		label: 'Gambling',
+		title: 'Gambling',
+		excerpt:
+			'We have supported government- and private-owned operators (brick & mortar and online) manoeuvre and impact public policy, regulation, public opinion and compliance.',
+		text: '',
 	},
 	{
-		id: 'health',
-		label: 'Health',
+		id: 'innovation',
+		title: 'Innovation',
+		excerpt:
+			'Enhancing processes, business models & strategies with innovation as the differentiating factor. Turning your innovative idea into reality with the right partners, markets, public funds & business strategy.',
+		text: '',
 	},
 	{
 		id: 'international-trade',
-		label: 'International Trade',
+		title: 'International Trade',
+		excerpt:
+			'From facilitating trade or ensuring fair trade practices by lowering or raising barriers between economic communities, to ensuring enhanced cooperation in technological standards & best practices.',
+		text: '',
 	},
 	{
-		id: 'maritime',
-		label: 'Maritime',
+		id: 'machine-learning-&-6g',
+		title: 'Machine Learning & 6G',
+		excerpt:
+			'Combining regulatory guidance on privacy, ethics, & data protection with strategic analysis of market opportunities; balancing innovation with compliance; transforming technological advances into sustainable business models.',
+		text: '',
 	},
 	{
-		id: 'standardization',
-		label: 'Standardization',
+		id: 'open-source',
+		title: 'Open Source',
+		excerpt:
+			'Navigating open source policy landscapes; from institutional initiatives to international standards, aligning innovation with governance via community-driven digital transformation.',
+		text: '',
+	},
+	{
+		id: 'quantum-&-cybersecurity',
+		title: 'Quantum & Cybersecurity',
+		excerpt:
+			'We advise on quantum computing, communication, sensing, and cybersecurity, clarifying technologies and business implications. Our focus: ethics, privacy, regulatory compliance & market feasibility. ',
+		text: '',
+	},
+	{
+		id: 'standardisation',
+		title: 'Standardisation',
+		excerpt:
+			'Our experience? Strategic introduction of standards into markets; bringing engineers together to create parameters for standards & publishing them through standardisation bodies; proximation of standards between markets.',
+		text: '',
 	},
 	{
 		id: 'sport',
-		label: 'Sport',
+		title: 'Sport',
+		excerpt:
+			'Impacting sports policy and gaining public funding support, based on our experience from being official partner of the European Paralympic Committee, as well as our work sports betting.',
+		text: '',
 	},
 	{
-		id: 'social-policy',
-		label: 'Social Policy',
-	},
-	{
-		id: 'smes',
-		label: 'SMEs',
+		id: 'space',
+		title: 'Space',
+		excerpt:
+			'From strategy and policy design tailored for emerging space players, drawing up implementation plans for capacity-building, to establishing and managing institutional relations.',
+		text: '',
 	},
 	{
 		id: 'tourism',
-		label: 'Tourism',
+		title: 'Tourism',
+		excerpt:
+			'From impacting tourism policy to supporting the tourism industry through public funding and investment finance access, our focus is on global connectivity and local development.',
+		text: '',
 	},
 ]
 
@@ -176,13 +236,13 @@ export const services = [
 			'Be it closed-door roundtable dinners, online events, classical music festivals, or conferences, we take care of the pre-planning, execution and post-event echo.',
 		text: '',
 	},
-	{
+	/* {
 		id: 'funding-project-management',
 		title: 'Funding & Project Management',
 		excerpt:
 			'Navigate funding complexities with our end-to-end support. From idea to market, we secure public funds, manage projects, and offer comprehensive training for self-sufficiency.',
 		text: '',
-	},
+	}, */
 	{
 		id: 'government-relations',
 		title: 'Government Relations',

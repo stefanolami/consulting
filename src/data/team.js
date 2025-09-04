@@ -537,7 +537,7 @@ export const team = {
 		img: '/team/kjeld.png',
 		imgName: 'Kjeld B. Olesen',
 		imgTitle: 'Project Manager',
-		titles: ['Co-Founder & Project Manager - Time&Place Funding'],
+		titles: ['Project Manager - Time&Place Group'],
 		contact: {
 			email: 'kjeld@fundingontap.com',
 		},

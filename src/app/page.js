@@ -1,7 +1,7 @@
 import HomePage from '@/components/home/home-page'
 
 export const metadata = {
-	title: 'Home - Time&Place Consulting',
+	title: 'Time&Place Consulting',
 }
 
 export default function Home() {

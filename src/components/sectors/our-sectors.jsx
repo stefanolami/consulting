@@ -1,5 +1,5 @@
 import { sectors } from '@/data/data'
-import Image from 'next/image'
+import CardSlide from '../card-slide/card-slide'
 
 const OurSectors = () => {
 	return (
@@ -9,40 +9,19 @@ const OurSectors = () => {
 			</h1>
 			<div className="w-[90%] md:w-[80%] max-w-[1000px] mx-auto space-y-4 lg:space-y-6">
 				<p className="w-full font-jose text-center text-primary text-sm lg:text-lg ">
-					Time&Place Consulting offers the expertise, focus, and
-					skills necessary for clients to thrive in a global economy
-					that spans diverse industries and borders. Our professionals
-					grasp the interconnected nature of global sectors,
-					delivering extensive experience.
-				</p>
-				<p className="font-jose text-center text-primary text-sm lg:text-lg ">
-					With years of experience and an in-depth understanding of
-					the consulting landscape, we empower consulting businesses
-					to flourish. We provide tailored solutions, specifically
-					addressing the unique needs of each sector within the
-					consulting industry, ensuring you receive the most relevant
-					and effective support.
+					Our team brings together a broad variety of sector-specific
+					knowledge. Each sector is its own culture and eco-system.
+					Our experience therein drives our services to have a
+					tacit-based impact.
 				</p>
 			</div>
-			<div className="w-[90%] sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
+			<div className="w-full sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
 				{sectors.map((sector, index) => (
 					<div
 						key={index}
-						className="w-full flex items-center text-center aspect-square bg-primary-light text-white font-jose font-bold text-base lg:text-2xl justify-center px-2 lg:px-4"
+						className="w-full aspect-square"
 					>
-						{sector.label}
-						{/* <div className="w-full aspect-square relative">
-							<Image
-								src={`/sectors/${sector.id}.png`}
-								alt={sector.label}
-								fill
-								sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-								className="object-contain"
-							/>
-						</div>
-						<div className="-mt-1 pt-1 w-full h-10 flex items-center justify-center bg-primary text-white text-center font-jose font-bold text-sm lg:text-lg">
-							{sector.label}
-						</div> */}
+						<CardSlide element={sector} />
 					</div>
 				))}
 			</div>
