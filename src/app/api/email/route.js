@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
-import Mail from 'nodemailer/lib/mailer'
 
 export async function POST(request) {
 	const { email, name, subject, message } = await request.json()
 
 	const transport = nodemailer.createTransport({
 		/* service: 'Zoho', */
-		host: 'smtppro.zoho.eu',
+		host: 'smtppro.zoho.com',
 		port: 465,
 		secure: true,
-		authMethod: 'LOGIN',
 		auth: {
 			user: process.env.MY_EMAIL,
 			pass: process.env.MY_PASSWORD,
+		},
+		tls: {
+			rejectUnauthorized: false,
 		},
 	})
 
@@ -21,14 +22,12 @@ export async function POST(request) {
 		from: process.env.MY_EMAIL,
 		to: process.env.MY_EMAIL,
 		// cc: email, (uncomment this line if you want to send a copy to the sender)
-		subject: `Funding Contact Form - ${subject} - from ${name} (${email})`,
+		subject: `Consulting Contact Form - ${subject} - from ${name} (${email})`,
 		text: `Message from ${name} (${email}) with subject - ${subject}:\n\n${message}`,
 	}
 
-	const sendMailPromise = () =>
-		new Promise() <
-		string >
-		((resolve, reject) => {
+	const sendMailPromise = async () =>
+		new Promise((resolve, reject) => {
 			transport.sendMail(mailOptions, function (err) {
 				if (!err) {
 					resolve('Message sent')
