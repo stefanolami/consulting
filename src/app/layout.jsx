@@ -5,6 +5,7 @@ import { jose, unna, robo } from '@/app/fonts'
 import Loading from '@/components/loading'
 import { Suspense } from 'react'
 import CookieBanner from '@/components/cookie-banner'
+import { Toaster } from '@/components/ui/sonner'
 
 export const metadata = {
 	title: {
@@ -47,6 +48,7 @@ export default function RootLayout({ children, params: { locale } }) {
 					<main>{children}</main>
 					<CookieBanner />
 					<Footer />
+					<Toaster />
 				</Suspense>
 			</body>
 		</html>

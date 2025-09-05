@@ -453,4 +453,9 @@ export const partners = [
 		alt: 'Red Hat logo',
 		link: 'https://www.redhat.com/en',
 	},
+	{
+		img: '/partners/wens-travel.svg',
+		alt: 'Wens Travel logo',
+		link: 'https://wenstravel.ro/en',
+	},
 ]
