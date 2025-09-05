@@ -17,11 +17,11 @@ export default function HomePage() {
 					<span className="block text-2xl lg:text-4xl font-unna font-bold">
 						TIME&PLACE CONSULTING
 					</span>
-					<span className="block text-base lg:text-xl font-unna">
+					<span className="block text-base lg:text-xl font-unna -mt-4">
 						Pillar of{' '}
 						<span className="font-bold">TIME&PLACE GROUP</span>
 					</span>
-					<span className="block h-[2px] bg-primary w-48 mb-10"></span>
+					<span className="block h-[2px] bg-primary w-48 mt-4 mb-10"></span>
 					<p className="text-center text-sm md:text-base lg:text-xl font-jose">
 						With international presence and local access, Time&Place
 						Consulting provides integral approaches to impacting
