@@ -66,7 +66,8 @@ export default function Footer() {
 				</Link>
 			</nav>
 			<span className="block font-jose text-[8px] xl:text-base text-center mb-1 xl:mb-3">
-				© 2025 Time&Place Consulting. All rights reserved.
+				© 2025 Time&Place Consulting, a pillar of Time&Place Group. All
+				rights reserved.
 			</span>
 		</div>
 	)

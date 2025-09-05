@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 const Partners = () => {
 	return (
-		<div className="w-[90%] md:w-3/4 max-w-[1000px] mx-auto pt-6 xl:pt-16 pb-16 xl:pb-32">
+		<div className="w-[90%] md:w-3/4 max-w-[1000px] mx-auto pt-10 xl:pt-20 pb-10 xl:pb-20">
 			<h2 className="font-unna font-bold text-xl lg:text-[36px] text-center text-primary mb-6 lg:mb-10">
 				PARTNERS & PORTFOLIOS
 			</h2>
