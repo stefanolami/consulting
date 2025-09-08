@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import EndorsementsHome from '../endorsements/endorsements-home'
 import Hero from './hero'
 import Partners from './partners'
@@ -19,7 +20,13 @@ export default function HomePage() {
 					</span>
 					<span className="block text-base lg:text-xl font-unna -mt-4">
 						Pillar of{' '}
-						<span className="font-bold">TIME&PLACE GROUP</span>
+						<Link
+							target="_blank"
+							rel="noopener noreferrer"
+							href="https://www.groupontap.com/en"
+						>
+							<span className="font-bold">TIME&PLACE GROUP</span>
+						</Link>
 					</span>
 					<span className="block h-[2px] bg-primary w-48 mt-4 mb-10"></span>
 					<p className="text-center text-sm md:text-base lg:text-xl font-jose">
