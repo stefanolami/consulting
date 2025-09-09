@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import EndorsementsHome from '../endorsements/endorsements-home'
 import Hero from './hero'
 import Partners from './partners'
+import Newsroom from '../newsroom/newsroom'
 
 export default function HomePage() {
 	return (
@@ -48,6 +48,7 @@ export default function HomePage() {
 					</p>
 				</div>
 			</div>
+			{/* <Newsroom /> */}
 			<Partners />
 		</>
 	)

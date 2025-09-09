@@ -42,7 +42,7 @@ export default function RootLayout({ children, params: { locale } }) {
 			className={`${jose.variable} ${unna.variable} ${robo.variable}`}
 		>
 			{/* <GoogleAnalytics gaId={'G-MEJHPJY420'} /> */}
-			<body className="relative pt-16 xl:pt-24 pb-[85px] xl:pb-[200px] min-h-screen">
+			<body className="relative pt-16 lg:pt-24 pb-[85px] lg:pb-[200px] min-h-screen">
 				<Suspense fallback={<Loading />}>
 					<Header />
 					<main>{children}</main>
