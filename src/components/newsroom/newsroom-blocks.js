@@ -4,7 +4,7 @@ import React from 'react'
 
 const NewsroomBlock = ({ article }) => {
 	return (
-		<div className="grid grid-rows-[3fr_2fr] border border-primary shadow-md hover:shadow-xl transition-shadow duration-300">
+		<div className="grid grid-rows-[3fr_2fr] shadow-md hover:shadow-xl transition-shadow duration-300">
 			<div className="relative w-full h-full">
 				<Image
 					src={`/newsroom/${article.image}`}
@@ -13,7 +13,7 @@ const NewsroomBlock = ({ article }) => {
 					className="object-cover"
 				/>
 			</div>
-			<div className="bg-white text-primary p-2 lg:p-3 flex flex-col gap-2 lg:gap-3 border-t border-primary">
+			<div className="bg-white text-primary p-2 lg:p-3 flex flex-col gap-2 lg:gap-3">
 				<h3 className="font-unna font-bold text-lg lg:text-xl leading-6">
 					{article.title}
 				</h3>

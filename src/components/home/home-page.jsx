@@ -7,7 +7,7 @@ export default function HomePage() {
 	return (
 		<>
 			<Hero />
-			<div className="bg-grey pt-10 lg:pt-20 pb-10 lg:pb-20">
+			<div className="bg-white pt-10 lg:pt-20 pb-10 lg:pb-20">
 				<div
 					id="home"
 					className="w-[90%] md:w-3/4 max-w-[1000px] flex flex-col items-center justify-center gap-4 mx-auto font-robo text-primary"
