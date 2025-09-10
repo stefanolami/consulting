@@ -48,7 +48,7 @@ export default function HomePage() {
 					</p>
 				</div>
 			</div>
-			{/* <Newsroom /> */}
+			<Newsroom />
 			<Partners />
 		</>
 	)

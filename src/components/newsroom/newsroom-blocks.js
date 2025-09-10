@@ -13,7 +13,7 @@ const NewsroomBlock = ({ article }) => {
 					className="object-cover"
 				/>
 			</div>
-			<div className="bg-white text-primary p-2 lg:p-3 flex flex-col gap-2 lg:gap-3">
+			<div className="bg-white text-primary p-2 lg:p-3 flex flex-col gap-2 lg:gap-3 border-t border-primary">
 				<h3 className="font-unna font-bold text-lg lg:text-xl leading-6">
 					{article.title}
 				</h3>
