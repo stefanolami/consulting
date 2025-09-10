@@ -48,6 +48,14 @@ export const contactCountries = [
 		top: '32',
 	},
 	{
+		id: 'portugal',
+		label: 'Portugal',
+		city: ['Porto'],
+		email: 'portugal@consultingontap.com',
+		left: '45',
+		top: '40',
+	},
+	{
 		id: 'romania',
 		label: 'Romania',
 		city: ['Bucharest', 'Cluj-Napoca', 'Ploiesti'],

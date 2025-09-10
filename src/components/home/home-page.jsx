@@ -32,23 +32,24 @@ export default function HomePage() {
 					<p className="text-center text-sm md:text-base lg:text-xl font-jose">
 						With international presence and local access, Time&Place
 						Consulting provides integral approaches to impacting
-						decision-making.
+						decision-making and supporting your development.
 					</p>
 					<p className="text-center text-sm md:text-base lg:text-xl font-jose">
-						As a strategic communications, public affairs and
+						As a strategic communications, business growth and
 						project management agency, our global team focuses on
 						nourishing your decision-making capacities and building
 						your channels of impact. We are your strategic point of
-						access to enter markets, and line of communication to
-						governments, regulatory bodies, public opinion, as well
-						as public procurement, financing and funding agencies.
+						access to enter or build markets, and line of
+						communication to governments, regulatory bodies, public
+						opinion, as well as public procurement, financing and
+						funding agencies.
 					</p>
 					<p className="text-center text-sm md:text-base lg:text-xl font-jose">
 						Powered by people, and just a little bit of AI.
 					</p>
 				</div>
 			</div>
-			<Newsroom />
+			{/* <Newsroom /> */}
 			<Partners />
 		</>
 	)
