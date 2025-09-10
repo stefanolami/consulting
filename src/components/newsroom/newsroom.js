@@ -16,7 +16,7 @@ const Newsroom = () => {
 						NEWSROOM
 					</span>
 				</h2>
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 lg:gap-6 mt-10">
+				<div className="grid grid-cols-1 grid-rows-6 md:grid-cols-2 md:grid-rows-3 gap-4 md:gap-5 lg:gap-6 mt-10">
 					{NEWS.map((article, index) => (
 						<NewsroomBlock
 							key={index}
