@@ -4,7 +4,7 @@ import React from 'react'
 
 const NewsroomBlock = ({ article }) => {
 	return (
-		<div className="grid grid-rows-[3fr_2fr] border border-primary shadow-md hover:shadow-xl transition-shadow duration-300">
+		<div className="grid grid-rows-[3fr_2fr] shadow-md hover:shadow-xl transition-shadow duration-300">
 			<div className="relative w-full h-full">
 				<Image
 					src={`/newsroom/${article.image}`}

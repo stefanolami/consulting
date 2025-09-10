@@ -114,9 +114,9 @@ const NEWS = [
 		title: 'Regulating Artificial Intelligence: A Multipolar Perspective',
 		subTitle:
 			'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
-		image: 'global-gateway.jpg',
+		image: 'georgios.jpg',
 		slug: 'regulating-artificial-intelligence-a-multipolar-perspective',
-		path: '/newsroom/regulating-artificial-intelligence-a-multipolar-perspective',
+		path: '/who-we-are/georgios-chatziadam',
 		tag: 'AI Regulation',
 		paragraphs: [
 			{
@@ -285,9 +285,9 @@ const NEWS = [
 		title: 'Regulating Artificial Intelligence: A Multipolar Perspective',
 		subTitle:
 			'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
-		image: 'global-gateway.jpg',
+		image: 'mathias.png',
 		slug: 'regulating-artificial-intelligence-a-multipolar-perspective',
-		path: '/newsroom/regulating-artificial-intelligence-a-multipolar-perspective',
+		path: '/who-we-are/mathias-gerstner',
 		tag: 'AI Regulation',
 		paragraphs: [
 			{
