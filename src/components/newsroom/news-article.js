@@ -113,7 +113,7 @@ const NewsArticle = ({ article }) => {
 					className="object-cover object"
 				/>
 			</div>
-			<article className="w-[90%] md:w-3/4 max-w-[800px] mx-auto bg-white">
+			<article className="w-[90%] md:w-3/4 max-w-[800px] mx-auto bg-white text-justify">
 				{/* Article Content */}
 				<div className="px-3 py-6 md:p-8">
 					{/* Title */}

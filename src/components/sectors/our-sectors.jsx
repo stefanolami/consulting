@@ -15,7 +15,7 @@ const OurSectors = () => {
 					tacit-based impact.
 				</p>
 			</div>
-			<div className="w-full sm:w-[75%] max-w-[850px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
+			<div className="w-[90%] sm:w-[80%] max-w-[300px] sm:max-w-[850px] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 lg:gap-3 mt-10 lg:mt-20">
 				{sectors.map((sector, index) => (
 					<div
 						key={index}

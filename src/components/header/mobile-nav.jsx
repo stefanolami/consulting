@@ -135,7 +135,7 @@ export default function MobileNav() {
 							</Link>
 							<Link
 								onClick={() => setActive(false)}
-								href="/services"
+								href="/sectors"
 							>
 								SECTORS
 							</Link>
