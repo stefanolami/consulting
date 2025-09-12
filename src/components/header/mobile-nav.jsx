@@ -168,39 +168,21 @@ export default function MobileNav() {
 								<div className="flex flex-col justify-center gap-2 items-center text-sm">
 									<Link
 										onClick={() => setActive(false)}
-										href="/about-us"
+										href="/why-us"
 									>
 										OVERVIEW
 									</Link>
-									{/* <Link
-										onClick={() => setActive(false)}
-										href="/our-team"
-									>
-										{messages.sectorExpertise}
-									</Link>
 									<Link
 										onClick={() => setActive(false)}
-										href="/our-team"
-									>
-										{messages.partnersPortfolios}
-									</Link>
-									<Link
-										onClick={() => setActive(false)}
-										href="/our-team"
-									>
-										{messages.endorsements}
-									</Link>
-									<Link
-										onClick={() => setActive(false)}
-										href="/our-team"
-									>
-										{messages.publications}
-									</Link> */}
-									<Link
-										onClick={() => setActive(false)}
-										href="/our-team"
+										href="/why-us#client-codex"
 									>
 										CLIENT CODEX
+									</Link>
+									<Link
+										onClick={() => setActive(false)}
+										href="/why-us#endorsements"
+									>
+										ENDORSEMENTS
 									</Link>
 								</div>
 							)}
