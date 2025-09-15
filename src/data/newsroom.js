@@ -75,12 +75,17 @@ const NEWS = [
 		author: 'Omar Cutajar & Mathias Gerstner',
 		date: '15 September 2025',
 		title: 'Europe’s Space Economy: Turning flagship projects into growth markets',
-		intro: 'Space is no longer a niche sector for frontier science, satellite telecoms and defence. It is quickly becoming one of the fastest-growing economic industries, at a global level, with an exponential increase in attraction of both public investment and private capital. According to the Commission’s new European Space Economy Strategy, the global market could reach $1.8 trillion by 2035, but Europe still underperforms. Galileo, Copernicus and IRIS² are world-class systems. The real question is whether Europe can turn such prestige into scaled businesses, jobs, and competitiveness. In 2023, Europe spent about $15 billion on Space, compared with $73 billion in the U.S. On private capital, EU Space companies attract barely 5% of global venture funding, leaving start-ups without resources once promising firms reach certain high-volume financial thresholds. Too often, such companies then leave the continent.  <br><br></br>The European Commission has already acted in recent years to redress these market discrepancies by better directing EU public policy and investments into the nascent European private Space sector. This has been done through several policy endeavours, including the inception of novel funding schemes, such as the CASSINI initiative, launched within the programming cycles of the EU Space Program. However, it is with its most recent and renewed policy framework on Space, launched through a dedicated Communication on the European Space Economy, that the European Commission is truly attempting a focused and supportive approach for emerging European Space firms, start-ups and SMEs. The Communication on the European Space Economy published earlier this June 2025, seeks to promote cross-border growth by attracting private capital, with a view to being capable of competing globally through a European Single Market for Space. ',
+		intro: 'Space is no longer a niche sector for frontier science, satellite telecoms and defence. It is quickly becoming one of the fastest-growing economic industries, at a global level, with an exponential increase in attraction of both public investment and private capital. According to the Commission’s new European Space Economy Strategy, the global market could reach $1.8 trillion by 2035, but Europe still underperforms. Galileo, Copernicus and IRIS² are world-class systems. The real question is whether Europe can turn such prestige into scaled businesses, jobs, and competitiveness. In 2023, Europe spent about $15 billion on Space, compared with $73 billion in the U.S. On private capital, EU Space companies attract barely 5% of global venture funding, leaving start-ups without resources once promising firms reach certain high-volume financial thresholds. Too often, such companies then leave the continent. ',
 		image: 'space-banner-cropped.png',
 		slug: 'europe-space-economy-turning-flagship-projects-into-growth-markets',
 		path: '/newsroom/europe-space-economy-turning-flagship-projects-into-growth-markets',
 		tag: 'SPACE',
 		paragraphs: [
+			{
+				content: [
+					'The European Commission has already acted in recent years to redress these market discrepancies by better directing EU public policy and investments into the nascent European private Space sector. This has been done through several policy endeavours, including the inception of novel funding schemes, such as the CASSINI initiative, launched within the programming cycles of the EU Space Program. However, it is with its most recent and renewed policy framework on Space, launched through a dedicated Communication on the European Space Economy, that the European Commission is truly attempting a focused and supportive approach for emerging European Space firms, start-ups and SMEs. The Communication on the European Space Economy published earlier this June 2025, seeks to promote cross-border growth by attracting private capital, with a view to being capable of competing globally through a European Single Market for Space.',
+				],
+			},
 			{
 				title: 'Six Pillars to Unlock Growth ',
 				content: [
@@ -110,31 +115,21 @@ const NEWS = [
 		],
 		conclusion: {
 			content:
-				'Would you like to better understand how the EU vision for Space will affect your business? Do you want to keep abreast with the latest EU developments on Space, including its commercial and market-shaping dimension? Looking to avoid the pitfalls of unexpected regulation affecting satellite internet, telecoms and earth observation and navigation applications? <br><br> Whatever your needs, do not hesitate to reach out to us on:',
+				'Would you like to better understand how the EU vision for Space will affect your business? Do you want to keep abreast with the latest EU developments on Space, including its commercial and market-shaping dimension? Looking to avoid the pitfalls of unexpected regulation affecting satellite internet, telecoms and earth observation and navigation applications? <br><br>At Time&Place, we will be more than glad to explore how we can best assist you with a tailor-based approach to your specific requirements, whether at EU (Brussels) level, national or even regional level. <br><br> Whatever your needs, do not hesitate to reach out to us on:',
 			contact: [
 				'omar.cutajar@groupontap.com',
 				'mathias.gerstner@groupontap.com',
 			],
 		},
-		/* sources: [
-			'https://www.europarl.europa.eu/RegData/etudes/BRIE/2025/772884/EPRS_BRI(2025)772884_EN.pdf',
-			'https://www.consilium.europa.eu/en/meetings/fac/2023/11/21/',
-			'https://latinoamerica21.com/en/what-direction-is-european-union-cooperation-in-latin-america-taking/',
-			'https://www.deloittelegal.de/dl/en/services/legal/perspectives/modernisierung-globalabkommen-eu-und-mexiko.html',
-			'https://policy.trade.ec.europa.eu/eu-trade-relationships-country-and-region/countries-and-regions/chile/eu-chile-agreement_en',
-			'https://www.euractiv.com/section/global-europe/news/leak-latin-american-countries-push-back-on-ukraine-eu-agenda-ahead-of-joint-summit/',
-			'https://eulacfoundation.org/sites/default/files/attachments/EU-LAC_Multiactor_Dialogue Forum_EN_0.pdf',
-			'https://www.reuters.com/world/china-latin-america-trade-exceeded-500-billion-2024-2025-05-13/',
-			'https://orcasia.org/article/1099/the-port-of-chancay-and-chinas-evolving-bri',
-			'https://undisciplinedenvironments.org/2025/03/11/chinas-expanding-footprint-in-south-americas-lithium-triangle/',
-			'https://www.reuters.com/world/americas/us-treasurys-bessent-backs-argentinas-economic-reforms-with-eye-china-2025-04-15/',
-			'https://policy.trade.ec.europa.eu/eu-trade-relationships-country-and-region/countries-and-regions/mercosur/eu-mercosur-agreement_en',
-			'https://epthinktank.eu/2024/12/27/eu-latin-america-enhancing-cooperation-on-critical-raw-materials',
-			'https://www.diplomatie.gouv.fr/en/french-foreign-policy/economic-diplomacy-foreign-trade/news/2025/article/the-eu-mercosur-agreement-has-to-be-complemented-in-order-to-effectively',
-			'https://www.euronews.com/my-europe/2025/07/08/european-commission-puts-prepped-mercosur-deal-on-ice',
-		], */
+		sources: [
+			'https://defence-industry-space.ec.europa.eu/eu-space/eu-space-strategy-security-and-defence_en',
+			'https://defence-industry-space.ec.europa.eu/document/download/918ee802-a3e5-42ea-91a1-032c7e0ab8a9_en?filename=Communication.pdf',
+			'https://defence-industry-space.ec.europa.eu/vision-european-space-economy_en',
+			'https://ec.europa.eu/eurostat/web/experimental-statistics/european-space-economy-thematic-account',
+			'https://defence-industry-space.ec.europa.eu/eu-space/product-environmental-footprint-category-rules-pefcr-space-sector_en',
+		],
 	},
-	{
+	/* {
 		author: 'Alfred Plompen & Mădălin Iamandei',
 		date: '14th August 2023',
 		title: 'Regulating Artificial Intelligence: A Multipolar Perspective',
@@ -357,7 +352,7 @@ const NEWS = [
 				url: '',
 			},
 		],
-	},
+	}, */
 	/* {
 		author: '',
 		date: '',
