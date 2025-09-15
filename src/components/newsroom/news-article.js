@@ -147,7 +147,7 @@ const NewsArticle = ({ article }) => {
 				{/* Article Content */}
 				<div className="px-3 py-6 md:p-8">
 					{/* Title */}
-					<h1 className="font-unna font-bold text-2xl md:text-4xl text-primary mb-4 leading-tight">
+					<h1 className="font-unna font-bold text-2xl md:text-4xl text-primary mb-4 leading-tight text-left">
 						{article.title}
 					</h1>
 
