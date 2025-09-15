@@ -3,8 +3,8 @@ import Link from 'next/link'
 import React from 'react'
 
 const NewsroomBlock = ({ article }) => {
-	// Function to truncate subtitle if too long
-	const truncateSubtitle = (text, maxLength = 400) => {
+	// Function to truncate intro if too long
+	const truncateIntro = (text, maxLength = 400) => {
 		if (text.length <= maxLength) return text
 
 		// Find the last space before maxLength to avoid cutting words
@@ -36,7 +36,7 @@ const NewsroomBlock = ({ article }) => {
 						{article.tag}
 					</span>
 					<p className="font-jose text-xs lg:text-sm mt-1">
-						{truncateSubtitle(article.subTitle)}
+						{truncateIntro(article.intro)}
 					</p>
 				</div>
 				<div className="w-full">

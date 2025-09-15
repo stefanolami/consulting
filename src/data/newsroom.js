@@ -3,8 +3,7 @@ const NEWS = [
 		author: 'Mathias Gerstner & Guilherme Crispim Ferreira',
 		date: '10 September 2025',
 		title: 'The European Union and Latin America: A Herculean Matter',
-		subTitle:
-			'Europe and Latin America share a long and complex history, bound by language, culture, and values. For centuries, their destinies have been linked. Yet this relationship has often been taken for granted, regarded more as a historical legacy than as a forward-looking strategic partnership. That complacency was reflected in the eight-year silence of EU–CELAC summits between 2015 and 2023, when “relationship fatigue” set in and the dialogue was put on ice. The breakthrough came in July 2023, when Brussels hosted the third EU–CELAC summit under the Spanish Presidency of the Council of the EU1. Leaders pledged a new roadmap for 2023–25 and launched the Global Gateway Investment Agenda (GGIA) for Latin America and the Caribbean. Two years on, the next summit is set to take place in Santa Marta, Colombia, in November 2025, with the potential to mark a decisive turning point2. Much like Hercules facing his labours, Europe now confronts its own trials: securing energy transition, building resilient supply chains and competing in a messy geopolitical arena. ',
+		intro: 'Europe and Latin America share a long and complex history, bound by language, culture, and values. For centuries, their destinies have been linked. Yet this relationship has often been taken for granted, regarded more as a historical legacy than as a forward-looking strategic partnership. That complacency was reflected in the eight-year silence of EU–CELAC summits between 2015 and 2023, when “relationship fatigue” set in and the dialogue was put on ice. The breakthrough came in July 2023, when Brussels hosted the third EU–CELAC summit under the Spanish Presidency of the Council of the EU1. Leaders pledged a new roadmap for 2023–25 and launched the Global Gateway Investment Agenda (GGIA) for Latin America and the Caribbean. Two years on, the next summit is set to take place in Santa Marta, Colombia, in November 2025, with the potential to mark a decisive turning point2. Much like Hercules facing his labours, Europe now confronts its own trials: securing energy transition, building resilient supply chains and competing in a messy geopolitical arena. ',
 		image: 'latam-banner.jpg',
 		slug: 'the-european-union-and-latin-america-a-herculean-matter',
 		path: '/newsroom/the-european-union-and-latin-america-a-herculean-matter',
@@ -73,68 +72,73 @@ const NEWS = [
 		],
 	},
 	{
-		author: 'Alfred Plompen & Mădălin Iamandei',
-		date: '14th August 2023',
-		title: 'Regulating Artificial Intelligence: A Multipolar Perspective',
-		subTitle:
-			'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
-		image: 'georgios.jpg',
-		slug: 'regulating-artificial-intelligence-a-multipolar-perspective',
-		path: '/who-we-are/georgios-chatziadam',
-		tag: 'AI Regulation',
+		author: 'Omar Cutajar & Mathias Gerstner',
+		date: '15 September 2025',
+		title: 'Europe’s Space Economy: Turning flagship projects into growth markets',
+		intro: 'Space is no longer a niche sector for frontier science, satellite telecoms and defence. It is quickly becoming one of the fastest-growing economic industries, at a global level, with an exponential increase in attraction of both public investment and private capital. According to the Commission’s new European Space Economy Strategy, the global market could reach $1.8 trillion by 2035, but Europe still underperforms. Galileo, Copernicus and IRIS² are world-class systems. The real question is whether Europe can turn such prestige into scaled businesses, jobs, and competitiveness. In 2023, Europe spent about $15 billion on Space, compared with $73 billion in the U.S. On private capital, EU Space companies attract barely 5% of global venture funding, leaving start-ups without resources once promising firms reach certain high-volume financial thresholds. Too often, such companies then leave the continent.  <br><br></br>The European Commission has already acted in recent years to redress these market discrepancies by better directing EU public policy and investments into the nascent European private Space sector. This has been done through several policy endeavours, including the inception of novel funding schemes, such as the CASSINI initiative, launched within the programming cycles of the EU Space Program. However, it is with its most recent and renewed policy framework on Space, launched through a dedicated Communication on the European Space Economy, that the European Commission is truly attempting a focused and supportive approach for emerging European Space firms, start-ups and SMEs. The Communication on the European Space Economy published earlier this June 2025, seeks to promote cross-border growth by attracting private capital, with a view to being capable of competing globally through a European Single Market for Space. ',
+		image: 'space-banner-cropped.png',
+		slug: 'europe-space-economy-turning-flagship-projects-into-growth-markets',
+		path: '/newsroom/europe-space-economy-turning-flagship-projects-into-growth-markets',
+		tag: 'SPACE',
 		paragraphs: [
 			{
-				title: 'Understanding AI and the Need for Regulation',
+				title: 'Six Pillars to Unlock Growth ',
 				content: [
-					'AI refers to the simulation of human intelligence in machines that can analyse data, learn from patterns, and adapt their own behaviour to execute a broad range of tasks.',
-					"AI's journey began as a concept rooted in mathematics and computer science. Early pioneers like Alan Turing (creator of the famous “Turing” test) laid the groundwork by envisioning machines capable of intelligent behaviour. Over the decades, advancements in computing power and algorithms have propelled AI from theoretical musings to practical implementations.",
-					'AI now encompasses various types, such as machine learning, natural language processing, and computer vision. In healthcare, AI aids in disease diagnosis and drug discovery. In finance, it optimizes trading strategies and detects fraud. Smart assistants like Siri and Alexa use AI to understand and respond to human language. AI powers recommendation systems on e-commerce platforms like Amazon, Alibaba and Zalando, but also on Netflix and Disney+, tailoring experiences to individual preferences.',
-					"AI's transformative potential in every aspect of our life has raised concerns about its ethical use. Additionally, there's a growing debate about the impact of AI on the workforce (jobs of traders, cashiers, customer support representatives, assembly line workers and even drivers are equally at risk of displacement). Indeed, as AI applications continue to proliferate, the need for regulation becomes crucial to ensure responsible AI development.",
+					'By way of a brief overview of the Strategy, the Commission’s renewed policy framework on Space is spelt out across six pillars. Each pillar focuses on tangible steps to enhance the competitiveness of the European Space markets:',
+					{
+						type: 'ordered-list',
+						items: [
+							'**Creating a European Single Market for Space** primarily through an EU legislative initiative for Space (EU Space Act) intended to cut fragmentation by replacing 27 national systems with one common EU licensing regime. The Act further regulates matters related to spectrum management, standards, including minimum sustainability requirements, and simplified procurement so that European firms can scale faster.',
+							'**Accelerating R&I investments**, via future funding programs aimed at leveraging investment in AI, quantum, direct-to-device 5G/6G and in-orbit operations, with dual-use innovations to accelerate and simplify deployment.',
+							'**De-risking supply chains**, whereby the Commission is proposing the mapping of dependencies in microelectronics and critical components, using the Strategic Technologies for Europe Platform (STEP), Cohesion, NextGenerationEU and the Recovery and Resilience Facility (RRF) funds to co-finance EU manufacturing, production and diversification of industrial suppliers.',
+							'**Financing Space scale-ups**, through a future CASSINI 2.0 program, expanding seed, growth and debt funding. It is the Commision’s stated intention that the EU would also use advance-purchase contracts and long-term service agreements to give companies predictable and aggregated demand, which is crucial to attract private investors.',
+							'**Developing and exporting standards**, through the EU Global Gateway and EU Delegations, Brussels will push European technical norms abroad, combining diplomacy with market access, with the intention of supporting European firms winning third-country tenders.',
+							'**Training and supporting Space talent**, by investing in Space-related skills including the expansion of training support addressing cyber, aerospace, AI and quantum, from VET to certified higher education, to help close Europe’s STEM gap.',
+						],
+					},
+					'For companies, these priorities mean handling stricter rules, including binding standards, but also accessing larger markets - adapting early can turn compliance obligations into competitive advantages vis-à-vis non-EU competition. ',
 				],
 			},
 			{
-				title: 'Examples of Disruptive AI',
+				title: 'From Data to Markets',
 				content: [
-					'AI has displayed its revolutionary potential across all human actions, leading to remarkable advancements. Examples of disruptive AI applications include autonomous vehicles, healthcare diagnostics (even predicting Parkinson`s disease), archaeology (discovering new sites, translating ancient languages), legal conclusions, and smart assistants among othersiii. These innovations have the power to revolutionize industries and enhance lives. However, the other side of the coin brings forth complex ethical dilemmas and challenges that require regulatory scrutiny.',
+					'The biggest economic opportunity is downstream, namely services built on space data. The EU Copernicus and Galileo satellite constellations already support applications from precision farming to renewable energy grids, logistics and disaster management. The Space strategy supports EU-sovereign cloud and edge services, common data standards and digital marketplaces to help companies (especially SMEs) scale their services within the EU Single Market and abroad. If implemented well, Space could move from complex specialised systems to everyday economic use, powering farms, hospitals, supply chains and logistics. The EU does not lack ideas or technology, but a market that rewards innovation with scale. Demand aggregation, predictable procurement and harmonised rules are the conditions that make SpaceX and Amazon’s Kuiper successful in the U.S. If the EU can reproduce those conditions, European firms will not just compete, they will set standards others must follow.',
+					'The European Space Economy Strategy is not just rhetorical. It sets out concrete steps for business generated growth, however the real challenge will be execution, which will require the appropriate level of incentives-driven support targeting the brightest of prospects amongst EU Space start-ups and scale ups in the (aero) Space, satellite and telecom domains.',
 				],
-			},
-			{
-				title: 'EU',
-				content: [
-					'The EU proposed the "EU AI Act", the world’s first AI law, has the potential to become a global standard, like in the GDPR case. Through the AI Act, the EU aims to create a comprehensive regulatory framework that emphasizes transparency, accountability, and human-centric AI systems. In addition, it also introduces different risk levels that each require different degrees of rigorous conformity assessments and strict controls.',
-					'Limited risk level is assigned to AI systems related to chatbots and deep fakes, and only apply minimal transparency requirements. High risk level is assigned to AI systems that negatively impact safety or fundamental rights. Those systems will first have to be assigned to a specific category, allowing authorities to assess each of them before they are put on the European market. Finally, unacceptable risk level is assigned to AI systems that represent an active threat to people, such as AI systems that encourage segregation, violence, etc… AI systems falling into that category will immediately be banned.',
-					'While the Act awaits approval from the informal negotiations between the three main EU institutions (Parliament, Commission and Council of the EU) the Union clearly seeks to become the regulatory leader for AI by displaying its proactive approach to address AI challenges and protect societal values.',
-				],
-			},
-			{
-				title: 'US',
-				content: [
-					'The United States lacks a centralized federal AI regulation, resulting in a more fragmented approach with limited nationwide guidelines. Instead, the US focuses on sector-specific regulations and voluntary frameworks for ethical AI practices. Indeed, as of July 2023, the only form of American AI regulation stems from voluntary AI safety commitments presented by seven tech companies, including Amazon, Google, and Meta.',
-				],
-			},
-			{
-				title: 'Conclusion',
-				content: [
-					"Regulating AI is essential to strike a balance between fostering innovation and safeguarding human interests. On one hand, the EU's proactive approach with the AI Act demonstrates its recognition of the urgency to address AI's challenges. On the other, the US and China, though opting for different regulatory paths, also seek to find their own ways to effectively balance innovation and regulation.",
-					'As AI technology continues to evolve, regulators must remain adaptable to address new challenges and seize opportunities for future improvements.',
-					'The regulatory journey has only just begun. And, Time&Place Consulting has built an AI Task Force to work within and around the tech in public affairs and public relations with a view to our activities and those of our clients. #StayTuned for the upcoming official launch of the Task Force. #StayInformed as the next articles will explore regulation in more depth, including international cooperation such as under the EU-US TTC, as well as assessing practical uses-cases with a view to societal and business implications.',
-					'And, in the meantime, take our LinkedIN poll on how you believe AI should be addressed at political/regulatory level. Closing date: 21 August 2023',
-				],
+				image: 'space-content.jpg',
 			},
 		],
-		references: [
-			{
-				title: '',
-				url: '',
-			},
-		],
+		conclusion: {
+			content:
+				'Would you like to better understand how the EU vision for Space will affect your business? Do you want to keep abreast with the latest EU developments on Space, including its commercial and market-shaping dimension? Looking to avoid the pitfalls of unexpected regulation affecting satellite internet, telecoms and earth observation and navigation applications? <br><br> Whatever your needs, do not hesitate to reach out to us on:',
+			contact: [
+				'omar.cutajar@groupontap.com',
+				'mathias.gerstner@groupontap.com',
+			],
+		},
+		/* sources: [
+			'https://www.europarl.europa.eu/RegData/etudes/BRIE/2025/772884/EPRS_BRI(2025)772884_EN.pdf',
+			'https://www.consilium.europa.eu/en/meetings/fac/2023/11/21/',
+			'https://latinoamerica21.com/en/what-direction-is-european-union-cooperation-in-latin-america-taking/',
+			'https://www.deloittelegal.de/dl/en/services/legal/perspectives/modernisierung-globalabkommen-eu-und-mexiko.html',
+			'https://policy.trade.ec.europa.eu/eu-trade-relationships-country-and-region/countries-and-regions/chile/eu-chile-agreement_en',
+			'https://www.euractiv.com/section/global-europe/news/leak-latin-american-countries-push-back-on-ukraine-eu-agenda-ahead-of-joint-summit/',
+			'https://eulacfoundation.org/sites/default/files/attachments/EU-LAC_Multiactor_Dialogue Forum_EN_0.pdf',
+			'https://www.reuters.com/world/china-latin-america-trade-exceeded-500-billion-2024-2025-05-13/',
+			'https://orcasia.org/article/1099/the-port-of-chancay-and-chinas-evolving-bri',
+			'https://undisciplinedenvironments.org/2025/03/11/chinas-expanding-footprint-in-south-americas-lithium-triangle/',
+			'https://www.reuters.com/world/americas/us-treasurys-bessent-backs-argentinas-economic-reforms-with-eye-china-2025-04-15/',
+			'https://policy.trade.ec.europa.eu/eu-trade-relationships-country-and-region/countries-and-regions/mercosur/eu-mercosur-agreement_en',
+			'https://epthinktank.eu/2024/12/27/eu-latin-america-enhancing-cooperation-on-critical-raw-materials',
+			'https://www.diplomatie.gouv.fr/en/french-foreign-policy/economic-diplomacy-foreign-trade/news/2025/article/the-eu-mercosur-agreement-has-to-be-complemented-in-order-to-effectively',
+			'https://www.euronews.com/my-europe/2025/07/08/european-commission-puts-prepped-mercosur-deal-on-ice',
+		], */
 	},
 	{
 		author: 'Alfred Plompen & Mădălin Iamandei',
 		date: '14th August 2023',
 		title: 'Regulating Artificial Intelligence: A Multipolar Perspective',
-		subTitle:
-			'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
+		intro: 'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
 		image: 'global-gateway.jpg',
 		slug: 'regulating-artificial-intelligence-a-multipolar-perspective',
 		path: '/newsroom/regulating-artificial-intelligence-a-multipolar-perspective',
@@ -190,8 +194,7 @@ const NEWS = [
 		author: 'Alfred Plompen & Mădălin Iamandei',
 		date: '14th August 2023',
 		title: 'Regulating Artificial Intelligence: A Multipolar Perspective',
-		subTitle:
-			'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
+		intro: 'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
 		image: 'mathias.png',
 		slug: 'regulating-artificial-intelligence-a-multipolar-perspective',
 		path: '/who-we-are/mathias-gerstner',
@@ -247,8 +250,7 @@ const NEWS = [
 		author: 'Alfred Plompen & Mădălin Iamandei',
 		date: '14th August 2023',
 		title: 'Regulating Artificial Intelligence: A Multipolar Perspective',
-		subTitle:
-			'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
+		intro: 'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
 		image: 'global-gateway.jpg',
 		slug: 'regulating-artificial-intelligence-a-multipolar-perspective',
 		path: '/newsroom/regulating-artificial-intelligence-a-multipolar-perspective',
@@ -304,8 +306,7 @@ const NEWS = [
 		author: 'Alfred Plompen & Mădălin Iamandei',
 		date: '14th August 2023',
 		title: 'Regulating Artificial Intelligence: A Multipolar Perspective',
-		subTitle:
-			'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
+		intro: 'With the rapid pace of AI development and its impact, the need for appropriate regulation has become urgent. In this first of a series of articles, Time&Place’s AI Task Force explores the nature of AI, challenges states face with regulation, and the contrasting stances taken by major actors like the EU, US, and China.',
 		image: 'global-gateway.jpg',
 		slug: 'regulating-artificial-intelligence-a-multipolar-perspective',
 		path: '/newsroom/regulating-artificial-intelligence-a-multipolar-perspective',
@@ -361,7 +362,7 @@ const NEWS = [
 		author: '',
 		date: '',
 		title: '',
-		subTitle: '',
+		intro: '',
 		bannerImg: '',
 		paragraphs: [
 			{

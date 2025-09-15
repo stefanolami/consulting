@@ -13,7 +13,16 @@ const NewsArticle = ({ article }) => {
 							className="list-disc list-inside mb-4 space-y-2 ml-4"
 						>
 							{item.items.map((listItem, listIndex) => {
-								const processedItem = listItem.replace(
+								let processedItem = listItem
+
+								// Handle markdown-style bold syntax **text** -> <strong>text</strong>
+								processedItem = processedItem.replace(
+									/\*\*(.*?)\*\*/g,
+									'<strong>$1</strong>'
+								)
+
+								// Handle references [1], [2], etc.
+								processedItem = processedItem.replace(
 									/\[(\d+)\]/g,
 									(match, refId) => {
 										const ref = references.find(
@@ -46,7 +55,16 @@ const NewsArticle = ({ article }) => {
 							className="list-decimal list-inside mb-4 space-y-2 ml-4"
 						>
 							{item.items.map((listItem, listIndex) => {
-								const processedItem = listItem.replace(
+								let processedItem = listItem
+
+								// Handle markdown-style bold syntax **text** -> <strong>text</strong>
+								processedItem = processedItem.replace(
+									/\*\*(.*?)\*\*/g,
+									'<strong>$1</strong>'
+								)
+
+								// Handle references [1], [2], etc.
+								processedItem = processedItem.replace(
 									/\[(\d+)\]/g,
 									(match, refId) => {
 										const ref = references.find(
@@ -76,13 +94,25 @@ const NewsArticle = ({ article }) => {
 			}
 
 			// Handle regular text paragraphs
-			const processedText = item.replace(/\[(\d+)\]/g, (match, refId) => {
-				const ref = references.find((r) => r.id === parseInt(refId))
-				if (ref) {
-					return `<sup><a href="#ref-${refId}" class="text-blue-600 hover:underline text-xs font-medium cursor-pointer no-underline" title="${ref.title}">[${refId}]</a></sup>`
+			let processedText = item
+
+			// Handle markdown-style bold syntax **text** -> <strong>text</strong>
+			processedText = processedText.replace(
+				/\*\*(.*?)\*\*/g,
+				'<strong>$1</strong>'
+			)
+
+			// Handle references [1], [2], etc.
+			processedText = processedText.replace(
+				/\[(\d+)\]/g,
+				(match, refId) => {
+					const ref = references.find((r) => r.id === parseInt(refId))
+					if (ref) {
+						return `<sup><a href="#ref-${refId}" class="text-blue-600 hover:underline text-xs font-medium cursor-pointer no-underline" title="${ref.title}">[${refId}]</a></sup>`
+					}
+					return match
 				}
-				return match
-			})
+			)
 
 			return (
 				<p
@@ -126,10 +156,13 @@ const NewsArticle = ({ article }) => {
 						{article.tag}
 					</span>
 
-					{/* Subtitle */}
-					<p className="text-lg md:text-xl text-gray-600 mb-6 font-jose">
-						{article.subTitle}
-					</p>
+					{/* intro */}
+					<p
+						className="text-lg md:text-xl text-gray-600 mb-6 font-jose"
+						dangerouslySetInnerHTML={{
+							__html: article.intro,
+						}}
+					></p>
 
 					{/* Author & Date */}
 					<div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b">
@@ -185,9 +218,12 @@ const NewsArticle = ({ article }) => {
 					{/* Conclusion Section */}
 					{article.conclusion && (
 						<div className="mt-8 pt-8 border-t">
-							<p className="font-jose text-base lg:text-lg text-primary mb-6">
-								{article.conclusion.content}
-							</p>
+							<p
+								className="font-jose text-base lg:text-lg text-primary mb-6"
+								dangerouslySetInnerHTML={{
+									__html: article.conclusion.content,
+								}}
+							></p>
 							{article.conclusion.contact &&
 								article.conclusion.contact.length > 0 && (
 									<div className="space-y-2">
