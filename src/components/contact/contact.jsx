@@ -9,7 +9,7 @@ export default function Contact() {
 			<div className="w-full lg:flex flex-row items-start justify-center gap-32 mb-12 lg:mb-24">
 				<ContactForm />
 				<div className="w-full lg:w-[45%] mt-10 lg:mt-0">
-					<h2 className="font-unna font-bold text-lg lg:text-3xl lg:text-center text-primary mb-6">
+					<h2 className="font-unna font-bold text-lg lg:text-3xl text-center text-primary mb-6">
 						Brussels Head Office
 					</h2>
 					<div className="w-full flex items-center justify-center">
