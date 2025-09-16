@@ -24,7 +24,7 @@ export default function ContactForm() {
 				toast.success('Message sent successfully!', {
 					description: "We'll get back to you soon.",
 				})
-				reset() // Clear the form
+				reset()
 			} else {
 				toast.error('Failed to send message', {
 					description: result.error || 'Please try again later.',
@@ -45,10 +45,10 @@ export default function ContactForm() {
 				CONTACT
 			</h1>
 			<form
-				className="text-sm lg:text-base"
+				className="text-sm lg:text-base max-w-[600px] lg:max-w-none mx-auto"
 				onSubmit={handleSubmit(onSubmit)}
 			>
-				<div className=":flex flex-row items-center justify-center gap-3">
+				<div className="flex flex-col sm:flex-row sm:gap-3 items-center justify-center">
 					<input
 						type="text"
 						placeholder="Name"

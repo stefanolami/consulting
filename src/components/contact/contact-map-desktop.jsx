@@ -30,8 +30,8 @@ export default function ContactMapDesktop() {
 						<button
 							className={`${
 								selectedCountry == country.id
-									? 'bg-primary-light shadow-xl'
-									: 'bg-primary shadow-md'
+									? 'bg-primary shadow-xl'
+									: 'bg-primary-light shadow-md'
 							} block shadow-lg hover:shadow-xl w-full h-6 pt-1 px-2 rounded-[3px] font-jose font-bold text-white uppercase text-sm cursor-pointer`}
 							key={country.id}
 							onClick={() => setSelectedCountry(country.id)}
