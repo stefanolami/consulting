@@ -301,8 +301,8 @@ export const team = {
 		path: 'omar-cutajar',
 		img: '/team/omar.jpg',
 		imgName: 'Omar Cutajar',
-		imgTitle: 'Senior Adviser',
-		titles: ['Senior Adviser – Time&Place Group'],
+		imgTitle: 'Senior Consultant',
+		titles: ['Senior Consultant – Time&Place Group'],
 		contact: {
 			email: 'omar.cutajar@groupontap.com',
 		},
@@ -667,6 +667,42 @@ export const team = {
 				title: 'Time&Place Group',
 				content: [
 					"In 2023, João dos Santos joined Time&Place Group as Associate Director, Legal Affairs and Stakeholder Relations and provides strategic outreach capacities in the Brazilian commercial and financial hub as well as across the country. He is helping our clients' interests manoeuvre the regulatory and commercial landscape in Brazil, whilst also providing a gateway for Brazilian interests to find a home across our global location network.",
+				],
+			},
+		],
+	},
+	ben: {
+		name: 'Benjamin Wunnerlich',
+		path: 'benjamin-wunnerlich',
+		img: '/team/ben.jpg',
+		imgName: 'Benjamin Wunnerlich',
+		imgTitle: 'Junior Consultant',
+		titles: ['Junior Consultant - Time&Place Consulting'],
+		contact: {
+			email: 'benjamin.wunnerlich@groupontap.com',
+		},
+		introduction: [
+			'Benjamin Wunnerlich is a Junior Consultant with a broad international academic background. Throughout his studies in the UK, Ireland and Canada he gained valuable skills and experiences in navigating international environments and working across borders and cultures. This background is additionally rounded off by his initial professional experience in EU environmental, transport and energy policy.',
+		],
+		paragraphs: [
+			{
+				title: 'Academic Background',
+				content: [
+					'He was born and grew up in Karlsruhe, Germany, and went on to attend university in Stirling in Scotland, Victoria in Canada as well as Dublin in Ireland. He received a first class BA (Hons.) in History from the University of Stirling, as well as an MPhil with Distinction in International History from Trinity College Dublin.',
+				],
+			},
+			{
+				title: 'Professional Experience',
+				content: [
+					'Before joining Time&Place, he completed two internships in Brussels, where he built his knowledge of the EU institutions, public affairs, advocacy and political communications.',
+					'At the Representation of the State Baden-Württemberg to the EU he worked with the representatives of the Environment, Transport and Social Ministries and completed tasks such as news monitoring, newsletter writing and reporting on parliamentary discussions.',
+					'At the EU Representation of EnBW Energie Baden-Württemberg AG he worked on the evaluation of new legislation and contributed to external and internal position papers relevant to renewable energy and mobility within the scope of the EU’s Fit for 55 package.',
+				],
+			},
+			{
+				title: 'Languages',
+				content: [
+					'Benjamin speaks German, English, intermediate Italian as well as basic French.',
 				],
 			},
 		],
