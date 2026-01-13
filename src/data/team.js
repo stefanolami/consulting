@@ -671,6 +671,49 @@ export const team = {
 			},
 		],
 	},
+	christoph: {
+		name: 'Christoph Stürmer',
+		path: 'christoph-stuermer',
+		img: '/team/christoph.png',
+		imgName: 'Christoph Stürmer',
+		imgTitle: 'Senior Project Executive',
+		titles: ['Senior Project Executive – Time&Place Consulting'],
+		contact: {
+			email: 'christoph.sturmer@groupontap.com',
+		},
+		introduction: [
+			'Christoph Stürmer is an experienced strategic advisor to the automotive industry and the founder of cs Beratung. He also is a lecturer at Aalen University in Germany and a sought-after speaker at industry conferences and in the media. His 30-year professional expertise covers all areas of the automotive value chain and its interactions with the mobility and energy ecosystems.',
+		],
+		paragraphs: [
+			{
+				title: 'Automotive Career',
+				content: [
+					'After training in private banking and studies of philosophy and economics, he began his professional career at Daimler-Benz AG as a product manager for engines and transmissions before moving into strategic marketing planning and product portfolio management.',
+				],
+			},
+			{
+				title: 'Market Analysis and Thought Leadership',
+				content: [
+					'He served more than 10 years as a market forecaster and product manager at IHS Automotive (today Standard & Poor’s Global Mobility). He then lead the global automotive think tank Autofacts® at PricewaterhouseCoopers, where he developed innovative market analysis and forecasting methodologies, and also managed customized strategy consulting projects for international clients.',
+				],
+			},
+			{
+				title: 'Strategy Consulting and Industry Association',
+				content: [
+					'Most recently, he served as equity partner and head of the automotive practice at Vindelici Advisors, a full-service management consultancy for SMEs and industry associations such as CLEPA. He also held the position of Director of CharIN Academy at the global association for the standardization of EV charging, CharIN e.V.',
+				],
+			},
+			{
+				title: 'Publications, Training & Languages',
+				content: [
+					'Christoph has published numerous studies, research papers and thought leadership pieces on various aspects of the automotive industry and value chain. In 2005, he co-authored a business reader on premium brand strategies in the automotive industry, “Premium Power – The Secret of Success of Mercedes-Benz, BMW, Porsche and Audi”.',
+					'He is a regular analyst and commentator of automotive events and trends in leading TV channels, podcasts and industry conferences.',
+					'His academic career includes more than 10 years of teaching “Strategic Foresight in the Automotive Industry” at the private European Business School in Oestrich-Winkel, as well as “Sustainable and International Strategic Marketing” at Aalen University, Germany.',
+					'Christoph speaks German and English fluently, as well as conversational French and Russian.',
+				],
+			},
+		],
+	},
 	ben: {
 		name: 'Benjamin Wunnerlich',
 		path: 'benjamin-wunnerlich',
