@@ -1,7 +1,6 @@
-export default function Home() {
-	return (
-		<main className="min-h-screen flex flex-col items-center">
-			<h1>Home</h1>
-		</main>
-	)
+import { redirect } from 'next/navigation'
+
+// This page only renders when the app is built statically (output: 'export')
+export default function RootPage() {
+	redirect('/en')
 }
