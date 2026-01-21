@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
+import { jose, unna } from '@/app/fonts'
 import '../globals.css'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { routing } from '@/i18n/routing'
@@ -15,12 +15,6 @@ export const metadata: Metadata = {
 	title: 'Next.js and Supabase Starter Kit',
 	description: 'The fastest way to build apps with Next.js and Supabase',
 }
-
-const geistSans = Geist({
-	variable: '--font-geist-sans',
-	display: 'swap',
-	subsets: ['latin'],
-})
 
 export function generateStaticParams() {
 	return routing.locales.map((locale) => ({ locale }))
@@ -46,7 +40,7 @@ export default async function LocaleLayout({
 			lang={locale}
 			//suppressHydrationWarning
 		>
-			<body className={`${geistSans.className} antialiased`}>
+			<body className={`${jose.variable} ${unna.variable} antialiased`}>
 				<NextIntlClientProvider
 					locale={locale}
 					messages={messages}
