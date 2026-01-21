@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { jose, unna } from '@/app/fonts'
+import { jose, unna, robo } from '@/app/fonts'
 import '../globals.css'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { routing } from '@/i18n/routing'
@@ -40,7 +40,9 @@ export default async function LocaleLayout({
 			lang={locale}
 			//suppressHydrationWarning
 		>
-			<body className={`${jose.variable} ${unna.variable} antialiased`}>
+			<body
+				className={`${jose.variable} ${unna.variable} ${robo.variable} antialiased`}
+			>
 				<NextIntlClientProvider
 					locale={locale}
 					messages={messages}

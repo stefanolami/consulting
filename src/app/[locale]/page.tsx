@@ -10,7 +10,9 @@ export default function Home({ params }: PageProps<'/[locale]'>) {
 	const t = useTranslations('HomePage')
 	return (
 		<main className="min-h-screen flex flex-col items-center">
-			<h1>{t('title')}</h1>
+			<h1 className="text-3xl text-red-500 font-robo mt-10">
+				{t('title')}
+			</h1>
 		</main>
 	)
 }
