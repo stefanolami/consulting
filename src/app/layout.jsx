@@ -35,10 +35,10 @@ export const metadata = {
 	},
 }
 
-export default function RootLayout({ children, params: { locale } }) {
+export default function RootLayout({ children }) {
 	return (
 		<html
-			lang={locale}
+			lang="en"
 			className={`${jose.variable} ${unna.variable} ${robo.variable}`}
 		>
 			{/* <GoogleAnalytics gaId={'G-MEJHPJY420'} /> */}

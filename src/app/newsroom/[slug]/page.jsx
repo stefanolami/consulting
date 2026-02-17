@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import NEWS from '@/data/newsroom'
 import NewsArticle from '@/components/newsroom/news-article'
 
+export const dynamicParams = false
+
 export async function generateStaticParams() {
 	return NEWS.map((article) => ({
 		slug: article.slug,
