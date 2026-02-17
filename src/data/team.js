@@ -714,6 +714,69 @@ export const team = {
 			},
 		],
 	},
+	rodrigo: {
+		name: 'Rodrigo Vicentini',
+		path: 'rodrigo-vicentini',
+		img: '/team/rodrigo.jpg',
+		imgName: 'Rodrigo Vicentini',
+		imgTitle: 'CEO – Americas',
+		titles: ['CEO – Americas – Time&Place Consulting'],
+		contact: {
+			email: 'rodrigo.vicentini@consultingontap.com',
+		},
+		introduction: [
+			'With more than two decades working at the intersection of engineering, high-tech, government relations, and business development across Latin America, Rodrigo Vicentini brings together a professional background shaped by long-term leadership, deep technical expertise, and active engagement in institutional and regulatory ecosystems. His career reflects a consistent trajectory connecting complex technologies, stakeholders, and markets in high-impact environments. At Time&Place, he bridges technology, strategy, and institutional frameworks at regional and international levels.',
+		],
+		paragraphs: [
+			{
+				title: 'Technical Foundations & Education',
+				content: [
+					'In 1993, he enrolled in the Technical Telecommunications program at the Escola Técnica Federal de São Paulo, one of Brazil’s oldest and most traditional technical secondary schools. This established a strong foundation in applied engineering and systems thinking, shaping a professional path closely tied to complex technological systems.',
+					'In 1998, he entered the Escola Politécnica da Universidade de São Paulo, graduating in Electrical Engineering with specialization in Telecommunications. Founded in 1893, the Polytechnic School of USP is among the most traditional and influential engineering institutions in Latin America, known for its close relationship with industry and technological innovation. He later completed a postgraduate specialization in project management, reinforcing his ability to structure, coordinate, and execute complex engineering initiatives.',
+				],
+			},
+			{
+				title: 'Engineering Practice & High-Technology Industry',
+				content: [
+					'Rodrigo’s professional path developed in close connection with high-tech industry. It began in the telecommunications sector and consolidated from 2005 onward Agilent Technologies and later, Keysight Technologies. Over the years, he accumulated extensive experience in applications engineering, pre-sales, and international business development, supporting telecom operators, R&D centers, universities, and electronic hardware manufacturers throughout Latin America.',
+					'His work consistently bridged deep technical authority and customer-facing problem solving, enabling the validation, adoption, and deployment of advanced technologies in demanding real-world environments.',
+				],
+			},
+			{
+				title: 'Applied Research & Scientific Contribution',
+				content: [
+					'Alongside his industrial activity, Rodrigo has contributed to applied research in advanced optical communications. He co-authored a peer-reviewed paper presented at the Optical Fiber Communication Conference (OFC 2016), in collaboration with CPqD, reporting multi-terabit coherent optical transmission using PM-16QAM. This work illustrates the intersection between industrial experimentation and academic research that has consistently marked his career.',
+					'In 2021–2022, he led a strategic applied engineering project at Keysight Technologies involving the conception, development, and commercialization of an RF Shielded Box designed for controlled signal propagation in MIMO 4×4 configurations. The solution enabled performance testing of wireless devices using 4G, 5G, and Wi-Fi technologies in the FR1 frequency range and was delivered to major mobile device manufacturers across Latin America and the Caribbean, demonstrating excellent throughput results under controlled radio frequency conditions.',
+				],
+			},
+			{
+				title: 'Regional Leadership & Business Development',
+				content: [
+					'As his career evolved from technical execution to regional leadership, Rodrigo assumed senior management roles responsible for solutions engineering and pre-sales across Latin America. His scope has included RF & Microwave, Aerospace & Defense, Digital and High-Speed Interfaces, Power & Automotive, Wireless and 5G, network testing, and security.',
+					'This trajectory reflects a sustained balance between deep technical credibility and business leadership, reinforced by extensive technical and marketing training programs in the United States—particularly in Colorado and California—and close interaction with global R&D and product teams.',
+				],
+			},
+			{
+				title: 'International Business & Executive Education',
+				content: [
+					'In parallel with his corporate responsibilities, Rodrigo completed an International MBA at Fundação Instituto de Administração, FIA Business School. His academic path included international modules in Brazil, the United Kingdom, France, and the United States, with studies at institutions such as the University of Cambridge, EM Lyon Business School, and Vanderbilt University. This experience strengthened his focus on global business strategy, innovation, and high-technology markets.',
+				],
+			},
+			{
+				title: 'Institutional Engagement & Regulatory Ecosystems',
+				content: [
+					'Beyond the corporate environment, Rodrigo remains actively engaged in institutional governance and ecosystem development. He serves on the Board of Directors of the ABVE – Associação Brasileira de Veículos Elétricos and on the Fiscal Council of the SBFoton – Sociedade Brasileira de Ótica e Fotônica. He also contributes to regulatory and conformity-assessment discussions in interaction with Brazilian National Institute of Metrology, Standardisation and Industry Quality (Inmetro), particularly on safety, testing, and certification frameworks.',
+					'This engagement reflects a long-term commitment to shaping technology ecosystems beyond individual companies, aligning industry, regulation, and innovation.',
+				],
+			},
+			{
+				title: 'Languages & International Collaboration',
+				content: [
+					'A native Portuguese speaker and fluent in English, Spanish, and Italian, Rodrigo has worked continuously with international teams, institutions, and customers across the Americas, Europe, and Asia, operating naturally in multicultural and cross-disciplinary environments.',
+				],
+			},
+		],
+	},
 	ben: {
 		name: 'Benjamin Wunnerlich',
 		path: 'benjamin-wunnerlich',
