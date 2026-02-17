@@ -23,6 +23,9 @@
 # misc
 .DS_Store
 *.pem
+old-consulting
+old-funding
+docs
 
 # debug
 npm-debug.log*
