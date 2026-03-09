@@ -273,11 +273,22 @@ export const services = [
 		text: '',
 	},
 	{
-		id: 'public-funds-finance-procurement',
+		id: 'public-funds-business',
 		title: 'Public Funds, Finance & Procurement',
+		subtitle: 'for Business, Academia & Civil Society',
 		excerpt:
 			'Access public resources & contracts at international, national & regional levels; from monitoring & proposal drafting to project management for your innovative ideas, expertise & finished products.',
 		text: '',
+		href: '/services/public-funds-business',
+	},
+	{
+		id: 'public-funds-policy-makers',
+		title: 'Public Funds, Finance & Procurement',
+		subtitle: 'for Policy-Makers & Awarding Authorities',
+		excerpt:
+			'Support for policy-making bodies and awarding authorities in defining and implementing strategy, content, and oversight.',
+		text: '',
+		href: '/services/public-funds-policy-makers',
 	},
 	{
 		id: 'reputation-management',
@@ -465,5 +476,95 @@ export const partners = [
 		img: '/partners/wens-travel.svg',
 		alt: 'Wens Travel logo',
 		link: 'https://wenstravel.ro/en',
+	},
+]
+
+export const publicFundsBusinessServices = [
+	{
+		title: 'Advisory',
+		content:
+			'Our advisory services provide an overarching end-to-end support in analyzing, defining and implementing your strategy concerning public funding and business opportunities. Depending on the stage and maturity of your business or business concept, we help you integrate public opportunities in your business initiation, development and scaling. From focused execution on individual opportunities to ongoing strategic support, our global team and network provides the know-how, expertise and capacity to take your ambitions on a higher trajectory.',
+	},
+	{
+		title: 'Monitoring',
+		content:
+			'Our monitoring service provides you with complete, timely assessed alerts opportunities in the form of non-repayable subsidies, public funding and purchase tenders in selected industries and/or geographies. In difference to other screening services, we use actual, human intelligence with access to key decision-makers who have visibility on upcoming programs, sometimes long before they are formulated or even published. This can give you a decisive advantage over other applicants in preparation time and focus. In addition, our local experts are at your service for providing additional insights, stakeholder analysis, competitive monitoring and "unwritten rules".',
+		link: {
+			label: 'Define your monitoring parameters.',
+			href: 'https://www.poeontap.com',
+		},
+	},
+	{
+		title: 'Advocacy',
+		content:
+			'Businesses know absolutely well what they need and take decisions on a rational, rules-based and targeted basis – however, when the required pre-requisites are not in place, they are quick to seek them on a wide geographic scope. Sometimes, though, small increments or improvements of existing circumstances could support the speed and efficiency of coming to a decision greatly. The Public Opportunity Advocacy Service helps companies identify such small increments, formulate them in a concise and transmittable manner and convey them to the concerned parties on the opportunity-granting side. Our extensive network of experienced, highly connected and focused experts have the required access to relevant institutions, persons and multipliers to make arguments heard and considered at the optimal time in the decision-making process for Public Opportunity programs.',
+	},
+	{
+		title: 'Partnerships',
+		content:
+			'Especially on a European level, it is already customary to require applicants of a public opportunity such as a grant, to form a consortium of entities from different European states. For applicants, the identification of such consortium partners can be a complex and/or strategic challenge. Our extensive network for local experts has personal access to relevant networks at research, startup, SME or corporate levels, and can help to identify, approach and acquire the perfect partner for an effective and conclusive result on a given opportunity. Our experts consider not only functional compatibility but also cultural, strategic and – not the least – personal factors in carefully composing long-lasting, high-performance teams.',
+	},
+	{
+		title: 'Application - Acquisition',
+		content:
+			'Answering to a public tender – be it for subsidies, funding or purchase of good or services – is seen by many companies as an onerous task with uncertain outcome, more of a lottery than an actual business process. That explains why only a small minority of companies employ dedicated public funding managers, while an entire industry has developed around managing application processes, filling forms, managing tender platforms, qualifications, profiles, deadlines etc. Our acquisition services support you as expert application managers with a deep understanding of policy goals, evaluation methodologies and decision processes, allowing us to tailor applications to the exact intended profile and thereby significantly increase the likelihood of being awarded. These processes will further gain in efficiency when various applications are submitted in the framework of an ongoing collaboration.',
+	},
+	{
+		title: 'Management',
+		content:
+			'The complexities of composing a consortium are significant, but they are dwarfed by the complexities of keeping the group together during the execution phase of the project – which in some cases may span a period of several years, or a wide range of geographies. While every consortium partner is fully occupied managing and delivering their own contribution, a dedicated project management role is often not defined or simply assumed as given – however, is decisive for an efficient allocation of project resources and a consistent, timely and high-quality outcome or deliverable. The team behind our management services provides multi-project-management experts and project assistants with dedicated expertise in managing multi-stakeholder processes in an unobtrusive, efficient and goal-oriented way. By trusting our coordination, consortium partners are freed to fully focus on their core competencies and show their best performance within the project framework.',
+	},
+	{
+		title: 'Reporting',
+		content:
+			'It is one thing to submit a convincing project proposal and delivery plan – but an entirely different one to actually execute and meticulously meet planned milestones and deadlines – or to honestly report on actual status, reasons for deviations and remedies to stay on course to achieve overall project targets. While individual project consortium member companies are fully aware and capable of reporting their internal project status, the state of interaction between partners is often uncharted and merely indirectly reflected in individual assessments. Our Public Opportunity Reporting services use proven controlling and advanced business analytics methodologies to provide consistent reporting frameworks to all project partners, follow up and collect required information, systematically assess cooperation processes and provide timely, consistent and neutral status, deviation and remediation reports for full transparency. It is our strong conviction that the quality of reporting has an immediate effect on mutual confidence and trust of project partners, the quality of cooperation and therefore project outcomes and results.',
+	},
+	{
+		title: 'External Communication, Profiling & Dissemination',
+		content:
+			"While the effort of providing perfect technical results to a public tender is handled with routine professionality and expertise, the political and public dimension of such awards is often disregarded and handled as mere side note, with sometimes remarkably dubious results. Each company in a consortium is in the same conflicting situation: on the one hand, boasting too much of one's own contribution could derail the internal collaboration, while not using the opportunity of presenting one's capabilities in a public-awareness framework would mean a missed marketing opportunity. Our Public Opportunity Publicity services provide a solid and professional framework for each project contributor to present their contribution with much higher leverage and reach than individual communication, while at the same time relieving them of too much publicity efforts which may differ from other marketing strategies. Based on solid stakeholder and target group analysis, combined with effective media and policy contacts, our publicity services make sure the overall project relevance and the contribution of each member is perceived by the intended audiences.",
+	},
+]
+
+export const publicFundsPolicyServices = [
+	{
+		title: 'Monitoring, Benchmarking & Assessment',
+		content:
+			'Every regional administration, policy body, government and parliament is under constant public scrutiny and competition from other such entities. Our monitoring, benchmarking and assessment service gives authorities a complete and timely overview over adjacent measures and programs from other regulatory bodies on a regional, national, European or global level – which is the scope that businesses survey in today\'s global market and value chains, and actual programs have to measure up against. As for businesses, it is important for administrations to have a current and detailed understanding of their "competitors". Our services not only comprise fully published programs but often capture upcoming programs even in the phase of their conceptualization, formulation and decision-making, giving authorities the opportunity to react with their own programs, initiate their own or timely adjustments of existing measures.',
+	},
+	{
+		title: 'Advisory',
+		content:
+			'Political strategies as well as commercial necessities require competent translation into efficient and effective financial programs – both from a political, but also commercial and financial perspective. Our strong expertise and wide-spread network understand the challenging and complex environment of devising short- and long-term economic offerings in the crosshairs of restrictive budgets, complicated institutional environment and contradictory stakeholder interests. Be it an individual solution, focused support or ongoing accompaniment – our experts understand all relevant angels and help authorities on all levels to integrate them to practical, targeted Public Opportunities.',
+	},
+	{
+		title: 'Advocacy',
+		content:
+			'One of the greatest riddles of public funding is the vast amount of funds that while being available for distribution are never accessed and create huge budget imbalances, carry-over funds and pools of unretrievable, lost money. Also, a program lacking demand is generally seen as a failed policy and may reflect badly on the responsible bodies and authorities. The Public Opportunity Advocacy service mitigates such risk by applying classic, commercial strategic marketing methodologies and approaches to public programs – starting with a thorough stakeholder and target group analysis, identification of main attractive properties of the program and development of a focused and effective communication strategy. Through our extensive, highly connected network in authorities and businesses, relevant information and messaging can be conveyed in a focused and credible manner, providing high effectiveness in communication and supporting high awareness and attractiveness of planned or operational programs.',
+	},
+	{
+		title: 'Partnerships',
+		content:
+			'European tender regulations are highly complex and require meticulous understanding and attention during the planning, formulation and bidding phases of a public policy program. This often requires cooperation between different departments of the same regulatory body, but also across authorities, regions or even countries. While the technical challenges for such cooperations may be overcome through due process, the institutional, cultural and personal dynamics of such cooperations profit greatly from expert moderation, facilitation and enablement. Our Public Opportunity Partnership services leverage our effective national, European and international network for identifying potential targets, approaching relevant institutions and supporting the establishment of long-term, trustful and effective partnerships between various authorities.',
+	},
+	{
+		title: 'Application - Acquisition',
+		content:
+			'Once a tender is published, the work of implementing an effective policy or purchase is by no means finished – but only then begins the intense interaction with potential and actual bidders, the answering of random detailed requests, the evaluation of premature, incomplete or oversized applications etc. While a general weighing scheme is a required element of many public tenders, the details of assessing the submissions will often only be developed as submissions are received and evaluated. Our Public Opportunity Acquisition offer expert support in developing detailed evaluation schemes and their application on even the most heterogeneous, multi-lingual or oversized applications, and provide you with a clear basis for the ensuing decision and awarding processes.',
+	},
+	{
+		title: 'Management',
+		content:
+			"Especially in cross-functional projects, various authorities, institutions and bodies need to collaborate over an extended period of time, irrespective of institutional, political or personal changes. Such continuity has proved challenging in today's dynamic administrative environments and increasingly relies on external facilitation through private-sector or public-private experts. Our management services provide authorities and institutions with an impartial and independent cooperation facilitator, allowing both direct and indirect cooperation models as well as providing procedural continuity in times of institutional re-alignment. As successful policy is – among other qualities – characterized by the consistency of its execution through the implementation phase, inducing further trust with bidders and providers, and laying the foundations for even more successful future programs.",
+	},
+	{
+		title: 'Ongoing Evaluation',
+		content:
+			'Are or have the public programs and the receivers of public monies fulfilled the intended results. Do the programs need to be tweaked? Once a consortium is nominated and starts working, the visibility into the inner workings of the project significantly decreases – on the one hand, too little information may cover deficits and deviations from the original project intent, while an oversupply of irrelevant and inconsistent information may obfuscate the understanding of actual progress and results. Our Public Opportunities Reporting services provide both the transparency required for a clear understanding of actual project processes, while on the other hand provide the ongoing comparison with project plan and deadlines for identifying eventual needs for support or intervention. We also provide aggregated business analytics reports for high-level supervision and ongoing budget controls to assure consistent use-of-funds. Given the often complicated funding structures of public projects, we believe a highly professional controlling framework is a significant contributor to overall project success – and its internal perception.',
+	},
+	{
+		title: 'External Communication, Profiling & Dissemination',
+		content:
+			'Politically motivated subsidy, funding or purchase programs find their ultimate purpose in promoting a political agenda, mostly far more wide-reaching than the actual scope of an individual program. While project deliverables will focus entirely on the actual tendered specifications, it falls back on the tendering parties to continuously multiply results and successes to promote the actual, underlying intent and address the relevant stakeholders and target groups effectively. Our Public Opportunity Publicity services are highly experienced in creating adequate visibility and productive interaction, from organizing public events, ongoing personal interactions, media material and content, channel management and interaction with direct and indirect multipliers. Ultimately, the success of a project lies not only in the technical deliverables, but also to a large extent in its public and political perception – our team is deeply versed in both environments and therefore provides most effective publicity for publicly-funded projects and opportunities.',
 	},
 ]

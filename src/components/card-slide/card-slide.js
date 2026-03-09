@@ -5,6 +5,7 @@ import { motion, useAnimationControls } from 'framer-motion'
 import CardFront from './card-front'
 import CardBack from './card-back'
 import { useState } from 'react'
+import Link from 'next/link'
 
 export default function CardSlide({ element }) {
 	const controls = useAnimationControls()
@@ -28,7 +29,7 @@ export default function CardSlide({ element }) {
 		}
 	}
 
-	return (
+	const card = (
 		<motion.div
 			className="relative flex items-center justify-center w-full h-full overflow-hidden"
 			onHoverStart={handleHover}
@@ -60,4 +61,17 @@ export default function CardSlide({ element }) {
 			</motion.div>
 		</motion.div>
 	)
+
+	if (element.href) {
+		return (
+			<Link
+				href={element.href}
+				className="block w-full h-full"
+			>
+				{card}
+			</Link>
+		)
+	}
+
+	return card
 }
