@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Hero from './hero'
 import Partners from './partners'
 import Newsroom from '../newsroom/newsroom'
+import Newsletter from './newsletter'
 
 export default function HomePage() {
 	return (
@@ -50,7 +51,9 @@ export default function HomePage() {
 				</div>
 			</div>
 			{/* <Newsroom /> */}
+
 			<Partners />
+			<Newsletter />
 		</>
 	)
 }
