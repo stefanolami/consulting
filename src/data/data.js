@@ -383,9 +383,19 @@ export const partners = [
 		link: 'https://www.adv.aero/',
 	},
 	{
+		img: '/partners/aecdr.png',
+		alt: 'AECDR logo',
+		link: 'https://www.aecdr.eu/',
+	},
+	{
 		img: '/partners/anchor21.png',
 		alt: 'Anchor21 logo',
 		link: '',
+	},
+	{
+		img: '/partners/cara.png',
+		alt: 'CARA logo',
+		link: 'https://cara-europe.org/',
 	},
 	{
 		img: '/partners/casino-international.png',
