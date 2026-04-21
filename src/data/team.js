@@ -368,7 +368,7 @@ export const team = {
 			},
 		],
 	},
-	mathias: {
+	/* mathias: {
 		name: 'Mathias Gerstner',
 		path: 'mathias-gerstner',
 		img: '/team/mathias.png',
@@ -403,7 +403,7 @@ export const team = {
 				],
 			},
 		],
-	},
+	}, */
 	flavia: {
 		name: 'Flávia Guerra',
 		path: 'flavia-guerra',

@@ -378,6 +378,11 @@ export const endorsements = {
 
 export const partners = [
 	{
+		img: '/partners/abve.png',
+		alt: 'ABVE logo',
+		link: 'https://abve.org.br/',
+	},
+	{
 		img: '/partners/adv.png',
 		alt: 'ADV logo',
 		link: 'https://www.adv.aero/',
@@ -393,6 +398,11 @@ export const partners = [
 		link: '',
 	},
 	{
+		img: '/partners/bin.png',
+		alt: 'BIN logo',
+		link: 'https://fe.up.pt/businessinnovation/',
+	},
+	{
 		img: '/partners/cara.png',
 		alt: 'CARA logo',
 		link: 'https://cara-europe.org/',
@@ -401,6 +411,11 @@ export const partners = [
 		img: '/partners/casino-international.png',
 		alt: 'Casino International logo',
 		link: 'https://casinointernational-online.com/',
+	},
+	{
+		img: '/partners/ccb.avif',
+		alt: 'CCB logo',
+		link: 'https://www.ccb-portugal.be/',
 	},
 	{
 		img: '/partners/charin.jpg',
