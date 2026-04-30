@@ -90,6 +90,10 @@ export default function Newsletter() {
 					</label>
 				</form>
 			</div>
+			<p className="w-[90%] md:w-3/4 mx-auto mt-4 font-jose text-white/70 text-xs lg:text-sm text-center">
+				Your email address will only be used for the purpose of
+				receiving communications from Time&Place Consulting.
+			</p>
 		</div>
 	)
 }
