@@ -45,9 +45,9 @@ export default function PublicFundsPage({ title, subtitle, intro, services }) {
 						</p>
 					)}
 				</div>
-				<div className="w-[90%] md:w-[80%] max-w-[1000px] mx-auto font-jose text-center text-primary text-sm lg:text-lg mb-10 lg:mb-16">
+				{/* <div className="w-[90%] md:w-[80%] max-w-[1000px] mx-auto font-jose text-center text-primary text-sm lg:text-lg mb-10 lg:mb-16">
 					<p>{intro}</p>
-				</div>
+				</div> */}
 				<Accordion
 					type="single"
 					collapsible
