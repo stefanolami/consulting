@@ -464,6 +464,37 @@ export const team = {
 			},
 		],
 	},
+	jens: {
+		name: 'Jens Karsten',
+		path: 'jens-karsten',
+		img: '/team/jens.jpg',
+		imgName: 'Jens Karsten',
+		imgTitle: 'Legal Counsel',
+		titles: ['Legal Counsel - Time&Place Consulting'],
+		contact: {
+			email: 'karsten@timeandplace.consulting',
+		},
+		introduction: [
+			'With a German and international legal background, Jens Karsten brings almost three decades of experience at the intersection of European law, regulation, and public policy.',
+		],
+		paragraphs: [
+			{
+				title: 'Early Career',
+				content: [
+					'After earning a Law Degree from the Goethe University Frankfurt, Jens completed a Master of Laws (LL.M.) in European Law at the University of Nottingham. Admitted to the German Bar in 1999 and to the Belgian Bar in 2022, he combines deep legal expertise with extensive cross-border experience across Europe and beyond.',
+				],
+			},
+			{
+				title: 'DG Health & Food Safety',
+				content: [
+					'Among other engagements, between 2001 and 2004, Jens acted as Legal Adviser to the Directorate-General for Health and Consumer Protection (DG SANCO, now Directorate-General for Health and Food Safety) of the European Commission, contributing to key legal and regulatory matters at European Union level. This was followed by several years as Counsel to a European retail trade association, advising on complex regulatory, commercial, and compliance issues affecting the European market.',
+					'Since becoming an attorney in 2010, Jens has focused primarily on food and agricultural law, general product regulation, and transport law, advising clients on European regulatory compliance, market access, risk management, and cross-border legal challenges. He is also the author of several publications on European law.',
+					'With extensive experience spanning legal practice, academia, European institutions, and international advisory missions, Jens offers clients a uniquely comprehensive perspective on European regulatory and commercial law.',
+					'Jens speaks German, English and French, whilst constantly trying to improve his Portuguese and Russian.',
+				],
+			},
+		],
+	},
 	marie: {
 		name: 'Marie Kubasiak',
 		path: 'marie-kubasiak',
