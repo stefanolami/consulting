@@ -629,37 +629,65 @@ export const team = {
 			},
 		],
 	},
-	/* edoardo: {
-		name: 'Edoardo Rivoli',
-		path: 'edoardo-rivoli',
-		img: '/team/edoardo.png',
-		imgName: 'Edoardo Rivoli',
-		imgTitle: 'Junior Consultant',
-		titles: ['Junior Consultant - Time&Place Consulting'],
+	markus: {
+		name: 'Markus Poole',
+		path: 'markus-poole',
+		img: '/team/markus.jpg',
+		imgName: 'Markus Poole',
+		imgTitle: 'Head of Office – Brussels',
+		titles: ['Head of Office – Brussels – Time&Place Consulting'],
 		contact: {
-			email: 'edoardo.rivoli@groupontap.com',
+			email: 'poole@timeandplace.consulting',
 		},
 		introduction: [
-			'Edoardo Rivoli is a junior consultant with a diverse cultural background and international experience. Having lived in multiple countries and worked in diverse, multicultural environments, he deeply values effective communication, collaboration, and teamwork. His ability to navigate cross-cultural settings allows him to contribute meaningfully to dynamic and globally oriented teams.',
+			"Markus Poole is a public affairs and policy professional with more than a decade of experience helping companies, associations and institutions navigate the European political and regulatory landscape. Based in Brussels since 2013, he specialises in energy, industrial competitiveness, sustainability and international affairs, advising organisations on how to anticipate policy developments, assess strategic risks and opportunities, and engage effectively on issues shaping Europe's future.",
+			'Before joining Time&Place as Head of Office – Brussels, Markus managed his own consultancy and served as Policy & Advocacy Manager at Ammonia Europe. He also spent eight years at Edelman Global Advisory, advising multinational companies, trade associations and international financial institutions on public affairs, government relations and strategic communications.',
 		],
 		paragraphs: [
 			{
-				title: 'Previous experience',
+				title: 'Public Affairs, Advocacy & Government Relations',
 				content: [
-					"Academically, Edoardo has built a strong foundation in international governance and policy analysis. He earned a Bachelor's degree in International Relations and Diplomatic Sciences from the University of Trieste and later pursued a Master’s in Public Administration, International, and European Governance at Leiden University. His academic journey has fueled his passion for European Union affairs, with a particular focus on EU funding mechanisms and policy discourse.",
-					'Edoardo has a strong interest in the EU’s Common Security and Defence Policy (CSDP), an area in which he conducted in-depth research. His work on CSDP included contributions from high-level representatives of EU institutions and organisations, providing him with valuable insights into the complexities of European defense policy and security governance.',
-					'Professionally, he has gained hands-on experience in EU affairs, funds and project management through his role as a Research and Policy Assistant at Moverim Consulting in Brussels. During this internship, he was actively involved in various aspects of EU-funded projects, assisting in project proposal development, drafting reports and policy analyses for clients, and supporting them throughout the entire project management cycle, from conception to implementation and final evaluation.',
+					'Markus has extensive experience helping organisations understand, anticipate and respond to European policy developments. His work spans policy analysis, advocacy strategy, stakeholder engagement and strategic advisory services across a range of sectors.',
+					'Throughout his career, he has supported organisations in developing policy positions, building coalitions and engaging policymakers on issues related to energy, sustainability, industrial competitiveness and international affairs.',
 				],
 			},
 			{
-				title: 'At Time&Place Group',
+				title: 'Energy, Industry & Competitiveness',
 				content: [
-					'Edoardo is actively involved in EU funding and monitoring activities. With a strong interest in European project development and public policy, he supports the team in identifying funding opportunities, tracking relevant EU programmes, and contributing to the preparation and coordination of project proposals.',
-					'Edoardo is also a skilled communicator with proficiency in multiple languages, which is a valuable asset in supporting Time&Place Group’s international collaborations and cross-border project activities. His fluency in Italian and English, along with his intermediate command of French and German and basic understanding of Chinese, enhances our ability to engage effectively with diverse partners and stakeholders across Europe and beyond.',
+					"Markus has particular expertise in European energy and industrial policy. Most recently, he played a leading role in advancing the policy and advocacy activities of Ammonia Europe, supporting the development of the clean ammonia value chain and its role in Europe's energy transition and industrial decarbonisation efforts.",
+					'His work has focused on issues including energy transition, industrial competitiveness, sustainable fuels, climate policy, transport decarbonisation, certification systems and strategic industrial development. He regularly advises organisations on the business implications of European policy developments and regulatory change.',
+				],
+			},
+			{
+				title: 'Policy Communications',
+				content: [
+					'Alongside his public affairs work, Markus has deep experience in strategic communications, helping organisations communicate effectively on complex political, policy and regulatory issues.',
+					'He has supported the development of executive communications, thought leadership initiatives, advocacy campaigns and policy messaging, translating technical issues into clear and actionable insights for diverse audiences.',
+				],
+			},
+			{
+				title: 'Events & Strategic Engagement',
+				content: [
+					'Markus has extensive experience designing and delivering events that support advocacy, stakeholder engagement and organisational visibility.',
+					'From industry roundtables and workshops to high-level conferences and policy discussions, he helps organisations create platforms that bring together decision-makers, industry leaders and key stakeholders around shared objectives.',
+				],
+			},
+			{
+				title: 'International Affairs & Geopolitics',
+				content: [
+					'Markus has a longstanding interest in international affairs and the growing influence of geopolitical developments on business, industry and policymaking.',
+					'Drawing on experience spanning trade, energy, industrial policy and sanctions-related issues, he helps organisations understand the risks and opportunities arising from an increasingly complex and interconnected global environment.',
+				],
+			},
+			{
+				title: 'Publications, Training & Languages',
+				content: [
+					'Markus regularly contributes to discussions on energy, industrial competitiveness and foreign policy, and has authored numerous policy papers, briefings and thought leadership articles throughout his career.',
+					'He holds an LL.M. in Globalisation and Law (Trade and Investment) and an LL.B. in European Law from Maastricht University. Markus is a native English speaker with a working knowledge of German and French - however his Italian, Romanian and Dutch are still works in progress.',
 				],
 			},
 		],
-	}, */
+	},
 	joao: {
 		name: 'João Evangelista dos Santos',
 		path: 'joao-dos-santos',
