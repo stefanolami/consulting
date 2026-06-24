@@ -1,5 +1,86 @@
 const NEWS = [
 	{
+		author: 'Time&Place Consulting',
+		date: '24 June 2026',
+		title: 'We are hiring an Advocacy & Communication Intern!',
+		intro: 'Are you passionate about shaping global policies and making a real impact on the world stage? Time&Place Consulting is seeking a dynamic and motivated Advocacy & Communication Intern to join our team in Brussels.',
+		image: 'doors.png',
+		slug: 'we-are-hiring-advocacy-communication-intern',
+		path: '/newsroom/we-are-hiring-advocacy-communication-intern',
+		tag: 'HIRING',
+		paragraphs: [
+			{
+				title: 'About Us',
+				content: [
+					'With international presence and local access, Time&Place Consulting provides integral approaches to impacting decision-making and supporting your development. Our projects span various sectors including e-mobility, aviation, maritime, trade, standardisation, technology, and public funding.',
+					'As a public affairs, strategic communications, business growth, and project management agency, our global team focuses on nourishing decision-making capacities and building channels of impact. We are your strategic point of access to enter or build markets, and a line of communication to governments, regulatory bodies, public opinion, as well as to public procurement, financing and funding agencies.',
+				],
+			},
+			{
+				title: 'The Role',
+				content: [
+					'As an Advocacy & Communication Intern at Time&Place Consulting, you will have the opportunity to dive into exciting projects that shape the future of global policies. Working closely with our team of experts, you will contribute to research, policy monitoring, social media and advocacy work. This is a unique opportunity to gain hands-on experience and make meaningful contributions to projects with real-world impact.',
+				],
+			},
+			{
+				title: 'Key Responsibilities',
+				content: [
+					{
+						type: 'unordered-list',
+						items: [
+							'Assisting in the management of client platforms (e.g. association bodies), with a view to providing positioning to the EU institutions.',
+							'Monitoring & Analysis - stakeholder activities as well as policy and legislative developments and funding opportunities relevant to our clients, with a view to providing impact assessments.',
+							'Assisting with the drafting of reports, presentations, and briefs.',
+							'Collecting and analysing information, documentation, and data, and supporting the drafting of clear and catchy summary reports for clients.',
+							'Assisting in creating and scheduling engaging content (text, images, etc.) for various social media platforms.',
+							'Monitoring and maintaining social media accounts (LinkedIn, Instagram, Facebook).',
+							'Helping manage content calendars to ensure consistent posting.',
+							'Supporting the organisation of events and other networking initiatives.',
+							'Further activities dependent on skills, interests and performance will regularly be considered.',
+						],
+					},
+				],
+			},
+			{
+				title: 'Requirements',
+				content: [
+					{
+						type: 'unordered-list',
+						items: [
+							'University degree in a relevant field (e.g., political science, international relations, economics, law).',
+							'Passion for politics, European affairs, geopolitics and public policy.',
+							'Strong analytical and research skills with keen attention to detail.',
+							'Excellent communication and organisational skills, with strong multitasking abilities.',
+							'Creative mindset with the ability to develop engaging content.',
+							'Ability to work independently and as part of a collaborative team.',
+							'Command of MS Office.',
+							'Language skills: Fluent English (mandatory, both written and oral). Good knowledge of German, Portuguese, French, Dutch, and other languages is a strong advantage.',
+							'Experience in social media and project management is an advantage.',
+						],
+					},
+				],
+			},
+			{
+				title: 'How to Apply',
+				content: [
+					'Interested candidates should submit a CV and one-page cover letter outlining their relevant experience and why they would be a good fit for Time&Place Consulting.',
+					'Please send your application with the subject line “Advocacy & Communication Intern Application - [Your Name]” to Corina Gheorgheza and Markus Poole.',
+					'Deadline for applications: 15 July 2026.',
+					'Start date: 1 September (in Brussels).',
+					'Join us at Time&Place Consulting and be part of a team that is shaping the future of global policies. We look forward to hearing from you!',
+				],
+			},
+		],
+		conclusion: {
+			content: 'Please send your application to:',
+			contact: [
+				'corina@groupontap.com',
+				'poole@timeandplace.consulting',
+			],
+		},
+		sources: [],
+	},
+	{
 		author: 'Mathias Gerstner & Guilherme Crispim Ferreira',
 		date: '10 September 2025',
 		title: 'The European Union and Latin America: A Herculean Matter',

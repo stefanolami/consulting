@@ -18,7 +18,7 @@ const NewsArticle = ({ article }) => {
 								// Handle markdown-style bold syntax **text** -> <strong>text</strong>
 								processedItem = processedItem.replace(
 									/\*\*(.*?)\*\*/g,
-									'<strong>$1</strong>'
+									'<strong>$1</strong>',
 								)
 
 								// Handle references [1], [2], etc.
@@ -26,13 +26,13 @@ const NewsArticle = ({ article }) => {
 									/\[(\d+)\]/g,
 									(match, refId) => {
 										const ref = references.find(
-											(r) => r.id === parseInt(refId)
+											(r) => r.id === parseInt(refId),
 										)
 										if (ref) {
 											return `<sup><a href="#ref-${refId}" class="text-blue-600 hover:underline text-xs font-medium cursor-pointer no-underline" title="${ref.title}">[${refId}]</a></sup>`
 										}
 										return match
-									}
+									},
 								)
 								return (
 									<li
@@ -60,7 +60,7 @@ const NewsArticle = ({ article }) => {
 								// Handle markdown-style bold syntax **text** -> <strong>text</strong>
 								processedItem = processedItem.replace(
 									/\*\*(.*?)\*\*/g,
-									'<strong>$1</strong>'
+									'<strong>$1</strong>',
 								)
 
 								// Handle references [1], [2], etc.
@@ -68,13 +68,13 @@ const NewsArticle = ({ article }) => {
 									/\[(\d+)\]/g,
 									(match, refId) => {
 										const ref = references.find(
-											(r) => r.id === parseInt(refId)
+											(r) => r.id === parseInt(refId),
 										)
 										if (ref) {
 											return `<sup><a href="#ref-${refId}" class="text-blue-600 hover:underline text-xs font-medium cursor-pointer no-underline" title="${ref.title}">[${refId}]</a></sup>`
 										}
 										return match
-									}
+									},
 								)
 								return (
 									<li
@@ -99,7 +99,7 @@ const NewsArticle = ({ article }) => {
 			// Handle markdown-style bold syntax **text** -> <strong>text</strong>
 			processedText = processedText.replace(
 				/\*\*(.*?)\*\*/g,
-				'<strong>$1</strong>'
+				'<strong>$1</strong>',
 			)
 
 			// Handle references [1], [2], etc.
@@ -111,7 +111,7 @@ const NewsArticle = ({ article }) => {
 						return `<sup><a href="#ref-${refId}" class="text-blue-600 hover:underline text-xs font-medium cursor-pointer no-underline" title="${ref.title}">[${refId}]</a></sup>`
 					}
 					return match
-				}
+				},
 			)
 
 			return (
@@ -140,7 +140,7 @@ const NewsArticle = ({ article }) => {
 					src={`/newsroom/${article.image}`}
 					alt={article.title}
 					fill
-					className="object-cover object"
+					className="object-cover object-[50%_10%]"
 				/>
 			</div>
 			<article className="w-[90%] md:w-3/4 max-w-[800px] mx-auto bg-white text-justify">
@@ -199,7 +199,7 @@ const NewsArticle = ({ article }) => {
 								<div className="space-y-4 font-jose text-base lg:text-lg">
 									{renderContentWithReferences(
 										section.content,
-										article.references
+										article.references,
 									)}
 								</div>
 							</section>
@@ -237,7 +237,7 @@ const NewsArticle = ({ article }) => {
 														{email.trim()}
 													</a>
 												</p>
-											)
+											),
 										)}
 									</div>
 								)}
@@ -247,7 +247,7 @@ const NewsArticle = ({ article }) => {
 					{/* References Section */}
 					{article.references &&
 						article.references.some(
-							(ref) => ref.title && ref.url
+							(ref) => ref.title && ref.url,
 						) && (
 							<div className="mt-12 pt-8 border-t">
 								<h3 className="font-unna font-bold text-xl text-primary mb-6">
