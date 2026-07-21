@@ -464,7 +464,7 @@ export const team = {
 			},
 		],
 	},
-	jens: {
+	/* jens: {
 		name: 'Jens Karsten',
 		path: 'jens-karsten',
 		img: '/team/jens.jpg',
@@ -494,7 +494,7 @@ export const team = {
 				],
 			},
 		],
-	},
+	}, */
 	marie: {
 		name: 'Marie Kubasiak',
 		path: 'marie-kubasiak',
