@@ -20,6 +20,7 @@ export const robo = Roboto_Serif({
 	weight: ['400', '700'],
 	style: ['normal', 'italic'],
 	subsets: ['latin'],
+	display: 'swap',
 	variable: '--font-robo',
 	fallback: ['serif'],
 })
