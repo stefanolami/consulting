@@ -26,6 +26,9 @@ Detailed database definitions, component specifications, implementation notes,
 and acceptance criteria should be kept in separate documents as the relevant
 work begins. When a high-level decision changes, this document must be updated.
 
+The initial database, publication, RLS, and Storage design is recorded in
+[`docs/supabase-content-platform.md`](./supabase-content-platform.md).
+
 ## 2. Project goals
 
 The website will be rebuilt as a new application rather than incrementally
@@ -783,9 +786,11 @@ must be reflected in their loading behavior.
 
 ### Phase 2 — Supabase content platform
 
-- Add version-controlled Supabase migrations.
-- Create the initial schema, constraints, indexes, and RLS.
-- Configure Storage buckets and policies.
+- Apply the drafted version-controlled Supabase migrations to the hosted
+  project.
+- Validate the drafted schema, constraints, indexes, and RLS against the hosted
+  project.
+- Validate the drafted Storage bucket and policies.
 - Generate database TypeScript types.
 - Implement invite-only authentication and the protected admin shell.
 - Build an early Our Outreach map interaction prototype to retire technical
@@ -927,12 +932,11 @@ The rebuild is complete when:
 
 ## 25. Immediate next actions
 
-1. Review and commit the completed `v2` foundation and planning documents.
-2. Resolve the schema-impacting Figma content decisions.
-3. Write the detailed Supabase schema and RLS plan.
-4. Add the first hosted Supabase migrations.
-5. Implement the admin/auth shell.
-6. Deliver the team-management vertical slice.
+1. Link the Supabase CLI to the hosted project.
+2. Dry-run, apply, and validate the drafted schema/RLS/Storage migrations.
+3. Generate and commit database TypeScript types.
+4. Implement invite-only authentication and the protected admin shell.
+5. Deliver the team-management vertical slice.
 
 ## 26. Primary technical references
 
