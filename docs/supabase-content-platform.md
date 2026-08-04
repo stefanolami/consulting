@@ -214,12 +214,25 @@ The key bypasses RLS. It must never:
 ## 6. First administrator bootstrap
 
 The inactive-by-default rule means the first administrator must be bootstrapped
-once through the Supabase Dashboard.
+exactly once. The preferred application-assisted flow is:
 
-1. In **Authentication → Users**, send an invitation to the first
-   administrator.
-2. After the Auth user exists, open the SQL editor.
-3. Run the following statement with the intended email:
+1. Complete the hosted Auth configuration in section 6.2.
+2. Confirm `.env.local` contains `SUPABASE_SECRET_KEY`.
+3. Run the guarded bootstrap command:
+
+```powershell
+npm run auth:bootstrap-admin -- first.admin@example.com http://localhost:3000
+```
+
+The command:
+
+- Refuses to run when an active administrator already exists.
+- Sends the invitation through Supabase Auth Admin.
+- Activates the corresponding profile with the `admin` role.
+- Never prints the server-only key.
+
+If the invitation is created but profile activation fails, open the Supabase
+SQL editor and run the following recovery statement with the intended email:
 
 ```sql
 update public.profiles
@@ -229,12 +242,73 @@ set
 where email = 'first.admin@example.com';
 ```
 
-4. Confirm exactly one row was updated.
-5. After the protected admin user-management screen exists, activate and assign
-   roles there instead of using the SQL editor.
+Confirm exactly one row was updated and do not rerun the invitation command.
+
+The Dashboard-only fallback is to send the first invitation from
+**Authentication → Users**, then run the same SQL statement. After the protected
+staff-management screen exists, activate and assign roles there instead of
+using either bootstrap path.
 
 Invitation redirect URLs and production SMTP must be configured before
 colleagues are onboarded.
+
+### 6.1 Application authentication routes
+
+The application deliberately exposes no registration route. Its staff
+authentication routes are:
+
+- `/auth/sign-in`
+- `/auth/forgot-password`
+- `/auth/callback`
+- `/auth/update-password`
+- `/auth/access-pending`
+
+Add the deployed and local callback URLs to the Supabase Auth redirect allow
+list. Invitation and recovery emails must return to:
+
+```text
+https://<application-origin>/auth/callback?next=/auth/update-password
+```
+
+For local development, allow the equivalent URL on the selected local port.
+The callback supports both PKCE authorization codes and `token_hash` email
+templates. A custom invite template can link to:
+
+```text
+{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=invite&next=/auth/update-password
+```
+
+`SiteURL` must be the application origin without a trailing slash when using
+that template. Password-recovery emails receive the callback URL from the
+application.
+
+After password setup, active staff continue to `/admin`. Authenticated users
+whose `profiles.is_active` value is false remain on `/auth/access-pending`.
+
+### 6.2 Hosted pre-test checklist
+
+Complete these settings in the hosted Supabase Dashboard before sending the
+first invitation:
+
+1. In **Authentication → URL Configuration**:
+   - Set the development Site URL to `http://localhost:3000`.
+   - Add
+     `http://localhost:3000/auth/callback?next=/auth/update-password`
+     to the redirect allow list.
+2. In **Authentication → Providers → Email**:
+   - Disable public email sign-ups.
+   - Keep email/password sign-in enabled.
+3. In **Authentication → Email Templates → Invite user**:
+   - Use the `token_hash` callback link from section 6.1.
+4. In **Authentication → Email Templates → Reset password**:
+   - Keep `{{ .ConfirmationURL }}` as the recovery link. The application passes
+     the callback URL through `redirectTo`.
+5. Confirm the project's default email service can send to the intended test
+   address, or configure custom SMTP.
+
+Do not send the first invitation until all five checks are complete. The hosted
+project currently has no staff profiles, so this bootstrap remains a one-time
+operation.
 
 ## 7. Hosted migration workflow
 

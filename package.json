@@ -12,6 +12,7 @@
 		"lint": "eslint . --max-warnings=0",
 		"lint:fix": "eslint . --fix",
 		"typecheck": "tsc --noEmit",
+		"auth:bootstrap-admin": "node --env-file=.env.local scripts/bootstrap-admin.mjs",
 		"check": "npm run lint && npm run typecheck && npm run build"
 	},
 	"dependencies": {
