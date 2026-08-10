@@ -3,7 +3,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { hasLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
+import { connection } from 'next/server'
 import { setRequestLocale } from 'next-intl/server'
+import { Suspense } from 'react'
 
 import { routing } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/server'
@@ -28,15 +30,28 @@ export async function generateMetadata({ params }: TeamMemberPageProps): Promise
 	return {
 		title: data?.seo_title ?? data?.job_title ?? 'Team member | Time&Place Consulting',
 		description: data?.seo_description ?? undefined,
-	}
+}
 }
 
-export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
+export default function TeamMemberPage({ params }: TeamMemberPageProps) {
+	return (
+		<Suspense fallback={<TeamMemberPageFallback />}>
+			<TeamMemberPageContent params={params} />
+		</Suspense>
+	)
+}
+
+async function TeamMemberPageContent({
+	params,
+}: TeamMemberPageProps) {
 	const { locale, slug } = await params
 	if (!hasLocale(routing.locales, locale)) {
 		notFound()
 	}
 
+	// This profile is fetched from the CMS per request, including the current
+	// visitor's Supabase cookies, so render it behind a streaming boundary.
+	await connection()
 	setRequestLocale(locale)
 	const supabase = await createClient()
 	const { data: translation, error: translationError } = await supabase
@@ -92,6 +107,10 @@ export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
 			</article>
 		</main>
 	)
+}
+
+function TeamMemberPageFallback() {
+	return <main className="min-h-screen bg-white px-6 py-16 sm:px-10 lg:px-16" />
 }
 
 function documentToText(content: Json): string {

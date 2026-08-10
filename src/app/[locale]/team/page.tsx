@@ -3,7 +3,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { hasLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
+import { connection } from 'next/server'
 import { setRequestLocale } from 'next-intl/server'
+import { Suspense } from 'react'
 
 import { routing } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/server'
@@ -24,6 +26,17 @@ export default async function TeamPage({ params }: TeamPageProps) {
 	}
 
 	setRequestLocale(locale)
+	return (
+		<Suspense fallback={<TeamPageFallback />}>
+			<TeamPageContent locale={locale} />
+		</Suspense>
+	)
+}
+
+async function TeamPageContent({ locale }: { locale: string }) {
+	// This content reads the CMS at request time. Keeping it inside Suspense
+	// lets the static locale shell render without blocking on that data.
+	await connection()
 	const supabase = await createClient()
 	const { data: translations, error: translationsError } = await supabase
 		.from('people_translations')
@@ -100,4 +113,8 @@ export default async function TeamPage({ params }: TeamPageProps) {
 			</div>
 		</main>
 	)
+}
+
+function TeamPageFallback() {
+	return <main className="min-h-screen bg-white px-6 py-16 sm:px-10 lg:px-16" />
 }
