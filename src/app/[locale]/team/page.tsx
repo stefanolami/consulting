@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { hasLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
@@ -37,7 +38,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
 	const { data: people, error: peopleError } = personIds.length
 		? await supabase
 				.from('people')
-				.select('id, display_name, display_order')
+				.select('id, display_name, display_order, portrait_media_id')
 				.in('id', personIds)
 				.eq('is_team_member', true)
 				.eq('is_active', true)
@@ -48,6 +49,12 @@ export default async function TeamPage({ params }: TeamPageProps) {
 	if (peopleError) {
 		throw new Error(`Unable to load team members: ${peopleError.message}`)
 	}
+	const portraitIds = (people ?? []).flatMap((person) => person.portrait_media_id ? [person.portrait_media_id] : [])
+	const { data: portraits, error: portraitsError } = portraitIds.length
+		? await supabase.from('media_assets').select('id, object_path').in('id', portraitIds)
+		: { data: [], error: null }
+	if (portraitsError) throw new Error(`Unable to load team portraits: ${portraitsError.message}`)
+	const portraitsById = new Map((portraits ?? []).map((portrait) => [portrait.id, portrait.object_path]))
 
 	const translationsByPerson = new Map(
 		(translations ?? []).map((translation) => [translation.person_id, translation]),
@@ -70,6 +77,8 @@ export default async function TeamPage({ params }: TeamPageProps) {
 						{people.map((person) => {
 							const translation = translationsByPerson.get(person.id)
 							if (!translation) return null
+							const portraitPath = person.portrait_media_id ? portraitsById.get(person.portrait_media_id) : null
+							const portraitUrl = portraitPath ? supabase.storage.from('public-media').getPublicUrl(portraitPath).data.publicUrl : null
 
 							return (
 								<Link
@@ -77,9 +86,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
 									href={`${localePrefix}/team/${translation.slug}`}
 									key={person.id}
 								>
-									<div className="flex size-14 items-center justify-center rounded-full bg-[#e8ebf3] font-jose text-sm font-semibold">
-										{person.display_name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}
-									</div>
+									{portraitUrl ? <Image alt={`Portrait of ${person.display_name}`} className="size-14 rounded-full object-cover" height={56} src={portraitUrl} width={56} /> : <div className="flex size-14 items-center justify-center rounded-full bg-[#e8ebf3] font-jose text-sm font-semibold">{person.display_name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</div>}
 									<h2 className="mt-6 font-robo text-2xl">{person.display_name}</h2>
 									{translation.job_title && <p className="mt-1 text-sm text-slate-600">{translation.job_title}</p>}
 									{translation.short_bio && <p className="mt-4 line-clamp-3 leading-7 text-slate-600">{translation.short_bio}</p>}

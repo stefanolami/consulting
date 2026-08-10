@@ -45,6 +45,7 @@ export default async function PeoplePage() {
 			locales: personTranslations.map((translation) => translation.locale),
 			status: english?.status ?? 'draft',
 			isActive: person.is_active,
+			displayOrder: person.display_order,
 		}
 	})
 	const publishedCount = profiles.filter((profile) => profile.status === 'published').length

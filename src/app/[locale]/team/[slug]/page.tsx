@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { hasLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
@@ -6,6 +7,7 @@ import { setRequestLocale } from 'next-intl/server'
 
 import { routing } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/server'
+import type { Json } from '@/types/database.generated'
 
 type TeamMemberPageProps = {
 	params: Promise<{ locale: string; slug: string }>
@@ -39,7 +41,7 @@ export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
 	const supabase = await createClient()
 	const { data: translation, error: translationError } = await supabase
 		.from('people_translations')
-		.select('person_id, job_title, short_bio, seo_title, seo_description')
+		.select('person_id, job_title, short_bio, content, seo_title, seo_description')
 		.eq('locale', locale)
 		.eq('slug', slug)
 		.maybeSingle()
@@ -51,7 +53,7 @@ export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
 
 	const { data: person, error: personError } = await supabase
 		.from('people')
-		.select('display_name, email, phone, website_url')
+		.select('display_name, email, phone, website_url, portrait_media_id')
 		.eq('id', translation.person_id)
 		.eq('is_team_member', true)
 		.eq('is_active', true)
@@ -61,6 +63,11 @@ export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
 		throw new Error(`Unable to load this team member: ${personError.message}`)
 	}
 	if (!person) notFound()
+	const { data: portrait } = person.portrait_media_id
+		? await supabase.from('media_assets').select('object_path').eq('id', person.portrait_media_id).maybeSingle()
+		: { data: null }
+	const portraitUrl = portrait ? supabase.storage.from('public-media').getPublicUrl(portrait.object_path).data.publicUrl : null
+	const biography = documentToText(translation.content)
 
 	const localePrefix = locale === routing.defaultLocale ? '' : `/${locale}`
 
@@ -70,12 +77,11 @@ export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
 				<Link className="font-jose text-sm font-semibold uppercase tracking-[0.16em] text-[#53617f] underline-offset-4 hover:underline" href={`${localePrefix}/team`}>
 					Our team
 				</Link>
-				<div className="mt-10 flex size-24 items-center justify-center rounded-full bg-[#e8ebf3] font-jose text-2xl font-semibold">
-					{person.display_name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}
-				</div>
+				{portraitUrl ? <Image alt={`Portrait of ${person.display_name}`} className="mt-10 size-24 rounded-full object-cover" height={96} src={portraitUrl} width={96} /> : <div className="mt-10 flex size-24 items-center justify-center rounded-full bg-[#e8ebf3] font-jose text-2xl font-semibold">{person.display_name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</div>}
 				<h1 className="mt-7 font-unna text-5xl leading-tight sm:text-6xl">{person.display_name}</h1>
 				{translation.job_title && <p className="mt-3 font-robo text-2xl text-slate-600">{translation.job_title}</p>}
 				{translation.short_bio && <p className="mt-8 whitespace-pre-line text-lg leading-8 text-slate-700">{translation.short_bio}</p>}
+				{biography && <div className="mt-8 space-y-5 whitespace-pre-line leading-8 text-slate-700">{biography.split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>}
 				{(person.email || person.phone || person.website_url) && (
 					<dl className="mt-10 space-y-3 border-t border-slate-200 pt-7 text-slate-700">
 						{person.email && <div><dt className="sr-only">Email</dt><dd><a className="underline underline-offset-4" href={`mailto:${person.email}`}>{person.email}</a></dd></div>}
@@ -86,4 +92,16 @@ export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
 			</article>
 		</main>
 	)
+}
+
+function documentToText(content: Json): string {
+	if (!content || typeof content !== 'object' || Array.isArray(content)) return ''
+	const blocks = (content as { content?: unknown }).content
+	if (!Array.isArray(blocks)) return ''
+	return blocks.map((block) => {
+		if (!block || typeof block !== 'object' || Array.isArray(block)) return ''
+		const children = (block as { content?: unknown }).content
+		if (!Array.isArray(children)) return ''
+		return children.map((child) => child && typeof child === 'object' && !Array.isArray(child) && typeof (child as { text?: unknown }).text === 'string' ? (child as { text: string }).text : '').join('')
+	}).filter(Boolean).join('\n\n')
 }

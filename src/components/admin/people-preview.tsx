@@ -1,9 +1,10 @@
 'use client'
 
-import { Plus, Search } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowDown, ArrowUp, Pencil, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { createPersonAction } from '@/app/(admin)/admin/actions'
+import { createPersonAction, movePersonAction } from '@/app/(admin)/admin/actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +16,7 @@ type TeamMember = {
 	locales: string[]
 	status: 'draft' | 'scheduled' | 'published' | 'archived'
 	isActive: boolean
+	displayOrder: number
 }
 
 export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[] }) {
@@ -105,7 +107,7 @@ export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[]
 									{member.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase()}
 								</div>
 								<div>
-									<p className="font-semibold text-slate-900">{member.name}</p>
+									<Link className="font-semibold text-slate-900 underline-offset-4 hover:underline" href={`/admin/people/${member.id}`}>{member.name}</Link>
 									<p className="mt-0.5 text-sm text-slate-500">{member.role}</p>
 								</div>
 							</div>
@@ -115,16 +117,31 @@ export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[]
 									<Badge className="bg-slate-100 text-slate-600" key={locale} variant="secondary">{locale.toUpperCase()}</Badge>
 								))}
 							</div>
-							<Badge
-								className={
-									member.status === 'published'
-										? 'w-fit border-emerald-200 bg-emerald-50 text-emerald-700'
-										: 'w-fit border-amber-200 bg-amber-50 text-amber-700'
-								}
-								variant="outline"
-							>
-								{member.isActive ? member.status : 'archived'}
-							</Badge>
+							<div className="flex items-center justify-between gap-2 md:justify-start">
+								<Badge
+									className={
+										member.status === 'published' && member.isActive
+											? 'w-fit border-emerald-200 bg-emerald-50 text-emerald-700'
+											: 'w-fit border-amber-200 bg-amber-50 text-amber-700'
+									}
+									variant="outline"
+								>
+									{member.isActive ? member.status : 'archived'}
+								</Badge>
+								<div className="flex items-center gap-1">
+									<form action={movePersonAction}>
+										<input name="personId" type="hidden" value={member.id} />
+										<input name="direction" type="hidden" value="up" />
+										<Button aria-label={`Move ${member.name} up`} size="icon" title="Move up" type="submit" variant="ghost"><ArrowUp /></Button>
+									</form>
+									<form action={movePersonAction}>
+										<input name="personId" type="hidden" value={member.id} />
+										<input name="direction" type="hidden" value="down" />
+										<Button aria-label={`Move ${member.name} down`} size="icon" title="Move down" type="submit" variant="ghost"><ArrowDown /></Button>
+									</form>
+									<Button asChild aria-label={`Edit ${member.name}`} size="icon" title="Edit" variant="ghost"><Link href={`/admin/people/${member.id}`}><Pencil /></Link></Button>
+								</div>
+							</div>
 						</div>
 					))
 				) : (
