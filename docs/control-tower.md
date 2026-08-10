@@ -1,6 +1,6 @@
 # Consulting Website Rework — Control Tower
 
-Last updated: 2026-07-29
+Last updated: 2026-08-10
 
 Status: High-level plan and architectural source of truth
 
@@ -932,11 +932,15 @@ The rebuild is complete when:
 
 ## 25. Immediate next actions
 
-1. Link the Supabase CLI to the hosted project.
-2. Dry-run, apply, and validate the drafted schema/RLS/Storage migrations.
-3. Generate and commit database TypeScript types.
-4. Implement invite-only authentication and the protected admin shell.
-5. Deliver the team-management vertical slice.
+1. Commit and use the generated database TypeScript types.
+2. Configure custom SMTP for Supabase Auth before live staff onboarding; use a
+   dedicated authentication sending subdomain so the Zoho-hosted primary domain
+   remains isolated.
+3. Bootstrap the first administrator and verify invitation, password setup,
+   sign-in, sign-out, and password-recovery flows.
+4. Complete the team-management vertical slice: profile editing, translations,
+   media upload, ordering, archive/restore, and public preview.
+5. Continue with the newsroom vertical slice after the team workflow is proven.
 
 ## 26. Primary technical references
 

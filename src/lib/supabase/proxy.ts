@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { publicEnv } from '@/lib/env'
+import type { Database } from '@/types/database.generated'
 
 export async function updateSession(
 	request: NextRequest,
@@ -15,7 +16,7 @@ export async function updateSession(
 
 	// With Fluid compute, don't put this client in a global environment
 	// variable. Always create a new one on each request.
-	const supabase = createServerClient(
+	const supabase = createServerClient<Database>(
 		publicEnv.NEXT_PUBLIC_SUPABASE_URL,
 		publicEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 		{

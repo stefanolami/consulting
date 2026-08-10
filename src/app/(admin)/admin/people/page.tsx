@@ -2,12 +2,54 @@ import type { Metadata } from 'next'
 import { Languages } from 'lucide-react'
 
 import { PeoplePreview } from '@/components/admin/people-preview'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
 	title: 'People',
 }
 
-export default function PeoplePage() {
+export default async function PeoplePage() {
+	const supabase = await createClient()
+	const [{ data: people, error: peopleError }, { data: translations, error: translationsError }] =
+		await Promise.all([
+			supabase
+				.from('people')
+				.select('id, display_name, display_order, is_active')
+				.eq('is_team_member', true)
+				.order('display_order')
+				.order('display_name'),
+			supabase
+				.from('people_translations')
+				.select('person_id, locale, job_title, status')
+				.order('locale'),
+		])
+
+	if (peopleError || translationsError) {
+		throw new Error(
+			`Unable to load team profiles: ${peopleError?.message ?? translationsError?.message}`,
+		)
+	}
+
+	const profiles = (people ?? []).map((person) => {
+		const personTranslations = (translations ?? []).filter(
+			(translation) => translation.person_id === person.id,
+		)
+		const english = personTranslations.find(
+			(translation) => translation.locale === 'en',
+		)
+
+		return {
+			id: person.id,
+			name: person.display_name,
+			role: english?.job_title ?? 'No English title yet',
+			locales: personTranslations.map((translation) => translation.locale),
+			status: english?.status ?? 'draft',
+			isActive: person.is_active,
+		}
+	})
+	const publishedCount = profiles.filter((profile) => profile.status === 'published').length
+	const translatedCount = profiles.filter((profile) => profile.locales.length === 5).length
+
 	return (
 		<div className="mx-auto max-w-6xl">
 			<div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
@@ -26,14 +68,14 @@ export default function PeoplePage() {
 			</div>
 
 			<div className="mt-9 grid gap-4 sm:grid-cols-3">
-				<SummaryCard label="Team profiles" value="3" />
-				<SummaryCard label="Published" value="2" tone="success" />
-				<SummaryCard label="Translation coverage" value="67%" icon />
+				<SummaryCard label="Team profiles" value={String(profiles.length)} />
+				<SummaryCard label="Published in English" value={String(publishedCount)} tone="success" />
+				<SummaryCard label="Fully translated" value={`${translatedCount}/${profiles.length}`} icon />
 			</div>
 
 			<section className="mt-10" aria-labelledby="profiles-heading">
 				<h2 className="sr-only" id="profiles-heading">Team profiles</h2>
-				<PeoplePreview />
+				<PeoplePreview initialMembers={profiles} />
 			</section>
 		</div>
 	)
