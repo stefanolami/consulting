@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ArrowDown, ArrowUp, Pencil, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { createPersonAction, movePersonAction } from '@/app/(admin)/admin/actions'
+import { movePersonAction } from '@/app/(admin)/admin/actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,16 +12,17 @@ import { Input } from '@/components/ui/input'
 type TeamMember = {
 	id: string
 	name: string
+	cardName: string | null
 	role: string
 	locales: string[]
 	status: 'draft' | 'scheduled' | 'published' | 'archived'
 	isActive: boolean
 	displayOrder: number
+	teamGroup: 'managing_team' | 'team'
 }
 
 export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[] }) {
 	const [query, setQuery] = useState('')
-	const [showForm, setShowForm] = useState(false)
 
 	const visibleMembers = useMemo(() => {
 		const normalizedQuery = query.trim().toLowerCase()
@@ -40,8 +41,7 @@ export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[]
 	return (
 		<div className="space-y-6">
 			<div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950">
-				Profiles are stored in Supabase. New profiles start as English drafts
-				and need translations before publication.
+				Profiles are ordered within Managing team or Team. Each localized card uses its selected card role; publishing remains independent per language.
 			</div>
 
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -58,36 +58,10 @@ export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[]
 						onChange={(event) => setQuery(event.target.value)}
 					/>
 				</label>
-				<Button
-					className="h-10 bg-[#27335a] hover:bg-[#1e294c]"
-					onClick={() => setShowForm((current) => !current)}
-					type="button"
-				>
-					<Plus aria-hidden="true" />
-					New profile
+				<Button asChild className="h-10">
+					<Link href="/admin/people/new"><Plus aria-hidden="true" />New profile</Link>
 				</Button>
 			</div>
-
-			{showForm && (
-				<form
-					className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-[1fr_1fr_auto]"
-					action={createPersonAction}
-				>
-					<Input
-						autoFocus
-						name="displayName"
-						placeholder="Full name"
-						required
-					/>
-					<Input
-						name="stableKey"
-						placeholder="Profile key (e.g. jane-doe)"
-						required
-					/>
-					<Input className="sm:col-span-2" name="jobTitle" placeholder="English job title (optional)" />
-					<Button type="submit">Create draft</Button>
-				</form>
-			)}
 
 			<div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
 				<div className="hidden grid-cols-[minmax(15rem,1.4fr)_1fr_9rem_7rem] gap-5 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 md:grid">
@@ -97,17 +71,18 @@ export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[]
 					<span>Status</span>
 				</div>
 				{visibleMembers.length ? (
-					visibleMembers.map((member) => (
+					visibleMembers.map((member, index) => (
+						<div key={member.id}>
+							{(index === 0 || visibleMembers[index - 1].teamGroup !== member.teamGroup) && <div className="border-b border-slate-200 bg-slate-50 px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#53617f]">{member.teamGroup === 'managing_team' ? 'Managing team' : 'Team'}</div>}
 						<div
 							className="grid gap-4 border-b border-slate-100 px-5 py-4 last:border-b-0 md:grid-cols-[minmax(15rem,1.4fr)_1fr_9rem_7rem] md:items-center md:gap-5"
-							key={member.id}
 						>
 							<div className="flex items-center gap-3">
 								<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#e8ebf3] text-xs font-bold text-[#27335a]">
 									{member.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase()}
 								</div>
 								<div>
-									<Link className="font-semibold text-slate-900 underline-offset-4 hover:underline" href={`/admin/people/${member.id}`}>{member.name}</Link>
+									<Link className="font-semibold text-slate-900 underline-offset-4 hover:underline" href={`/admin/people/${member.id}`}>{member.cardName || member.name}</Link>
 									<p className="mt-0.5 text-sm text-slate-500">{member.role}</p>
 								</div>
 							</div>
@@ -142,7 +117,7 @@ export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[]
 									<Button asChild aria-label={`Edit ${member.name}`} size="icon" title="Edit" variant="ghost"><Link href={`/admin/people/${member.id}`}><Pencil /></Link></Button>
 								</div>
 							</div>
-						</div>
+						</div></div>
 					))
 				) : (
 					<div className="px-5 py-14 text-center text-sm text-slate-500">

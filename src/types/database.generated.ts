@@ -1220,6 +1220,7 @@ export type Database = {
           portrait_media_id: string | null
           social_links: Json
           stable_key: string
+          team_group: Database["public"]["Enums"]["team_group"]
           updated_at: string
           updated_by: string | null
           website_url: string | null
@@ -1238,6 +1239,7 @@ export type Database = {
           portrait_media_id?: string | null
           social_links?: Json
           stable_key: string
+          team_group?: Database["public"]["Enums"]["team_group"]
           updated_at?: string
           updated_by?: string | null
           website_url?: string | null
@@ -1256,6 +1258,7 @@ export type Database = {
           portrait_media_id?: string | null
           social_links?: Json
           stable_key?: string
+          team_group?: Database["public"]["Enums"]["team_group"]
           updated_at?: string
           updated_by?: string | null
           website_url?: string | null
@@ -1284,13 +1287,66 @@ export type Database = {
           },
         ]
       }
+      people_profile_roles: {
+        Row: {
+          card_label: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_card_role: boolean
+          locale: string
+          person_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          card_label?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_card_role?: boolean
+          locale: string
+          person_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          card_label?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_card_role?: boolean
+          locale?: string
+          person_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_profile_roles_locale_fkey"
+            columns: ["locale"]
+            isOneToOne: false
+            referencedRelation: "locales"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "people_profile_roles_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       people_translations: {
         Row: {
+          card_name: string | null
           content: Json
           created_at: string
           job_title: string | null
           locale: string
           person_id: string
+          profile_document: Json
           published_at: string | null
           scheduled_for: string | null
           seo_description: string | null
@@ -1301,11 +1357,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          card_name?: string | null
           content?: Json
           created_at?: string
           job_title?: string | null
           locale: string
           person_id: string
+          profile_document?: Json
           published_at?: string | null
           scheduled_for?: string | null
           seo_description?: string | null
@@ -1316,11 +1374,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          card_name?: string | null
           content?: Json
           created_at?: string
           job_title?: string | null
           locale?: string
           person_id?: string
+          profile_document?: Json
           published_at?: string | null
           scheduled_for?: string | null
           seo_description?: string | null
@@ -2024,6 +2084,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "editor"
       content_status: "draft" | "scheduled" | "published" | "archived"
+      team_group: "managing_team" | "team"
     }
     CompositeTypes: {
       [_ in never]: never

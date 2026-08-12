@@ -1,6 +1,6 @@
 # Supabase Content Platform
 
-Last updated: 2026-07-29
+Last updated: 2026-08-12
 
 Status: Initial schema and security design
 
@@ -9,6 +9,7 @@ Related migrations:
 - `supabase/migrations/20260729190000_core_auth_locales_media.sql`
 - `supabase/migrations/20260729191000_content_schema.sql`
 - `supabase/migrations/20260729192000_content_rls.sql`
+- `supabase/migrations/20260812110000_team_profile_model.sql`
 
 ## 1. Purpose
 
@@ -78,7 +79,19 @@ panel.
   - Shared identity used for team members, article authors, or both.
   - Contains public website contact details, portrait, ordering, and flags.
 - `people_translations`
-  - Localized slug, job title, biographies, SEO, and publication state.
+  - Localized slug, card name, structured profile document, SEO, and publication
+    state.
+- `people_profile_roles`
+  - Ordered localized roles with exactly one selected card role and an optional
+    shorter card label.
+
+Team membership has a controlled group (`managing_team` or `team`) and the
+existing display order is interpreted within that group. The version-one
+`profile_document` has only three fixed areas: intro rich text, an optional
+intro endorsement, and ordered titled sections that each contain rich text and
+an optional endorsement. It is server-validated; it is not a generic page
+builder. The existing biography fields remain during the additive migration so
+existing published profiles can be converted safely.
 
 Contact fields on `people` are website-facing editorial fields, not private
 staff-account data. Authentication identities remain in `profiles`.

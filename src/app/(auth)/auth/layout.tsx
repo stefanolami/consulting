@@ -39,16 +39,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 							width={694}
 						/>
 						<div className="relative max-w-md">
-							<p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-blue-200">
+							<p className="text-xs md:text-md lg:text-xl font-semibold uppercase tracking-[0.24em] text-blue-200">
 								Content platform
-							</p>
-							<h1 className="font-robo text-4xl leading-tight">
-								A focused workspace for the stories and places
-								behind our work.
-							</h1>
-							<p className="mt-5 max-w-sm text-base leading-7 text-blue-100/80">
-								Invite-only access for the Time&amp;Place
-								editorial team.
 							</p>
 						</div>
 					</section>

@@ -10,23 +10,25 @@ export const metadata: Metadata = {
 
 export default async function PeoplePage() {
 	const supabase = await createClient()
-	const [{ data: people, error: peopleError }, { data: translations, error: translationsError }] =
+	const [{ data: people, error: peopleError }, { data: translations, error: translationsError }, { data: roles, error: rolesError }] =
 		await Promise.all([
 			supabase
 				.from('people')
-				.select('id, display_name, display_order, is_active')
+				.select('id, display_name, display_order, team_group, is_active')
 				.eq('is_team_member', true)
+				.order('team_group')
 				.order('display_order')
 				.order('display_name'),
 			supabase
 				.from('people_translations')
-				.select('person_id, locale, job_title, status')
+				.select('person_id, locale, card_name, status')
 				.order('locale'),
+			supabase.from('people_profile_roles').select('person_id, locale, title, card_label').eq('is_card_role', true),
 		])
 
-	if (peopleError || translationsError) {
+	if (peopleError || translationsError || rolesError) {
 		throw new Error(
-			`Unable to load team profiles: ${peopleError?.message ?? translationsError?.message}`,
+			`Unable to load team profiles: ${peopleError?.message ?? translationsError?.message ?? rolesError?.message}`,
 		)
 	}
 
@@ -38,14 +40,17 @@ export default async function PeoplePage() {
 			(translation) => translation.locale === 'en',
 		)
 
+		const englishRole = (roles ?? []).find((role) => role.person_id === person.id && role.locale === 'en')
 		return {
 			id: person.id,
 			name: person.display_name,
-			role: english?.job_title ?? 'No English title yet',
+			cardName: english?.card_name ?? null,
+			role: englishRole?.card_label ?? englishRole?.title ?? 'No English card role yet',
 			locales: personTranslations.map((translation) => translation.locale),
 			status: english?.status ?? 'draft',
 			isActive: person.is_active,
 			displayOrder: person.display_order,
+			teamGroup: person.team_group,
 		}
 	})
 	const publishedCount = profiles.filter((profile) => profile.status === 'published').length
