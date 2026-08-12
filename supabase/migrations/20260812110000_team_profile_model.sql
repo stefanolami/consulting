@@ -84,8 +84,8 @@ on conflict (person_id, locale, display_order) do nothing;
 
 alter table public.people_profile_roles enable row level security;
 
-grant select to anon, authenticated on public.people_profile_roles;
-grant insert, update, delete to authenticated on public.people_profile_roles;
+grant select on table public.people_profile_roles to anon, authenticated;
+grant insert, update, delete on table public.people_profile_roles to authenticated;
 grant all on public.people_profile_roles to service_role;
 
 create policy people_profile_roles_staff_select
