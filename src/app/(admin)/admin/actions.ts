@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { requireActiveStaff } from '@/lib/auth/authorization'
-import { parseProfileDocument, profileDocumentFromLegacy } from '@/lib/team-profile-document'
+import { parseProfileDocument } from '@/lib/team-profile-document'
 import { createClient } from '@/lib/supabase/server'
 
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
@@ -111,14 +111,18 @@ export async function createPersonAction(formData: FormData) {
 		displayOrder: formData.get('displayOrder'), teamGroup: formData.get('teamGroup'),
 	})
 	const english = z.object({
-		slug: requiredKey, cardName: optionalText(160), primaryRole: z.string().trim().min(1).max(160),
-		intro: optionalText(10_000), seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(['draft', 'published']),
+		slug: requiredKey, cardName: optionalText(160), roles: z.unknown(), profileDocument: z.unknown(),
+		portraitAltText: optionalText(320), seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(['draft', 'published']),
 	}).safeParse({
-		slug: formData.get('slug'), cardName: formData.get('cardName') || undefined, primaryRole: formData.get('primaryRole'),
-		intro: formData.get('intro') || undefined, seoTitle: formData.get('seoTitle') || undefined,
+		slug: formData.get('slug'), cardName: formData.get('cardName') || undefined,
+		roles: parseJsonField(formData.get('roles'), 'Roles'), profileDocument: parseJsonField(formData.get('profileDocument'), 'Profile document'),
+		portraitAltText: formData.get('portraitAltText') || undefined, seoTitle: formData.get('seoTitle') || undefined,
 		seoDescription: formData.get('seoDescription') || undefined, status: formData.get('status'),
 	})
 	if (!shared.success || !english.success) throw new Error(shared.error?.issues[0]?.message ?? english.error?.issues[0]?.message ?? 'Enter a valid profile.')
+	const roles = parseRoles(english.data.roles)
+	let profileDocument
+	try { profileDocument = parseProfileDocument(english.data.profileDocument) } catch (error) { throw new Error(error instanceof Error ? error.message : 'Enter a valid profile document.') }
 
 	const { profile } = await requireActiveStaff()
 	const supabase = await createClient()
@@ -126,9 +130,30 @@ export async function createPersonAction(formData: FormData) {
 	if (slugError) throw new Error(`Could not validate the English URL slug: ${slugError.message}`)
 	if (existingSlug) throw new Error('That English URL slug is already in use.')
 
+	const personId = randomUUID()
+	const portraitFile = formData.get('portraitFile')
+	let portraitMediaId: string | null = null
+	if (portraitFile instanceof File && portraitFile.size > 0) {
+		const mimeType = z.enum(['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']).safeParse(portraitFile.type)
+		if (!mimeType.success) throw new Error('Choose a GIF, JPEG, PNG, SVG, or WebP portrait.')
+		if (portraitFile.size > 15 * 1024 * 1024) throw new Error('Portraits must be 15 MiB or smaller.')
+		if (!english.data.portraitAltText || english.data.portraitAltText.length < 3) throw new Error('Provide English alt text for the portrait.')
+		const extension = mimeType.data === 'image/jpeg' ? 'jpg' : mimeType.data.split('/')[1]
+		const objectPath = `people/${personId}/${randomUUID()}.${extension}`
+		const { error: uploadError } = await supabase.storage.from('public-media').upload(objectPath, await portraitFile.arrayBuffer(), { cacheControl: '31536000', contentType: mimeType.data, upsert: false })
+		if (uploadError) throw new Error(`Could not upload portrait: ${uploadError.message}`)
+		const { data: media, error: mediaError } = await supabase.from('media_assets').insert({ object_path: objectPath, original_filename: portraitFile.name, mime_type: mimeType.data, file_size_bytes: portraitFile.size, uploaded_by: profile.id }).select('id').single()
+		if (mediaError) throw new Error(`The portrait uploaded, but its media record could not be created: ${mediaError.message}`)
+		const { error: altError } = await supabase.from('media_asset_translations').insert({ media_asset_id: media.id, locale: 'en', alt_text: english.data.portraitAltText })
+		if (altError) throw new Error(`The portrait uploaded, but its alt text could not be saved: ${altError.message}`)
+		portraitMediaId = media.id
+	}
+
 	const { data: person, error: personError } = await supabase.from('people').insert({
+		id: personId,
 		display_name: shared.data.displayName, stable_key: shared.data.stableKey, email: shared.data.email, phone: shared.data.phone,
 		display_order: shared.data.displayOrder, team_group: shared.data.teamGroup,
+		portrait_media_id: portraitMediaId,
 		is_team_member: formData.get('isTeamMember') === 'on', is_author: formData.get('isAuthor') === 'on',
 		created_by: profile.id, updated_by: profile.id,
 	}).select('id').single()
@@ -136,12 +161,12 @@ export async function createPersonAction(formData: FormData) {
 
 	const { error: translationError } = await supabase.from('people_translations').insert({
 		person_id: person.id, locale: 'en', slug: english.data.slug, card_name: english.data.cardName,
-		profile_document: profileDocumentFromLegacy(english.data.intro, null), seo_title: english.data.seoTitle,
+		profile_document: profileDocument, seo_title: english.data.seoTitle,
 		seo_description: english.data.seoDescription, status: english.data.status,
 		published_at: english.data.status === 'published' ? new Date().toISOString() : null,
 	})
 	if (translationError) throw new Error(`The shared profile was created, but the English translation could not be saved: ${translationError.message}`)
-	await replaceRoles(supabase, person.id, 'en', parseRoles([{ title: english.data.primaryRole, cardLabel: null, isCardRole: true }]))
+	await replaceRoles(supabase, person.id, 'en', roles)
 
 	revalidatePath('/admin')
 	revalidatePath('/admin/people')

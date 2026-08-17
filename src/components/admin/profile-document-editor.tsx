@@ -61,7 +61,7 @@ function RichTextEditor({ label, value, onChange }: { label: string; value: Json
 	const editor = useEditor({
 		immediatelyRender: false,
 		extensions: [
-			StarterKit.configure({ blockquote: false, code: false, codeBlock: false, heading: false, horizontalRule: false, strike: false }),
+			StarterKit.configure({ blockquote: false, code: false, codeBlock: false, heading: false, horizontalRule: false, link: false, strike: false }),
 			Link.configure({ openOnClick: false, autolink: true, linkOnPaste: true }),
 		],
 		content: value as JSONContent,
