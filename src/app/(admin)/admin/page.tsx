@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import {
 	FilePenLine,
 	Globe2,
+	Layers3,
 	UsersRound,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -28,6 +29,13 @@ const upcomingAreas = [
 			'Profiles, translations, ordering, archive and restore workflows.',
 		icon: UsersRound,
 		href: '/admin/people',
+	},
+	{
+		title: 'Services and sectors',
+		description:
+			'Catalogue translations, icons, contacts, article links, ordering and publication.',
+		icon: Layers3,
+		href: '/admin/catalogue',
 	},
 	{
 		title: 'Newsroom',
@@ -85,7 +93,7 @@ async function DashboardContent({
 				</Button>
 			</div>
 
-			<div className="mt-9 grid gap-4 sm:grid-cols-3">
+		<div className="mt-9 grid gap-4 sm:grid-cols-3">
 				<Summary label="Team profiles" value="3" />
 				<Summary label="Published profiles" value="2" />
 				<Summary label="Active locales" value="5" />
@@ -103,7 +111,7 @@ async function DashboardContent({
 						The areas used to maintain the website.
 					</p>
 				</div>
-				<div className="grid gap-4 md:grid-cols-3">
+				<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
 					{upcomingAreas.map((area) => {
 						const Icon = area.icon
 

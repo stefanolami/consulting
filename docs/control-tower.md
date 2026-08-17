@@ -1,6 +1,6 @@
 # Consulting Website Rework — Control Tower
 
-Last updated: 2026-08-10
+Last updated: 2026-08-17
 
 Status: High-level plan and architectural source of truth
 
@@ -763,6 +763,23 @@ must be reflected in their loading behavior.
 
 ## 20. Implementation roadmap
 
+### Delivery sequencing decision
+
+The current delivery sequence is **admin foundation first, public dynamic
+templates second**. The completed team work remains the reference
+implementation for controlled localized editorial content, but it is not an
+instruction to keep polishing team pages in isolation.
+
+Before building further public CMS-driven pages, complete the agreed admin
+workflows and their controlled data contracts for every in-scope editorial
+area. Then build the public templates against those stable contracts and run
+end-to-end editorial tests using realistic content. Findings from that test
+cycle determine the next admin refinements.
+
+This does not turn the admin into a page builder: page composition and visual
+design remain in code. It also does not delay necessary schema, RLS, media, or
+server-side validation work.
+
 ### Phase 0 — Discovery and decision lock
 
 - Maintain the completed initial Figma inventory as the proposal evolves.
@@ -796,7 +813,7 @@ must be reflected in their loading behavior.
 - Build an early Our Outreach map interaction prototype to retire technical
   risk.
 
-### Phase 3 — First vertical slice: team
+### Phase 3 — Reference implementation: team
 
 - Build people/team administration.
 - Implement image upload.
@@ -804,33 +821,47 @@ must be reflected in their loading behavior.
 - Build the public team list and member detail pages from Supabase.
 - Validate caching, revalidation, RLS, media, and SEO end to end.
 
-This is the first complete milestone because it proves the core platform with a
-simpler content type before the article editor adds complexity.
+This is the reference implementation for the controlled editorial patterns used
+by later admin areas: shared identity, per-locale publication, media metadata,
+structured documents, ordering, archive/restore, and server-side validation.
+Further team-page polish is deferred until the cross-area end-to-end test phase.
 
-### Phase 4 — Newsroom
+### Phase 4 — Complete the admin foundation
 
-- Build people/authors and taxonomy management.
-- Implement the TipTap editor and controlled public renderer.
-- Implement draft, preview, publish, schedule, archive, and translation flows.
-- Build public article listing, filtering, pagination, and detail pages.
-- Add metadata, structured data, related content, and redirects.
-- Build and verify legacy article migration.
+- Complete services and sectors catalogue management, including translations,
+  media, ordering, contacts, SEO, publication, and archive/restore.
+- Complete newsroom administration: articles, authors, tags, sectors,
+  services, explicit relations, controlled TipTap content, SEO, and
+  per-translation publication.
+- Complete Our Outreach administration: regions, countries, country services,
+  statistics, offices, experts, media, and localized content.
+- Complete the remaining agreed editorial administration: partners/client
+  logos, endorsements, site settings, redirects, and reusable media metadata.
+- Apply the same common safeguards to every workflow: RLS, server-side schema
+  validation, actionable form errors, audit metadata, translation status, and
+  archive/restore where applicable.
 
-### Phase 5 — Our Outreach
+### Phase 5 — Public dynamic templates and integration
 
-- Finalize country, region, service, and translation management.
-- Implement the production map against the Figma design.
-- Implement country summary panels and shareable selection state.
-- Build localized country detail pages.
-- Complete touch, keyboard, accessibility, responsive, and performance work.
+- Build reusable public services and sectors indexes and detail templates.
+- Build newsroom listing, filters, pagination, and article-detail templates.
+- Implement the production Our Outreach map, country summary panels, shareable
+  selection state, and localized country pages.
+- Connect people, contacts, related articles, services, sectors, countries,
+  partners, and endorsements through the completed admin contracts.
+- Add public SEO, structured data, redirects, caching, and revalidation for
+  each entity type.
 
-### Phase 6 — Remaining Figma pages
+### Phase 6 — End-to-end editorial validation and remaining Figma pages
 
 - Implement the global shell, navigation, footer, and shared sections.
 - Build remaining marketing, services, sectors, why-us, contact, and legal
   pages.
-- Connect additional CMS entities that were confirmed during discovery.
 - Complete responsive and interaction states.
+- Have realistic profiles, articles, services, sectors, countries, and other
+  content authored through the admin and reviewed on their public pages.
+- Use the resulting editorial feedback to correct admin UX, validation, and
+  controlled document schemas before broad content migration.
 
 ### Phase 7 — Content migration and hardening
 
@@ -885,6 +916,8 @@ simpler content type before the article editor adds complexity.
 - Use a summary side panel for desktop Our Outreach country selection, followed
   by a dedicated country detail page.
 - Implement the new Figma design as the visual source of truth.
+- Complete the agreed admin foundation before expanding the public
+  CMS-driven frontend beyond the team reference implementation.
 
 ## 22. Confirmed implementation defaults
 
@@ -932,15 +965,15 @@ The rebuild is complete when:
 
 ## 25. Immediate next actions
 
-1. Commit and use the generated database TypeScript types.
-2. Configure custom SMTP for Supabase Auth before live staff onboarding; use a
-   dedicated authentication sending subdomain so the Zoho-hosted primary domain
-   remains isolated.
-3. Bootstrap the first administrator and verify invitation, password setup,
-   sign-in, sign-out, and password-recovery flows.
-4. Complete the team-management vertical slice: profile editing, translations,
-   media upload, ordering, archive/restore, and public preview.
-5. Continue with the newsroom vertical slice after the team workflow is proven.
+1. Confirm the applied schema and generated database types are synchronized.
+2. Keep MailerSend/SMTP configuration and live colleague-auth onboarding
+   deferred; retain the existing invite-only architecture without expanding it.
+3. Treat the completed team workflow as the reference implementation and park
+   further team polish.
+4. Build the next admin foundation area: services and sectors catalogue
+   management.
+5. Continue through the remaining admin areas before beginning the public
+   CMS-driven templates and end-to-end editorial validation.
 
 ## 26. Primary technical references
 

@@ -1,5 +1,6 @@
 import {
 	BookOpenText,
+	Layers3,
 	Globe2,
 	ImageIcon,
 	LayoutDashboard,
@@ -18,6 +19,7 @@ import { cn } from '@/lib/utils'
 const navigation = [
 	{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard, enabled: true },
 	{ label: 'People', href: '/admin/people', icon: UsersRound, enabled: true },
+	{ label: 'Catalogue', href: '/admin/catalogue', icon: Layers3, enabled: true },
 	{
 		label: 'Newsroom',
 		href: '/admin/newsroom',
