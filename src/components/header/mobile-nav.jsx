@@ -109,18 +109,12 @@ export default function MobileNav() {
 						}}
 					>
 						<nav className="flex flex-col justify-start gap-4 items-center text-white mt-24">
-							{/* <Link
-								onClick={() => setActive(false)}
-								href="/poe"
-							>
-								{messages.poe}
-							</Link>
 							<Link
 								onClick={() => setActive(false)}
-								href="/your-access"
+								href="https://poeontap.com/"
 							>
-								{messages.yourAccess}
-							</Link> */}
+								POE
+							</Link>
 							<Link
 								onClick={() => setActive(false)}
 								href="/who-we-are"

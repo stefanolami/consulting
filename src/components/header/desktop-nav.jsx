@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 export default function DesktopNav() {
@@ -11,11 +12,18 @@ export default function DesktopNav() {
 			id="desktop-nav"
 			className="hidden md:flex flex-row justify-between items-center gap-12 h-full font-unna font-bold"
 		>
-			{/* CHANGE TO GRID-COLS-6 */}
 			<nav
 				id="desktop-nav"
-				className="grid grid-cols-5 text-center uppercase h-full *:px-4 text-xs lg:text-base"
+				className="grid grid-cols-6 text-center uppercase h-full *:px-4 text-xs lg:text-base"
 			>
+				<Link
+					href="https://poeontap.com/"
+					className="relative flex items-center justify-center hover:bg-primary-light hover:z-50"
+				>
+					<div className="relative w-full aspect-[185/139]">
+						<Image src="/poe-highlight.png" alt="POE" fill />
+					</div>
+				</Link>
 				<Link
 					className={`hover:bg-primary-light hover:z-50 relative ${
 						path.startsWith('/who-we-are') ? 'active-link' : ''
