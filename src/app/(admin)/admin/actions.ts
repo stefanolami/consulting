@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { parseProfileDocument } from '@/lib/team-profile-document'
 import { parseCatalogueDocument } from '@/lib/catalogue-document'
+import { parseArticleDocument } from '@/lib/article-document'
 import { createClient } from '@/lib/supabase/server'
 
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
@@ -563,3 +564,141 @@ export async function moveCatalogueAction(_: CatalogueActionState, formData: For
 		return { success: 'Catalogue order saved.' }
 	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not update catalogue order.' } }
 }
+
+export type ArticleActionState = { error?: string; success?: string; entryId?: string }
+
+const articleStatuses = ['draft', 'scheduled', 'published', 'archived'] as const
+const httpUrl = z.string().trim().max(2_048).superRefine((value, context) => {
+	try {
+		const protocol = new URL(value).protocol
+		if (protocol !== 'http:' && protocol !== 'https:') context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' })
+	} catch { context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' }) }
+})
+const articleDetailsSchema = z.object({
+	articleId: z.string().uuid().optional(),
+	stableKey: requiredKey,
+	kind: z.string().trim().regex(/^[a-z][a-z0-9-]*$/, 'Article kind must use lowercase letters, numbers and hyphens.').max(80),
+	coverMediaId: optionalUuid,
+	externalMediaUrl: optionalText(2_048).refine((value) => value === null || httpUrl.safeParse(value).success, 'Enter a complete external media URL.'),
+	isFeatured: z.boolean(),
+	featuredOrder: z.coerce.number().int().min(0).max(100_000),
+	authorIds: z.array(z.string().uuid()).max(30),
+	tagIds: z.array(z.string().uuid()).max(100),
+	serviceIds: z.array(z.string().uuid()).max(100),
+	sectorIds: z.array(z.string().uuid()).max(100),
+	relatedArticleIds: z.array(z.string().uuid()).max(100),
+})
+const articleTranslationSchema = z.object({
+	articleId: z.string().uuid().optional(), locale: z.enum(locales), slug: requiredKey,
+	title: z.string().trim().min(2).max(300), excerpt: optionalText(2_000), content: z.unknown(),
+	sources: z.array(z.object({ label: z.string().trim().min(1).max(300), url: httpUrl }).strict()).max(50),
+	seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(articleStatuses),
+	scheduledFor: optionalText(64), coverAltText: optionalText(320),
+})
+const articleCoverSchema = z.object({
+	articleId: z.string().uuid(), objectPath: z.string().min(1).max(1024), originalFilename: z.string().min(1).max(512),
+	mimeType: z.enum(['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']), fileSizeBytes: z.number().int().positive().max(15 * 1024 * 1024),
+	width: z.number().int().positive().nullable(), height: z.number().int().positive().nullable(), altText: z.string().trim().min(3).max(320),
+})
+
+function articleDetailsFromForm(formData: FormData, requireId = true) {
+	const parsed = articleDetailsSchema.safeParse({ articleId: formData.get('articleId') || undefined, stableKey: formData.get('stableKey'), kind: formData.get('kind'), coverMediaId: formData.get('coverMediaId') || undefined, externalMediaUrl: formData.get('externalMediaUrl') || undefined, isFeatured: formData.get('isFeatured') === 'on', featuredOrder: formData.get('featuredOrder'), authorIds: formJson(formData.get('authorIds'), 'Authors'), tagIds: formJson(formData.get('tagIds'), 'Tags'), serviceIds: formJson(formData.get('serviceIds'), 'Services'), sectorIds: formJson(formData.get('sectorIds'), 'Sectors'), relatedArticleIds: formJson(formData.get('relatedArticleIds'), 'Related articles') })
+	if (!parsed.success || (requireId && !parsed.data?.articleId)) throw new Error(parsed.error?.issues[0]?.message ?? 'Enter valid article details.')
+	for (const [ids, label] of [[parsed.data.authorIds, 'Authors'], [parsed.data.tagIds, 'Tags'], [parsed.data.serviceIds, 'Services'], [parsed.data.sectorIds, 'Sectors'], [parsed.data.relatedArticleIds, 'Related articles']] as const) uniqueIds(ids, label)
+	if (parsed.data.relatedArticleIds.includes(parsed.data.articleId ?? '')) throw new Error('An article cannot be related to itself.')
+	return parsed.data
+}
+function articleTranslationFromForm(formData: FormData, requireId = true) {
+	const parsed = articleTranslationSchema.safeParse({ articleId: formData.get('articleId') || undefined, locale: formData.get('locale'), slug: formData.get('slug'), title: formData.get('title'), excerpt: formData.get('excerpt') || undefined, content: formJson(formData.get('content'), 'Article content'), sources: formJson(formData.get('sources'), 'Sources'), seoTitle: formData.get('seoTitle') || undefined, seoDescription: formData.get('seoDescription') || undefined, status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined, coverAltText: formData.get('coverAltText') || undefined })
+	if (!parsed.success || (requireId && !parsed.data?.articleId)) throw new Error(parsed.error?.issues[0]?.message ?? 'Enter valid localized article content.')
+	let content
+	try { content = parseArticleDocument(parsed.data.content) } catch (error) { throw new Error(error instanceof Error ? error.message : 'Article content is invalid.') }
+	return { ...parsed.data, content }
+}
+function articlePublication(status: (typeof articleStatuses)[number], scheduledFor: string | null) {
+	if (status === 'scheduled') {
+		if (!scheduledFor || Number.isNaN(Date.parse(scheduledFor))) throw new Error('Choose a valid scheduled publication time.')
+		return { status, scheduled_for: new Date(scheduledFor).toISOString(), published_at: null }
+	}
+	return { status, scheduled_for: null, published_at: status === 'published' ? new Date().toISOString() : null }
+}
+async function validateRelationIds(supabase: Awaited<ReturnType<typeof createClient>>, table: 'people' | 'tags' | 'services' | 'sectors' | 'articles', ids: string[], label: string) {
+	if (!ids.length) return
+	const result = table === 'people'
+		? await supabase.from('people').select('id').in('id', ids).eq('is_active', true).eq('is_author', true)
+		: table === 'tags'
+			? await supabase.from('tags').select('id').in('id', ids).eq('is_active', true)
+			: table === 'services'
+				? await supabase.from('services').select('id').in('id', ids).eq('is_active', true)
+				: table === 'sectors'
+					? await supabase.from('sectors').select('id').in('id', ids).eq('is_active', true)
+					: await supabase.from('articles').select('id').in('id', ids)
+	const { data, error } = result
+	if (error) throw new Error(`Could not validate ${label.toLowerCase()}: ${error.message}`)
+	if ((data ?? []).length !== ids.length) throw new Error(`One or more selected ${label.toLowerCase()} are unavailable. Refresh and try again.`)
+}
+async function replaceArticleRelations(supabase: Awaited<ReturnType<typeof createClient>>, articleId: string, details: ReturnType<typeof articleDetailsFromForm>) {
+	await Promise.all([
+		validateRelationIds(supabase, 'people', details.authorIds, 'authors'), validateRelationIds(supabase, 'tags', details.tagIds, 'tags'), validateRelationIds(supabase, 'services', details.serviceIds, 'services'), validateRelationIds(supabase, 'sectors', details.sectorIds, 'sectors'), validateRelationIds(supabase, 'articles', details.relatedArticleIds, 'related articles'),
+	])
+	const deletes = await Promise.all([
+		supabase.from('article_authors').delete().eq('article_id', articleId), supabase.from('article_tags').delete().eq('article_id', articleId), supabase.from('article_services').delete().eq('article_id', articleId), supabase.from('article_sectors').delete().eq('article_id', articleId), supabase.from('article_relations').delete().eq('source_article_id', articleId),
+	])
+	const failed = deletes.find((result) => result.error)
+	if (failed?.error) throw new Error(`Could not replace article relations: ${failed.error.message}`)
+	const inserts = await Promise.all([
+		details.authorIds.length ? supabase.from('article_authors').insert(details.authorIds.map((person_id, display_order) => ({ article_id: articleId, person_id, display_order }))) : Promise.resolve({ error: null }),
+		details.tagIds.length ? supabase.from('article_tags').insert(details.tagIds.map((tag_id) => ({ article_id: articleId, tag_id }))) : Promise.resolve({ error: null }),
+		details.serviceIds.length ? supabase.from('article_services').insert(details.serviceIds.map((service_id) => ({ article_id: articleId, service_id }))) : Promise.resolve({ error: null }),
+		details.sectorIds.length ? supabase.from('article_sectors').insert(details.sectorIds.map((sector_id) => ({ article_id: articleId, sector_id }))) : Promise.resolve({ error: null }),
+		details.relatedArticleIds.length ? supabase.from('article_relations').insert(details.relatedArticleIds.map((related_article_id, display_order) => ({ source_article_id: articleId, related_article_id, display_order }))) : Promise.resolve({ error: null }),
+	])
+	const failedInsert = inserts.find((result) => result.error)
+	if (failedInsert?.error) throw new Error(`Could not save article relations: ${failedInsert.error.message}`)
+}
+async function ensureArticleCanPublish(supabase: Awaited<ReturnType<typeof createClient>>, articleId: string, translation: ReturnType<typeof articleTranslationFromForm>) {
+	if (translation.status !== 'published') return
+	const { data: article, error } = await supabase.from('articles').select('cover_media_id, external_media_url').eq('id', articleId).maybeSingle()
+	if (error || !article) throw new Error(`Could not load article media: ${error?.message ?? 'Article not found.'}`)
+	if (!article.cover_media_id && !article.external_media_url) throw new Error('Published articles need a cover image or external media URL.')
+	if (article.cover_media_id && !translation.coverAltText) throw new Error('Published localized content needs localized alt text for its cover image.')
+}
+async function saveArticleCoverAlt(supabase: Awaited<ReturnType<typeof createClient>>, articleId: string, locale: (typeof locales)[number], altText: string | null) {
+	if (!altText) return
+	const { data: article } = await supabase.from('articles').select('cover_media_id').eq('id', articleId).maybeSingle()
+	if (!article?.cover_media_id) return
+	const { error } = await supabase.from('media_asset_translations').upsert({ media_asset_id: article.cover_media_id, locale, alt_text: altText }, { onConflict: 'media_asset_id,locale' })
+	if (error) throw new Error(`Could not save localized cover alt text: ${error.message}`)
+}
+async function refreshNewsroomPaths(supabase: Awaited<ReturnType<typeof createClient>>, articleId?: string) {
+	revalidatePath('/admin'); revalidatePath('/admin/newsroom'); if (articleId) revalidatePath(`/admin/newsroom/${articleId}`)
+	// Public newsroom templates are intentionally deferred. Revalidating the future
+	// route family keeps content writes safe when that phase lands.
+	if (articleId) { const { data } = await supabase.from('article_translations').select('locale, slug').eq('article_id', articleId); for (const item of data ?? []) { const prefix = item.locale === 'en' ? '' : `/${item.locale}`; revalidatePath(`${prefix}/newsroom/${item.slug}`) } }
+}
+export async function createArticleAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {
+	try {
+		const details = articleDetailsFromForm(formData, false); const translation = articleTranslationFromForm(formData, false)
+		if (translation.locale !== 'en') return { error: 'New articles must start with an English translation.' }
+		const { profile } = await requireActiveStaff(); const supabase = await createClient(); const articleId = randomUUID()
+		const { data: article, error } = await supabase.from('articles').insert({ id: articleId, stable_key: details.stableKey, kind: details.kind, cover_media_id: details.coverMediaId, external_media_url: details.externalMediaUrl, is_featured: details.isFeatured, featured_order: details.featuredOrder, created_by: profile.id, updated_by: profile.id }).select('id').single()
+		if (error) return { error: `Could not create the article: ${error.message}` }
+		await ensureArticleCanPublish(supabase, article.id, translation)
+		const publication = articlePublication(translation.status, translation.scheduledFor)
+		const { error: translationError } = await supabase.from('article_translations').insert({ article_id: article.id, locale: 'en', slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication })
+		if (translationError) return { error: `The article was created, but its English translation could not be saved: ${translationError.message}` }
+		await replaceArticleRelations(supabase, article.id, details); await saveArticleCoverAlt(supabase, article.id, 'en', translation.coverAltText); await refreshNewsroomPaths(supabase, article.id)
+		return { success: 'Article created.', entryId: article.id }
+	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not create the article.' } }
+}
+export async function saveArticleDetailsAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {
+	try { const details = articleDetailsFromForm(formData); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('articles').update({ stable_key: details.stableKey, kind: details.kind, cover_media_id: details.coverMediaId, external_media_url: details.externalMediaUrl, is_featured: details.isFeatured, featured_order: details.featuredOrder, updated_by: profile.id }).eq('id', details.articleId!); if (error) return { error: `Could not save article details: ${error.message}` }; await replaceArticleRelations(supabase, details.articleId!, details); await refreshNewsroomPaths(supabase, details.articleId!); return { success: 'Shared article details saved.' } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not save article details.' } } }
+export async function saveArticleTranslationAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {
+	try { const translation = articleTranslationFromForm(formData); await requireActiveStaff(); const supabase = await createClient(); await ensureArticleCanPublish(supabase, translation.articleId!, translation); const publication = articlePublication(translation.status, translation.scheduledFor); const { error } = await supabase.from('article_translations').upsert({ article_id: translation.articleId!, locale: translation.locale, slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'article_id,locale' }); if (error) return { error: `Could not save this translation: ${error.message}` }; await saveArticleCoverAlt(supabase, translation.articleId!, translation.locale, translation.coverAltText); await refreshNewsroomPaths(supabase, translation.articleId); return { success: `${translation.locale} translation saved.` } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not save this translation.' } } }
+export async function setArticleArchivedAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {
+	try { const articleId = z.string().uuid().parse(formData.get('articleId')); const archive = z.enum(['true', 'false']).parse(formData.get('archive')) === 'true'; const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('articles').update({ updated_by: profile.id }).eq('id', articleId); if (error) return { error: `Could not ${archive ? 'archive' : 'restore'} the article: ${error.message}` }; const { error: translationError } = archive ? await supabase.from('article_translations').update({ status: 'archived', scheduled_for: null, published_at: null }).eq('article_id', articleId) : { error: null }; if (translationError) return { error: `Could not archive article translations: ${translationError.message}` }; await refreshNewsroomPaths(supabase, articleId); return { success: archive ? 'Article and its translations archived.' : 'Article restored; save a translation to publish it again.' } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not update this article.' } } }
+export async function attachArticleCoverAction(input: unknown): Promise<ArticleActionState> {
+	try { const parsed = articleCoverSchema.parse(input); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { data: media, error: mediaError } = await supabase.from('media_assets').insert({ object_path: parsed.objectPath, original_filename: parsed.originalFilename, mime_type: parsed.mimeType, file_size_bytes: parsed.fileSizeBytes, width: parsed.width, height: parsed.height, uploaded_by: profile.id }).select('id').single(); if (mediaError) return { error: `The file uploaded, but its media record could not be created: ${mediaError.message}` }; const { error: altError } = await supabase.from('media_asset_translations').upsert({ media_asset_id: media.id, locale: 'en', alt_text: parsed.altText }, { onConflict: 'media_asset_id,locale' }); if (altError) return { error: `The cover uploaded, but its English alt text could not be saved: ${altError.message}` }; const { error } = await supabase.from('articles').update({ cover_media_id: media.id, updated_by: profile.id }).eq('id', parsed.articleId); if (error) return { error: `The cover was saved, but could not be attached: ${error.message}` }; await refreshNewsroomPaths(supabase, parsed.articleId); return { success: 'Cover image uploaded and attached.' } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not upload the cover image.' } } }
+
+export async function createNewsroomTagAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {
+	try { const parsed = z.object({ stableKey: requiredKey, name: z.string().trim().min(1).max(160), slug: requiredKey, status: z.enum(['draft', 'published']) }).parse({ stableKey: formData.get('stableKey'), name: formData.get('name'), slug: formData.get('slug'), status: formData.get('status') }); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const id = randomUUID(); const { data: tag, error } = await supabase.from('tags').insert({ id, stable_key: parsed.stableKey, created_by: profile.id, updated_by: profile.id }).select('id').single(); if (error) return { error: `Could not create tag: ${error.message}` }; const { error: translationError } = await supabase.from('tag_translations').insert({ tag_id: tag.id, locale: 'en', slug: parsed.slug, name: parsed.name, status: parsed.status, published_at: parsed.status === 'published' ? new Date().toISOString() : null }); if (translationError) return { error: `The tag was created, but its English label could not be saved: ${translationError.message}` }; revalidatePath('/admin/newsroom'); return { success: 'Newsroom tag created.' } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not create newsroom tag.' } } }

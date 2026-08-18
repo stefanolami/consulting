@@ -970,10 +970,10 @@ The rebuild is complete when:
    deferred; retain the existing invite-only architecture without expanding it.
 3. Treat the completed team workflow as the reference implementation and park
    further team polish.
-4. Build the next admin foundation area: services and sectors catalogue
-   management.
-5. Continue through the remaining admin areas before beginning the public
-   CMS-driven templates and end-to-end editorial validation.
+4. Treat the completed services/sectors catalogue and newsroom workflows as
+   reference implementations; defer their public CMS templates to Phase 5.
+5. Continue with Our Outreach and the remaining admin areas before beginning
+   public CMS-driven templates and end-to-end editorial validation.
 
 ## 26. Primary technical references
 

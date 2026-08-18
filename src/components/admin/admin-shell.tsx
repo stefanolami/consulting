@@ -24,7 +24,7 @@ const navigation = [
 		label: 'Newsroom',
 		href: '/admin/newsroom',
 		icon: BookOpenText,
-		enabled: false,
+		enabled: true,
 	},
 	{
 		label: 'Our Outreach',

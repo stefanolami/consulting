@@ -42,6 +42,7 @@ const upcomingAreas = [
 		description:
 			'Drafts, authors, taxonomy, translations and publishing controls.',
 		icon: FilePenLine,
+		href: '/admin/newsroom',
 	},
 	{
 		title: 'Our Outreach',
