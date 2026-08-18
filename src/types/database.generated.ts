@@ -2079,7 +2079,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_media_asset: {
+        Args: { p_media_asset_id: string }
+        Returns: Json
+      }
+      replace_media_asset: {
+        Args: {
+          p_file_size_bytes: number
+          p_height: number | null
+          p_media_asset_id: string
+          p_mime_type: string
+          p_object_path: string
+          p_original_filename: string
+          p_width: number | null
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "editor"
@@ -2214,6 +2229,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "editor"],
       content_status: ["draft", "scheduled", "published", "archived"],
+      team_group: ["managing_team", "team"],
     },
   },
 } as const

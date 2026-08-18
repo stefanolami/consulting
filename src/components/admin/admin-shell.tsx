@@ -32,7 +32,7 @@ const navigation = [
 		icon: Globe2,
 		enabled: true,
 	},
-	{ label: 'Media', href: '/admin/media', icon: ImageIcon, enabled: false },
+	{ label: 'Media', href: '/admin/media', icon: ImageIcon, enabled: true },
 ]
 
 function Navigation({ compact = false }: { compact?: boolean }) {
