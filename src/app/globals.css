@@ -130,3 +130,13 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+@layer components {
+	.input-select {
+		@apply h-9 w-full rounded-md border border-input bg-white px-3 text-sm shadow-xs;
+	}
+
+	.input-textarea {
+		@apply w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-xs;
+	}
+}

@@ -1,0 +1,13 @@
+import Link from 'next/link'
+
+import { CountryEditor } from '@/components/admin/country-editor'
+import { createClient } from '@/lib/supabase/server'
+
+export default async function NewCountryPage() {
+	const supabase = await createClient()
+	const [{ data: regions, error: regionError }, { data: services, error: serviceError }, { data: people, error: peopleError }, { data: offices, error: officeError }, { data: media, error: mediaError }, { data: regionTranslations, error: regionTranslationError }, { data: serviceTranslations, error: serviceTranslationError }] = await Promise.all([
+		supabase.from('regions').select('id, stable_key').eq('is_active', true).order('display_order'), supabase.from('services').select('id, stable_key').eq('is_active', true).order('display_order'), supabase.from('people').select('id, display_name').eq('is_active', true).order('display_name'), supabase.from('offices').select('id, stable_key').eq('is_active', true).order('display_order'), supabase.from('media_assets').select('id, original_filename').order('created_at', { ascending: false }).limit(200), supabase.from('region_translations').select('region_id, name').eq('locale', 'en'), supabase.from('service_translations').select('service_id, name').eq('locale', 'en'),
+	])
+	if (regionError || serviceError || peopleError || officeError || mediaError || regionTranslationError || serviceTranslationError) throw new Error(`Unable to load country options: ${regionError?.message ?? serviceError?.message ?? peopleError?.message ?? officeError?.message ?? mediaError?.message ?? regionTranslationError?.message ?? serviceTranslationError?.message}`)
+	return <div className="mx-auto max-w-5xl"><Link className="text-sm font-semibold text-[#53617f] underline-offset-4 hover:underline" href="/admin/outreach">← Our Outreach</Link><p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-[#53617f]">Our Outreach administration</p><h1 className="mt-2 font-robo text-4xl tracking-tight text-slate-950">New country</h1><CountryEditor media={(media ?? []).map((item) => ({ id: item.id, label: item.original_filename ?? item.id }))} offices={(offices ?? []).map((item) => ({ id: item.id, label: item.stable_key }))} people={(people ?? []).map((item) => ({ id: item.id, label: item.display_name }))} regions={(regions ?? []).map((item) => ({ id: item.id, label: (regionTranslations ?? []).find((translation) => translation.region_id === item.id)?.name ?? item.stable_key }))} services={(services ?? []).map((item) => ({ id: item.id, label: (serviceTranslations ?? []).find((translation) => translation.service_id === item.id)?.name ?? item.stable_key }))} /></div>
+}

@@ -565,6 +565,188 @@ export async function moveCatalogueAction(_: CatalogueActionState, formData: For
 	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not update catalogue order.' } }
 }
 
+export type OutreachActionState = { error?: string; success?: string; entryId?: string; countryCode?: string }
+
+const outreachStatuses = ['draft', 'scheduled', 'published', 'archived'] as const
+const isoCountryCode = z.string().trim().regex(/^[A-Za-z]{2}$/, 'Use a two-letter ISO 3166-1 alpha-2 country code.').transform((value) => value.toUpperCase())
+const optionalNumber = z.union([z.number(), z.string()]).optional().transform((value) => value === undefined || value === '' ? null : Number(value))
+const outreachMapConfig = z.object({
+	longitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -180 && value <= 180), 'Map longitude must be between -180 and 180.'),
+	latitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -90 && value <= 90), 'Map latitude must be between -90 and 90.'),
+	zoom: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value > 0 && value <= 10), 'Map zoom must be greater than 0 and no more than 10.'),
+})
+const outreachUrl = z.string().trim().max(2_048).superRefine((value, context) => {
+	try {
+		const protocol = new URL(value).protocol
+		if (protocol !== 'http:' && protocol !== 'https:') context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' })
+	} catch { context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' }) }
+})
+
+function mapConfigFromForm(formData: FormData) {
+	const parsed = outreachMapConfig.parse({ longitude: formData.get('mapLongitude') || undefined, latitude: formData.get('mapLatitude') || undefined, zoom: formData.get('mapZoom') || undefined })
+	if ((parsed.longitude === null) !== (parsed.latitude === null)) throw new Error('Provide both map longitude and latitude, or leave both empty.')
+	if (parsed.zoom !== null && parsed.longitude === null) throw new Error('Map zoom requires a map longitude and latitude.')
+	return parsed.longitude === null ? {} : { coordinates: [parsed.longitude, parsed.latitude], ...(parsed.zoom === null ? {} : { zoom: parsed.zoom }) }
+}
+
+function outreachPublication(status: (typeof outreachStatuses)[number], scheduledFor: string | null) {
+	const scheduled = scheduledFor ? new Date(scheduledFor) : null
+	if (status === 'scheduled' && (!scheduled || Number.isNaN(scheduled.getTime()) || scheduled <= new Date())) throw new Error('Choose a future scheduled publication time.')
+	return { status, scheduled_for: status === 'scheduled' ? scheduled?.toISOString() ?? null : null, published_at: status === 'published' ? new Date().toISOString() : null }
+}
+
+async function refreshOutreachPaths(supabase: Awaited<ReturnType<typeof createClient>>, countryCode?: string) {
+	revalidatePath('/admin')
+	revalidatePath('/admin/outreach')
+	revalidatePath('/admin/outreach/regions')
+	revalidatePath('/admin/outreach/offices')
+	if (countryCode) revalidatePath(`/admin/outreach/${countryCode}`)
+	// Public Outreach templates are deliberately deferred, but invalidate their future route roots safely.
+	revalidatePath('/our-outreach')
+	for (const locale of locales.filter((locale) => locale !== 'en')) revalidatePath(`/${locale}/our-outreach`)
+	if (countryCode) {
+		const { data } = await supabase.from('country_translations').select('locale, slug').eq('country_code', countryCode)
+		for (const translation of data ?? []) {
+			const prefix = translation.locale === 'en' ? '' : `/${translation.locale}`
+			revalidatePath(`${prefix}/our-outreach/${translation.slug}`)
+		}
+	}
+}
+
+const regionDetailsSchema = z.object({ regionId: z.string().uuid().optional(), stableKey: requiredKey, displayOrder: z.coerce.number().int().min(0).max(100_000) })
+const regionTranslationSchema = z.object({ regionId: z.string().uuid().optional(), locale: z.enum(locales), slug: requiredKey, name: z.string().trim().min(1).max(160), status: z.enum(outreachStatuses), scheduledFor: optionalText(64) })
+
+function regionDetailsFromForm(formData: FormData, includeId = true) {
+	return { ...regionDetailsSchema.parse({ regionId: includeId ? formData.get('regionId') || undefined : undefined, stableKey: formData.get('stableKey'), displayOrder: formData.get('displayOrder') }), mapConfig: mapConfigFromForm(formData) }
+}
+function regionTranslationFromForm(formData: FormData, includeId = true) {
+	const parsed = regionTranslationSchema.parse({ regionId: includeId ? formData.get('regionId') || undefined : undefined, locale: formData.get('locale'), slug: formData.get('slug'), name: formData.get('name'), status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined })
+	return { ...parsed, ...outreachPublication(parsed.status, parsed.scheduledFor) }
+}
+
+export async function createRegionAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> {
+	try {
+		const details = regionDetailsFromForm(formData, false); const translation = regionTranslationFromForm(formData, false)
+		if (translation.locale !== 'en') return { error: 'New regions must start with an English translation.' }
+		const { profile } = await requireActiveStaff(); const supabase = await createClient(); const id = randomUUID()
+		const { error: regionError } = await supabase.from('regions').insert({ id, stable_key: details.stableKey, display_order: details.displayOrder, map_config: details.mapConfig, created_by: profile.id, updated_by: profile.id })
+		if (regionError) return { error: `Could not create the region: ${regionError.message}` }
+		const { error: translationError } = await supabase.from('region_translations').insert({ region_id: id, locale: 'en', slug: translation.slug, name: translation.name, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at })
+		if (translationError) return { error: `The region was created, but its English translation could not be saved: ${translationError.message}` }
+		await refreshOutreachPaths(supabase); return { success: 'Region created.', entryId: id }
+	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not create the region.' } }
+}
+
+export async function saveRegionDetailsAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> {
+	try {
+		const details = regionDetailsFromForm(formData); if (!details.regionId) return { error: 'Invalid region.' }
+		const { profile } = await requireActiveStaff(); const supabase = await createClient()
+		const { error } = await supabase.from('regions').update({ stable_key: details.stableKey, display_order: details.displayOrder, map_config: details.mapConfig, updated_by: profile.id }).eq('id', details.regionId)
+		if (error) return { error: `Could not save region details: ${error.message}` }; await refreshOutreachPaths(supabase); return { success: 'Region details saved.' }
+	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not save region details.' } }
+}
+
+export async function saveRegionTranslationAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> {
+	try {
+		const translation = regionTranslationFromForm(formData); if (!translation.regionId) return { error: 'Invalid region.' }
+		await requireActiveStaff(); const supabase = await createClient()
+		const { error } = await supabase.from('region_translations').upsert({ region_id: translation.regionId, locale: translation.locale, slug: translation.slug, name: translation.name, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at }, { onConflict: 'region_id,locale' })
+		if (error) return { error: `Could not save this region translation: ${error.message}` }; await refreshOutreachPaths(supabase); return { success: `${translation.locale} translation saved.` }
+	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not save this region translation.' } }
+}
+
+export async function setRegionArchivedAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> {
+	try {
+		const regionId = z.string().uuid().parse(formData.get('regionId')); const archive = z.enum(['true', 'false']).parse(formData.get('archive')) === 'true'; const { profile } = await requireActiveStaff(); const supabase = await createClient()
+		const { error } = await supabase.from('regions').update({ is_active: !archive, updated_by: profile.id }).eq('id', regionId)
+		if (error) return { error: `Could not ${archive ? 'archive' : 'restore'} this region: ${error.message}` }; await refreshOutreachPaths(supabase); return { success: archive ? 'Region archived.' : 'Region restored.' }
+	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not update this region.' } }
+}
+
+const countryDetailsSchema = z.object({
+	countryCode: isoCountryCode, regionId: optionalUuid, isCovered: z.boolean(), displayOrder: z.coerce.number().int().min(0).max(100_000), lastReviewedOn: optionalText(10).refine((value) => value === null || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Use a valid review date.'), flagMediaId: optionalUuid, outlineMediaId: optionalUuid,
+	serviceAssignments: z.array(z.object({ serviceId: z.string().uuid(), coverageLevel: optionalText(120) }).strict()).max(100), expertIds: z.array(z.string().uuid()).max(50), officeIds: z.array(z.string().uuid()).max(100),
+	statistics: z.array(z.object({ id: z.string().uuid().optional(), metricKey: requiredKey, numericValue: optionalNumber.refine((value) => value === null || Number.isFinite(value), 'Statistic value must be a number.'), unit: optionalText(120), statisticYear: optionalNumber.refine((value) => value === null || (Number.isInteger(value) && value >= 1900 && value <= 2200), 'Statistic year must be between 1900 and 2200.'), sourceUrl: optionalText(2_048).refine((value) => value === null || outreachUrl.safeParse(value).success, 'Use a complete http or https source URL.'), displayOrder: z.coerce.number().int().min(0).max(100_000) }).strict()).max(100),
+})
+const countryTranslationSchema = z.object({ countryCode: isoCountryCode, locale: z.enum(locales), slug: requiredKey, name: z.string().trim().min(1).max(160), summary: optionalText(2_000), coverageSummary: optionalText(2_000), content: z.unknown(), seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(outreachStatuses), scheduledFor: optionalText(64), flagAltText: optionalText(320), outlineAltText: optionalText(320), serviceCopies: z.array(z.object({ serviceId: z.string().uuid(), summary: optionalText(2_000), content: z.unknown() }).strict()).max(100), statisticLabels: z.array(z.object({ statisticId: z.string().uuid(), label: z.string().trim().min(1).max(160), displayValue: optionalText(320) }).strict()).max(100) })
+
+function countryDetailsFromForm(formData: FormData) {
+	const parsed = countryDetailsSchema.parse({ countryCode: formData.get('countryCode'), regionId: formData.get('regionId') || undefined, isCovered: formData.get('isCovered') === 'on', displayOrder: formData.get('displayOrder'), lastReviewedOn: formData.get('lastReviewedOn') || undefined, flagMediaId: formData.get('flagMediaId') || undefined, outlineMediaId: formData.get('outlineMediaId') || undefined, serviceAssignments: formJson(formData.get('serviceAssignments'), 'Country services'), expertIds: formJson(formData.get('expertIds'), 'Country experts'), officeIds: formJson(formData.get('officeIds'), 'Country offices'), statistics: formJson(formData.get('statistics'), 'Statistics') })
+	uniqueIds(parsed.serviceAssignments.map((item) => item.serviceId), 'Country services'); uniqueIds(parsed.expertIds, 'Country experts'); uniqueIds(parsed.officeIds, 'Country offices'); uniqueIds(parsed.statistics.map((item) => item.metricKey), 'Statistic metric keys')
+	return { ...parsed, mapConfig: mapConfigFromForm(formData) }
+}
+function countryTranslationFromForm(formData: FormData) {
+	const parsed = countryTranslationSchema.parse({ countryCode: formData.get('countryCode'), locale: formData.get('locale'), slug: formData.get('slug'), name: formData.get('name'), summary: formData.get('summary') || undefined, coverageSummary: formData.get('coverageSummary') || undefined, content: formJson(formData.get('content'), 'Country content'), seoTitle: formData.get('seoTitle') || undefined, seoDescription: formData.get('seoDescription') || undefined, status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined, flagAltText: formData.get('flagAltText') || undefined, outlineAltText: formData.get('outlineAltText') || undefined, serviceCopies: formJson(formData.get('serviceCopies'), 'Country service copy'), statisticLabels: formJson(formData.get('statisticLabels'), 'Statistic labels') })
+	return { ...parsed, content: parseCatalogueDocument(parsed.content), serviceCopies: parsed.serviceCopies.map((copy) => ({ ...copy, content: parseCatalogueDocument(copy.content) })), ...outreachPublication(parsed.status, parsed.scheduledFor) }
+}
+
+async function replaceCountryRelations(supabase: Awaited<ReturnType<typeof createClient>>, details: ReturnType<typeof countryDetailsFromForm>) {
+	if (details.serviceAssignments.length) { const { data, error } = await supabase.from('services').select('id').eq('is_active', true).in('id', details.serviceAssignments.map((item) => item.serviceId)); if (error) throw new Error(`Could not validate country services: ${error.message}`); if ((data ?? []).length !== details.serviceAssignments.length) throw new Error('Every assigned service must be active.') }
+	if (details.expertIds.length) { const { data, error } = await supabase.from('people').select('id').eq('is_active', true).in('id', details.expertIds); if (error) throw new Error(`Could not validate country experts: ${error.message}`); if ((data ?? []).length !== details.expertIds.length) throw new Error('Every country expert must be active.') }
+	if (details.officeIds.length) { const { data, error } = await supabase.from('offices').select('id').eq('is_active', true).in('id', details.officeIds); if (error) throw new Error(`Could not validate country offices: ${error.message}`); if ((data ?? []).length !== details.officeIds.length) throw new Error('Every assigned office must be active.') }
+	const serviceIds = details.serviceAssignments.map((item) => item.serviceId)
+	const metricKeys = details.statistics.map((item) => item.metricKey)
+	const serviceDelete = serviceIds.length ? supabase.from('country_services').delete().eq('country_code', details.countryCode).not('service_id', 'in', `(${serviceIds.join(',')})`) : supabase.from('country_services').delete().eq('country_code', details.countryCode)
+	const statisticDelete = metricKeys.length ? supabase.from('country_statistics').delete().eq('country_code', details.countryCode).not('metric_key', 'in', `(${metricKeys.join(',')})`) : supabase.from('country_statistics').delete().eq('country_code', details.countryCode)
+	const deletions = await Promise.all([serviceDelete, supabase.from('country_people').delete().eq('country_code', details.countryCode).eq('relationship', 'expert'), supabase.from('country_offices').delete().eq('country_code', details.countryCode), statisticDelete])
+	const failedDeletion = deletions.find((result) => result.error); if (failedDeletion?.error) throw new Error(`Could not replace country relations: ${failedDeletion.error.message}`)
+	if (details.serviceAssignments.length) { const { error } = await supabase.from('country_services').upsert(details.serviceAssignments.map((item, display_order) => ({ country_code: details.countryCode, service_id: item.serviceId, coverage_level: item.coverageLevel, display_order })), { onConflict: 'country_code,service_id' }); if (error) throw new Error(`Could not save country services: ${error.message}`) }
+	if (details.expertIds.length) { const { error } = await supabase.from('country_people').insert(details.expertIds.map((person_id, display_order) => ({ country_code: details.countryCode, person_id, relationship: 'expert', display_order }))); if (error) throw new Error(`Could not save country experts: ${error.message}`) }
+	if (details.officeIds.length) { const { error } = await supabase.from('country_offices').insert(details.officeIds.map((office_id, display_order) => ({ country_code: details.countryCode, office_id, display_order }))); if (error) throw new Error(`Could not save country offices: ${error.message}`) }
+	if (details.statistics.length) { const { error } = await supabase.from('country_statistics').upsert(details.statistics.map((item) => ({ country_code: details.countryCode, metric_key: item.metricKey, numeric_value: item.numericValue, unit: item.unit, statistic_year: item.statisticYear, source_url: item.sourceUrl, display_order: item.displayOrder })), { onConflict: 'country_code,metric_key' }); if (error) throw new Error(`Could not save country statistics: ${error.message}`) }
+}
+
+async function saveCountryMediaAlts(supabase: Awaited<ReturnType<typeof createClient>>, countryCode: string, locale: (typeof locales)[number], flagAltText: string | null, outlineAltText: string | null) {
+	const { data: country, error } = await supabase.from('countries').select('flag_media_id, outline_media_id').eq('code', countryCode).maybeSingle(); if (error || !country) throw new Error(`Could not load country media: ${error?.message ?? 'Country not found.'}`)
+	for (const [mediaId, altText] of [[country.flag_media_id, flagAltText], [country.outline_media_id, outlineAltText]] as const) { if (mediaId && altText) { const { error: altError } = await supabase.from('media_asset_translations').upsert({ media_asset_id: mediaId, locale, alt_text: altText }, { onConflict: 'media_asset_id,locale' }); if (altError) throw new Error(`Could not save localized media alt text: ${altError.message}`) } }
+}
+
+export async function createCountryAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> {
+	try {
+		const details = countryDetailsFromForm(formData); const translation = countryTranslationFromForm(formData); if (translation.locale !== 'en') return { error: 'New countries must start with an English translation.' }
+		const { profile } = await requireActiveStaff(); const supabase = await createClient()
+		const { error: countryError } = await supabase.from('countries').insert({ code: details.countryCode, region_id: details.regionId, flag_media_id: details.flagMediaId, outline_media_id: details.outlineMediaId, is_covered: details.isCovered, map_config: details.mapConfig, display_order: details.displayOrder, last_reviewed_on: details.lastReviewedOn, created_by: profile.id, updated_by: profile.id })
+		if (countryError) return { error: `Could not create the country: ${countryError.message}` }
+		const { error: translationError } = await supabase.from('country_translations').insert({ country_code: details.countryCode, locale: 'en', slug: translation.slug, name: translation.name, summary: translation.summary, coverage_summary: translation.coverageSummary, content: translation.content, seo_title: translation.seoTitle, seo_description: translation.seoDescription, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at })
+		if (translationError) return { error: `The country was created, but its English translation could not be saved: ${translationError.message}` }
+		await replaceCountryRelations(supabase, details); await saveCountryMediaAlts(supabase, details.countryCode, 'en', translation.flagAltText, translation.outlineAltText); await refreshOutreachPaths(supabase, details.countryCode); return { success: 'Country created.', countryCode: details.countryCode }
+	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not create the country.' } }
+}
+
+export async function saveCountryDetailsAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> {
+	try {
+		const details = countryDetailsFromForm(formData); const { profile } = await requireActiveStaff(); const supabase = await createClient()
+		const { error } = await supabase.from('countries').update({ region_id: details.regionId, flag_media_id: details.flagMediaId, outline_media_id: details.outlineMediaId, is_covered: details.isCovered, map_config: details.mapConfig, display_order: details.displayOrder, last_reviewed_on: details.lastReviewedOn, updated_by: profile.id }).eq('code', details.countryCode)
+		if (error) return { error: `Could not save country details: ${error.message}` }; await replaceCountryRelations(supabase, details); await refreshOutreachPaths(supabase, details.countryCode); return { success: 'Country identity, coverage, ordering, and relations saved.' }
+	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not save country details.' } }
+}
+
+export async function saveCountryTranslationAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> {
+	try {
+		const translation = countryTranslationFromForm(formData); const supabase = await createClient(); await requireActiveStaff()
+		const { data: country, error: countryError } = await supabase.from('countries').select('flag_media_id, outline_media_id').eq('code', translation.countryCode).maybeSingle(); if (countryError || !country) return { error: `Could not load country details: ${countryError?.message ?? 'Country not found.'}` }
+		if (translation.status === 'published' && ((country.flag_media_id && !translation.flagAltText) || (country.outline_media_id && !translation.outlineAltText))) return { error: 'Published localized country content needs alt text for each selected media asset.' }
+		const { error } = await supabase.from('country_translations').upsert({ country_code: translation.countryCode, locale: translation.locale, slug: translation.slug, name: translation.name, summary: translation.summary, coverage_summary: translation.coverageSummary, content: translation.content, seo_title: translation.seoTitle, seo_description: translation.seoDescription, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at }, { onConflict: 'country_code,locale' })
+		if (error) return { error: `Could not save this country translation: ${error.message}` }
+		const { data: assignments, error: assignmentError } = await supabase.from('country_services').select('service_id').eq('country_code', translation.countryCode); if (assignmentError) return { error: `Could not validate country services: ${assignmentError.message}` }
+		const assigned = new Set((assignments ?? []).map((item) => item.service_id)); if (translation.serviceCopies.some((item) => !assigned.has(item.serviceId))) return { error: 'Country service copy can only be saved for assigned services.' }
+		const { error: deleteCopiesError } = await supabase.from('country_service_translations').delete().eq('country_code', translation.countryCode).eq('locale', translation.locale); if (deleteCopiesError) return { error: `Could not update country service copy: ${deleteCopiesError.message}` }
+		if (translation.serviceCopies.length) { const { error: copiesError } = await supabase.from('country_service_translations').insert(translation.serviceCopies.map((item) => ({ country_code: translation.countryCode, service_id: item.serviceId, locale: translation.locale, summary: item.summary, content: item.content }))); if (copiesError) return { error: `Could not save country service copy: ${copiesError.message}` } }
+		if (translation.statisticLabels.length) { const { data: statistics, error: statisticsError } = await supabase.from('country_statistics').select('id').eq('country_code', translation.countryCode); if (statisticsError) return { error: `Could not validate statistics: ${statisticsError.message}` }; const statisticIds = new Set((statistics ?? []).map((item) => item.id)); if (translation.statisticLabels.some((item) => !statisticIds.has(item.statisticId))) return { error: 'Statistic labels must belong to this country.' }; const { error: labelsError } = await supabase.from('country_statistic_translations').upsert(translation.statisticLabels.map((item) => ({ statistic_id: item.statisticId, locale: translation.locale, label: item.label, display_value: item.displayValue })), { onConflict: 'statistic_id,locale' }); if (labelsError) return { error: `Could not save statistic labels: ${labelsError.message}` } }
+		await saveCountryMediaAlts(supabase, translation.countryCode, translation.locale, translation.flagAltText, translation.outlineAltText); await refreshOutreachPaths(supabase, translation.countryCode); return { success: `${translation.locale} country content saved.` }
+	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not save this country translation.' } }
+}
+
+const officeDetailsSchema = z.object({ officeId: z.string().uuid().optional(), stableKey: requiredKey, countryCode: z.union([isoCountryCode, z.literal('')]).transform((value) => value || null), email: optionalText(320).refine((value) => value === null || z.string().email().safeParse(value).success, 'Enter a valid email address.'), phone: optionalText(80), latitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -90 && value <= 90), 'Latitude must be between -90 and 90.'), longitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -180 && value <= 180), 'Longitude must be between -180 and 180.'), displayOrder: z.coerce.number().int().min(0).max(100_000) })
+const officeTranslationSchema = z.object({ officeId: z.string().uuid().optional(), locale: z.enum(locales), name: z.string().trim().min(1).max(160), city: optionalText(160), address: optionalText(2_000), status: z.enum(outreachStatuses), scheduledFor: optionalText(64) })
+function officeDetailsFromForm(formData: FormData, includeId = true) { return officeDetailsSchema.parse({ officeId: includeId ? formData.get('officeId') || undefined : undefined, stableKey: formData.get('stableKey'), countryCode: formData.get('countryCode') || '', email: formData.get('email') || undefined, phone: formData.get('phone') || undefined, latitude: formData.get('latitude') || undefined, longitude: formData.get('longitude') || undefined, displayOrder: formData.get('displayOrder') }) }
+function officeTranslationFromForm(formData: FormData, includeId = true) { const parsed = officeTranslationSchema.parse({ officeId: includeId ? formData.get('officeId') || undefined : undefined, locale: formData.get('locale'), name: formData.get('name'), city: formData.get('city') || undefined, address: formData.get('address') || undefined, status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined }); return { ...parsed, ...outreachPublication(parsed.status, parsed.scheduledFor) } }
+async function refreshOfficePaths(supabase: Awaited<ReturnType<typeof createClient>>, countryCode?: string) { await refreshOutreachPaths(supabase, countryCode) }
+export async function createOfficeAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> { try { const details = officeDetailsFromForm(formData, false); const translation = officeTranslationFromForm(formData, false); if (translation.locale !== 'en') return { error: 'New offices must start with an English translation.' }; const { profile } = await requireActiveStaff(); const supabase = await createClient(); const id = randomUUID(); const { error: officeError } = await supabase.from('offices').insert({ id, stable_key: details.stableKey, country_code: details.countryCode, email: details.email, phone: details.phone, latitude: details.latitude, longitude: details.longitude, display_order: details.displayOrder, created_by: profile.id, updated_by: profile.id }); if (officeError) return { error: `Could not create the office: ${officeError.message}` }; const { error: translationError } = await supabase.from('office_translations').insert({ office_id: id, locale: 'en', name: translation.name, city: translation.city, address: translation.address, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at }); if (translationError) return { error: `The office was created, but its English translation could not be saved: ${translationError.message}` }; await refreshOfficePaths(supabase, details.countryCode ?? undefined); return { success: 'Office created.', entryId: id } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not create the office.' } } }
+export async function saveOfficeDetailsAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> { try { const details = officeDetailsFromForm(formData); if (!details.officeId) return { error: 'Invalid office.' }; const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('offices').update({ stable_key: details.stableKey, country_code: details.countryCode, email: details.email, phone: details.phone, latitude: details.latitude, longitude: details.longitude, display_order: details.displayOrder, updated_by: profile.id }).eq('id', details.officeId); if (error) return { error: `Could not save office details: ${error.message}` }; await refreshOfficePaths(supabase, details.countryCode ?? undefined); return { success: 'Office details saved.' } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not save office details.' } } }
+export async function saveOfficeTranslationAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> { try { const translation = officeTranslationFromForm(formData); if (!translation.officeId) return { error: 'Invalid office.' }; await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('office_translations').upsert({ office_id: translation.officeId, locale: translation.locale, name: translation.name, city: translation.city, address: translation.address, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at }, { onConflict: 'office_id,locale' }); if (error) return { error: `Could not save this office translation: ${error.message}` }; await refreshOfficePaths(supabase); return { success: `${translation.locale} office content saved.` } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not save this office translation.' } } }
+export async function setOfficeArchivedAction(_: OutreachActionState, formData: FormData): Promise<OutreachActionState> { try { const officeId = z.string().uuid().parse(formData.get('officeId')); const archive = z.enum(['true', 'false']).parse(formData.get('archive')) === 'true'; const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('offices').update({ is_active: !archive, updated_by: profile.id }).eq('id', officeId); if (error) return { error: `Could not ${archive ? 'archive' : 'restore'} this office: ${error.message}` }; await refreshOfficePaths(supabase); return { success: archive ? 'Office archived.' : 'Office restored.' } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not update this office.' } } }
+
 export type ArticleActionState = { error?: string; success?: string; entryId?: string }
 
 const articleStatuses = ['draft', 'scheduled', 'published', 'archived'] as const

@@ -30,7 +30,7 @@ const navigation = [
 		label: 'Our Outreach',
 		href: '/admin/outreach',
 		icon: Globe2,
-		enabled: false,
+		enabled: true,
 	},
 	{ label: 'Media', href: '/admin/media', icon: ImageIcon, enabled: false },
 ]

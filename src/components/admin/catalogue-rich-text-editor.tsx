@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import type { Json } from '@/types/database.generated'
 
-export function CatalogueRichTextEditor({ initialValue }: { initialValue: Json }) {
+export function CatalogueRichTextEditor({ initialValue, name = 'content', label = 'Catalogue content', onChange }: { initialValue: Json; name?: string; label?: string; onChange?: (value: Json) => void }) {
 	const [value, setValue] = useState<Json>(initialValue)
 	const editor = useEditor({
 		immediatelyRender: false,
@@ -19,7 +19,7 @@ export function CatalogueRichTextEditor({ initialValue }: { initialValue: Json }
 			Link.configure({ openOnClick: false, autolink: true, linkOnPaste: true }),
 		],
 		content: initialValue as JSONContent,
-		onUpdate: ({ editor: current }) => setValue(current.getJSON() as Json),
+		onUpdate: ({ editor: current }) => { const next = current.getJSON() as Json; setValue(next); onChange?.(next) },
 	})
 	const serialized = JSON.stringify(value)
 	useEffect(() => {
@@ -39,7 +39,7 @@ export function CatalogueRichTextEditor({ initialValue }: { initialValue: Json }
 		editor.chain().focus().extendMarkRange('link').setLink({ href }).run()
 	}
 
-	return <div className="mt-1.5 overflow-hidden rounded-md border border-input bg-white shadow-xs"><input name="content" type="hidden" value={serialized} /><div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-1.5"><ToolButton active={editor?.isActive('bold') ?? false} disabled={!editor} label="Bold" onClick={() => editor?.chain().focus().toggleBold().run()}><Bold /></ToolButton><ToolButton active={editor?.isActive('italic') ?? false} disabled={!editor} label="Italic" onClick={() => editor?.chain().focus().toggleItalic().run()}><Italic /></ToolButton><ToolButton active={editor?.isActive('heading', { level: 2 }) ?? false} disabled={!editor} label="Heading level 2" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}><Heading2 /></ToolButton><ToolButton active={editor?.isActive('heading', { level: 3 }) ?? false} disabled={!editor} label="Heading level 3" onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}><Heading3 /></ToolButton><ToolButton active={editor?.isActive('bulletList') ?? false} disabled={!editor} label="Bulleted list" onClick={() => editor?.chain().focus().toggleBulletList().run()}><List /></ToolButton><ToolButton active={editor?.isActive('orderedList') ?? false} disabled={!editor} label="Numbered list" onClick={() => editor?.chain().focus().toggleOrderedList().run()}><ListOrdered /></ToolButton><ToolButton active={editor?.isActive('blockquote') ?? false} disabled={!editor} label="Block quote" onClick={() => editor?.chain().focus().toggleBlockquote().run()}><Quote /></ToolButton><ToolButton active={editor?.isActive('link') ?? false} disabled={!editor} label="Add link" onClick={addLink}><Link2 /></ToolButton></div><EditorContent aria-label="Catalogue content" className="profile-rich-text min-h-44 px-3 py-2 text-sm leading-6 text-slate-800" editor={editor} /></div>
+	return <div className="mt-1.5 overflow-hidden rounded-md border border-input bg-white shadow-xs"><input name={name} type="hidden" value={serialized} /><div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-1.5"><ToolButton active={editor?.isActive('bold') ?? false} disabled={!editor} label="Bold" onClick={() => editor?.chain().focus().toggleBold().run()}><Bold /></ToolButton><ToolButton active={editor?.isActive('italic') ?? false} disabled={!editor} label="Italic" onClick={() => editor?.chain().focus().toggleItalic().run()}><Italic /></ToolButton><ToolButton active={editor?.isActive('heading', { level: 2 }) ?? false} disabled={!editor} label="Heading level 2" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}><Heading2 /></ToolButton><ToolButton active={editor?.isActive('heading', { level: 3 }) ?? false} disabled={!editor} label="Heading level 3" onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}><Heading3 /></ToolButton><ToolButton active={editor?.isActive('bulletList') ?? false} disabled={!editor} label="Bulleted list" onClick={() => editor?.chain().focus().toggleBulletList().run()}><List /></ToolButton><ToolButton active={editor?.isActive('orderedList') ?? false} disabled={!editor} label="Numbered list" onClick={() => editor?.chain().focus().toggleOrderedList().run()}><ListOrdered /></ToolButton><ToolButton active={editor?.isActive('blockquote') ?? false} disabled={!editor} label="Block quote" onClick={() => editor?.chain().focus().toggleBlockquote().run()}><Quote /></ToolButton><ToolButton active={editor?.isActive('link') ?? false} disabled={!editor} label="Add link" onClick={addLink}><Link2 /></ToolButton></div><EditorContent aria-label={label} className="profile-rich-text min-h-44 px-3 py-2 text-sm leading-6 text-slate-800" editor={editor} /></div>
 }
 
 function ToolButton({ active, children, disabled, label, onClick }: { active: boolean; children: React.ReactNode; disabled: boolean; label: string; onClick: () => void }) {
