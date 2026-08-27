@@ -37,8 +37,8 @@ export async function mediaReferencesByAssetId(assetIds: string[]) {
 		add(country.flag_media_id, { type: 'Country flag', label: country.code, href: `/admin/outreach/${country.code}` })
 		add(country.outline_media_id, { type: 'Country outline', label: country.code, href: `/admin/outreach/${country.code}` })
 	}
-	for (const partner of partners.data ?? []) add(partner.logo_media_id, { type: 'Partner', label: partner.name, href: null })
-	for (const endorsement of endorsements.data ?? []) add(endorsement.portrait_media_id, { type: 'Endorsement', label: endorsement.attribution_name, href: null })
+	for (const partner of partners.data ?? []) add(partner.logo_media_id, { type: 'Partner', label: partner.name, href: `/admin/partners/partners/${partner.id}` })
+	for (const endorsement of endorsements.data ?? []) add(endorsement.portrait_media_id, { type: 'Endorsement', label: endorsement.attribution_name, href: `/admin/partners/endorsements/${endorsement.id}` })
 
 	return references
 }

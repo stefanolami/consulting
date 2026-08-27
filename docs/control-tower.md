@@ -1,6 +1,6 @@
 # Consulting Website Rework — Control Tower
 
-Last updated: 2026-08-17
+Last updated: 2026-08-27
 
 Status: High-level plan and architectural source of truth
 
@@ -841,6 +841,15 @@ Further team-page polish is deferred until the cross-area end-to-end test phase.
   validation, actionable form errors, audit metadata, translation status, and
   archive/restore where applicable.
 
+Phase 4 is implemented. The remaining relationship-content workflows manage
+ordered partners/client logos and endorsements with media-library selection,
+localized alt text and publication controls. Site settings are restricted to a
+code-owned contract for contact/footer details, social links, the external POE
+link, and reusable localized calls to action. The redirect registry supports
+validated permanent records and safe disabling, but is intentionally not read
+by public request routing until the Phase 5 localized route strategy is
+implemented and reviewed.
+
 ### Phase 5 — Public dynamic templates and integration
 
 - Build reusable public services and sectors indexes and detail templates.
@@ -965,15 +974,16 @@ The rebuild is complete when:
 
 ## 25. Immediate next actions
 
-1. Confirm the applied schema and generated database types are synchronized.
+1. Regenerate and verify database TypeScript types after the Supabase CLI is
+   safely linked back to this project; do not edit the generated file manually.
 2. Keep MailerSend/SMTP configuration and live colleague-auth onboarding
    deferred; retain the existing invite-only architecture without expanding it.
-3. Treat the completed team workflow as the reference implementation and park
-   further team polish.
-4. Treat the completed services/sectors catalogue and newsroom workflows as
-   reference implementations; defer their public CMS templates to Phase 5.
-5. Continue with Our Outreach and the remaining admin areas before beginning
-   public CMS-driven templates and end-to-end editorial validation.
+3. Treat the completed Phase 4 admin workflows as stable content contracts and
+   defer further admin polish until realistic end-to-end editorial testing.
+4. Begin Phase 5 public CMS-driven templates, starting with the shared services
+   and sectors templates before newsroom and production Our Outreach work.
+5. Implement and review the localized route strategy before connecting the
+   redirect registry to public request handling.
 
 ## 26. Primary technical references
 

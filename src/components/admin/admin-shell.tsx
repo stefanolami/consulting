@@ -2,9 +2,12 @@ import {
 	BookOpenText,
 	Layers3,
 	Globe2,
+	HeartHandshake,
 	ImageIcon,
 	LayoutDashboard,
 	LogOut,
+	Route,
+	Settings,
 	UsersRound,
 } from 'lucide-react'
 import Image from 'next/image'
@@ -33,6 +36,9 @@ const navigation = [
 		enabled: true,
 	},
 	{ label: 'Media', href: '/admin/media', icon: ImageIcon, enabled: true },
+	{ label: 'Partners', href: '/admin/partners', icon: HeartHandshake, enabled: true },
+	{ label: 'Site settings', href: '/admin/settings', icon: Settings, enabled: true },
+	{ label: 'Redirects', href: '/admin/redirects', icon: Route, enabled: true },
 ]
 
 function Navigation({ compact = false }: { compact?: boolean }) {
