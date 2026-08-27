@@ -10,7 +10,7 @@ import { requireActiveStaff } from '@/lib/auth/authorization'
 import { parseProfileDocument } from '@/lib/team-profile-document'
 import { parseCatalogueDocument } from '@/lib/catalogue-document'
 import { parseArticleDocument } from '@/lib/article-document'
-import { PUBLIC_CATALOGUE_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
@@ -279,6 +279,7 @@ export async function attachPersonPortraitAction(input: unknown) {
 
 async function refreshPersonPaths(supabase: Awaited<ReturnType<typeof createClient>>, personId: string) {
 	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
+	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
 	revalidatePath('/admin')
 	revalidatePath('/admin/people')
 	revalidatePath(`/admin/people/${personId}`)
@@ -425,6 +426,7 @@ async function replaceCatalogueRelations(
 async function refreshCataloguePaths(supabase: Awaited<ReturnType<typeof createClient>>, kind: CatalogueKind, entryId?: string) {
 	const publicSegment = kind === 'services' ? 'services' : 'sectors'
 	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
+	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
 	revalidatePath('/admin')
 	revalidatePath('/admin/catalogue')
 	revalidatePath(`/admin/catalogue/${kind}`)
@@ -857,9 +859,11 @@ async function saveArticleCoverAlt(supabase: Awaited<ReturnType<typeof createCli
 }
 async function refreshNewsroomPaths(supabase: Awaited<ReturnType<typeof createClient>>, articleId?: string) {
 	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
+	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
 	revalidatePath('/admin'); revalidatePath('/admin/newsroom'); if (articleId) revalidatePath(`/admin/newsroom/${articleId}`)
-	// Public newsroom templates are intentionally deferred. Revalidating the future
-	// route family keeps content writes safe when that phase lands.
+	revalidatePath('/newsroom')
+	revalidatePath('/[locale]/newsroom', 'page')
+	revalidatePath('/[locale]/newsroom/[slug]', 'page')
 	if (articleId) { const { data } = await supabase.from('article_translations').select('locale, slug').eq('article_id', articleId); for (const item of data ?? []) { const prefix = item.locale === 'en' ? '' : `/${item.locale}`; revalidatePath(`${prefix}/newsroom/${item.slug}`) } }
 }
 export async function createArticleAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {

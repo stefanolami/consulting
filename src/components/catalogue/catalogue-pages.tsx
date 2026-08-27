@@ -202,7 +202,7 @@ async function CatalogueDetailContent({
 								{detail.relatedArticles.map((article) => (
 									<li className="rounded-2xl border border-white/20 bg-white/5 p-6" key={article.slug}>
 										<time className="text-sm text-[#cbd2e4]" dateTime={article.publishedAt}>{new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(article.publishedAt))}</time>
-										<h3 className="mt-3 font-unna text-3xl leading-tight">{article.title}</h3>
+										<h3 className="mt-3 font-unna text-3xl leading-tight"><Link className="underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4" href={newsroomPath(locale, article.slug)}>{article.title}</Link></h3>
 										{article.excerpt ? <p className="mt-4 line-clamp-4 leading-7 text-[#e5e8f0]">{article.excerpt}</p> : null}
 									</li>
 								))}
@@ -218,6 +218,11 @@ async function CatalogueDetailContent({
 function cataloguePathForTeam(locale: AppLocale, slug: string) {
 	const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
 	return `${prefix}/team/${slug}`
+}
+
+function newsroomPath(locale: AppLocale, slug: string) {
+	const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
+	return `${prefix}/newsroom/${slug}`
 }
 
 function initials(name: string) {

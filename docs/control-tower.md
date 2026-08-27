@@ -871,7 +871,7 @@ and only the `hreflang` detail alternates that are actually published. Missing
 translations are omitted from listings and return the localized not-found
 experience on detail routes; English editorial content is not substituted.
 
-Public catalogue reads use an hourly shared data cache as a safety net and the
+	Public catalogue reads use an hourly shared data cache as a safety net and the
 admin catalogue, people, newsroom, and media actions invalidate that cache when
 related content changes. Request-time streaming remains in place so builds do
 not depend on live CMS availability. No schema migration was required. The
@@ -880,7 +880,31 @@ editorial relationship order and are shared with article taxonomy, so this
 slice orders related newsroom summaries by localized publication time. A
 separate curated relationship contract should be considered only if editorial
 testing shows that manual ordering or taxonomy-independent selections are
-required.
+	required.
+
+	The localized public newsroom slice is now implemented at `/newsroom` and
+	`/newsroom/[slug]`. Listing filters use the existing tag, service, sector,
+	and author relationships only, with URL state and basic pagination; search
+	remains deliberately deferred. Every public newsroom query requests the
+	exact locale and explicitly enforces published translation status and
+	publication time. Canonical article availability is checked through the
+	canonical record, and related people, taxonomy, articles, and media require
+	their own active/published exact-locale records before rendering. There is no
+	English editorial fallback. Article pages render the existing controlled
+	TipTap document contract, localized sources, ordered authors, localized
+	cover metadata, taxonomy, explicit ordered related articles, and localized
+	SEO/canonical/hreflang metadata. Shared hourly newsroom caching is
+	invalidated by newsroom, people, catalogue, and media actions. Catalogue
+	related-article summaries now link to the corresponding localized newsroom
+	detail routes. No schema migration was required.
+
+	The current schema permits an `external_media_url` as an alternative to a
+	managed cover asset but does not have localized external-media metadata; the
+	public template therefore exposes it as a safe external link rather than an
+	image. Article authors who are not active team members have localized names
+	but no public profile route, so only active team-member authors receive a
+	profile link. These are existing content-contract limits, not blockers for
+	the present test harness.
 
 ### Phase 6 — End-to-end editorial validation and remaining Figma pages
 
@@ -1004,11 +1028,13 @@ The rebuild is complete when:
 4. Validate the completed public services and sectors templates with realistic
    authored content in every intended locale, including unpublished-translation
    and cross-entity revalidation scenarios.
-5. Continue Phase 5 with the localized newsroom listing, discovery, and article
-   detail templates; activate links from catalogue-related article summaries as
-   part of that slice.
-6. Review the implemented localized route and metadata behavior before connecting the
-   redirect registry to public request handling.
+5. Validate the public newsroom templates with realistic authored content in
+	   every intended locale, including filters, pagination, unpublished related
+	   translations, localized media metadata, and cross-entity revalidation.
+6. Continue Phase 5 with the production Our Outreach map, localized country
+	   summary panels, shareable selection state, and country detail templates.
+7. Review the implemented localized route and metadata behavior before connecting the
+	   redirect registry to public request handling.
 
 ## 26. Primary technical references
 
