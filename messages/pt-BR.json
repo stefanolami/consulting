@@ -1,5 +1,37 @@
 {
 	"HomePage": {
 		"title": "Time&Place Consulting"
+	},
+	"Catalogue": {
+		"service": {
+			"eyebrow": "O que fazemos",
+			"title": "Nossos serviços",
+			"introduction": "Conheça os serviços atualmente publicados pela nossa equipe em português do Brasil.",
+			"catalogueLabel": "Serviços publicados",
+			"metaDescription": "Conheça os serviços publicados da Time&Place Consulting.",
+			"emptyTitle": "Ainda não há serviços publicados em português do Brasil",
+			"emptyDescription": "Os serviços publicados aparecerão aqui quando houver conteúdo em português do Brasil.",
+			"loading": "Carregando serviços"
+		},
+		"sector": {
+			"eyebrow": "Nossa experiência",
+			"title": "Nossos setores",
+			"introduction": "Conheça os setores atualmente publicados pela nossa equipe em português do Brasil.",
+			"catalogueLabel": "Setores publicados",
+			"metaDescription": "Conheça os setores atendidos pela Time&Place Consulting.",
+			"emptyTitle": "Ainda não há setores publicados em português do Brasil",
+			"emptyDescription": "Os setores publicados aparecerão aqui quando houver conteúdo em português do Brasil.",
+			"loading": "Carregando setores"
+		},
+		"readMore": "Saiba mais",
+		"contentLabel": "Conteúdo detalhado",
+		"contacts": "Seus contatos",
+		"newsroomEyebrow": "Newsroom",
+		"relatedArticles": "Artigos relacionados"
+	},
+	"NotFound": {
+		"title": "Esta página não está disponível",
+		"description": "A página pode não existir ou não estar publicada neste idioma.",
+		"home": "Voltar ao início"
 	}
 }

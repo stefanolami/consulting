@@ -1,9 +1,10 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { requireActiveStaff } from '@/lib/auth/authorization'
+import { PUBLIC_CATALOGUE_CACHE_TAG } from '@/lib/cache-tags'
 import { MEDIA_BUCKET, mediaObjectPath, validateMediaFile } from '@/lib/media-library'
 import { mediaReferencesByAssetId } from '@/lib/media-references'
 import { createClient } from '@/lib/supabase/server'
@@ -19,12 +20,16 @@ function resultError(error: unknown, fallback: string): MediaActionState {
 }
 
 function refreshMediaLibrary() {
+	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
 	revalidatePath('/admin/media')
-	// The current public media consumers are team pages. Revalidate their route
-	// patterns when a shared asset changes without changing public templates.
+	// Revalidate public media consumers when a shared asset changes.
 	revalidatePath('/team')
 	revalidatePath('/[locale]/team', 'page')
 	revalidatePath('/[locale]/team/[slug]', 'page')
+	revalidatePath('/[locale]/services', 'page')
+	revalidatePath('/[locale]/services/[slug]', 'page')
+	revalidatePath('/[locale]/sectors', 'page')
+	revalidatePath('/[locale]/sectors/[slug]', 'page')
 }
 
 export async function uploadMediaAssetAction(formData: FormData): Promise<MediaActionState> {

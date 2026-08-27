@@ -861,6 +861,27 @@ implemented and reviewed.
 - Add public SEO, structured data, redirects, caching, and revalidation for
   each entity type.
 
+The first Phase 5 slice is implemented for the shared services and sectors
+catalogue. `/services`, `/sectors`, and their localized, localized-slug detail
+routes now read through anonymous Supabase RLS with explicit canonical active,
+per-locale published, and publication-time filters. The templates render
+localized icon metadata, controlled rich text, ordered localized team contacts,
+publication-aware related newsroom summaries, localized SEO, canonical URLs,
+and only the `hreflang` detail alternates that are actually published. Missing
+translations are omitted from listings and return the localized not-found
+experience on detail routes; English editorial content is not substituted.
+
+Public catalogue reads use an hourly shared data cache as a safety net and the
+admin catalogue, people, newsroom, and media actions invalidate that cache when
+related content changes. Request-time streaming remains in place so builds do
+not depend on live CMS availability. No schema migration was required. The
+current `article_services` and `article_sectors` relationships do not store an
+editorial relationship order and are shared with article taxonomy, so this
+slice orders related newsroom summaries by localized publication time. A
+separate curated relationship contract should be considered only if editorial
+testing shows that manual ordering or taxonomy-independent selections are
+required.
+
 ### Phase 6 — End-to-end editorial validation and remaining Figma pages
 
 - Implement the global shell, navigation, footer, and shared sections.
@@ -980,9 +1001,13 @@ The rebuild is complete when:
    deferred; retain the existing invite-only architecture without expanding it.
 3. Treat the completed Phase 4 admin workflows as stable content contracts and
    defer further admin polish until realistic end-to-end editorial testing.
-4. Begin Phase 5 public CMS-driven templates, starting with the shared services
-   and sectors templates before newsroom and production Our Outreach work.
-5. Implement and review the localized route strategy before connecting the
+4. Validate the completed public services and sectors templates with realistic
+   authored content in every intended locale, including unpublished-translation
+   and cross-entity revalidation scenarios.
+5. Continue Phase 5 with the localized newsroom listing, discovery, and article
+   detail templates; activate links from catalogue-related article summaries as
+   part of that slice.
+6. Review the implemented localized route and metadata behavior before connecting the
    redirect registry to public request handling.
 
 ## 26. Primary technical references
