@@ -10,7 +10,7 @@ import { requireActiveStaff } from '@/lib/auth/authorization'
 import { parseProfileDocument } from '@/lib/team-profile-document'
 import { parseCatalogueDocument } from '@/lib/catalogue-document'
 import { parseArticleDocument } from '@/lib/article-document'
-import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
@@ -280,6 +280,7 @@ export async function attachPersonPortraitAction(input: unknown) {
 async function refreshPersonPaths(supabase: Awaited<ReturnType<typeof createClient>>, personId: string) {
 	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
 	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
+	revalidateTag(PUBLIC_OUTREACH_CACHE_TAG, 'max')
 	revalidatePath('/admin')
 	revalidatePath('/admin/people')
 	revalidatePath(`/admin/people/${personId}`)
@@ -427,6 +428,7 @@ async function refreshCataloguePaths(supabase: Awaited<ReturnType<typeof createC
 	const publicSegment = kind === 'services' ? 'services' : 'sectors'
 	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
 	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
+	if (kind === 'services') revalidateTag(PUBLIC_OUTREACH_CACHE_TAG, 'max')
 	revalidatePath('/admin')
 	revalidatePath('/admin/catalogue')
 	revalidatePath(`/admin/catalogue/${kind}`)
@@ -601,12 +603,12 @@ function outreachPublication(status: (typeof outreachStatuses)[number], schedule
 }
 
 async function refreshOutreachPaths(supabase: Awaited<ReturnType<typeof createClient>>, countryCode?: string) {
+	revalidateTag(PUBLIC_OUTREACH_CACHE_TAG, 'max')
 	revalidatePath('/admin')
 	revalidatePath('/admin/outreach')
 	revalidatePath('/admin/outreach/regions')
 	revalidatePath('/admin/outreach/offices')
 	if (countryCode) revalidatePath(`/admin/outreach/${countryCode}`)
-	// Public Outreach templates are deliberately deferred, but invalidate their future route roots safely.
 	revalidatePath('/our-outreach')
 	for (const locale of locales.filter((locale) => locale !== 'en')) revalidatePath(`/${locale}/our-outreach`)
 	if (countryCode) {

@@ -1,6 +1,6 @@
 # Consulting Website Rework — Control Tower
 
-Last updated: 2026-08-27
+Last updated: 2026-08-31
 
 Status: High-level plan and architectural source of truth
 
@@ -906,6 +906,37 @@ testing shows that manual ordering or taxonomy-independent selections are
 	profile link. These are existing content-contract limits, not blockers for
 	the present test harness.
 
+	The functional public Our Outreach test harness is now implemented at
+	`/our-outreach` and `/our-outreach/[slug]`, with locale-prefixed equivalents
+	and localized country slugs. The overview uses local 110 m topology, maps its
+	ISO numeric feature identifiers to the canonical ISO alpha-2 country codes,
+	and provides a keyboard-operable country list alongside the visual map.
+	Country selection uses the shareable `?country=XX` URL state and Next.js
+	navigation so browser back and forward restore the selected summary. The map
+	remains a functional CMS test harness rather than the final Figma frontend.
+
+	Every outreach read explicitly requires the requested locale, published
+	translation status, and a publication time not later than the request. It
+	also enforces covered countries and active, public, exact-locale regions,
+	services, offices, people, and media before rendering. Country summaries and
+	details include the supported localized region, country content, ordered
+	services and country copy, statistics, offices, people, media, SEO, canonical
+	URL, and only actually published `hreflang` alternates. English editorial
+	content is never substituted. Shared hourly outreach caching is invalidated
+	by outreach, service, people, and media actions. No schema migration was
+	required.
+
+	Country-service copy and country-statistic labels do not have independent
+	publication fields in the current schema; their public availability inherits
+	from the exact-locale published country and, for services, the exact-locale
+	published active service. `country_services.coverage_level` is canonical,
+	non-localized text, so the localized public harness does not render it.
+	Relationship-specific labels should receive a localized controlled contract
+	only if realistic editorial testing proves they are required. The low-detail
+	local map omits Antarctica and may not draw every small territory, so the
+	accessible list remains the authoritative selection surface for every
+	published covered country.
+
 ### Phase 6 — End-to-end editorial validation and remaining Figma pages
 
 - Implement the global shell, navigation, footer, and shared sections.
@@ -1025,16 +1056,15 @@ The rebuild is complete when:
    deferred; retain the existing invite-only architecture without expanding it.
 3. Treat the completed Phase 4 admin workflows as stable content contracts and
    defer further admin polish until realistic end-to-end editorial testing.
-4. Validate the completed public services and sectors templates with realistic
-   authored content in every intended locale, including unpublished-translation
-   and cross-entity revalidation scenarios.
-5. Validate the public newsroom templates with realistic authored content in
-	   every intended locale, including filters, pagination, unpublished related
-	   translations, localized media metadata, and cross-entity revalidation.
-6. Continue Phase 5 with the production Our Outreach map, localized country
-	   summary panels, shareable selection state, and country detail templates.
-7. Review the implemented localized route and metadata behavior before connecting the
-	   redirect registry to public request handling.
+4. Run one combined editorial smoke-test cycle for team, services/sectors,
+	newsroom, and Our Outreach using realistic authored content in every intended
+	locale. Include unpublished translations, URL state and history, filters,
+	pagination, localized relationships and media, not-found behavior, and
+	cross-entity revalidation.
+5. Use the combined smoke-test findings to correct contract or rendering issues
+	before final Figma frontend implementation or broad content migration.
+6. Review the implemented localized route and metadata behavior before
+	connecting the redirect registry to public request handling.
 
 ## 26. Primary technical references
 

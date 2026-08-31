@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { requireActiveStaff } from '@/lib/auth/authorization'
-import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
 import { MEDIA_BUCKET, mediaObjectPath, validateMediaFile } from '@/lib/media-library'
 import { mediaReferencesByAssetId } from '@/lib/media-references'
 import { createClient } from '@/lib/supabase/server'
@@ -22,6 +22,7 @@ function resultError(error: unknown, fallback: string): MediaActionState {
 function refreshMediaLibrary() {
 	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
 	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
+	revalidateTag(PUBLIC_OUTREACH_CACHE_TAG, 'max')
 	revalidatePath('/admin/media')
 	// Revalidate public media consumers when a shared asset changes.
 	revalidatePath('/team')
@@ -33,6 +34,8 @@ function refreshMediaLibrary() {
 	revalidatePath('/[locale]/sectors/[slug]', 'page')
 	revalidatePath('/[locale]/newsroom', 'page')
 	revalidatePath('/[locale]/newsroom/[slug]', 'page')
+	revalidatePath('/[locale]/our-outreach', 'page')
+	revalidatePath('/[locale]/our-outreach/[slug]', 'page')
 }
 
 export async function uploadMediaAssetAction(formData: FormData): Promise<MediaActionState> {
