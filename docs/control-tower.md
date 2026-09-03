@@ -547,6 +547,74 @@ The public experience should support:
 - Related articles based on explicit taxonomy.
 - Structured metadata and social sharing images.
 
+### 13.4 Legacy newsroom initialization
+
+The two active articles in the checked-in `src/data/news.js` reference are now
+covered by a version-controlled, dry-run-first import workflow:
+
+```powershell
+npm run newsroom:bootstrap
+```
+
+The command validates the legacy articles, three canonical author identities,
+two tags, two local cover files and their accessibility metadata, hosted
+database records, and the `public-media` Storage folder. Dry-run is the default;
+`--apply` performs only the reported creates. Existing records are never
+overwritten, and any difference in canonical identity, publication content,
+cover metadata, author order, or tag relationship blocks apply.
+
+The English baseline preserves the legacy titles, slugs, excerpts, publication
+dates, controlled paragraph/heading/list content, source URLs, byline order,
+and taxonomy. It publishes only the two articles and the minimum English author
+name, tag, and cover-alt translations required by the public contract. It does
+not invent services, sectors, related articles, SEO fields, biographies, or
+other locales. The legacy body images `latam-content.jpg` and
+`space-content.jpg` are reported but omitted because the implemented controlled
+document contract does not yet support image blocks.
+
+On 2026-09-03 the hosted dry run proposed 26 creates with no conflicts. Apply
+created 2 Storage objects, 2 media records and translations, 3 author records
+and translations, 2 tags and translations, 2 articles and translations, 4
+author relationships, and 2 tag relationships. The immediate verification run
+proposed 0 creates, skipped all 26 records, and found 0 conflicts. Anonymous
+public rendering then returned both English listing cards, both detail routes,
+their managed covers, the `space` tag filter, and the `mathias-gerstner` author
+filter.
+
+### 13.5 Representative visual-test content
+
+The remaining CMS-backed public templates have a separate deterministic seed:
+
+```powershell
+npm run visual-test:bootstrap
+```
+
+Its checked-in version-one scope deliberately remains a representative visual
+test rather than a broad migration. It selects five active profiles from the
+tracked legacy team source—Glenn Cezanne and Corina Cătălina Gheorgheza in the
+managing team, plus Omar Cutajar, Guilherme Crispim Ferreira, and Mathias
+Gerstner in the team—and preserves their English introductions, sections,
+endorsements, roles, contact emails, portraits, groups, and order. The three
+author identities created by the Newsroom bootstrap are promoted to team
+profiles only while they still match that exact author-only baseline.
+
+The seed also publishes six representative legacy services and six sectors in
+English, uploads the five locally available matching sector icons, and leaves
+Space in the intentional icon-placeholder state. Source-supported contact
+relationships exercise the catalogue sidebars: Glenn for Association
+Management and Government Relations, Omar for Space, and Mathias for
+International Trade. The two published articles are related to Space and
+International Trade respectively so catalogue-to-Newsroom rendering can be
+reviewed. No other relationships or editorial copy are inferred.
+
+On 2026-09-03 the hosted dry run proposed 73 creates and 6 safe author-profile
+updates with no conflicts. Apply completed those operations. The immediate
+verification run proposed 0 creates and 0 updates, skipped all 75 planned
+entities/relationships, and found 0 conflicts. Anonymous rendering verified
+the three listing routes, representative profile/catalogue detail content,
+managed media, contact panels, related Newsroom cards, and all 17 seeded detail
+routes with no HTTP failures.
+
 ## 14. Our Outreach
 
 ### 14.1 Product behavior

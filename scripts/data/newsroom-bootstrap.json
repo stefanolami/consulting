@@ -1,0 +1,45 @@
+{
+	"version": 1,
+	"locale": "en",
+	"articles": [
+		{
+			"slug": "the-european-union-and-latin-america-a-herculean-matter",
+			"cover": {
+				"filename": "latam-banner.jpg",
+				"mimeType": "image/jpeg",
+				"width": 1920,
+				"height": 1280,
+				"alt": "Container ships and cargo cranes at a commercial port."
+			},
+			"authors": ["mathias-gerstner", "guilherme-ferreira"]
+		},
+		{
+			"slug": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"cover": {
+				"filename": "space-banner-cropped.png",
+				"mimeType": "image/png",
+				"width": 2389,
+				"height": 1338,
+				"alt": "Earth’s curved horizon illuminated by a sunrise in space."
+			},
+			"authors": ["omar-cutajar", "mathias-gerstner"]
+		}
+	],
+	"authors": [
+		{
+			"stableKey": "mathias-gerstner",
+			"displayName": "Mathias Gerstner",
+			"email": "mathias.gerstner@groupontap.com"
+		},
+		{
+			"stableKey": "guilherme-ferreira",
+			"displayName": "Guilherme Crispim Ferreira",
+			"email": "ferreira@timeandplaceconsulting.com"
+		},
+		{
+			"stableKey": "omar-cutajar",
+			"displayName": "Omar Cutajar",
+			"email": "omar.cutajar@groupontap.com"
+		}
+	]
+}

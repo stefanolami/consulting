@@ -1,0 +1,96 @@
+{
+	"version": 1,
+	"locale": "en",
+	"publishedAt": "2025-09-01T00:00:00.000Z",
+	"team": {
+		"managingTeam": ["glenn", "corina"],
+		"team": ["omar", "guilherme", "mathias"]
+	},
+	"services": [
+		{
+			"id": "association-management",
+			"title": "Association Management",
+			"excerpt": "360°-association management services from building and leading your association to expanding its presence and policy output."
+		},
+		{
+			"id": "government-relations",
+			"title": "Government Relations",
+			"excerpt": "Time&Place started with this service. From ensuring healthy market contexts to driving legislation based on your knowledge, we provide strategic engagement at technical, regulatory and political levels."
+		},
+		{
+			"id": "market-research",
+			"title": "Market Research",
+			"excerpt": "Supporting your resource-intense endeavour with information & assessments about market trends, key stakeholders, government support, as well as legislative & regulatory contexts."
+		},
+		{
+			"id": "project-management",
+			"title": "Project Management",
+			"excerpt": "From advisory to project leadership in a consortium, our services include business plan development, administrative support, team coordination, and internal as well as external communication."
+		},
+		{
+			"id": "public-funds-finance-procurement",
+			"title": "Public Funds, Finance & Procurement",
+			"excerpt": "Access public resources & contracts at international, national & regional levels; from monitoring & proposal drafting to project management for your innovative ideas, expertise & finished products."
+		},
+		{
+			"id": "visibility-communications",
+			"title": "Visibility & Communications",
+			"excerpt": "Strategy and tools to profile you, your products or your ideas or concerns; ranging from account-based marketing to public relations campaigns during legislative processes."
+		}
+	],
+	"sectors": [
+		{
+			"id": "agrifood",
+			"title": "Agrifood",
+			"excerpt": "Technology-driven transformation and innovation at all steps; from production to consumption; efficiency to sustainability; and from government policy to best practices.",
+			"icon": "agrifood.png"
+		},
+		{
+			"id": "aviation",
+			"title": "Aviation",
+			"excerpt": "We have a long-standing tradition in inter alia representing airports at the EU policy level; from safety to slots, and from electrification to passenger rights.",
+			"icon": "aviation.png"
+		},
+		{
+			"id": "e-mobility",
+			"title": "E-Mobility",
+			"excerpt": "All modes of transport & the whole eco-system from energy generation to the driver, standardisation to policy impact, technical advice to compliance, public funding to project management.",
+			"icon": "e-mobility.png"
+		},
+		{
+			"id": "energy",
+			"title": "Energy",
+			"excerpt": "From strategic technology & market advisory to government relations; in renewable energy, energy management, energy generation & distribution.",
+			"icon": "environment-energy.png"
+		},
+		{
+			"id": "international-trade",
+			"title": "International Trade",
+			"excerpt": "From facilitating trade or ensuring fair trade practices by lowering or raising barriers between economic communities, to ensuring enhanced cooperation in technological standards & best practices.",
+			"icon": "international-trade.png"
+		},
+		{
+			"id": "space",
+			"title": "Space",
+			"excerpt": "From strategy and policy design tailored for emerging space players, drawing up implementation plans for capacity-building, to establishing and managing institutional relations."
+		}
+	],
+	"serviceContacts": [
+		{ "service": "association-management", "person": "glenn-cezanne" },
+		{ "service": "government-relations", "person": "glenn-cezanne" }
+	],
+	"sectorContacts": [
+		{ "sector": "space", "person": "omar-cutajar" },
+		{ "sector": "international-trade", "person": "mathias-gerstner" }
+	],
+	"articleSectors": [
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"sector": "space"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"sector": "international-trade"
+		}
+	]
+}
