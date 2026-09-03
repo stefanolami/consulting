@@ -7,7 +7,11 @@
 		"services": "Services",
 		"sectors": "Sectors",
 		"newsroom": "Newsroom",
-		"outreach": "Our Outreach"
+		"outreach": "Our Outreach",
+		"partners": "Partners",
+		"endorsements": "Endorsements",
+		"contact": "Contact",
+		"socials": "Social links"
 	},
 	"Catalogue": {
 		"service": {

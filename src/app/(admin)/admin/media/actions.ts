@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { requireActiveStaff } from '@/lib/auth/authorization'
-import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_GLOBAL_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
 import { MEDIA_BUCKET, mediaObjectPath, validateMediaFile } from '@/lib/media-library'
 import { mediaReferencesByAssetId } from '@/lib/media-references'
 import { createClient } from '@/lib/supabase/server'
@@ -21,9 +21,11 @@ function resultError(error: unknown, fallback: string): MediaActionState {
 
 function refreshMediaLibrary() {
 	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
+	revalidateTag(PUBLIC_GLOBAL_CACHE_TAG, 'max')
 	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
 	revalidateTag(PUBLIC_OUTREACH_CACHE_TAG, 'max')
 	revalidatePath('/admin/media')
+	revalidatePath('/[locale]', 'page')
 	// Revalidate public media consumers when a shared asset changes.
 	revalidatePath('/team')
 	revalidatePath('/[locale]/team', 'page')

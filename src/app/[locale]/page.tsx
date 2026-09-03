@@ -2,7 +2,9 @@ import { hasLocale } from 'next-intl'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { Suspense } from 'react'
 
+import { GlobalContentProof } from '@/components/home/global-content-proof'
 import { routing } from '@/i18n/routing'
 
 type HomeProps = {
@@ -47,6 +49,9 @@ export default async function Home({ params }: HomeProps) {
 					))}
 				</ul>
 			</nav>
+			<Suspense fallback={null}>
+				<GlobalContentProof labels={{ contact: t('contact'), endorsements: t('endorsements'), partners: t('partners'), socials: t('socials') }} locale={locale} />
+			</Suspense>
 		</main>
 	)
 }

@@ -58,18 +58,18 @@ if (validation.issues.length || plan.conflicts.length) {
 }
 
 await applyPlan({ supabase, catalogue, plan })
-console.log(`\nAPPLY COMPLETE: created ${plan.counts.created}, skipped ${plan.counts.skipped}, conflicting ${plan.counts.conflicting}.`)
+console.log(`\nAPPLY COMPLETE: created ${plan.counts.created}, safely updated ${plan.counts.updated}, skipped ${plan.counts.skipped}, conflicting ${plan.counts.conflicting}.`)
 
 async function fetchExistingState(client) {
 	const queries = await Promise.all([
 		client.from('articles').select('id, stable_key, kind, cover_media_id, external_media_url'),
-		client.from('article_translations').select('article_id, locale, slug, title, excerpt, content, sources, status, published_at'),
+		client.from('article_translations').select('article_id, locale, slug, title, excerpt, content, sources, status, published_at, updated_at'),
 		client.from('people').select('id, stable_key, display_name, email, is_team_member, is_author, is_active'),
 		client.from('people_translations').select('person_id, locale, slug, status, published_at'),
 		client.from('tags').select('id, stable_key, is_active'),
 		client.from('tag_translations').select('tag_id, locale, slug, name, status, published_at'),
 		client.from('media_assets').select('id, bucket_id, object_path, mime_type, file_size_bytes, width, height, checksum, is_public'),
-		client.from('media_asset_translations').select('media_asset_id, locale, alt_text'),
+		client.from('media_asset_translations').select('media_asset_id, locale, alt_text, caption'),
 		client.from('article_authors').select('article_id, person_id, display_order'),
 		client.from('article_tags').select('article_id, tag_id'),
 	])
@@ -91,14 +91,14 @@ async function fetchExistingState(client) {
 }
 
 async function applyPlan({ supabase: client, catalogue: reference, plan: importPlan }) {
-	for (const article of importPlan.create.storageObjects) {
-		const { error } = await client.storage.from('public-media').upload(article.cover.objectPath, article.cover.bytes, { cacheControl: '3600', contentType: article.cover.mimeType, upsert: false })
-		if (error) throw new Error(`Unable to upload ${article.cover.objectPath}: ${error.message}`)
+	for (const media of importPlan.create.storageObjects) {
+		const { error } = await client.storage.from('public-media').upload(media.objectPath, media.bytes, { cacheControl: '3600', contentType: media.mimeType, upsert: false })
+		if (error) throw new Error(`Unable to upload ${media.objectPath}: ${error.message}`)
 	}
-	if (importPlan.create.mediaAssets.length) await insert(client, 'media_assets', importPlan.create.mediaAssets.map(({ cover }) => ({ bucket_id: 'public-media', object_path: cover.objectPath, original_filename: cover.filename, mime_type: cover.mimeType, file_size_bytes: cover.size, width: cover.width, height: cover.height, checksum: cover.checksum, is_public: true })))
+	if (importPlan.create.mediaAssets.length) await insert(client, 'media_assets', importPlan.create.mediaAssets.map((media) => ({ id: media.id, bucket_id: 'public-media', object_path: media.objectPath, original_filename: media.filename, mime_type: media.mimeType, file_size_bytes: media.size, width: media.width, height: media.height, checksum: media.checksum, is_public: true })))
 
 	let state = await resolveIds(client)
-	if (importPlan.create.mediaTranslations.length) await insert(client, 'media_asset_translations', importPlan.create.mediaTranslations.map(({ cover }) => ({ media_asset_id: required(state.media, cover.objectPath), locale: 'en', alt_text: cover.alt })))
+	if (importPlan.create.mediaTranslations.length) await insert(client, 'media_asset_translations', importPlan.create.mediaTranslations.map((media) => ({ media_asset_id: required(state.media, media.objectPath), locale: 'en', alt_text: media.alt, caption: media.caption })))
 	if (importPlan.create.people.length) await insert(client, 'people', importPlan.create.people.map((person) => ({ stable_key: person.stableKey, display_name: person.displayName, email: person.email, is_team_member: false, is_author: true, is_active: true })))
 	state = await resolveIds(client)
 	const baselinePublishedAt = reference.articles.map((article) => article.publishedAt).sort()[0]
@@ -109,6 +109,11 @@ async function applyPlan({ supabase: client, catalogue: reference, plan: importP
 	if (importPlan.create.articles.length) await insert(client, 'articles', importPlan.create.articles.map((article) => ({ stable_key: article.stableKey, kind: 'article', cover_media_id: required(state.media, article.cover.objectPath), external_media_url: null, is_featured: false, featured_order: article.displayOrder })))
 	state = await resolveIds(client)
 	if (importPlan.create.articleTranslations.length) await insert(client, 'article_translations', importPlan.create.articleTranslations.map((article) => ({ article_id: required(state.articles, article.stableKey), locale: 'en', slug: article.slug, title: article.title, excerpt: article.excerpt, content: article.content, sources: article.sources, status: 'published', published_at: article.publishedAt })))
+	for (const article of importPlan.update.articleTranslations) {
+		const articleId = required(state.articles, article.stableKey)
+		const { data, error } = await client.from('article_translations').update({ content: article.content }).eq('article_id', articleId).eq('locale', 'en').eq('updated_at', article.expectedUpdatedAt).select('article_id')
+		if (error || data?.length !== 1) throw new Error(`Unable to safely upgrade ${article.stableKey}: ${error?.message ?? 'the hosted translation changed after planning'}`)
+	}
 	if (importPlan.create.articleAuthors.length) await insert(client, 'article_authors', importPlan.create.articleAuthors.map((relation) => ({ article_id: required(state.articles, relation.articleKey), person_id: required(state.people, relation.authorKey), display_order: relation.displayOrder })))
 	if (importPlan.create.articleTags.length) await insert(client, 'article_tags', importPlan.create.articleTags.map((relation) => ({ article_id: required(state.articles, relation.articleKey), tag_id: required(state.tags, relation.tagKey) })))
 }
@@ -135,13 +140,14 @@ function required(map, key) { const id = map.get(key); if (!id) throw new Error(
 
 function formatReport({ applyMode: applying, catalogue, existing, plan, validation }) {
 	const createLines = Object.entries(plan.create).map(([entity, rows]) => `- ${entity}: ${rows.length}`)
+	const updateLines = Object.entries(plan.update).map(([entity, rows]) => `- Safe-update ${entity}: ${rows.length}`)
 	return [
 		'NEWSROOM LEGACY BOOTSTRAP', `Mode: ${applying ? 'APPLY (pre-apply report)' : 'DRY RUN (default)'}`, `Reference version: ${catalogue.version}`, '',
-		'REFERENCE SCOPE', `- Active legacy articles: ${catalogue.articles.length}`, `- Authors: ${catalogue.authors.length}`, `- Tags: ${catalogue.tags.length}`, `- Managed covers: ${catalogue.articles.length}`,
-		`- Articles: ${catalogue.articles.map((article) => article.slug).join(', ')}`, `- Inline images omitted by the controlled document contract: ${catalogue.articles.flatMap((article) => article.omittedInlineImages).join(', ') || 'none'}`, '',
+		'REFERENCE SCOPE', `- Active legacy articles: ${catalogue.articles.length}`, `- Authors: ${catalogue.authors.length}`, `- Tags: ${catalogue.tags.length}`, `- Managed covers: ${catalogue.articles.length}`, `- Managed inline images: ${catalogue.articles.flatMap((article) => article.inlineImages).length}`,
+		`- Articles: ${catalogue.articles.map((article) => article.slug).join(', ')}`, `- Inline images restored at legacy positions: ${catalogue.articles.flatMap((article) => article.inlineImages.map((image) => image.filename)).join(', ') || 'none'}`, '',
 		'LOCAL VALIDATION', `- Issues: ${validation.issues.length}${validation.issues.length ? ` [${validation.issues.join('; ')}]` : ''}`, '',
 		'HOSTED SNAPSHOT (READ ONLY)', `- Articles / translations: ${existing.articles.length} / ${existing.articleTranslations.length}`, `- People / translations: ${existing.people.length} / ${existing.peopleTranslations.length}`, `- Tags / translations: ${existing.tags.length} / ${existing.tagTranslations.length}`, `- Media / translations / stored objects: ${existing.mediaAssets.length} / ${existing.mediaTranslations.length} / ${existing.storageObjects.length}`, '',
-		'PROPOSED CREATES', ...createLines, `- Total creates: ${plan.counts.created}`, `- Skipped: ${plan.counts.skipped}`, `- Conflicts: ${plan.counts.conflicting}${plan.conflicts.length ? ` [${plan.conflicts.map((item) => `${item.entity} ${item.key}: ${item.reason}`).join('; ')}]` : ''}`, '',
-		'SAFETY AND PUBLICATION', '- Creates only the checked-in English newsroom baseline and its exact relationships.', '- Existing records are never overwritten; any mismatch blocks apply.', '- Articles, author-name translations, tag translations, and cover alt text are published in English only.', '- Services, sectors, related articles, SEO fields, other locales, team biographies, and inline body images are not invented.',
+		'PROPOSED OPERATIONS', ...createLines, ...updateLines, `- Total creates: ${plan.counts.created}`, `- Total safe updates: ${plan.counts.updated}`, `- Skipped: ${plan.counts.skipped}`, `- Conflicts: ${plan.counts.conflicting}${plan.conflicts.length ? ` [${plan.conflicts.map((item) => `${item.entity} ${item.key}: ${item.reason}`).join('; ')}]` : ''}`, '',
+		'SAFETY AND PUBLICATION', '- Creates only the checked-in English newsroom baseline and its exact relationships.', '- Existing translations are upgraded only when they exactly match the version 1 deterministic baseline; any human-authored difference blocks apply.', '- Articles, author-name translations, tag translations, cover alt text, and inline-image alt text are published in English only.', '- Services, additional sectors, related articles, SEO fields, other locales, and team biographies are not invented.',
 	].join('\n')
 }

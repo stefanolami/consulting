@@ -532,6 +532,30 @@ Custom image blocks should include:
 The public renderer maps those presets to design-system components. Editors do
 not control arbitrary CSS, dimensions, classes, or HTML.
 
+The implemented article document contract is version 2. A document root carries
+`attrs.schemaVersion: 2`; legacy version-1 documents without root attributes are
+accepted only so they can be normalized safely. An image is a top-level
+`articleImage` node with a managed-media UUID, required localized alt text, an
+optional localized caption, and one of the three layout presets above. The
+strict validator rejects unknown attributes, nested image nodes, direct image
+URLs, HTML, CSS, classes, and dimensions. Links remain limited to complete
+`http` and `https` URLs.
+
+The admin editor selects image assets from the managed media library. Server
+validation verifies that every referenced UUID exists, has an image MIME type,
+and is public before a translation can be published or scheduled. The public
+renderer resolves only public managed assets and never trusts a URL from the
+document. Media-reference reporting now scans article documents as well as
+direct foreign keys.
+
+Migration `20260903120000_article_inline_media_guard.sql` replaces the existing
+`delete_media_asset(uuid)` function body without changing its signature. It
+adds an article-JSON reference check before deletion; no table, column, stored
+content, or generated TypeScript type changes. Rolling it back means restoring
+the previous function body, which is data-preserving but intentionally removes
+the new deletion safeguard. A rollback should therefore be accompanied by a
+manual article-reference audit.
+
 ### 13.3 Public newsroom
 
 The public experience should support:
@@ -557,7 +581,7 @@ npm run newsroom:bootstrap
 ```
 
 The command validates the legacy articles, three canonical author identities,
-two tags, two local cover files and their accessibility metadata, hosted
+two tags, two local cover files, two original-position body images, and their accessibility metadata, hosted
 database records, and the `public-media` Storage folder. Dry-run is the default;
 `--apply` performs only the reported creates. Existing records are never
 overwritten, and any difference in canonical identity, publication content,
@@ -569,8 +593,9 @@ and taxonomy. It publishes only the two articles and the minimum English author
 name, tag, and cover-alt translations required by the public contract. It does
 not invent services, sectors, related articles, SEO fields, biographies, or
 other locales. The legacy body images `latam-content.jpg` and
-`space-content.jpg` are reported but omitted because the implemented controlled
-document contract does not yet support image blocks.
+`space-content.jpg` are uploaded as managed media and inserted immediately
+after their original legacy sections using localized alt text and the controlled
+`wide` preset.
 
 On 2026-09-03 the hosted dry run proposed 26 creates with no conflicts. Apply
 created 2 Storage objects, 2 media records and translations, 3 author records
@@ -581,6 +606,12 @@ public rendering then returned both English listing cards, both detail routes,
 their managed covers, the `space` tag filter, and the `mathias-gerstner` author
 filter.
 
+On 2026-09-03 the version-2 dry run proposed 6 additive media operations and 2
+safe article-translation upgrades with no conflicts. Apply uploaded the two body
+images, created their managed records and English alt metadata, and upgraded
+only the two exact deterministic version-1 article bodies. The immediate rerun
+proposed 0 creates and 0 updates, skipped all 32 checks, and found 0 conflicts.
+
 ### 13.5 Representative visual-test content
 
 The remaining CMS-backed public templates have a separate deterministic seed:
@@ -589,7 +620,7 @@ The remaining CMS-backed public templates have a separate deterministic seed:
 npm run visual-test:bootstrap
 ```
 
-Its checked-in version-one scope deliberately remains a representative visual
+Its checked-in version-two scope deliberately remains a representative visual
 test rather than a broad migration. It selects five active profiles from the
 tracked legacy team source—Glenn Cezanne and Corina Cătălina Gheorgheza in the
 managing team, plus Omar Cutajar, Guilherme Crispim Ferreira, and Mathias
@@ -614,6 +645,39 @@ entities/relationships, and found 0 conflicts. Anonymous rendering verified
 the three listing routes, representative profile/catalogue detail content,
 managed media, contact panels, related Newsroom cards, and all 17 seeded detail
 routes with no HTTP failures.
+
+Version 2 adds one complete English golden-country proof for Brazil, selected
+because the legacy sources contain three named office locations, a shared local
+email address, an explicitly Brazil-focused senior profile, and related
+international-market experience. It fills the country summary, coverage
+summary, controlled rich content, SEO, four ordered service assignments and
+localized service bodies, one office-count statistic, three offices, Glenn
+Cezanne as expert, and managed flag and outline media. The flag is a public-domain
+Wikimedia asset; the outline is deterministically generated from the checked-in
+Natural Earth topology. The legacy sources do not provide street addresses,
+office phones, coordinates, an office-data publication year or public source
+URL, a coverage tier, or Brazil-specific alternative-language copy, so those
+fields remain null or absent.
+
+The same repeat-safe workflow adds a deliberately small global-content proof:
+the legacy EFFA partner/logo and website, Alexander Mohr's linked endorsement,
+and the legacy public contact/footer and social-link settings. No POE external
+URL or reusable CTA is seeded because the legacy implementation supplies no
+approved external POE URL or reusable CTA contract. The home test harness renders
+the exact-locale published partner and endorsement plus public settings through
+anonymous RLS. Partner, settings, and shared-media actions invalidate the new
+hourly global-content cache.
+
+The hosted version-2 dry run proposed 35 creates and 2 exact-baseline Brazil
+updates with no conflicts. Apply completed those operations; the immediate rerun
+proposed 0 creates and 0 updates, skipped all 112 baseline and proof checks, and
+found 0 conflicts. The version-controlled anonymous verifier confirmed both
+version-2 article images; Brazil's content, services, statistic, offices, expert,
+media, and SEO; the partner, endorsement, and two public settings; exact-locale
+omission; and the hiding of an unpublished country translation. Production HTTP
+checks returned 200 for the English home, both article details, Outreach
+overview and selected-country panel, and Brazil detail, including expected alt
+text and relationship content.
 
 ## 14. Our Outreach
 
@@ -1026,7 +1090,11 @@ testing shows that manual ordering or taxonomy-independent selections are
 	The current schema permits an `external_media_url` as an alternative to a
 	managed cover asset but does not have localized external-media metadata; the
 	public template therefore exposes it as a safe external link rather than an
-	image. Article authors who are not active team members have localized names
+	image. The two complete legacy articles use managed cover and inline media and
+	demonstrate no need for localized metadata on a link-only escape hatch. The
+	contract deliberately remains unchanged: editorially rendered images belong
+	in managed media, while external media remains a validated `http`/`https`
+	link. Article authors who are not active team members have localized names
 	but no public profile route, so only active team-member authors receive a
 	profile link. These are existing content-contract limits, not blockers for
 	the present test harness.
@@ -1061,6 +1129,30 @@ testing shows that manual ordering or taxonomy-independent selections are
 	local map omits Antarctica and may not draw every small territory, so the
 	accessible list remains the authoritative selection surface for every
 	published covered country.
+
+	The Brazil golden-country proof exercises four ordered country-service
+	relationships and localized bodies as one coherent country publication. It did
+	not reveal a workflow in which an individual country-service translation or
+	statistic label needs to be staged independently, so both continue to inherit
+	their parent publication rules. The legacy sources also provide no controlled
+	coverage vocabulary: assigning an enum or publishing the canonical free-text
+	`coverage_level` would invent meaning. It therefore remains nullable and is
+	not rendered publicly pending an approved localized taxonomy.
+
+	The realistic article set still uses service and sector relations strictly as
+	taxonomy: each imported article has one source-supported sector, filtering is
+	set-based, and related-card presentation already has a deterministic
+	publication-time order. No evidence supports adding `display_order` to
+	`article_services` or `article_sectors`; a future curated-navigation feature
+	should use a separate ordered relationship rather than changing taxonomy by
+	default.
+
+	The minimum public global-content connection is now present on the home test
+	harness. It filters partners and endorsements by active canonical state, exact
+	locale, publication status and time; resolves logos only through public managed
+	media with localized alt text; and allowlists public site-setting keys and safe
+	external URL protocols. This proves the existing contracts without turning the
+	test harness into the final Figma global shell.
 
 ### Phase 6 — End-to-end editorial validation and remaining Figma pages
 
@@ -1175,11 +1267,12 @@ The rebuild is complete when:
 
 ## 25. Immediate next actions
 
-1. Use the admin to add reviewed English summaries and relationships to the 40
-   published name-only country references, maintain coverage, and author,
-   translate, review, and publish other locales or countries only when intended.
-2. Regenerate and verify database TypeScript types after the Supabase CLI is
-   safely linked back to this project; do not edit the generated file manually.
+1. Use the admin to add reviewed English summaries and relationships to the 39
+	 remaining published name-only country references, maintain coverage, and author,
+	 translate, review, and publish other locales or countries only when intended.
+2. Regenerate and verify database TypeScript types through the safely linked
+	 Supabase CLI only when a migration changes typed schema. The article-media
+	 guard retained its RPC signature, so this slice required no generated-type edit.
 3. Keep MailerSend/SMTP configuration and live colleague-auth onboarding
    deferred; retain the existing invite-only architecture without expanding it.
 4. Treat the completed Phase 4 admin workflows as stable content contracts and

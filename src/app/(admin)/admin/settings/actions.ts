@@ -1,9 +1,10 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { requireActiveStaff } from '@/lib/auth/authorization'
+import { PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 
 export type SiteSettingsActionState = { error?: string; success?: string }
@@ -45,6 +46,6 @@ export async function saveSiteSettingsAction(_: SiteSettingsActionState, formDat
 		]
 		const { error } = await supabase.from('site_settings').upsert(rows, { onConflict: 'key' })
 		if (error) return { error: `Could not save site settings: ${error.message}` }
-		revalidatePath('/admin/settings'); revalidatePath('/admin'); return { success: 'Global site settings saved.' }
+		revalidateTag(PUBLIC_GLOBAL_CACHE_TAG, 'max'); revalidatePath('/[locale]', 'page'); revalidatePath('/admin/settings'); revalidatePath('/admin'); return { success: 'Global site settings saved.' }
 	} catch (error) { return { error: error instanceof Error ? error.message : 'Could not save site settings.' } }
 }

@@ -1,9 +1,10 @@
 import 'server-only'
 
+import { articleImageMediaIds } from '@/lib/article-document'
 import { createClient } from '@/lib/supabase/server'
 
 export type MediaReference = {
-	type: 'Person' | 'Service' | 'Sector' | 'Article' | 'Country' | 'Country flag' | 'Country outline' | 'Partner' | 'Endorsement'
+	type: 'Person' | 'Service' | 'Sector' | 'Article' | 'Article inline image' | 'Country' | 'Country flag' | 'Country outline' | 'Partner' | 'Endorsement'
 	label: string
 	href: string | null
 }
@@ -12,7 +13,7 @@ export async function mediaReferencesByAssetId(assetIds: string[]) {
 	const references = new Map<string, MediaReference[]>()
 	if (!assetIds.length) return references
 	const supabase = await createClient()
-	const [people, services, sectors, articles, countries, partners, endorsements] = await Promise.all([
+	const [people, services, sectors, articles, countries, partners, endorsements, articleTranslations] = await Promise.all([
 		supabase.from('people').select('id, display_name, portrait_media_id').in('portrait_media_id', assetIds),
 		supabase.from('services').select('id, stable_key, icon_media_id').in('icon_media_id', assetIds),
 		supabase.from('sectors').select('id, stable_key, icon_media_id').in('icon_media_id', assetIds),
@@ -20,8 +21,9 @@ export async function mediaReferencesByAssetId(assetIds: string[]) {
 		supabase.from('countries').select('code, flag_media_id, outline_media_id').or(`flag_media_id.in.(${assetIds.join(',')}),outline_media_id.in.(${assetIds.join(',')})`),
 		supabase.from('partners').select('id, name, logo_media_id').in('logo_media_id', assetIds),
 		supabase.from('endorsements').select('id, attribution_name, portrait_media_id').in('portrait_media_id', assetIds),
+		supabase.from('article_translations').select('article_id, locale, title, content'),
 	])
-	const error = [people, services, sectors, articles, countries, partners, endorsements].find((result) => result.error)?.error
+	const error = [people, services, sectors, articles, countries, partners, endorsements, articleTranslations].find((result) => result.error)?.error
 	if (error) throw new Error(`Could not inspect media references: ${error.message}`)
 
 	function add(assetId: string | null, reference: MediaReference) {
@@ -39,6 +41,12 @@ export async function mediaReferencesByAssetId(assetIds: string[]) {
 	}
 	for (const partner of partners.data ?? []) add(partner.logo_media_id, { type: 'Partner', label: partner.name, href: `/admin/partners/partners/${partner.id}` })
 	for (const endorsement of endorsements.data ?? []) add(endorsement.portrait_media_id, { type: 'Endorsement', label: endorsement.attribution_name, href: `/admin/partners/endorsements/${endorsement.id}` })
+	const targetIds = new Set(assetIds)
+	for (const translation of articleTranslations.data ?? []) {
+		let inlineIds: string[]
+		try { inlineIds = articleImageMediaIds(translation.content) } catch { continue }
+		for (const mediaId of inlineIds) if (targetIds.has(mediaId)) add(mediaId, { type: 'Article inline image', label: `${translation.title} (${translation.locale})`, href: `/admin/newsroom/${translation.article_id}` })
+	}
 
 	return references
 }

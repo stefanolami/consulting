@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { z } from 'zod'
 
 import { type AppLocale, routing } from '@/i18n/routing'
+import { articleImageMediaIds } from '@/lib/article-document'
 import { PUBLIC_NEWSROOM_CACHE_TAG } from '@/lib/cache-tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import type { Json } from '@/types/database.generated'
@@ -19,6 +20,7 @@ export type NewsroomFilters = {
 
 export type NewsroomFilterOption = { label: string; slug: string }
 export type PublicMedia = { alt: string; caption: string | null; url: string }
+export type PublicArticleImage = { height: number | null; mimeType: string; url: string; width: number | null }
 export type NewsroomAuthor = { id: string; name: string; profileSlug: string | null }
 export type NewsroomArticleCard = {
 	authors: NewsroomAuthor[]
@@ -41,6 +43,7 @@ export type NewsroomDetail = NewsroomArticleCard & {
 	alternates: Array<{ locale: AppLocale; slug: string }>
 	content: Json
 	externalMediaUrl: string | null
+	inlineMedia: Record<string, PublicArticleImage>
 	relatedArticles: NewsroomArticleCard[]
 	sectors: NewsroomFilterOption[]
 	seoDescription: string | null
@@ -94,6 +97,21 @@ async function localizedMedia(mediaIds: string[], locale: AppLocale): Promise<Ma
 		if (!item) return []
 		return [[asset.id, { alt: item.alt_text, caption: item.caption, url: supabase.storage.from(asset.bucket_id).getPublicUrl(asset.object_path).data.publicUrl }]]
 	}))
+}
+
+async function inlineArticleMedia(content: Json): Promise<Record<string, PublicArticleImage>> {
+	let mediaIds: string[]
+	try { mediaIds = articleImageMediaIds(content) } catch { return {} }
+	if (!mediaIds.length) return {}
+	const supabase = createPublicClient()
+	const { data, error } = await supabase.from('media_assets').select('id, bucket_id, object_path, mime_type, width, height').in('id', mediaIds).eq('is_public', true)
+	if (error) throw new Error(`Unable to load inline article media: ${error.message}`)
+	return Object.fromEntries((data ?? []).flatMap((asset) => asset.mime_type?.startsWith('image/') ? [[asset.id, {
+		height: asset.height,
+		mimeType: asset.mime_type,
+		url: supabase.storage.from(asset.bucket_id).getPublicUrl(asset.object_path).data.publicUrl,
+		width: asset.width,
+	}]] : []))
 }
 
 async function relationArticleIds(articleIds: string[], filter: NewsroomFilters, locale: AppLocale): Promise<string[]> {
@@ -217,12 +235,12 @@ async function loadRelatedArticles(articleId: string, locale: AppLocale): Promis
 
 async function loadNewsroomDetail(locale: AppLocale, slug: string): Promise<NewsroomDetail | null> {
 	const translation = (await publishedArticleTranslations(locale, slug))[0]; if (!translation) return null
-	const [{ cards, canonicals }, services, sectors, relatedArticleCards, alternatesResult] = await Promise.all([
-		articleCards([translation], locale), loadTaxonomy([translation.articleId], locale, 'service'), loadTaxonomy([translation.articleId], locale, 'sector'), loadRelatedArticles(translation.articleId, locale), createPublicClient().from('article_translations').select('locale, slug').eq('article_id', translation.articleId).eq('status', 'published').lte('published_at', publicationTime()),
+	const [{ cards, canonicals }, services, sectors, relatedArticleCards, inlineMedia, alternatesResult] = await Promise.all([
+		articleCards([translation], locale), loadTaxonomy([translation.articleId], locale, 'service'), loadTaxonomy([translation.articleId], locale, 'sector'), loadRelatedArticles(translation.articleId, locale), inlineArticleMedia(translation.content), createPublicClient().from('article_translations').select('locale, slug').eq('article_id', translation.articleId).eq('status', 'published').lte('published_at', publicationTime()),
 	])
 	if (alternatesResult.error) throw new Error(`Unable to load newsroom language alternates: ${alternatesResult.error.message}`)
 	const card = cards[0]; const canonical = canonicals.get(translation.articleId); if (!card || !canonical) return null
-	return { ...card, alternates: (alternatesResult.data ?? []).filter((item) => routing.locales.includes(item.locale as AppLocale)).map((item) => ({ locale: item.locale as AppLocale, slug: item.slug })), content: translation.content, externalMediaUrl: canonical.externalMediaUrl, relatedArticles: relatedArticleCards, sectors: sectors.get(translation.articleId) ?? [], seoDescription: translation.seoDescription, seoTitle: translation.seoTitle, services: services.get(translation.articleId) ?? [], sources: parseSources(translation.sources) }
+	return { ...card, alternates: (alternatesResult.data ?? []).filter((item) => routing.locales.includes(item.locale as AppLocale)).map((item) => ({ locale: item.locale as AppLocale, slug: item.slug })), content: translation.content, externalMediaUrl: canonical.externalMediaUrl, inlineMedia, relatedArticles: relatedArticleCards, sectors: sectors.get(translation.articleId) ?? [], seoDescription: translation.seoDescription, seoTitle: translation.seoTitle, services: services.get(translation.articleId) ?? [], sources: parseSources(translation.sources) }
 }
 
 export const getPublishedNewsroomListing = unstable_cache(loadNewsroomListing, ['published-newsroom-listing'], { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_NEWSROOM_CACHE_TAG] })

@@ -2,10 +2,11 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { requireActiveStaff } from '@/lib/auth/authorization'
+import { PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
@@ -113,8 +114,10 @@ async function saveMediaAlt(supabase: Awaited<ReturnType<typeof createClient>>, 
 }
 
 function refreshPartners() {
+	revalidateTag(PUBLIC_GLOBAL_CACHE_TAG, 'max')
 	revalidatePath('/admin')
 	revalidatePath('/admin/partners')
+	revalidatePath('/[locale]', 'page')
 }
 
 export async function createPartnerAction(_: PartnerActionState, formData: FormData): Promise<PartnerActionState> {

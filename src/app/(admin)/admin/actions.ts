@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { parseProfileDocument } from '@/lib/team-profile-document'
 import { parseCatalogueDocument } from '@/lib/catalogue-document'
-import { parseArticleDocument } from '@/lib/article-document'
+import { articleImageMediaIds, parseArticleDocument } from '@/lib/article-document'
 import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 
@@ -852,6 +852,15 @@ async function ensureArticleCanPublish(supabase: Awaited<ReturnType<typeof creat
 	if (!article.cover_media_id && !article.external_media_url) throw new Error('Published articles need a cover image or external media URL.')
 	if (article.cover_media_id && !translation.coverAltText) throw new Error('Published localized content needs localized alt text for its cover image.')
 }
+async function validateArticleInlineMedia(supabase: Awaited<ReturnType<typeof createClient>>, translation: ReturnType<typeof articleTranslationFromForm>) {
+	const mediaIds = articleImageMediaIds(translation.content)
+	if (!mediaIds.length) return
+	const { data, error } = await supabase.from('media_assets').select('id, mime_type, is_public').in('id', mediaIds)
+	if (error) throw new Error(`Could not validate inline article media: ${error.message}`)
+	if ((data ?? []).length !== mediaIds.length) throw new Error('One or more inline article images no longer exist in the managed media library.')
+	if ((data ?? []).some((asset) => !asset.mime_type?.startsWith('image/'))) throw new Error('Inline article media must use managed image assets.')
+	if ((translation.status === 'published' || translation.status === 'scheduled') && (data ?? []).some((asset) => !asset.is_public)) throw new Error('Published or scheduled article images must be public managed media assets.')
+}
 async function saveArticleCoverAlt(supabase: Awaited<ReturnType<typeof createClient>>, articleId: string, locale: (typeof locales)[number], altText: string | null) {
 	if (!altText) return
 	const { data: article } = await supabase.from('articles').select('cover_media_id').eq('id', articleId).maybeSingle()
@@ -872,7 +881,7 @@ export async function createArticleAction(_: ArticleActionState, formData: FormD
 	try {
 		const details = articleDetailsFromForm(formData, false); const translation = articleTranslationFromForm(formData, false)
 		if (translation.locale !== 'en') return { error: 'New articles must start with an English translation.' }
-		const { profile } = await requireActiveStaff(); const supabase = await createClient(); const articleId = randomUUID()
+		const { profile } = await requireActiveStaff(); const supabase = await createClient(); const articleId = randomUUID(); await validateArticleInlineMedia(supabase, translation)
 		const { data: article, error } = await supabase.from('articles').insert({ id: articleId, stable_key: details.stableKey, kind: details.kind, cover_media_id: details.coverMediaId, external_media_url: details.externalMediaUrl, is_featured: details.isFeatured, featured_order: details.featuredOrder, created_by: profile.id, updated_by: profile.id }).select('id').single()
 		if (error) return { error: `Could not create the article: ${error.message}` }
 		await ensureArticleCanPublish(supabase, article.id, translation)
@@ -886,7 +895,7 @@ export async function createArticleAction(_: ArticleActionState, formData: FormD
 export async function saveArticleDetailsAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {
 	try { const details = articleDetailsFromForm(formData); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('articles').update({ stable_key: details.stableKey, kind: details.kind, cover_media_id: details.coverMediaId, external_media_url: details.externalMediaUrl, is_featured: details.isFeatured, featured_order: details.featuredOrder, updated_by: profile.id }).eq('id', details.articleId!); if (error) return { error: `Could not save article details: ${error.message}` }; await replaceArticleRelations(supabase, details.articleId!, details); await refreshNewsroomPaths(supabase, details.articleId!); return { success: 'Shared article details saved.' } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not save article details.' } } }
 export async function saveArticleTranslationAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {
-	try { const translation = articleTranslationFromForm(formData); await requireActiveStaff(); const supabase = await createClient(); await ensureArticleCanPublish(supabase, translation.articleId!, translation); const publication = articlePublication(translation.status, translation.scheduledFor); const { error } = await supabase.from('article_translations').upsert({ article_id: translation.articleId!, locale: translation.locale, slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'article_id,locale' }); if (error) return { error: `Could not save this translation: ${error.message}` }; await saveArticleCoverAlt(supabase, translation.articleId!, translation.locale, translation.coverAltText); await refreshNewsroomPaths(supabase, translation.articleId); return { success: `${translation.locale} translation saved.` } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not save this translation.' } } }
+	try { const translation = articleTranslationFromForm(formData); await requireActiveStaff(); const supabase = await createClient(); await validateArticleInlineMedia(supabase, translation); await ensureArticleCanPublish(supabase, translation.articleId!, translation); const publication = articlePublication(translation.status, translation.scheduledFor); const { error } = await supabase.from('article_translations').upsert({ article_id: translation.articleId!, locale: translation.locale, slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'article_id,locale' }); if (error) return { error: `Could not save this translation: ${error.message}` }; await saveArticleCoverAlt(supabase, translation.articleId!, translation.locale, translation.coverAltText); await refreshNewsroomPaths(supabase, translation.articleId); return { success: `${translation.locale} translation saved.` } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not save this translation.' } } }
 export async function setArticleArchivedAction(_: ArticleActionState, formData: FormData): Promise<ArticleActionState> {
 	try { const articleId = z.string().uuid().parse(formData.get('articleId')); const archive = z.enum(['true', 'false']).parse(formData.get('archive')) === 'true'; const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('articles').update({ updated_by: profile.id }).eq('id', articleId); if (error) return { error: `Could not ${archive ? 'archive' : 'restore'} the article: ${error.message}` }; const { error: translationError } = archive ? await supabase.from('article_translations').update({ status: 'archived', scheduled_for: null, published_at: null }).eq('article_id', articleId) : { error: null }; if (translationError) return { error: `Could not archive article translations: ${translationError.message}` }; await refreshNewsroomPaths(supabase, articleId); return { success: archive ? 'Article and its translations archived.' : 'Article restored; save a translation to publish it again.' } } catch (error) { return { error: error instanceof Error ? error.message : 'Could not update this article.' } } }
 export async function attachArticleCoverAction(input: unknown): Promise<ArticleActionState> {

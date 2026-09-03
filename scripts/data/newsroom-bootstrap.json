@@ -1,5 +1,5 @@
 {
-	"version": 1,
+	"version": 2,
 	"locale": "en",
 	"articles": [
 		{
@@ -11,6 +11,16 @@
 				"height": 1280,
 				"alt": "Container ships and cargo cranes at a commercial port."
 			},
+			"inlineImages": [
+				{
+					"filename": "latam-content.jpg",
+					"mimeType": "image/jpeg",
+					"width": 1920,
+					"height": 1280,
+					"alt": "Stacks of red, blue, green, and white freight containers.",
+					"layout": "wide"
+				}
+			],
 			"authors": ["mathias-gerstner", "guilherme-ferreira"]
 		},
 		{
@@ -22,6 +32,16 @@
 				"height": 1338,
 				"alt": "Earth’s curved horizon illuminated by a sunrise in space."
 			},
+			"inlineImages": [
+				{
+					"filename": "space-content.jpg",
+					"mimeType": "image/jpeg",
+					"width": 1920,
+					"height": 1440,
+					"alt": "An astronaut floating above a rocky landscape beneath a crescent moon and star-filled sky.",
+					"layout": "wide"
+				}
+			],
 			"authors": ["omar-cutajar", "mathias-gerstner"]
 		}
 	],

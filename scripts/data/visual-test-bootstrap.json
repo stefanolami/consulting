@@ -1,5 +1,5 @@
 {
-	"version": 1,
+	"version": 2,
 	"locale": "en",
 	"publishedAt": "2025-09-01T00:00:00.000Z",
 	"team": {
@@ -92,5 +92,107 @@
 			"article": "the-european-union-and-latin-america-a-herculean-matter",
 			"sector": "international-trade"
 		}
-	]
+	],
+	"goldenCountry": {
+		"code": "BR",
+		"slug": "brazil",
+		"name": "Brazil",
+		"lastReviewedOn": "2026-09-03",
+		"summary": "With a career focused on Public Affairs, Public Relations and Association Management on the international stage, Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies, whether it is to have an impact on legislation, primarily in Europe and in Brazil, or to increase political attention on specific issues of interest to clients. His life as an entrepreneur started with Time&Place Consulting in 2016 and continued with the development of branches under the Time&Place Group of which he is Founder & CEO.",
+		"coverageSummary": "Glenn is regularly working on connecting global markets, as a key aim of Time&Place Group and its pillars, products and projects is to be internationally and locally present. To increase information flow and provide access for clients, he has created partnerships and opened local offices for Time&Place in locations such as Rio de Janeiro, São Paulo, Vienna, Berlin, Bucharest, Milan, Bordeaux, and Kolkota.",
+		"content": [
+			{
+				"heading": "Business Development & Trade",
+				"paragraphs": [
+					"Glenn advises businesses on national and EU regulatory landscapes with a view of creating ideal market conditions, not only for market incumbents but also (potential) new entrants.",
+					"Furthermore, he provides market analyses helping businesses evaluate opportunities. He has also worked in analysing market circumstances, most recently in light of Mercosur-EU and Brexit negotiations helping companies make choices on, for example, production location and movement of labour."
+				]
+			},
+			{
+				"heading": "Going International",
+				"paragraphs": [
+					"Glenn is regularly working on connecting global markets, as a key aim of Time&Place Group and its pillars, products and projects is to be internationally and locally present. To increase information flow and provide access for clients, he has created partnerships and opened local offices for Time&Place in locations such as Rio de Janeiro, São Paulo, Vienna, Berlin, Bucharest, Milan, Bordeaux, and Kolkota."
+				]
+			}
+		],
+		"seoTitle": "Brazil | Time&Place Consulting",
+		"seoDescription": "With a career focused on Public Affairs, Public Relations and Association Management on the international stage, Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies, whether it is to have an impact on legislation, primarily in Europe and in Brazil, or to increase political attention on specific issues of interest to clients.",
+		"flag": { "filename": "brazil-flag.svg", "alt": "Flag of Brazil." },
+		"outline": { "filename": "brazil-outline.svg", "alt": "Outline map of Brazil." },
+		"services": [
+			{
+				"service": "government-relations",
+				"summary": "Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies, whether it is to have an impact on legislation, primarily in Europe and in Brazil, or to increase political attention on specific issues of interest to clients.",
+				"paragraphs": ["Glenn first began his career in Brussels at the American Chamber of Commerce to the EU before becoming Account Executive at Hume Brophy (now Penta). Thereafter, he became representative in the Brussels office of the Lottomatica Group (now IGT) – globally the largest provider of state/national lottery services and gaming technology solutions – where he was responsible for raising the company’s profile and establishing it as a key source of information for EU and national policy- and law-makers. Until recently, he ran the German Airports Association (ADV) Brussels office and is currently Head of Public Affairs EU for CharIN e.V., the global cross-industry association facilitating the roll-out of e-mobility based on technological solutions."]
+			},
+			{
+				"service": "association-management",
+				"summary": "His last position before building Time&Place Consulting, was Executive Director for the European Casino Association which represents both state- and private-owned casinos.",
+				"paragraphs": [
+					"His last position before building Time&Place Consulting, was Executive Director for the European Casino Association which represents both state- and private-owned casinos. There he was responsible for establishing and sustaining the voice of the European casino industry on the wider international stage, as well as guaranteeing the smooth running of the association’s internal infrastructure.",
+					"He also held the position of Secretary General of the European Enterprise Alliance which he built ”from scratch” in 2019 and which represents the interests of enterprises from central and Eastern European countries on the European stage."
+				]
+			},
+			{
+				"service": "market-research",
+				"summary": "Furthermore, he provides market analyses helping businesses evaluate opportunities.",
+				"paragraphs": ["Furthermore, he provides market analyses helping businesses evaluate opportunities. He has also worked in analysing market circumstances, most recently in light of Mercosur-EU and Brexit negotiations helping companies make choices on, for example, production location and movement of labour."]
+			},
+			{
+				"service": "visibility-communications",
+				"summary": "Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies.",
+				"paragraphs": ["With a career focused on Public Affairs, Public Relations and Association Management on the international stage, Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies, whether it is to have an impact on legislation, primarily in Europe and in Brazil, or to increase political attention on specific issues of interest to clients."]
+			}
+		],
+		"statistic": {
+			"metricKey": "legacy-office-locations",
+			"numericValue": 3,
+			"label": "Office locations",
+			"displayValue": "Rio de Janeiro, São Paulo, Brasilia"
+		},
+		"offices": [
+			{ "stableKey": "brazil-rio-de-janeiro", "name": "Rio de Janeiro", "city": "Rio de Janeiro", "email": "brazil@consultingontap.com" },
+			{ "stableKey": "brazil-sao-paulo", "name": "São Paulo", "city": "São Paulo", "email": "brazil@consultingontap.com" },
+			{ "stableKey": "brazil-brasilia", "name": "Brasilia", "city": "Brasilia", "email": "brazil@consultingontap.com" }
+		],
+		"experts": ["glenn-cezanne"]
+	},
+	"globalProof": {
+		"partner": {
+			"stableKey": "effa",
+			"name": "EFFA",
+			"websiteUrl": "https://effa.eu/",
+			"logo": { "filename": "effa.png", "alt": "EFFA logo" }
+		},
+		"endorsement": {
+			"stableKey": "alexander-mohr-effa",
+			"partner": "effa",
+			"attributionName": "Alexander Mohr",
+			"attributionTitle": "Executive Director, EFFA. European Flavour Association",
+			"quote": "Time&Place Consulting can only be commended for its ability to understand and tailor its services to the specific client’s needs. This was especially the case when we looked for Brexit related information services to get a sector specific overview and potential scenarios. The in-depth knowledge on procedures and potential economic consequences that Time&Place provided, was especially helpful in light of fact that nothing like Brexit has ever existed before."
+		},
+		"siteSettings": [
+			{
+				"key": "contact_footer",
+				"description": "Public contact details sourced from the legacy contact page and footer.",
+				"value": {
+					"email": "info@consultingontap.com",
+					"phone": "+32 (0) 485 38 22 21",
+					"address": "Rue de la Loi 81A\n1040 Brussels – Belgium",
+					"footerNote": "© 2025 Time&Place Consulting, a pillar of Time&Place Group. All rights reserved."
+				}
+			},
+			{
+				"key": "social_links",
+				"description": "Public social links sourced from the legacy footer.",
+				"value": {
+					"items": [
+						{ "platform": "facebook", "url": "https://www.facebook.com/profile.php?id=61566446167362" },
+						{ "platform": "instagram", "url": "https://www.instagram.com/groupontap/" },
+						{ "platform": "linkedin", "url": "https://www.linkedin.com/company/time-place-group/" }
+					]
+				}
+			}
+		]
+	}
 }

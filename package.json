@@ -16,7 +16,9 @@
 		"auth:bootstrap-admin": "node --env-file=.env.local scripts/bootstrap-admin.mjs",
 		"outreach:bootstrap": "node --env-file=.env.local scripts/bootstrap-outreach.mjs",
 		"newsroom:bootstrap": "node --env-file=.env.local scripts/bootstrap-newsroom.mjs",
+		"visual-test:assets": "node scripts/generate-visual-test-assets.mjs",
 		"visual-test:bootstrap": "node --env-file=.env.local scripts/bootstrap-visual-test.mjs",
+		"visual-test:verify": "node --env-file=.env.local scripts/verify-content-contracts.mjs",
 		"check": "npm run lint && npm run typecheck && npm run test && npm run build"
 	},
 	"dependencies": {

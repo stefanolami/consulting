@@ -12,12 +12,14 @@ export async function loadNewsroomInputs({ configPath, legacyNewsPath, mediaDire
 	const assets = new Map()
 
 	for (const article of config.articles) {
-		const bytes = await readFile(new URL(article.cover.filename, mediaDirectory))
-		assets.set(article.cover.filename, {
-			bytes,
-			checksum: createHash('sha256').update(bytes).digest('hex'),
-			size: bytes.byteLength,
-		})
+		for (const configuredMedia of [article.cover, ...(article.inlineImages ?? [])]) {
+			const bytes = await readFile(new URL(configuredMedia.filename, mediaDirectory))
+			assets.set(configuredMedia.filename, {
+				bytes,
+				checksum: createHash('sha256').update(bytes).digest('hex'),
+				size: bytes.byteLength,
+			})
+		}
 	}
 
 	return { assets, config, legacyArticles }
@@ -42,8 +44,8 @@ export function buildNewsroomCatalogue({ assets, config, legacyArticles }) {
 	const articles = Array.from(legacyArticles, (legacy, displayOrder) => {
 		const configured = configBySlug.get(legacy.slug)
 		if (!configured) throw new Error(`Legacy article ${legacy.slug} has no bootstrap configuration.`)
-		const asset = assets.get(configured.cover.filename)
-		if (!asset) throw new Error(`Cover ${configured.cover.filename} could not be loaded.`)
+		const cover = configuredAsset(configured.cover, assets)
+		const inlineImages = (configured.inlineImages ?? []).map((image) => configuredAsset(image, assets))
 		return {
 			stableKey: legacy.slug,
 			slug: legacy.slug,
@@ -53,16 +55,12 @@ export function buildNewsroomCatalogue({ assets, config, legacyArticles }) {
 			displayOrder,
 			tag: { stableKey: slugify(legacy.tag), name: clean(legacy.tag) },
 			authorKeys: [...configured.authors],
-			cover: {
-				...configured.cover,
-				objectPath: `newsroom/legacy/${configured.cover.filename}`,
-				checksum: asset.checksum,
-				size: asset.size,
-				bytes: asset.bytes,
-			},
-			content: legacyArticleDocument(legacy),
+			cover,
+			inlineImages,
+			media: [cover, ...inlineImages],
+			content: legacyArticleDocument(legacy, inlineImages, 2),
+			legacyContent: legacyArticleDocument(legacy, [], 1),
 			sources: Array.from(legacy.sources ?? [], sourceFromUrl),
-			omittedInlineImages: Array.from(legacy.paragraphs ?? []).flatMap((paragraph) => paragraph.image ? [paragraph.image] : []),
 		}
 	})
 
@@ -84,6 +82,9 @@ export function validateNewsroomCatalogue(catalogue) {
 		if (!article.title || !article.excerpt || !article.content.content.length) issues.push(`${article.slug} is missing required editorial content.`)
 		if (!article.sources.length) issues.push(`${article.slug} has no sources.`)
 		if (!article.cover.alt || !article.cover.size || !article.cover.checksum) issues.push(`${article.slug} has incomplete cover metadata.`)
+		const legacyInline = (article.content.content ?? []).filter((node) => node.type === 'articleImage')
+		if (legacyInline.length !== article.inlineImages.length) issues.push(`${article.slug} does not preserve every configured inline image position.`)
+		for (const image of article.inlineImages) if (!image.alt || !image.size || !image.checksum || !['content', 'wide', 'fullBleed'].includes(image.layout)) issues.push(`${article.slug} has incomplete inline image metadata for ${image.filename}.`)
 		for (const authorKey of article.authorKeys) {
 			if (!catalogue.authorsByKey.has(authorKey)) issues.push(`${article.slug} references unknown author ${authorKey}.`)
 		}
@@ -105,6 +106,7 @@ export function createNewsroomPlan(catalogue, existing) {
 		storageObjects: [], mediaAssets: [], mediaTranslations: [], people: [], peopleTranslations: [],
 		tags: [], tagTranslations: [], articles: [], articleTranslations: [], articleAuthors: [], articleTags: [],
 	}
+	const update = { articleTranslations: [] }
 	const skipped = []
 	const conflicts = []
 	const by = (rows, key) => new Map(rows.map((row) => [key(row), row]))
@@ -154,19 +156,21 @@ export function createNewsroomPlan(catalogue, existing) {
 	}
 
 	for (const article of catalogue.articles) {
-		const stored = storage.get(article.cover.objectPath)
-		if (!stored) create.storageObjects.push(article)
-		else if (stored.size !== article.cover.size) conflict('storage_object', article.cover.objectPath, `Stored size ${stored.size} differs from ${article.cover.size}.`)
-		else skip('storage_object', article.cover.objectPath)
-		const mediaKey = `public-media:${article.cover.objectPath}`
-		const mediaRow = media.get(mediaKey)
-		if (!mediaRow) create.mediaAssets.push(article)
-		else if (mediaRow.checksum !== article.cover.checksum || Number(mediaRow.file_size_bytes) !== article.cover.size || mediaRow.mime_type !== article.cover.mimeType || mediaRow.width !== article.cover.width || mediaRow.height !== article.cover.height || !mediaRow.is_public) conflict('media_asset', article.cover.objectPath, 'Existing managed media metadata differs from the checked-in cover.')
-		else skip('media_asset', article.cover.objectPath)
-		const mediaTranslation = mediaTranslations.get(article.cover.objectPath)
-		if (!mediaTranslation) create.mediaTranslations.push(article)
-		else if (mediaTranslation.alt_text !== article.cover.alt) conflict('media_translation', `en:${article.cover.objectPath}`, 'Existing English alt text differs.')
-		else skip('media_translation', `en:${article.cover.objectPath}`)
+		for (const asset of article.media) {
+			const stored = storage.get(asset.objectPath)
+			if (!stored) create.storageObjects.push(asset)
+			else if (stored.size !== asset.size) conflict('storage_object', asset.objectPath, `Stored size ${stored.size} differs from ${asset.size}.`)
+			else skip('storage_object', asset.objectPath)
+			const mediaKey = `public-media:${asset.objectPath}`
+			const mediaRow = media.get(mediaKey)
+			if (!mediaRow) create.mediaAssets.push(asset)
+			else if (mediaRow.checksum !== asset.checksum || Number(mediaRow.file_size_bytes) !== asset.size || mediaRow.mime_type !== asset.mimeType || mediaRow.width !== asset.width || mediaRow.height !== asset.height || !mediaRow.is_public) conflict('media_asset', asset.objectPath, 'Existing managed media metadata differs from the checked-in image.')
+			else skip('media_asset', asset.objectPath)
+			const mediaTranslation = mediaTranslations.get(asset.objectPath)
+			if (!mediaTranslation) create.mediaTranslations.push(asset)
+			else if (mediaTranslation.alt_text !== asset.alt || (mediaTranslation.caption ?? null) !== (asset.caption ?? null)) conflict('media_translation', `en:${asset.objectPath}`, 'Existing English media metadata differs.')
+			else skip('media_translation', `en:${asset.objectPath}`)
+		}
 
 		const current = articles.get(article.stableKey)
 		if (!current) create.articles.push(article)
@@ -175,13 +179,15 @@ export function createNewsroomPlan(catalogue, existing) {
 			if (current.kind !== 'article' || currentCover !== article.cover.objectPath || current.external_media_url !== null) conflict('article', article.stableKey, 'Existing canonical article or cover differs.')
 			else skip('article', article.stableKey)
 		}
+		const expectedArticle = rebindArticleMedia(article, media)
 		const translation = articleTranslations.get(article.stableKey)
 		const occupied = articleSlugs.get(article.slug)
 		if (!translation) {
 			if (occupied && occupied.article_id !== current?.id) conflict('article_translation', `en:${article.stableKey}`, `Slug ${article.slug} is already used.`)
-			else create.articleTranslations.push(article)
-		} else if (!sameArticleTranslation(translation, article)) conflict('article_translation', `en:${article.stableKey}`, 'Existing English article content or publication state differs.')
-		else skip('article_translation', `en:${article.stableKey}`)
+			else create.articleTranslations.push(expectedArticle)
+		} else if (sameArticleTranslation(translation, expectedArticle)) skip('article_translation', `en:${article.stableKey}`)
+		else if (sameArticleTranslation(translation, { ...expectedArticle, content: expectedArticle.legacyContent })) update.articleTranslations.push({ ...expectedArticle, expectedUpdatedAt: translation.updated_at })
+		else conflict('article_translation', `en:${article.stableKey}`, 'Existing English article content or publication state differs from both the version 1 and version 2 deterministic baselines.')
 
 		for (const [displayOrder, authorKey] of article.authorKeys.entries()) {
 			const relation = existing.articleAuthors.find((row) => articleKeys.get(row.article_id)?.stable_key === article.stableKey && peopleKeys.get(row.person_id)?.stable_key === authorKey)
@@ -194,7 +200,7 @@ export function createNewsroomPlan(catalogue, existing) {
 		else skip('article_tag', `${article.stableKey}:${article.tag.stableKey}`)
 	}
 
-	return { create, skipped, conflicts, counts: { created: Object.values(create).reduce((sum, rows) => sum + rows.length, 0), skipped: skipped.length, conflicting: conflicts.length } }
+	return { create, update, skipped, conflicts, counts: { created: Object.values(create).reduce((sum, rows) => sum + rows.length, 0), updated: Object.values(update).reduce((sum, rows) => sum + rows.length, 0), skipped: skipped.length, conflicting: conflicts.length } }
 
 	function skip(entity, key) { skipped.push({ entity, key }) }
 	function conflict(entity, key, reason) { conflicts.push({ entity, key, reason }) }
@@ -210,13 +216,19 @@ function stableJson(value) {
 	return JSON.stringify(value)
 }
 
-function legacyArticleDocument(article) {
+function legacyArticleDocument(article, inlineImages, version) {
 	const content = []
+	const inlineByFilename = new Map(inlineImages.map((image) => [image.filename, image]))
 	for (const section of article.paragraphs ?? []) {
 		if (clean(section.title)) content.push(heading(clean(section.title)))
 		for (const value of section.content ?? []) {
 			if (typeof value === 'string') content.push(paragraph(value))
 			else if (value?.type === 'unordered-list' || value?.type === 'ordered-list') content.push(list(value))
+		}
+		if (version === 2 && section.image) {
+			const image = inlineByFilename.get(section.image)
+			if (!image) throw new Error(`Inline image ${section.image} has no bootstrap configuration.`)
+			content.push({ type: 'articleImage', attrs: { mediaId: image.id, alt: image.alt, caption: image.caption ?? null, layout: image.layout } })
 		}
 	}
 	if (article.conclusion?.content) {
@@ -224,7 +236,19 @@ function legacyArticleDocument(article) {
 		for (const part of clean(article.conclusion.content).split(/\s*<br\s*\/?>\s*/i).filter(Boolean)) content.push(paragraph(part))
 		if (article.conclusion.contact?.length) content.push({ type: 'bulletList', content: article.conclusion.contact.map((email) => ({ type: 'listItem', content: [paragraph(clean(email))] })) })
 	}
-	return { type: 'doc', content }
+	return version === 2 ? { type: 'doc', attrs: { schemaVersion: 2 }, content } : { type: 'doc', content }
+}
+
+function configuredAsset(config, assets) {
+	const source = assets.get(config.filename)
+	if (!source) throw new Error(`Media ${config.filename} could not be loaded.`)
+	const objectPath = `newsroom/legacy/${config.filename}`
+	return { ...config, id: deterministicUuid(`newsroom-media:${objectPath}`), objectPath, checksum: source.checksum, size: source.size, bytes: source.bytes, caption: config.caption ?? null }
+}
+
+function rebindArticleMedia(article, mediaRows) {
+	const idByConfiguredId = new Map(article.media.map((asset) => [asset.id, mediaRows.get(`public-media:${asset.objectPath}`)?.id ?? asset.id]))
+	return { ...article, content: JSON.parse(JSON.stringify(article.content), (key, value) => key === 'mediaId' && idByConfiguredId.has(value) ? idByConfiguredId.get(value) : value) }
 }
 
 function heading(text) { return { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text }] } }
@@ -247,3 +271,4 @@ function slugify(value) { return clean(value).toLowerCase().replace(/[^a-z0-9]+/
 function clean(value) { return typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : '' }
 function uniqueBy(values, key) { return [...new Map(values.map((value) => [key(value), value])).values()] }
 function duplicates(values) { return [...new Set(values.filter((value, index) => values.indexOf(value) !== index))] }
+function deterministicUuid(value) { const hex = createHash('sha256').update(value).digest('hex').slice(0, 32).split(''); hex[12] = '5'; hex[16] = ((parseInt(hex[16], 16) & 3) | 8).toString(16); const joined = hex.join(''); return `${joined.slice(0,8)}-${joined.slice(8,12)}-${joined.slice(12,16)}-${joined.slice(16,20)}-${joined.slice(20)}` }
