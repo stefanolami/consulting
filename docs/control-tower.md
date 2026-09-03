@@ -1,6 +1,6 @@
 # Consulting Website Rework — Control Tower
 
-Last updated: 2026-08-31
+Last updated: 2026-09-03
 
 Status: High-level plan and architectural source of truth
 
@@ -613,6 +613,63 @@ zoom.
 An early interaction prototype should validate projection, zoom, touch,
 keyboard, and panel behavior before the full feature is designed.
 
+### 14.5 Canonical catalogue initialization
+
+Our Outreach now has a version-controlled, dry-run-first bootstrap workflow:
+
+```powershell
+npm run outreach:bootstrap
+```
+
+The command reads `scripts/data/outreach-geography.json`, checks it against the
+local topology and, when the ignored reference checkout is present, cross-checks
+its frozen coverage snapshot against `old-funding/src/data/regions.js`. It then
+reads the current hosted records and prints the complete proposed plan. The
+version-controlled snapshot means clean checkouts and CI do not depend on the
+ignored legacy application. Dry-run is the default. `--apply` is the only
+mutation mode and must be used only after the dry-run report has been reviewed
+and explicitly approved.
+
+The reference scope is all 249 official ISO 3166-1 alpha-2 entries exposed by
+the pinned `i18n-iso-countries` data, grouped into the six existing business
+regions using UN M49. The 40 countries in the legacy map are the sole source of
+initial `is_covered` values and retain their legacy region assignments. Taiwan
+uses its legacy Asia assignment because it has an official ISO alpha-2 code but
+is omitted from the UN M49 overview. Antarctica is retained as an uncovered
+canonical ISO record without a region because M49 leaves its region blank.
+
+The bootstrap creates only canonical region identity, country ISO identity,
+region relationships, legacy-derived coverage, and English reference names and
+deterministic slugs. English translations start as drafts. It never creates
+other locales, publishes translations, or generates summaries, SEO, services,
+statistics, offices, experts, people, media, or map presentation fields.
+Existing editorial values are not overwritten; a missing country region may be
+filled, while non-null region differences, coverage differences, and English
+name or slug differences are reported as conflicts. Duplicate codes, slug
+collisions, unmapped legacy names, topology gaps, and region conflicts are
+validated before apply. No schema migration was required because the ISO code
+primary key, region stable key, nullable relationship, `is_covered`, and
+per-locale publication model already support the workflow.
+
+The 2026-09-03 hosted dry run found an empty Outreach catalogue and proposed
+510 creates with no updates, skips, or conflicts. After explicit approval, the
+bootstrap created 6 regions, 6 English region drafts, 249 country records, and
+249 English country drafts. The immediate verification dry run found all 510
+records unchanged and proposed 0 creates, 0 updates, 510 skips, and 0 conflicts.
+After a subsequent explicit request to make the functional template visible,
+the 6 English region translations and the 40 legacy-covered English country
+translations were published without adding summaries or other editorial
+material. Anonymous verification returned all 6 regions and all 40 covered
+countries, and the local English Outreach template rendered the country list.
+The other 209 English country references remain drafts and every non-English
+translation remains absent.
+No covered legacy country is missing from the topology. The low-detail topology
+omits 76 official ISO entries, including Antarctica and small countries or
+territories; the accessible list remains authoritative. Its three map-only
+features without reliable ISO identifiers—Kosovo, Northern Cyprus, and
+Somaliland—are reported and deliberately excluded pending an explicit
+product/data decision.
+
 ## 15. Figma design implementation
 
 Using the connected Figma design:
@@ -1050,20 +1107,23 @@ The rebuild is complete when:
 
 ## 25. Immediate next actions
 
-1. Regenerate and verify database TypeScript types after the Supabase CLI is
+1. Use the admin to add reviewed English summaries and relationships to the 40
+   published name-only country references, maintain coverage, and author,
+   translate, review, and publish other locales or countries only when intended.
+2. Regenerate and verify database TypeScript types after the Supabase CLI is
    safely linked back to this project; do not edit the generated file manually.
-2. Keep MailerSend/SMTP configuration and live colleague-auth onboarding
+3. Keep MailerSend/SMTP configuration and live colleague-auth onboarding
    deferred; retain the existing invite-only architecture without expanding it.
-3. Treat the completed Phase 4 admin workflows as stable content contracts and
+4. Treat the completed Phase 4 admin workflows as stable content contracts and
    defer further admin polish until realistic end-to-end editorial testing.
-4. Run one combined editorial smoke-test cycle for team, services/sectors,
+5. Run one combined editorial smoke-test cycle for team, services/sectors,
 	newsroom, and Our Outreach using realistic authored content in every intended
 	locale. Include unpublished translations, URL state and history, filters,
 	pagination, localized relationships and media, not-found behavior, and
 	cross-entity revalidation.
-5. Use the combined smoke-test findings to correct contract or rendering issues
+6. Use the combined smoke-test findings to correct contract or rendering issues
 	before final Figma frontend implementation or broad content migration.
-6. Review the implemented localized route and metadata behavior before
+7. Review the implemented localized route and metadata behavior before
 	connecting the redirect registry to public request handling.
 
 ## 26. Primary technical references

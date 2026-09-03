@@ -12,8 +12,10 @@
 		"lint": "eslint . --max-warnings=0",
 		"lint:fix": "eslint . --fix",
 		"typecheck": "tsc --noEmit",
+		"test": "node --test scripts/*.test.mjs",
 		"auth:bootstrap-admin": "node --env-file=.env.local scripts/bootstrap-admin.mjs",
-		"check": "npm run lint && npm run typecheck && npm run build"
+		"outreach:bootstrap": "node --env-file=.env.local scripts/bootstrap-outreach.mjs",
+		"check": "npm run lint && npm run typecheck && npm run test && npm run build"
 	},
 	"dependencies": {
 		"@radix-ui/react-checkbox": "1.3.11",

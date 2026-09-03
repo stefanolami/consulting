@@ -1,0 +1,114 @@
+{
+	"version": 1,
+	"sources": {
+		"countryCodesAndNames": "i18n-iso-countries@7.14.0 (pinned in package-lock.json; ISO 3166-1 alpha-2 reference data)",
+		"regionalClassification": "United Nations Statistics Division M49 overview, English table, verified 2026-09-03: https://unstats.un.org/unsd/methodology/m49/overview/",
+		"coverageAndCoveredRegions": "old-funding/src/data/regions.js (legacy live-map business data)"
+	},
+	"regions": [
+		{
+			"stableKey": "africa",
+			"englishName": "Africa",
+			"isoAlpha2Codes": [
+				"AO", "BF", "BI", "BJ", "BW", "CD", "CF", "CG", "CI", "CM", "CV", "DJ", "DZ", "EG", "EH", "ER", "ET", "GA", "GH", "GM", "GN", "GQ", "GW", "IO", "KE", "KM", "LR", "LS", "LY", "MA", "MG", "ML", "MR", "MU", "MW", "MZ", "NA", "NE", "NG", "RE", "RW", "SC", "SD", "SH", "SL", "SN", "SO", "SS", "ST", "SZ", "TD", "TF", "TG", "TN", "TZ", "UG", "YT", "ZA", "ZM", "ZW"
+			]
+		},
+		{
+			"stableKey": "asia",
+			"englishName": "Asia",
+			"isoAlpha2Codes": [
+				"AE", "AF", "AM", "AZ", "BD", "BH", "BN", "BT", "CN", "CY", "GE", "HK", "ID", "IL", "IN", "IQ", "IR", "JO", "JP", "KG", "KH", "KP", "KR", "KW", "KZ", "LA", "LB", "LK", "MM", "MN", "MO", "MV", "MY", "NP", "OM", "PH", "PK", "PS", "QA", "SA", "SG", "SY", "TH", "TJ", "TL", "TM", "TR", "TW", "UZ", "VN", "YE"
+			]
+		},
+		{
+			"stableKey": "europe",
+			"englishName": "Europe",
+			"isoAlpha2Codes": [
+				"AD", "AL", "AT", "AX", "BA", "BE", "BG", "BY", "CH", "CZ", "DE", "DK", "EE", "ES", "FI", "FO", "FR", "GB", "GG", "GI", "GR", "HR", "HU", "IE", "IM", "IS", "IT", "JE", "LI", "LT", "LU", "LV", "MC", "MD", "ME", "MK", "MT", "NL", "NO", "PL", "PT", "RO", "RS", "RU", "SE", "SI", "SJ", "SK", "SM", "UA", "VA"
+			]
+		},
+		{
+			"stableKey": "latin-america-caribbean",
+			"englishName": "Latin America & Caribbean",
+			"isoAlpha2Codes": [
+				"AG", "AI", "AR", "AW", "BB", "BL", "BO", "BQ", "BR", "BS", "BV", "BZ", "CL", "CO", "CR", "CU", "CW", "DM", "DO", "EC", "FK", "GD", "GF", "GP", "GS", "GT", "GY", "HN", "HT", "JM", "KN", "KY", "LC", "MF", "MQ", "MS", "MX", "NI", "PA", "PE", "PR", "PY", "SR", "SV", "SX", "TC", "TT", "UY", "VC", "VE", "VG", "VI"
+			]
+		},
+		{
+			"stableKey": "north-america",
+			"englishName": "North America",
+			"isoAlpha2Codes": ["BM", "CA", "GL", "PM", "US"]
+		},
+		{
+			"stableKey": "oceania",
+			"englishName": "Oceania",
+			"isoAlpha2Codes": [
+				"AS", "AU", "CC", "CK", "CX", "FJ", "FM", "GU", "HM", "KI", "MH", "MP", "NC", "NF", "NR", "NU", "NZ", "PF", "PG", "PN", "PW", "SB", "TK", "TO", "TV", "UM", "VU", "WF", "WS"
+			]
+		}
+	],
+	"unassignedIsoAlpha2Codes": ["AQ"],
+	"regionalOverrides": [
+		{
+			"code": "TW",
+			"regionKey": "asia",
+			"reason": "ISO 3166-1 includes TW but the UN M49 overview omits it; the legacy live map explicitly groups Taiwan in Asia."
+		}
+	],
+	"legacyCoverage": [
+		{"legacyName": "Algeria", "code": "DZ", "regionKey": "africa"},
+		{"legacyName": "Egypt", "code": "EG", "regionKey": "africa"},
+		{"legacyName": "Kenya", "code": "KE", "regionKey": "africa"},
+		{"legacyName": "Morocco", "code": "MA", "regionKey": "africa"},
+		{"legacyName": "Madagascar", "code": "MG", "regionKey": "africa"},
+		{"legacyName": "Nigeria", "code": "NG", "regionKey": "africa"},
+		{"legacyName": "South Africa", "code": "ZA", "regionKey": "africa"},
+		{"legacyName": "Tunisia", "code": "TN", "regionKey": "africa"},
+		{"legacyName": "China", "code": "CN", "regionKey": "asia"},
+		{"legacyName": "Japan", "code": "JP", "regionKey": "asia"},
+		{"legacyName": "India", "code": "IN", "regionKey": "asia"},
+		{"legacyName": "Taiwan", "code": "TW", "regionKey": "asia"},
+		{"legacyName": "Thailand", "code": "TH", "regionKey": "asia"},
+		{"legacyName": "Vietnam", "code": "VN", "regionKey": "asia"},
+		{"legacyName": "Austria", "code": "AT", "regionKey": "europe"},
+		{"legacyName": "Belgium", "code": "BE", "regionKey": "europe"},
+		{"legacyName": "Denmark", "code": "DK", "regionKey": "europe"},
+		{"legacyName": "France", "code": "FR", "regionKey": "europe"},
+		{"legacyName": "Germany", "code": "DE", "regionKey": "europe"},
+		{"legacyName": "Ireland", "code": "IE", "regionKey": "europe"},
+		{"legacyName": "Italy", "code": "IT", "regionKey": "europe"},
+		{"legacyName": "Luxembourg", "code": "LU", "regionKey": "europe"},
+		{"legacyName": "Netherlands", "code": "NL", "regionKey": "europe"},
+		{"legacyName": "Norway", "code": "NO", "regionKey": "europe"},
+		{"legacyName": "Poland", "code": "PL", "regionKey": "europe"},
+		{"legacyName": "Portugal", "code": "PT", "regionKey": "europe"},
+		{"legacyName": "Romania", "code": "RO", "regionKey": "europe"},
+		{"legacyName": "Spain", "code": "ES", "regionKey": "europe"},
+		{"legacyName": "Argentina", "code": "AR", "regionKey": "latin-america-caribbean"},
+		{"legacyName": "Brazil", "code": "BR", "regionKey": "latin-america-caribbean"},
+		{"legacyName": "Chile", "code": "CL", "regionKey": "latin-america-caribbean"},
+		{"legacyName": "Colombia", "code": "CO", "regionKey": "latin-america-caribbean"},
+		{"legacyName": "Cuba", "code": "CU", "regionKey": "latin-america-caribbean"},
+		{"legacyName": "Dominican Republic", "code": "DO", "regionKey": "latin-america-caribbean"},
+		{"legacyName": "Mexico", "code": "MX", "regionKey": "latin-america-caribbean"},
+		{"legacyName": "Peru", "code": "PE", "regionKey": "latin-america-caribbean"},
+		{"legacyName": "Canada", "code": "CA", "regionKey": "north-america"},
+		{"legacyName": "United States", "code": "US", "regionKey": "north-america"},
+		{"legacyName": "Australia", "code": "AU", "regionKey": "oceania"},
+		{"legacyName": "New Zealand", "code": "NZ", "regionKey": "oceania"}
+	],
+	"nonStandardTopologyEntities": [
+		{
+			"topologyName": "Kosovo",
+			"decision": "Exclude: the topology feature has no numeric identifier and XK is a user-assigned, non-ISO alpha-2 code."
+		},
+		{
+			"topologyName": "N. Cyprus",
+			"decision": "Exclude: the topology feature has no numeric identifier or official ISO 3166-1 alpha-2 code."
+		},
+		{
+			"topologyName": "Somaliland",
+			"decision": "Exclude: the topology feature has no numeric identifier or official ISO 3166-1 alpha-2 code."
+		}
+	]
+}

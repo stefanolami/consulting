@@ -1,6 +1,13 @@
 {
 	"HomePage": {
-		"title": "Time&Place Consulting"
+		"title": "Time&Place Consulting",
+		"signIn": "Accedi",
+		"testNavigation": "Test dei modelli",
+		"team": "Team",
+		"services": "Servizi",
+		"sectors": "Settori",
+		"newsroom": "Newsroom",
+		"outreach": "La nostra presenza"
 	},
 	"Catalogue": {
 		"service": {
