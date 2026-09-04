@@ -42,3 +42,5 @@ next-env.d.ts
 
 /old-consulting
 /old-funding
+
+/supabase/.temp/

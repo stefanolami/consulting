@@ -495,7 +495,7 @@ export const team = {
 			},
 		],
 	}, */
-	marie: {
+	/* marie: {
 		name: 'Marie Kubasiak',
 		path: 'marie-kubasiak',
 		img: '/team/marie.png',
@@ -524,7 +524,7 @@ export const team = {
 				],
 			},
 		],
-	},
+	}, */
 	stefano: {
 		name: 'Stefano Lami',
 		path: 'stefano-lami',
@@ -836,7 +836,7 @@ export const team = {
 			},
 		],
 	},
-	ben: {
+	/* ben: {
 		name: 'Benjamin Wunnerlich',
 		path: 'benjamin-wunnerlich',
 		img: '/team/ben.jpg',
@@ -871,5 +871,5 @@ export const team = {
 				],
 			},
 		],
-	},
+	}, */
 }
