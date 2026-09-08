@@ -65,6 +65,7 @@ function RichTextEditor({ label, value, onChange }: { label: string; value: Json
 			Link.configure({ openOnClick: false, autolink: true, linkOnPaste: true }),
 		],
 		content: value as JSONContent,
+		editorProps: { attributes: { 'aria-label': label, 'aria-multiline': 'true', role: 'textbox' } },
 		onUpdate: ({ editor: currentEditor }) => onChange(currentEditor.getJSON() as Json),
 	})
 	const serializedValue = JSON.stringify(value)
@@ -80,7 +81,7 @@ function RichTextEditor({ label, value, onChange }: { label: string; value: Json
 		editor.chain().focus().extendMarkRange('link').setLink({ href }).run()
 	}
 
-	return <div className="mt-4"><span className="text-sm font-medium text-slate-700">{label}</span><div className="mt-1.5 overflow-hidden rounded-md border border-input bg-white shadow-xs"><div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-1.5"><ToolButton active={editor?.isActive('bold') ?? false} disabled={!editor} label="Bold" onClick={() => editor?.chain().focus().toggleBold().run()}><Bold /></ToolButton><ToolButton active={editor?.isActive('italic') ?? false} disabled={!editor} label="Italic" onClick={() => editor?.chain().focus().toggleItalic().run()}><Italic /></ToolButton><ToolButton active={editor?.isActive('bulletList') ?? false} disabled={!editor} label="Bulleted list" onClick={() => editor?.chain().focus().toggleBulletList().run()}><List /></ToolButton><ToolButton active={editor?.isActive('orderedList') ?? false} disabled={!editor} label="Numbered list" onClick={() => editor?.chain().focus().toggleOrderedList().run()}><ListOrdered /></ToolButton><ToolButton active={editor?.isActive('link') ?? false} disabled={!editor} label="Add link" onClick={addLink}><Link2 /></ToolButton></div><EditorContent aria-label={label} className="profile-rich-text min-h-36 px-3 py-2 text-sm leading-6 text-slate-800" editor={editor} /></div></div>
+	return <div className="mt-4"><span className="text-sm font-medium text-slate-700">{label}</span><div className="mt-1.5 overflow-hidden rounded-md border border-input bg-white shadow-xs"><div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-1.5"><ToolButton active={editor?.isActive('bold') ?? false} disabled={!editor} label="Bold" onClick={() => editor?.chain().focus().toggleBold().run()}><Bold /></ToolButton><ToolButton active={editor?.isActive('italic') ?? false} disabled={!editor} label="Italic" onClick={() => editor?.chain().focus().toggleItalic().run()}><Italic /></ToolButton><ToolButton active={editor?.isActive('bulletList') ?? false} disabled={!editor} label="Bulleted list" onClick={() => editor?.chain().focus().toggleBulletList().run()}><List /></ToolButton><ToolButton active={editor?.isActive('orderedList') ?? false} disabled={!editor} label="Numbered list" onClick={() => editor?.chain().focus().toggleOrderedList().run()}><ListOrdered /></ToolButton><ToolButton active={editor?.isActive('link') ?? false} disabled={!editor} label="Add link" onClick={addLink}><Link2 /></ToolButton></div><EditorContent className="profile-rich-text min-h-36 px-3 py-2 text-sm leading-6 text-slate-800" editor={editor} /></div></div>
 }
 
 function ToolButton({ active, children, disabled, label, onClick }: { active: boolean; children: React.ReactNode; disabled: boolean; label: string; onClick: () => void }) {
