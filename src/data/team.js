@@ -111,7 +111,7 @@ export const managingTeam = {
 			{
 				title: 'Chief People Officer',
 				content: [
-					'As the Chief People Officer of Time&Place Group, Corina is responsible for leading the organisation’s people strategy, ensuring that the company attracts, develops, and retains top talent. She focuses on creating a supportive and inclusive workplace culture that fosters employee management and well-being. Corina works closely with leadership to align human resources initiatives with the company’s strategic objectives, managing areas such as recruitment, training and development, performance management, and employee relations.',
+					'As the Chief People Officer of Time&Place Group, Corina is responsible for leading the organization’s people strategy, ensuring that the company attracts, develops, and retains top talent. She focuses on creating a supportive and inclusive workplace culture that fosters employee management and well-being. Corina works closely with leadership to align human resources initiatives with the company’s strategic objectives, managing areas such as recruitment, training and development, performance management, and employee relations.',
 				],
 				endorsement: {
 					content: [
@@ -132,7 +132,7 @@ export const managingTeam = {
 			{
 				title: 'Business Profiler',
 				content: [
-					"As a Business Profiler, Corina leverages her expertise as a forensic and psychological profiler and behavioral analyst to create detailed profiles of potential clients and collaborators. She applies her deep understanding of human behavior, motivations, and thought processes to analyze the key players within these organisations. Her analysis ensures that any collaboration aligns with the company's strategic goals and values, while also mitigating potential risks.",
+					"As a Business Profiler, Corina leverages her expertise as a forensic and psychological profiler and behavioral analyst to create detailed profiles of potential clients and collaborators. She applies her deep understanding of human behavior, motivations, and thought processes to analyze the key players within these organizations. Her analysis ensures that any collaboration aligns with the company's strategic goals and values, while also mitigating potential risks.",
 				],
 				endorsement: {
 					content: [
@@ -193,7 +193,7 @@ export const team = {
 			{
 				title: 'Areas of Expertise',
 				content: [
-					'In her previous role at ICLEI, Shumaila managed sustainable mobility projects across Asia, Africa, and Latin America, using her expertise in capacity building, stakeholder engagement, and project management. In her role with the Government of Sindh, she successfully implemented BRT bus projects in Karachi, addressing the ridership needs of approximately 500,000 passengers per line, per day, and created and monitored Key Performance Indicators (KPIs) to enhance system performance. Shumaila also expertly negotiated concession agreements on behalf of the Government with private partners and financial institutions, ensuring favorable outcomes for public projects. Additionally, she led the development and management of high-level events, including city-to-city dialogues, training workshops, and study tours involving diverse stakeholders such as city governments, multi-lateral development banks, private sector firms, NGOs, and civil society organisations.',
+					'In her previous role at ICLEI, Shumaila managed sustainable mobility projects across Asia, Africa, and Latin America, using her expertise in capacity building, stakeholder engagement, and project management. In her role with the Government of Sindh, she successfully implemented BRT bus projects in Karachi, addressing the ridership needs of approximately 500,000 passengers per line, per day, and created and monitored Key Performance Indicators (KPIs) to enhance system performance. Shumaila also expertly negotiated concession agreements on behalf of the Government with private partners and financial institutions, ensuring favorable outcomes for public projects. Additionally, she led the development and management of high-level events, including city-to-city dialogues, training workshops, and study tours involving diverse stakeholders such as city governments, multi-lateral development banks, private sector firms, NGOs, and civil society organizations.',
 				],
 				endorsement: {
 					content: [
@@ -211,7 +211,7 @@ export const team = {
 		img: '/team/wilson.png',
 		imgName: 'Wilson Caldeira',
 		imgTitle: 'Senior Adviser',
-		titles: ['Senior Adviser – Time&Place Group'],
+		titles: ['Senior Adviser – Time&Place Group '],
 		contact: {
 			email: 'caldeira@groupontap.com',
 		},
@@ -256,6 +256,31 @@ export const team = {
 					name: 'Joaquim Lopes',
 					title: 'Brazil, CEO at 4yousee',
 				},
+			},
+		],
+	},
+	alberto: {
+		name: 'Alberto Cassia',
+		path: 'alberto-cassia',
+		img: '/team/alberto.png',
+		imgName: 'Alberto Cassia',
+		imgTitle: 'Junior Consultant',
+		titles: ['Junior Consultant – Time&Place Consulting'],
+		contact: {
+			email: 'cassia@timeandplace.consulting',
+		},
+		introduction: [
+			'Alberto Cassia brings experience in EU policy, international relations and regulatory research, gained across institutional, diplomatic and NGO environments.',
+			'He holds a Postgraduate Diploma in European Studies from SIOI, a Master’s degree in International Relations and Supranational Institutions from Sapienza University of Rome, and a Bachelor’s degree in Political Science from the University of Catania. He also studied in Brussels as part of the Erasmus programme.',
+		],
+		paragraphs: [
+			{
+				title: 'Previous experience',
+				content: [
+					'Alberto managed EU-funded mobility programmes, working closely with students, staff and European institutions. At the Embassy of Mexico in Italy, he supported trade promotion activities between the two countries through research and the coordination of institutional events.',
+					'As an EU policy research intern, he monitored policy developments and analysed public opinion trends relating to the European Green Deal. He also gained experience in digital communications, contributing to an NGO’s newsletters, editorial content and social media presence.',
+					'Alberto speaks Italian, English and Spanish and is currently improving his French.',
+				],
 			},
 		],
 	},
@@ -449,7 +474,7 @@ export const team = {
 				endorsement: {
 					content: [
 						'“I had the pleasure of working with Flávia for over 10 years at MSA-Infor, where I was one of the founding partners. I also closely followed her work at Fumsoft. What stands out about Flávia is her determination at work, with a strong focus on efficiency and results. During her tenure as CEO, MSA-Infor won several awards as the most profitable company in the IT sector in Brazil.”',
-						'I was part of the group of entrepreneurs who attended the entrepreneurship training program at Stanford University in 2016, organized by Fumsoft under Flávia’s supervision. She worked tirelessly on the promotion, organisation, and execution of the program. I continue to follow the group of entrepreneurs who participated in the event and other Fumsoft programs, and I can personally attest to how crucial Flávia’s role was in the success of these companies.',
+						'I was part of the group of entrepreneurs who attended the entrepreneurship training program at Stanford University in 2016, organized by Fumsoft under Flávia’s supervision. She worked tirelessly on the promotion, organization, and execution of the program. I continue to follow the group of entrepreneurs who participated in the event and other Fumsoft programs, and I can personally attest to how crucial Flávia’s role was in the success of these companies.',
 						'With all this efficiency and dedication to her work, she still manages to be an incredibly kind person with refined manners.”',
 					],
 					name: 'Antonio Augusto Da Silva',
@@ -459,7 +484,7 @@ export const team = {
 			{
 				title: 'Executive Leadership in IT & Business Transformation (1990-2010)',
 				content: [
-					'At MSA-INFOR, Flávia advanced from systems analyst to CEO, leading 300 employees and positioning the company as one of the top private IT firms in Minas Gerais. She managed three ownership transitions, gaining expertise in organisational change and corporate strategy, and played a key role in the M&A process. After the acquisition by Spread Technology, she ensured a smooth knowledge transfer and restructured the Government sales division in São Paulo, securing a major public bid for Brazil’s Ministry of Social Development (MDS).',
+					'At MSA-INFOR, Flávia advanced from systems analyst to CEO, leading 300 employees and positioning the company as one of the top private IT firms in Minas Gerais. She managed three ownership transitions, gaining expertise in organizational change and corporate strategy, and played a key role in the M&A process. After the acquisition by Spread Technology, she ensured a smooth knowledge transfer and restructured the Government sales division in São Paulo, securing a major public bid for Brazil’s Ministry of Social Development (MDS).',
 				],
 			},
 		],
@@ -525,6 +550,36 @@ export const team = {
 			},
 		],
 	}, */
+	liga: {
+		name: 'Līga Aija Lagzdiņa',
+		path: 'liga-aija-lagzdina',
+		img: '/team/liga.png',
+		imgName: 'Līga Aija Lagzdiņa',
+		imgTitle: 'Junior Consultant',
+		titles: ['Junior Consultant – Time&Place Consulting'],
+		contact: {
+			email: 'lagzdina@timeandplace.consulting',
+		},
+		introduction: [
+			'Līga brings a background in strategic communications, public affairs and journalism, with experience in institutional monitoring, policy analysis and stakeholder engagement across the defence, green energy, mobility and EU policy sectors.',
+		],
+		paragraphs: [
+			{
+				title: 'Previous experience',
+				content: [
+					'Before moving into advocacy and strategic communications, Līga worked as a journalist covering national and European affairs. This experience strengthened her commitment to curiosity-driven, fact-based and thoroughly researched storytelling.',
+					'Her work has spanned print media, radio, podcasts, social media and strategic communications, giving her a strong understanding of how different audiences consume and engage with information. This multidisciplinary background enables her to transform complex or technical subjects into clear and compelling stories.',
+				],
+			},
+			{
+				title: 'Academic background',
+				content: [
+					'Līga holds an International Bachelor’s degree in Media and Communication from Erasmus University Rotterdam. Her studies covered a broad range of disciplines, including marketing, politics, digitalisation and EU regulation.',
+					'Līga is a native Latvian speaker, is proficient in English at C2 level, and has basic knowledge of French and Russian at A1 level. She is actively improving her French.',
+				],
+			},
+		],
+	},
 	stefano: {
 		name: 'Stefano Lami',
 		path: 'stefano-lami',
@@ -558,6 +613,49 @@ export const team = {
 				content: [
 					'Since joining Time&Place Group in February 2023, Stefano has become an integral part of the team, contributing to the development and maintenance of our digital presence. He is a quick learner, always eager to expand his knowledge and tackle new challenges.',
 					'Stefano speaks English, Italian, German, and Romanian.',
+				],
+			},
+		],
+	},
+	cristiane: {
+		name: 'Cristiane Mancini',
+		path: 'cristiane-mancini',
+		img: '/team/cristiane.png',
+		imgName: 'Cristiane Mancini',
+		imgTitle: 'Senior director',
+		titles: [
+			'Senior director, global business & market intelligence - Time&Place Consulting',
+		],
+		contact: {
+			email: 'mancini@timeandplace.consulting',
+		},
+		introduction: [
+			'Cristiane Mancini has over 10 years of experience leading complex, data-driven projects and products across Latin America, Europe, and the United States, with a strong combination of analytical thinking, cross-functional leadership, strategic execution and prototyping, and managing large data volume and insights.',
+		],
+		paragraphs: [
+			{
+				title: 'Economical background',
+				content: [
+					'Holding both bachelor’s and master’s degrees in Economics from the Pontifical Catholic University of São Paulo, Brazil, has enabled Cristiane to produce analyses and reports on international trade, macroeconomic trends, consumer behaviour, energy, mobility, agribusiness, metals and mining, among other sectors, supporting more accurate and informed decision-making.',
+				],
+			},
+			{
+				title: 'Management and mentoring',
+				content: [
+					'Managing and mentoring diverse teams across Europe, Asia and the United States has strengthened Cristiane’s ability to align stakeholders, build relationships and negotiate partnerships with governments and private companies, create clarity in complex environments, and drive consistent delivery across cultures and time zones. She has worked with more than 100 global clients, including government institutions and multinational companies, developing a strategic ability to understand, access and build markets.',
+				],
+			},
+			{
+				title: 'Data analysis',
+				content: [
+					'Beyond execution, Cristiane is deeply committed to transforming data into actionable strategy. As a professor at ESPM, a top-tier private, non-profit higher education institution in Brazil, she teaches Market Intelligence, helping professionals translate complex information into practical decision-making and improved user experiences.',
+				],
+			},
+			{
+				title: 'Academic background',
+				content: [
+					'In addition, professor, and speaker in different events and universities in Italy (Napoli In addition, Cristiane is a professor and speaker at events and universities in Italy (Napoli Centrale), France (University of Lille), England (University of Leeds), Paraguay (in collaboration with the World Bank), Turkey (Galatasaray University, Middle East Technical University and Istanbul Bilgi University), Uruguay, Brazil and Colombia (EAN University), among others.',
+					'Cristiane is a native Portuguese speaker with a working knowledge of English, Spanish and Italian, while continuing to improve her Turkish.',
 				],
 			},
 		],
@@ -684,6 +782,36 @@ export const team = {
 				content: [
 					'Markus regularly contributes to discussions on energy, industrial competitiveness and foreign policy, and has authored numerous policy papers, briefings and thought leadership articles throughout his career.',
 					'He holds an LL.M. in Globalisation and Law (Trade and Investment) and an LL.B. in European Law from Maastricht University. Markus is a native English speaker with a working knowledge of German and French - however his Italian, Romanian and Dutch are still works in progress.',
+				],
+			},
+		],
+	},
+	sebastiano: {
+		name: 'Sebastiano Reitano',
+		path: 'sebastiano-reitano',
+		img: '/team/sebastiano.png',
+		imgName: 'Sebastiano Reitano',
+		imgTitle: 'Junior Consultant',
+		titles: ['Junior Consultant  – Time&Place Consulting'],
+		contact: {
+			email: 'reitano@timeandplace.consulting',
+		},
+		introduction: [
+			"Sebastiano Reitano is a Junior Consultant with an interdisciplinary background in European governance and public affairs research. Having studied and worked in five countries, he is accustomed to analysing policy debates from different perspectives. He holds a double-degree Master of Science in European Governance from University College Dublin and Utrecht University, as well as a Bachelor's degree in European Studies from Maastricht University.",
+		],
+		paragraphs: [
+			{
+				title: 'Previous Experiences',
+				content: [
+					"Before joining Time&Place, Sebastiano worked at the Netherlands Space Agency in The Hague. There, he researched and analysed the implementation of Destination Earth's digital twin at both the European and national levels, supporting the relevant Dutch delegate. He also contributed to the expansion of the euandi Voting Advice Application ahead of the 2024 European elections for the European University Institute.",
+					'His academic work has focused on the twin transition and public sector innovation, with a particular interest in industrial policy and market regulation. He is trained in both qualitative and quantitative research methods.',
+				],
+			},
+			{
+				title: 'At Time&Place',
+				content: [
+					'Sebastiano joined Time&Place Group in September 2026. He supports the team on policy monitoring, stakeholder mapping and the preparation of briefing material for client meetings, with a focus on e-mobility charging and security sectors',
+					'Sebastiano speaks Italian and English and is currently improving his German and French.',
 				],
 			},
 		],
