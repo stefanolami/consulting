@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 
-import { ArticleSummaryCard } from '@/components/newsroom/article-summary-card'
+import { ArticleSummaryCard, articleSummaryGridClass } from '@/components/newsroom/article-summary-card'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import type { PublicCatalogueKind } from '@/lib/public-catalogue'
@@ -26,7 +26,7 @@ export async function CatalogueArticles({ kind, locale, name, slug }: { kind: Pu
 	return (
 		<section aria-labelledby="catalogue-articles-heading">
 			<h2 className="border-b-2 border-black pb-3 font-display text-heading-2 font-bold text-black" id="catalogue-articles-heading">{t('articlesFor', { name })}</h2>
-			<ul className="mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+			<ul className={articleSummaryGridClass}>
 				{articles.map((article) => (
 					<li key={article.id}>
 						<ArticleSummaryCard

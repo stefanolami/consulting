@@ -1,49 +1,40 @@
-'use client'
+import type { ReactNode } from 'react'
 
-import { useTranslations } from 'next-intl'
-
+import { CatalogueContactsSkeleton } from '@/components/catalogue/catalogue-contacts'
 import { catalogueGridClass, catalogueItemClass } from '@/components/catalogue/catalogue-tile'
+import { LoadingRegion } from '@/components/loading/loading-region'
+import { SkeletonSection } from '@/components/loading/skeleton-text'
+import { ArticleSummarySectionSkeleton } from '@/components/newsroom/article-summary-card'
+import { PageHeroSkeleton } from '@/components/shell/page-hero'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { PublicCatalogueKind } from '@/lib/public-catalogue'
 import { cn } from '@/lib/utils'
 
-// Route-level loading state in the shape of the Figma pages: the navy hero,
-// then the tile grid (index) or an empty body (detail).
-export function CatalogueLoading({ kind, variant = 'listing' }: { kind: PublicCatalogueKind; variant?: 'detail' | 'listing' }) {
-	const t = useTranslations('Catalogue')
+// Detail page while the record loads: emblem hero, "What we do", contacts and
+// related articles, in the finished template's layout.
+export function CatalogueDetailSkeleton({ label }: { label: ReactNode }) {
 	return (
-		<main aria-busy="true">
-			<div aria-hidden="true" className="bg-brand px-gutter pb-section pt-[clamp(1.5rem,1rem+2vw,2.5rem)]">
-				<div className="mx-auto flex max-w-content flex-col items-center gap-6">
-					<div className={cn('bg-on-brand/10 motion-safe:animate-pulse', variant === 'detail' ? 'aspect-square w-[clamp(10rem,6rem+18vw,24rem)] rounded-pill' : 'aspect-[1440/400] w-full rounded-control')} />
-					<div className="h-9 w-1/2 max-w-sm rounded-control bg-on-brand/10" />
-					<div className="h-16 w-full max-w-3xl rounded-control bg-on-brand/10" />
-				</div>
+		<LoadingRegion as="main" label={label}>
+			<PageHeroSkeleton illustration="emblem" />
+			<div className="mx-auto max-w-content space-y-[clamp(3rem,2.25rem+3vw,5.5rem)] px-gutter py-section">
+				<SkeletonSection headingWidth="w-1/4" />
+				<CatalogueContactsSkeleton />
+				<ArticleSummarySectionSkeleton />
 			</div>
-			{variant === 'listing' ? (
-				<div className="bg-surface-soft px-gutter py-section">
-					<div className="mx-auto max-w-content">
-						<CatalogueGridSkeleton kind={kind} label={t(`${kind}.loading`)} />
-					</div>
-				</div>
-			) : (
-				<p className="sr-only" role="status">{t(`${kind}.loading`)}</p>
-			)}
-		</main>
+		</LoadingRegion>
 	)
 }
 
-export function CatalogueGridSkeleton({ kind, label }: { kind: PublicCatalogueKind; label: string }) {
+// Index tiles while they stream (shapes only; wrap in a LoadingRegion).
+export function CatalogueGridSkeleton({ kind }: { kind: PublicCatalogueKind }) {
 	return (
-		<div role="status">
-			<span className="sr-only">{label}</span>
-			<ul aria-hidden="true" className={catalogueGridClass}>
-				{Array.from({ length: 6 }, (_, index) => (
-					<li className={cn('grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:block', catalogueItemClass)} key={index}>
-						<span className={cn('block aspect-square bg-tp-mist/60 motion-safe:animate-pulse', kind === 'service' && 'lg:rounded-pill')} />
-						<span className="block aspect-square bg-tp-mist/40 lg:hidden" />
-					</li>
-				))}
-			</ul>
-		</div>
+		<ul className={catalogueGridClass}>
+			{Array.from({ length: 6 }, (_, index) => (
+				<li className={cn('grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:block', catalogueItemClass)} key={index}>
+					<Skeleton className={cn('aspect-square rounded-none', kind === 'service' && 'lg:rounded-pill')} tone="light" />
+					<Skeleton className="aspect-square rounded-none opacity-70 lg:hidden" tone="light" />
+				</li>
+			))}
+		</ul>
 	)
 }

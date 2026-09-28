@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache'
+import { cache } from 'react'
 
 import { PUBLIC_CATALOGUE_CACHE_TAG } from '@/lib/cache-tags'
 import type { AppLocale } from '@/i18n/routing'
@@ -283,8 +284,10 @@ export const getPublishedCatalogueList = unstable_cache(
 	{ revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_CATALOGUE_CACHE_TAG] },
 )
 
-export const getPublishedCatalogueDetail = unstable_cache(
+// React cache() shares one read between generateMetadata and the page in the
+// same request, so a cold data cache is not filled twice in parallel.
+export const getPublishedCatalogueDetail = cache(unstable_cache(
 	loadCatalogueDetail,
 	['published-catalogue-detail'],
 	{ revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_CATALOGUE_CACHE_TAG] },
-)
+))

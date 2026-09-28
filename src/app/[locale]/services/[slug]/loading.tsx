@@ -1,5 +1,6 @@
-import { CatalogueLoading } from '@/components/catalogue/catalogue-loading'
+import { CatalogueDetailSkeleton } from '@/components/catalogue/catalogue-loading'
+import { LoadingMessage } from '@/components/loading/loading-message'
 
 export default function ServiceDetailLoading() {
-	return <CatalogueLoading kind="service" variant="detail" />
+	return <CatalogueDetailSkeleton label={<LoadingMessage messageKey="Catalogue.service.loadingDetail" />} />
 }

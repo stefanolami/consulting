@@ -23,7 +23,8 @@
 			"metaDescription": "Explore Time&Place Consulting's published services.",
 			"emptyTitle": "No services are published in English yet",
 			"emptyDescription": "Published services will appear here when English content is available.",
-			"loading": "Loading services"
+			"loading": "Loading services",
+			"loadingDetail": "Loading service"
 		},
 		"sector": {
 			"title": "Sectors",
@@ -32,7 +33,8 @@
 			"metaDescription": "Explore the sectors covered by Time&Place Consulting.",
 			"emptyTitle": "No sectors are published in English yet",
 			"emptyDescription": "Published sectors will appear here when English content is available.",
-			"loading": "Loading sectors"
+			"loading": "Loading sectors",
+			"loadingDetail": "Loading sector"
 		},
 		"whatWeDo": "What we do",
 		"getInTouch": "Get in Touch with the Team",
@@ -122,7 +124,8 @@
 			"email": "Email",
 			"phone": "Phone",
 			"articlesBy": "Articles by {name}",
-			"byline": "By {authors}"
+			"byline": "By {authors}",
+			"loading": "Loading profile"
 		}
 	},
 	"NotFound": {
@@ -174,6 +177,9 @@
 		},
 		"placeholder": {
 			"illustration": "Illustration placeholder: {name}"
+		},
+		"loading": {
+			"articles": "Loading articles"
 		}
 	}
 }

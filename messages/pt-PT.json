@@ -15,7 +15,9 @@
 			"Catalogue.phone",
 			"Catalogue.articlesFor",
 			"Catalogue.viewAllArticles",
-			"Catalogue.byline"
+			"Catalogue.byline",
+			"Catalogue.service.loadingDetail",
+			"Catalogue.sector.loadingDetail"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -43,7 +45,8 @@
 			"metaDescription": "Conheça os serviços publicados da Time&Place Consulting.",
 			"emptyTitle": "Ainda não há serviços publicados em português europeu",
 			"emptyDescription": "Os serviços publicados aparecerão aqui quando existir conteúdo em português europeu.",
-			"loading": "A carregar serviços"
+			"loading": "A carregar serviços",
+			"loadingDetail": "A carregar o serviço"
 		},
 		"sector": {
 			"title": "Setores",
@@ -52,7 +55,8 @@
 			"metaDescription": "Conheça os setores acompanhados pela Time&Place Consulting.",
 			"emptyTitle": "Ainda não há setores publicados em português europeu",
 			"emptyDescription": "Os setores publicados aparecerão aqui quando existir conteúdo em português europeu.",
-			"loading": "A carregar setores"
+			"loading": "A carregar setores",
+			"loadingDetail": "A carregar o setor"
 		},
 		"whatWeDo": "O que fazemos",
 		"getInTouch": "Contacte a equipa",
@@ -142,7 +146,8 @@
 			"email": "E-mail",
 			"phone": "Telefone",
 			"articlesBy": "Artigos de {name}",
-			"byline": "Por {authors}"
+			"byline": "Por {authors}",
+			"loading": "A carregar o perfil"
 		}
 	},
 	"NotFound": {
@@ -194,6 +199,9 @@
 		},
 		"placeholder": {
 			"illustration": "Marcador de posição da ilustração: {name}"
+		},
+		"loading": {
+			"articles": "A carregar artigos"
 		}
 	}
 }

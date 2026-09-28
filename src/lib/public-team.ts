@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache'
+import { cache } from 'react'
 
 import { routing, type AppLocale } from '@/i18n/routing'
 import { PUBLIC_TEAM_CACHE_TAG } from '@/lib/cache-tags'
@@ -131,4 +132,6 @@ async function loadTeamProfile(locale: AppLocale, slug: string): Promise<TeamPro
 }
 
 export const getPublishedTeamListing = unstable_cache(loadTeamListing, ['published-team-listing'], { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_TEAM_CACHE_TAG] })
-export const getPublishedTeamProfile = unstable_cache(loadTeamProfile, ['published-team-profile'], { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_TEAM_CACHE_TAG] })
+// React cache() shares one read between generateMetadata and the page in the
+// same request, so a cold data cache is not filled twice in parallel.
+export const getPublishedTeamProfile = cache(unstable_cache(loadTeamProfile, ['published-team-profile'], { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_TEAM_CACHE_TAG] }))

@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
+import { LoadingRegion } from '@/components/loading/loading-region'
 import { PageHero } from '@/components/shell/page-hero'
 import { SnapshotCta } from '@/components/shell/snapshot-cta'
-import { TeamCard } from '@/components/team/team-card'
+import { TeamCard, TeamGridSkeleton, teamGridClass, teamItemClass } from '@/components/team/team-card'
 import { routing, type AppLocale } from '@/i18n/routing'
 import { getPublishedTeamListing, TEAM_GROUP_ORDER, type TeamCard as TeamCardData } from '@/lib/public-team'
 import { teamPath } from '@/lib/team-paths'
@@ -43,7 +44,7 @@ export default async function WhoWeArePage({ params }: WhoWeArePageProps) {
 			<section aria-labelledby="our-team-heading" className="bg-surface-soft px-gutter py-section">
 				<div className="mx-auto max-w-content">
 					<h2 className="text-center font-serif text-heading-2 font-bold uppercase text-tp-blue-muted" id="our-team-heading">{t('ourTeam')}</h2>
-					<Suspense fallback={<TeamGridFallback label={t('loading')} />}>
+					<Suspense fallback={<LoadingRegion className={gridWrapperClass} label={t('loading')}><TeamGridSkeleton /></LoadingRegion>}>
 						<TeamGrid locale={locale} />
 					</Suspense>
 				</div>
@@ -53,11 +54,7 @@ export default async function WhoWeArePage({ params }: WhoWeArePageProps) {
 	)
 }
 
-// Fixed-width columns centred with flex-wrap reproduce the Figma rows: the
-// managing team as a row of two, then rows of three with the last row centred.
-// Mobile is two columns throughout.
-const gridClass = 'flex flex-wrap justify-center gap-x-[var(--team-gap)] gap-y-[clamp(2rem,1.5rem+2vw,3.5rem)] [--team-gap:clamp(0.75rem,0.2rem+2.4vw,4rem)]'
-const itemClass = 'w-[calc((100%-var(--team-gap))/2)] lg:w-[calc((100%-2*var(--team-gap))/3)]'
+const gridWrapperClass = 'mt-[clamp(2rem,1.5rem+2.5vw,4rem)] space-y-[clamp(2rem,1.5rem+2vw,3.5rem)]'
 
 async function TeamGrid({ locale }: { locale: AppLocale }) {
 	await connection()
@@ -72,7 +69,7 @@ async function TeamGrid({ locale }: { locale: AppLocale }) {
 	}
 	const groups = TEAM_GROUP_ORDER.map((group) => ({ group, members: cards.filter((card) => card.group === group) })).filter(({ members }) => members.length)
 	return (
-		<div className="mt-[clamp(2rem,1.5rem+2.5vw,4rem)] space-y-[clamp(2rem,1.5rem+2vw,3.5rem)]">
+		<div className={gridWrapperClass}>
 			{groups.map(({ group, members }) => <TeamList cards={members} key={group} label={t(`groups.${group}`)} locale={locale} />)}
 		</div>
 	)
@@ -80,24 +77,8 @@ async function TeamGrid({ locale }: { locale: AppLocale }) {
 
 function TeamList({ cards, label, locale }: { cards: TeamCardData[]; label: string; locale: AppLocale }) {
 	return (
-		<ul aria-label={label} className={gridClass}>
-			{cards.map((card) => <li className={itemClass} key={card.id}><TeamCard card={card} locale={locale} /></li>)}
+		<ul aria-label={label} className={teamGridClass}>
+			{cards.map((card) => <li className={teamItemClass} key={card.id}><TeamCard card={card} locale={locale} /></li>)}
 		</ul>
-	)
-}
-
-function TeamGridFallback({ label }: { label: string }) {
-	return (
-		<div className="mt-[clamp(2rem,1.5rem+2.5vw,4rem)]" role="status">
-			<span className="sr-only">{label}</span>
-			<ul aria-hidden="true" className={gridClass}>
-				{Array.from({ length: 5 }, (_, index) => (
-					<li className={`${itemClass} flex flex-col items-center gap-4`} key={index}>
-						<span className="block aspect-square w-[74%] max-w-[16.5rem] rounded-pill bg-tp-mist/60 motion-safe:animate-pulse" />
-						<span className="block h-5 w-1/2 rounded-control bg-tp-mist/60" />
-					</li>
-				))}
-			</ul>
-		</div>
 	)
 }

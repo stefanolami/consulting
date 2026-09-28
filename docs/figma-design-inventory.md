@@ -400,7 +400,8 @@ These should be resolved as each affected feature begins:
 8. Legal pages are linked in the footer but have no relevant proposal frames.
 9. Some frames omit or vary the header/footer and navigation labels.
 10. No tablet breakpoint, loading state, empty state, error state, form state,
-    search results state, or admin design is supplied.
+    search results state, or admin design is supplied. Loading states are
+    defined in code as template-shaped skeletons (control tower section 15.6).
 11. Much of the copy is placeholder text and must not define the final data
     model.
 12. Tiny text, hover-dependent map discovery, and color-only states in the

@@ -1,5 +1,7 @@
 import Image from 'next/image'
 
+import { SkeletonSectionHeading, SkeletonText } from '@/components/loading/skeleton-text'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import type { NewsroomArticleCard } from '@/lib/public-newsroom'
@@ -34,5 +36,34 @@ export function ArticleSummaryCard({ article, byline, dateFormat, locale }: Arti
 				{byline ? <span className="block">{byline}</span> : null}
 			</p>
 		</article>
+	)
+}
+
+/** Grid used by every list of summary cards. */
+export const articleSummaryGridClass = 'mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3'
+
+export function ArticleSummaryCardSkeleton() {
+	return (
+		<div className="flex h-full flex-col font-label">
+			<Skeleton className="aspect-[360/217] rounded-none" tone="light" />
+			<div className="mt-5 flex items-start justify-between gap-4">
+				<SkeletonText className="min-w-0 flex-1 font-display text-heading-3 font-bold leading-tight" lines={2} />
+				<span className="mt-1 h-10 w-[3.375rem] shrink-0 bg-tp-mist/60" />
+			</div>
+			<SkeletonText className="mt-4 text-body-lg" lines={3} />
+			<SkeletonText className="mt-4 text-body-lg" lastLineWidth="w-2/5" lines={2} />
+		</div>
+	)
+}
+
+// "Articles by …" / "Articles for …" while they stream: ruled heading and three cards.
+export function ArticleSummarySectionSkeleton() {
+	return (
+		<div>
+			<SkeletonSectionHeading />
+			<ul className={articleSummaryGridClass}>
+				{Array.from({ length: 3 }, (_, index) => <li className={index ? 'max-sm:hidden' : undefined} key={index}><ArticleSummaryCardSkeleton /></li>)}
+			</ul>
+		</div>
 	)
 }

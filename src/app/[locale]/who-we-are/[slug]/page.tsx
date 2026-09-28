@@ -5,10 +5,14 @@ import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
+import { LoadingMessage } from '@/components/loading/loading-message'
+import { LoadingRegion } from '@/components/loading/loading-region'
+import { ArticleSummarySectionSkeleton } from '@/components/newsroom/article-summary-card'
 import { AuthorArticles } from '@/components/team/author-articles'
 import { ProfileContact } from '@/components/team/profile-contact'
 import { ProfileSections } from '@/components/team/profile-document'
 import { ProfileHero } from '@/components/team/profile-hero'
+import { TeamProfileSkeleton } from '@/components/team/team-profile-skeleton'
 import { routing } from '@/i18n/routing'
 import { getPublishedTeamProfile } from '@/lib/public-team'
 import { teamPath } from '@/lib/team-paths'
@@ -35,7 +39,7 @@ export async function generateMetadata({ params }: TeamMemberPageProps): Promise
 // The slug is request data under Cache Components, so it is read inside the
 // Suspense boundary.
 export default function TeamMemberPage({ params }: TeamMemberPageProps) {
-	return <Suspense fallback={<ProfileFallback />}><TeamMemberContent params={params} /></Suspense>
+	return <Suspense fallback={<TeamProfileSkeleton label={<LoadingMessage messageKey="Team.profile.loading" />} />}><TeamMemberContent params={params} /></Suspense>
 }
 
 async function TeamMemberContent({ params }: TeamMemberPageProps) {
@@ -43,7 +47,7 @@ async function TeamMemberContent({ params }: TeamMemberPageProps) {
 	if (!hasLocale(routing.locales, locale)) notFound()
 	setRequestLocale(locale)
 	await connection()
-	const [profile, t] = await Promise.all([getPublishedTeamProfile(locale, slug), getTranslations({ locale, namespace: 'Team.profile' })])
+	const [profile, t, tLoading] = await Promise.all([getPublishedTeamProfile(locale, slug), getTranslations({ locale, namespace: 'Team.profile' }), getTranslations({ locale, namespace: 'Shell.loading' })])
 	if (!profile) notFound()
 	return (
 		<main>
@@ -52,23 +56,11 @@ async function TeamMemberContent({ params }: TeamMemberPageProps) {
 				<div className="mx-auto max-w-content space-y-[clamp(3rem,2.25rem+3vw,5.5rem)] px-gutter py-section">
 					<ProfileSections document={profile.document} />
 					<ProfileContact email={profile.email} labels={{ email: t('email'), heading: t('contact'), phone: t('phone') }} phone={profile.phone} />
-					<Suspense fallback={null}>
+					<Suspense fallback={<LoadingRegion label={tLoading('articles')}><ArticleSummarySectionSkeleton /></LoadingRegion>}>
 						<AuthorArticles locale={locale} name={profile.name} personId={profile.id} />
 					</Suspense>
 				</div>
 			</article>
-		</main>
-	)
-}
-
-function ProfileFallback() {
-	return (
-		<main aria-busy="true">
-			<div className="bg-brand">
-				<div className="mx-auto max-w-content px-gutter py-[clamp(2.5rem,1.5rem+4vw,6rem)]">
-					<div className="h-[clamp(5rem,4rem+4vw,9rem)] max-w-xl rounded-control bg-on-brand/10 motion-safe:animate-pulse" />
-				</div>
-			</div>
 		</main>
 	)
 }

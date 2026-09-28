@@ -1,4 +1,6 @@
+import { SkeletonSectionHeading, SkeletonText } from '@/components/loading/skeleton-text'
 import { TeamPortrait } from '@/components/team/team-portrait'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import type { CatalogueContact } from '@/lib/public-catalogue'
@@ -10,6 +12,9 @@ type CatalogueContactsProps = {
 	locale: AppLocale
 }
 
+const listClass = 'mt-[clamp(1.5rem,1rem+2vw,3rem)] grid gap-x-10 gap-y-8 md:grid-cols-2'
+const itemClass = 'flex items-center gap-[clamp(1rem,0.6rem+1.5vw,1.75rem)] font-label text-body-lg text-black'
+const portraitClass = 'w-[clamp(5.5rem,4rem+5vw,10.6875rem)] shrink-0'
 const linkClass = 'rounded-control underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
 
 // "Get in Touch with the Team" (Figma 5488:464, 5408:267): round portrait with
@@ -22,12 +27,12 @@ export function CatalogueContacts({ contacts, labels, locale }: CatalogueContact
 	return (
 		<section aria-labelledby="catalogue-contacts-heading">
 			<h2 className="border-b-2 border-black pb-3 font-display text-heading-2 font-bold text-black" id="catalogue-contacts-heading">{labels.heading}</h2>
-			<ul className="mt-[clamp(1.5rem,1rem+2vw,3rem)] grid gap-x-10 gap-y-8 md:grid-cols-2">
+			<ul className={listClass}>
 				{contacts.map((contact) => (
-					<li className="flex items-center gap-[clamp(1rem,0.6rem+1.5vw,1.75rem)] font-label text-body-lg text-black" key={contact.id}>
+					<li className={itemClass} key={contact.id}>
 						<TeamPortrait
 							alt=""
-							className="w-[clamp(5.5rem,4rem+5vw,10.6875rem)] shrink-0"
+							className={portraitClass}
 							name={contact.cardName}
 							portrait={contact.portrait ? { ...contact.portrait, height: null, width: null } : null}
 							sizes="(min-width: 64rem) 11rem, 6rem"
@@ -48,5 +53,25 @@ export function CatalogueContacts({ contacts, labels, locale }: CatalogueContact
 				))}
 			</ul>
 		</section>
+	)
+}
+
+export function CatalogueContactsSkeleton() {
+	return (
+		<div>
+			<SkeletonSectionHeading width="w-3/5" />
+			<ul className={listClass}>
+				{Array.from({ length: 2 }, (_, index) => (
+					<li className={itemClass} key={index}>
+						<Skeleton className={`${portraitClass} aspect-square rounded-pill`} tone="light" />
+						<div className="min-w-0 flex-1">
+							<SkeletonText lastLineWidth="w-3/5" />
+							<SkeletonText className="text-body" lastLineWidth="w-2/5" />
+							<SkeletonText className="mt-2" lastLineWidth="w-4/5" lines={2} />
+						</div>
+					</li>
+				))}
+			</ul>
+		</div>
 	)
 }

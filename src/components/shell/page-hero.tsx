@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import type { CSSProperties, ReactNode } from 'react'
 
+import { SkeletonText } from '@/components/loading/skeleton-text'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 export type HeroIllustration =
@@ -22,6 +24,9 @@ type PageHeroProps = {
 }
 
 const emblemClass = 'relative mx-auto mt-[clamp(1.5rem,1rem+2vw,2.5rem)] aspect-square w-[clamp(10rem,6rem+18vw,24rem)]'
+const bodyClass = 'mx-auto flex max-w-content flex-col items-center gap-6 px-gutter pb-section pt-8 text-center'
+const pageTitleClass = 'max-w-full font-serif text-heading-2 font-bold uppercase wrap-anywhere [hyphens:auto]'
+const introClass = 'max-w-[76rem] font-label text-lead font-bold wrap-anywhere'
 
 // Deep-navy hero with a white line illustration above a centred heading
 // (Figma 5408:616 homepage, 6393:6 services, 5488:464 service detail).
@@ -31,9 +36,27 @@ export function PageHero({ children, className, illustration, title, titleVarian
 			<div className="mx-auto max-w-[90rem]">
 				<HeroArt illustration={illustration} />
 			</div>
-			<div className="mx-auto flex max-w-content flex-col items-center gap-6 px-gutter pb-section pt-8 text-center">
-				<h1 className={titleVariant === 'display' ? 'font-display font-bold' : 'max-w-full font-serif text-heading-2 font-bold uppercase wrap-anywhere [hyphens:auto]'}>{title}</h1>
-				{children ? <div className="max-w-[76rem] font-label text-lead font-bold wrap-anywhere">{children}</div> : null}
+			<div className={bodyClass}>
+				<h1 className={titleVariant === 'display' ? 'font-display font-bold' : pageTitleClass}>{title}</h1>
+				{children ? <div className={introClass}>{children}</div> : null}
+			</div>
+		</section>
+	)
+}
+
+// Loading shape of a page-variant hero whose title and intro come from the
+// CMS (detail pages). Heroes with static titles render the real PageHero.
+export function PageHeroSkeleton({ illustration, introLines = 2 }: { illustration: 'emblem' | { aspectRatio: string }; introLines?: number }) {
+	return (
+		<section className="overflow-hidden bg-brand">
+			<div className="mx-auto max-w-[90rem]">
+				{illustration === 'emblem'
+					? <Skeleton className={emblemClass} tone="brand" />
+					: <Skeleton className="mx-gutter mt-6" style={{ aspectRatio: illustration.aspectRatio }} tone="brand" />}
+			</div>
+			<div className={bodyClass}>
+				<SkeletonText className={cn(pageTitleClass, 'w-[min(28rem,80%)]')} lastLineWidth="w-full" tone="brand" />
+				{introLines ? <SkeletonText className={cn(introClass, 'w-full max-w-3xl [&>span]:justify-center')} lastLineWidth="w-2/3" lines={introLines} tone="brand" /> : null}
 			</div>
 		</section>
 	)

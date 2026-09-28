@@ -988,8 +988,8 @@ and `5480:511`, and the mobile details `5695:437` and `5695:370`:
   `/sectors` (no detail pages), which match v2, so no redirects are needed.
 - One shared implementation in `src/components/catalogue/`: `CatalogueTile`
   (one link per item), `CatalogueContacts`, `CatalogueArticles`, the restyled
-  `CatalogueRichText` and `CatalogueLoading`. All are Server Components except
-  the loading skeleton. `ArticleSummaryCard`
+  `CatalogueRichText` and the loading skeletons (section 15.6). All are Server
+  Components. `ArticleSummaryCard`
   (`src/components/newsroom/article-summary-card.tsx`) was extracted from the
   team "Articles by" block and is shared with it.
 - Index: navy `PageHero` with line illustration and intro (services copy from
@@ -1037,6 +1037,47 @@ and `5480:511`, and the mobile details `5695:437` and `5695:370`:
   collapse to the hero.
 - New `Catalogue` strings are provisional in the non-English locales (listed
   per key in `_meta.provisionalNamespaces`).
+
+### 15.6 Loading states
+
+Figma supplies no loading states (inventory section 8, item 10). Implemented on
+2026-09-28 for the templates designed so far; every new template follows the
+same pattern:
+
+- `Skeleton` (`src/components/ui/skeleton.tsx`, added with the shadcn CLI) has
+  a `tone`: `default` keeps the shadcn look for the admin, `light` is for white
+  and soft-blue bands, `brand` is for the navy heroes. Shapes are `aria-hidden`
+  and pulse only under `motion-safe`.
+- `src/components/loading/`: `LoadingRegion` is the one accessible wrapper
+  (`aria-busy`, a single polite `role="status"` with the localized label,
+  visuals hidden); `SkeletonText` draws lines at exactly the real text's line
+  height (`1lh`, given the same typography classes); `SkeletonSection` and
+  `SkeletonSectionHeading` cover titled and ruled body sections;
+  `LoadingMessage` is the only client piece, a leaf that resolves the label
+  where the server has no locale (`loading.tsx`, and fallbacks rendered before
+  route params resolve).
+- Each presentation component exports its own skeleton next to it, sharing
+  its layout classes so the two cannot drift: `PageHeroSkeleton`,
+  `ProfileHeroSkeleton`, `TeamCardSkeleton`/`TeamGridSkeleton`,
+  `ArticleSummaryCardSkeleton`/`ArticleSummarySectionSkeleton`,
+  `CatalogueContactsSkeleton`. Page skeletons compose them
+  (`TeamProfileSkeleton`, `CatalogueDetailSkeleton`, `CatalogueGridSkeleton`).
+- Streaming boundaries: static heroes (listings) render outside Suspense and
+  only the data grid streams, so the service and sector listing `loading.tsx`
+  files were removed. Detail pages show the full template skeleton (route
+  `loading.tsx` for services and sectors, the page Suspense fallback for
+  profiles). "Articles by" and "Articles for" stream separately with their own
+  skeleton and label instead of appearing from nothing.
+- `getPublishedTeamProfile` and `getPublishedCatalogueDetail` are wrapped in
+  React `cache()` so `generateMetadata` and the page share one read per
+  request; results are unchanged.
+- Checked at 1440 and 390 with the loaders delayed in development: one status
+  per region in English and German, no pulse under reduced motion, measured
+  CLS 0 on the team listing, profile and service and sector details, and
+  skeleton heroes within about 15 px of the loaded heroes.
+- The newsroom and Our Outreach loading states are still the pre-Figma
+  placeholders (the newsroom one is hard-coded English); they get template
+  skeletons when those pages receive the Figma design.
 
 ## 16. Public routes and legacy parity
 
@@ -1523,7 +1564,8 @@ The rebuild is complete when:
 2. Apply the Figma design to the existing public templates, one template at a
 	 time, following section 15.2. Who We Are and team profiles (section 15.4)
 	 and services and sectors (section 15.5) are done; the newsroom card system
-	 and article detail are next. Review the provisional `Team` and `Catalogue`
+	 and article detail are next, with template skeletons built on the loading
+	 foundation (section 15.6). Review the provisional `Team` and `Catalogue`
 	 translations with the shell strings, and upload white line icons for the
 	 services and sectors through the admin media library.
 3. In parallel, colleagues use the admin to add reviewed English summaries and

@@ -15,7 +15,9 @@
 			"Catalogue.phone",
 			"Catalogue.articlesFor",
 			"Catalogue.viewAllArticles",
-			"Catalogue.byline"
+			"Catalogue.byline",
+			"Catalogue.service.loadingDetail",
+			"Catalogue.sector.loadingDetail"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -43,7 +45,8 @@
 			"metaDescription": "Entdecken Sie die veröffentlichten Leistungen von Time&Place Consulting.",
 			"emptyTitle": "Noch keine Leistungen auf Deutsch veröffentlicht",
 			"emptyDescription": "Veröffentlichte Leistungen erscheinen hier, sobald deutsche Inhalte verfügbar sind.",
-			"loading": "Leistungen werden geladen"
+			"loading": "Leistungen werden geladen",
+			"loadingDetail": "Leistung wird geladen"
 		},
 		"sector": {
 			"title": "Sektoren",
@@ -52,7 +55,8 @@
 			"metaDescription": "Entdecken Sie die Branchenexpertise von Time&Place Consulting.",
 			"emptyTitle": "Noch keine Branchen auf Deutsch veröffentlicht",
 			"emptyDescription": "Veröffentlichte Branchen erscheinen hier, sobald deutsche Inhalte verfügbar sind.",
-			"loading": "Branchen werden geladen"
+			"loading": "Branchen werden geladen",
+			"loadingDetail": "Branche wird geladen"
 		},
 		"whatWeDo": "Was wir tun",
 		"getInTouch": "Kontakt zum Team",
@@ -142,7 +146,8 @@
 			"email": "E-Mail",
 			"phone": "Telefon",
 			"articlesBy": "Artikel von {name}",
-			"byline": "Von {authors}"
+			"byline": "Von {authors}",
+			"loading": "Profil wird geladen"
 		}
 	},
 	"NotFound": {
@@ -194,6 +199,9 @@
 		},
 		"placeholder": {
 			"illustration": "Platzhalter für Illustration: {name}"
+		},
+		"loading": {
+			"articles": "Artikel werden geladen"
 		}
 	}
 }

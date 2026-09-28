@@ -6,9 +6,12 @@ import { Suspense } from 'react'
 
 import { CatalogueArticles } from '@/components/catalogue/catalogue-articles'
 import { CatalogueContacts } from '@/components/catalogue/catalogue-contacts'
-import { CatalogueGridSkeleton, CatalogueLoading } from '@/components/catalogue/catalogue-loading'
+import { CatalogueDetailSkeleton, CatalogueGridSkeleton } from '@/components/catalogue/catalogue-loading'
 import { CatalogueRichText } from '@/components/catalogue/catalogue-rich-text'
 import { CATALOGUE_SEGMENT, catalogueGridClass, catalogueItemClass, CatalogueTile } from '@/components/catalogue/catalogue-tile'
+import { LoadingMessage } from '@/components/loading/loading-message'
+import { LoadingRegion } from '@/components/loading/loading-region'
+import { ArticleSummarySectionSkeleton } from '@/components/newsroom/article-summary-card'
 import { PageHero, type HeroIllustration } from '@/components/shell/page-hero'
 import { routing, type AppLocale } from '@/i18n/routing'
 import { hasCatalogueContent } from '@/lib/catalogue-document'
@@ -109,7 +112,7 @@ export async function CatalogueListingPage({
 			<section aria-labelledby={`${kind}-catalogue-heading`} className="bg-surface-soft px-gutter py-section">
 				<div className="mx-auto max-w-content">
 					<h2 className="sr-only" id={`${kind}-catalogue-heading`}>{t(`${kind}.catalogueLabel`)}</h2>
-					<Suspense fallback={<CatalogueGridSkeleton kind={kind} label={t(`${kind}.loading`)} />}>
+					<Suspense fallback={<LoadingRegion label={t(`${kind}.loading`)}><CatalogueGridSkeleton kind={kind} /></LoadingRegion>}>
 						<CatalogueGrid kind={kind} locale={locale} />
 					</Suspense>
 				</div>
@@ -157,7 +160,7 @@ export function CatalogueDetailPage({
 	locale: AppLocale
 	slug: string
 }) {
-	return <Suspense fallback={<CatalogueLoading kind={kind} variant="detail" />}><CatalogueDetailContent kind={kind} locale={locale} slug={slug} /></Suspense>
+	return <Suspense fallback={<CatalogueDetailSkeleton label={<LoadingMessage messageKey={`Catalogue.${kind}.loadingDetail`} />} />}><CatalogueDetailContent kind={kind} locale={locale} slug={slug} /></Suspense>
 }
 
 async function CatalogueDetailContent({
@@ -173,7 +176,7 @@ async function CatalogueDetailContent({
 	const [detail, t, tShell] = await Promise.all([
 		getPublishedCatalogueDetail(kind, locale, slug),
 		getTranslations({ locale, namespace: 'Catalogue' }),
-		getTranslations({ locale, namespace: 'Shell.placeholder' }),
+		getTranslations({ locale, namespace: 'Shell' }),
 	])
 	if (!detail) notFound()
 	const iconName = `${kind}-icon-${detail.slug}`
@@ -181,7 +184,7 @@ async function CatalogueDetailContent({
 	// visible placeholder (docs/figma-asset-needs.md).
 	const illustration: HeroIllustration = detail.icon
 		? { kind: 'emblem', src: detail.icon.url }
-		: { kind: 'emblem-placeholder', name: iconName, label: tShell('illustration', { name: iconName }) }
+		: { kind: 'emblem-placeholder', name: iconName, label: tShell('placeholder.illustration', { name: iconName }) }
 	return (
 		<main>
 			<article>
@@ -196,7 +199,7 @@ async function CatalogueDetailContent({
 						</section>
 					) : null}
 					<CatalogueContacts contacts={detail.contacts} labels={{ email: t('email'), heading: t('getInTouch'), phone: t('phone') }} locale={locale} />
-					<Suspense fallback={null}>
+					<Suspense fallback={<LoadingRegion label={tShell('loading.articles')}><ArticleSummarySectionSkeleton /></LoadingRegion>}>
 						<CatalogueArticles kind={kind} locale={locale} name={detail.name} slug={detail.slug} />
 					</Suspense>
 				</div>
