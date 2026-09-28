@@ -1,4 +1,12 @@
 {
+	"_meta": {
+		"provisionalNamespaces": [
+			"Shell",
+			"HomePage.heroLead",
+			"HomePage.heroEmphasis"
+		],
+		"note": "Provisional translations drafted during the Phase 6 shell work; review with a native speaker before launch."
+	},
 	"HomePage": {
 		"title": "Time&Place Consulting",
 		"signIn": "Anmelden",
@@ -11,7 +19,9 @@
 		"partners": "Partner",
 		"endorsements": "Empfehlungen",
 		"contact": "Kontakt",
-		"socials": "Soziale Medien"
+		"socials": "Soziale Medien",
+		"heroLead": "Ihr Zugangspunkt für",
+		"heroEmphasis": "Wirkung"
 	},
 	"Catalogue": {
 		"service": {
@@ -101,5 +111,51 @@
 		"title": "Diese Seite ist nicht verfügbar",
 		"description": "Die Seite existiert möglicherweise nicht oder ist in dieser Sprache nicht veröffentlicht.",
 		"home": "Zur Startseite"
+	},
+	"Shell": {
+		"skipToContent": "Zum Hauptinhalt springen",
+		"homeLink": "Time&Place Consulting, Startseite",
+		"nav": {
+			"label": "Hauptnavigation",
+			"poe": "POE",
+			"externalHint": "öffnet in einem neuen Tab",
+			"whoWeAre": "Wer wir sind",
+			"ourOutreach": "Unsere Reichweite",
+			"services": "Leistungen",
+			"sectors": "Sektoren",
+			"whyUs": "Warum wir",
+			"publications": "Publikationen",
+			"contact": "Kontakt"
+		},
+		"menu": {
+			"open": "Menü öffnen",
+			"close": "Menü schließen",
+			"label": "Seiten"
+		},
+		"locale": {
+			"label": "Sprache wechseln",
+			"current": "Sprache: {language}",
+			"names": {
+				"en": "English",
+				"de": "Deutsch",
+				"it": "Italiano",
+				"pt-BR": "Português (Brasil)",
+				"pt-PT": "Português (Portugal)"
+			}
+		},
+		"footer": {
+			"socialLabel": "Time&Place in den sozialen Medien",
+			"legalLabel": "Rechtliches",
+			"cookieUse": "Cookie-Nutzung",
+			"privacyPolicy": "Datenschutzerklärung",
+			"termsAndConditions": "Allgemeine Geschäftsbedingungen",
+			"copyright": "© {year} Time&Place Consulting. Alle Rechte vorbehalten.",
+			"contactLabel": "Kontaktdaten",
+			"snapshotTitle": "Time&Place Snapshot",
+			"snapshotDownload": "PDF herunterladen"
+		},
+		"placeholder": {
+			"illustration": "Platzhalter für Illustration: {name}"
+		}
 	}
 }

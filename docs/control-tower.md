@@ -1,6 +1,6 @@
 # Consulting Website Rework — Control Tower
 
-Last updated: 2026-09-03
+Last updated: 2026-09-28
 
 Status: High-level plan and architectural source of truth
 
@@ -57,6 +57,12 @@ The primary goals are:
 The legacy applications are behavior and content references. Their component
 hierarchies, local data formats, unsafe HTML rendering, and old dependencies are
 not architecture to preserve.
+
+The legacy presentation layer is a different matter. The Figma proposal keeps
+the legacy site's visual language, so legacy markup, styling, and static assets
+may be used as a starting point for new presentation components (see section
+15.2). Its data access, hard-coded content, and inaccessible interaction
+patterns are still not carried over.
 
 ### 3.2 Use the CMS for editorial content, not page construction
 
@@ -828,6 +834,88 @@ templates, visual foundations, CMS implications, and unresolved design gaps.
 The Figma design is the visual source of truth. The legacy website remains the
 content and behavior reference where the new design is silent.
 
+### 15.1 Figma access
+
+The design is read directly by Claude Code through the hosted Figma MCP server
+(`https://mcp.figma.com/mcp`), authenticated with a Pro-plan Dev seat. Because
+the original file lives in a work account without MCP access, implementation
+reads a duplicated working file whose frame node IDs match the original. File
+keys and the frame inventory are recorded in
+[`docs/figma-design-inventory.md`](./figma-design-inventory.md). The working
+copy does not sync with the original; design changes must be re-duplicated or
+applied to it deliberately.
+
+The file defines no variables, text styles, or reusable components, so
+semantic design tokens and the component system are defined in code from the
+observed values.
+
+### 15.2 Implementation approach: port the legacy presentation
+
+The new design is close to the legacy site in layout and style: the same
+palette, the same three typefaces, the same line-art illustrations, and a
+similar header, hero, card, and footer structure. Rebuilding every visual
+component from a blank file would repeat work already done. Each public
+presentation component is therefore produced as follows:
+
+1. Start from the corresponding `old-consulting` component's markup, Tailwind
+   classes, and static assets where one exists.
+2. Convert it to strict TypeScript and a Server Component by default, replace
+   hard-coded content with the existing v2 CMS contracts and `next-intl`
+   messages, and use locale-aware navigation.
+3. Correct accessibility and layout: keyboard-operable menus and card
+   interactions, focus states, `prefers-reduced-motion`, fluid responsive
+   sizing instead of fixed pixel heights, and no absolutely positioned page
+   chrome.
+4. Compare the rendered result with the Figma frame at desktop and mobile
+   widths and resolve the differences in favor of Figma.
+
+Static brand assets (logo, line illustrations, icons, social icons) are copied
+deliberately from the legacy `public/` folder into the v2 repository; nothing is
+imported from the ignored legacy directories at runtime. Designs with no legacy
+equivalent — Our Outreach, the revised services selector, and publication
+detail pages — are built new against Figma.
+
+Figma assets are not exported from the working file. The frontend uses brand
+assets that already exist (repository or legacy site); where the design needs
+one we do not have, the code renders a visible placeholder and the asset is
+logged in [`docs/figma-asset-needs.md`](./figma-asset-needs.md) so it can be
+sourced from the shared drive. Every frontend handoff lists the placeholders it
+added.
+
+### 15.3 Design foundations and global shell
+
+Implemented on 2026-09-28:
+
+- Semantic tokens in `src/app/globals.css` (`@theme`): brand palette
+  (`tp-navy`, `tp-blue`, `tp-blue-muted`, `tp-azure`, `tp-teal`, `tp-mist`,
+  `tp-cloud`, `tp-stone`), semantic colours (`brand`, `brand-strong`,
+  `on-brand`, `action`, `surface-tint`, `surface-soft`, `surface-muted`,
+  `focus`, `focus-on-dark`), a fluid type scale (`text-display`,
+  `text-heading-1…3`, `text-lead`, `text-body-lg`, `text-body`, `text-label`),
+  containers (`content`, `shell`), spacing (`gutter`, `section`) and radii
+  (`control`, `panel`, `pill`). Font families: `font-display` (Unna),
+  `font-serif` (Roboto Serif), `font-label` (Josefin Sans); the legacy
+  `font-unna`, `font-robo`, `font-jose` classes remain as aliases. The admin's
+  shadcn tokens are unchanged.
+- Self-hosted fonts in `src/app/fonts/` via `next/font/local`, built from the
+  google/fonts OFL sources: Latin, Latin-1 and Latin Extended-A; weight
+  400–700; Unna regular and bold, Roboto Serif and Josefin Sans variable
+  upright and italic.
+- `src/components/shell/`: `SiteHeader` (legacy look and hide-on-scroll
+  behaviour; Figma links, menu structure and language toggle), `MobileMenu`
+  (Figma "pages" drop-down), `LocaleSwitcher`, `SiteFooter`, `SocialLinks`,
+  `DownloadSnapshotLink`, `PoeLink`, `PageHero`, `SkipLink`. Navigation
+  labels follow Figma (`Publications` links to `/newsroom`; `Who we are`
+  links to `/team` for now). Links to Why us, Contact and the legal pages
+  target their intended paths and return 404 until those pages exist.
+- The POE link reads the existing public `poe_external_link` site setting and
+  is hidden while it is empty.
+- Interface strings live in the `Shell` message namespace. Non-English
+  strings are provisional and marked with `_meta.provisionalNamespaces` in
+  each locale file; `scripts/messages.test.mjs` checks key parity.
+- `npm run visual:screenshots` (Playwright, development only) captures local
+  pages at 1440 and 390 pixels into the git-ignored `visual-output/`.
+
 ## 16. Public routes and legacy parity
 
 The final route inventory will be confirmed against Figma. At minimum, the
@@ -968,6 +1056,14 @@ cycle determine the next admin refinements.
 This does not turn the admin into a page builder: page composition and visual
 design remain in code. It also does not delay necessary schema, RLS, media, or
 server-side validation work.
+
+**Update 2026-09-28.** With the admin foundation and the public templates of
+Phase 5 in place, the Figma frontend work of Phase 6 starts now, while
+colleagues continue to author content and make content decisions in the admin. The
+combined editorial smoke test runs alongside the frontend work rather than
+before it, using the realistic content as it becomes available. Frontend work
+begins with the design foundations and the global shell, then applies the
+Figma design to the existing public templates.
 
 ### Phase 0 — Discovery and decision lock
 
@@ -1156,7 +1252,13 @@ testing shows that manual ordering or taxonomy-independent selections are
 
 ### Phase 6 — End-to-end editorial validation and remaining Figma pages
 
-- Implement the global shell, navigation, footer, and shared sections.
+Phase 6 started on 2026-09-28 (see the sequencing update above).
+
+- Establish design tokens, local fonts, and the static brand assets (done
+  2026-09-28, section 15.3).
+- Implement the global shell, navigation, footer, and shared sections (shell
+  done 2026-09-28; shared sections follow with the templates).
+- Apply the Figma design to the existing public templates.
 - Build remaining marketing, services, sectors, why-us, contact, and legal
   pages.
 - Complete responsive and interaction states.
@@ -1220,6 +1322,17 @@ testing shows that manual ordering or taxonomy-independent selections are
 - Implement the new Figma design as the visual source of truth.
 - Complete the agreed admin foundation before expanding the public
   CMS-driven frontend beyond the team reference implementation.
+- Start the Figma frontend (Phase 6) while content is authored in parallel;
+  the combined editorial smoke test runs alongside it.
+- Read the design through the Figma MCP server from the duplicated working
+  file.
+- Port the legacy presentation layer (markup, styling, static assets) as the
+  starting point for public components, then correct it against Figma and the
+  accessibility requirements.
+- Do not export assets from Figma; use existing brand assets or visible
+  placeholders logged in `docs/figma-asset-needs.md`.
+- Keep the legacy header look and hide-on-scroll behaviour; take navigation
+  labels, menu structure, and the language toggle from Figma.
 
 ## 22. Confirmed implementation defaults
 
@@ -1246,6 +1359,9 @@ These decisions should be resolved before the affected implementation begins:
 7. Analytics, consent, monitoring, SMTP, and spam-protection providers.
 8. Post-launch Git and persistent Supabase development branch naming.
 9. Final published service catalogue and ordering after stakeholder review.
+10. Whether the `Business` / `Government Institute` / `Academia` audience
+    selector on the revised Services page (`6393:6`) is editorial data managed
+    in the admin, and which services belong to each audience.
 
 ## 24. Definition of completion
 
@@ -1267,24 +1383,31 @@ The rebuild is complete when:
 
 ## 25. Immediate next actions
 
-1. Use the admin to add reviewed English summaries and relationships to the 39
-	 remaining published name-only country references, maintain coverage, and author,
-	 translate, review, and publish other locales or countries only when intended.
-2. Regenerate and verify database TypeScript types through the safely linked
+1. Design foundations and the global shell are in place (section 15.3).
+	Source the placeholder assets listed in
+	[`docs/figma-asset-needs.md`](./figma-asset-needs.md), set the POE link in
+	the admin site settings, and review the provisional shell translations.
+2. Apply the Figma design to the existing public templates, one template at a
+	 time, following section 15.2.
+3. In parallel, colleagues use the admin to add reviewed English summaries and
+	 relationships to the 39 remaining published name-only country references,
+	 maintain coverage, and author, translate, review, and publish other locales
+	 or countries only when intended.
+4. Regenerate and verify database TypeScript types through the safely linked
 	 Supabase CLI only when a migration changes typed schema. The article-media
 	 guard retained its RPC signature, so this slice required no generated-type edit.
-3. Keep MailerSend/SMTP configuration and live colleague-auth onboarding
+5. Keep MailerSend/SMTP configuration and live colleague-auth onboarding
    deferred; retain the existing invite-only architecture without expanding it.
-4. Treat the completed Phase 4 admin workflows as stable content contracts and
+6. Treat the completed Phase 4 admin workflows as stable content contracts and
    defer further admin polish until realistic end-to-end editorial testing.
-5. Run one combined editorial smoke-test cycle for team, services/sectors,
-	newsroom, and Our Outreach using realistic authored content in every intended
-	locale. Include unpublished translations, URL state and history, filters,
-	pagination, localized relationships and media, not-found behavior, and
-	cross-entity revalidation.
-6. Use the combined smoke-test findings to correct contract or rendering issues
-	before final Figma frontend implementation or broad content migration.
-7. Review the implemented localized route and metadata behavior before
+7. As realistic content becomes available, run the combined editorial
+	smoke-test cycle for team, services/sectors, newsroom, and Our Outreach in
+	every intended locale, alongside the frontend work. Include unpublished
+	translations, URL state and history, filters, pagination, localized
+	relationships and media, not-found behavior, and cross-entity revalidation.
+8. Use the combined smoke-test findings to correct contract or rendering issues
+	before broad content migration.
+9. Review the implemented localized route and metadata behavior before
 	connecting the redirect registry to public request handling.
 
 ## 26. Primary technical references

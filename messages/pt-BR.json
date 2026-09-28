@@ -1,4 +1,12 @@
 {
+	"_meta": {
+		"provisionalNamespaces": [
+			"Shell",
+			"HomePage.heroLead",
+			"HomePage.heroEmphasis"
+		],
+		"note": "Provisional translations drafted during the Phase 6 shell work; review with a native speaker before launch."
+	},
 	"HomePage": {
 		"title": "Time&Place Consulting",
 		"signIn": "Entrar",
@@ -11,7 +19,9 @@
 		"partners": "Parceiros",
 		"endorsements": "Depoimentos",
 		"contact": "Contato",
-		"socials": "Redes sociais"
+		"socials": "Redes sociais",
+		"heroLead": "Seu ponto de acesso para",
+		"heroEmphasis": "Impacto"
 	},
 	"Catalogue": {
 		"service": {
@@ -101,5 +111,51 @@
 		"title": "Esta página não está disponível",
 		"description": "A página pode não existir ou não estar publicada neste idioma.",
 		"home": "Voltar ao início"
+	},
+	"Shell": {
+		"skipToContent": "Pular para o conteúdo principal",
+		"homeLink": "Time&Place Consulting, página inicial",
+		"nav": {
+			"label": "Navegação principal",
+			"poe": "POE",
+			"externalHint": "abre em uma nova aba",
+			"whoWeAre": "Quem somos",
+			"ourOutreach": "Nossa atuação",
+			"services": "Serviços",
+			"sectors": "Setores",
+			"whyUs": "Por que nós",
+			"publications": "Publicações",
+			"contact": "Contato"
+		},
+		"menu": {
+			"open": "Abrir menu",
+			"close": "Fechar menu",
+			"label": "Páginas"
+		},
+		"locale": {
+			"label": "Mudar idioma",
+			"current": "Idioma: {language}",
+			"names": {
+				"en": "English",
+				"de": "Deutsch",
+				"it": "Italiano",
+				"pt-BR": "Português (Brasil)",
+				"pt-PT": "Português (Portugal)"
+			}
+		},
+		"footer": {
+			"socialLabel": "Time&Place nas redes sociais",
+			"legalLabel": "Informações legais",
+			"cookieUse": "Uso de cookies",
+			"privacyPolicy": "Política de privacidade",
+			"termsAndConditions": "Termos e condições",
+			"copyright": "© {year} Time&Place Consulting. Todos os direitos reservados.",
+			"contactLabel": "Dados de contato",
+			"snapshotTitle": "Time&Place Snapshot",
+			"snapshotDownload": "Baixar PDF"
+		},
+		"placeholder": {
+			"illustration": "Espaço reservado para ilustração: {name}"
+		}
 	}
 }

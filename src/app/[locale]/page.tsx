@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Suspense } from 'react'
 
 import { GlobalContentProof } from '@/components/home/global-content-proof'
+import { PageHero } from '@/components/shell/page-hero'
 import { routing } from '@/i18n/routing'
 
 type HomeProps = {
@@ -18,7 +19,7 @@ export default async function Home({ params }: HomeProps) {
 	}
 
 	setRequestLocale(locale)
-	const t = await getTranslations({ locale, namespace: 'HomePage' })
+	const [t, tShell] = await Promise.all([getTranslations({ locale, namespace: 'HomePage' }), getTranslations({ locale, namespace: 'Shell.placeholder' })])
 	const localePrefix = locale === routing.defaultLocale ? '' : `/${locale}`
 	const testRoutes = [
 		{ href: `${localePrefix}/team`, label: t('team') },
@@ -29,10 +30,17 @@ export default async function Home({ params }: HomeProps) {
 	]
 
 	return (
-		<main className="flex min-h-screen flex-col items-center px-6">
-			<h1 className="mt-10 font-robo text-3xl text-red-500">
+		<main>
+			{/* PLACEHOLDER illustration: the Figma homepage doors line drawing is not in the repository (docs/figma-asset-needs.md). */}
+			<PageHero
+				illustration={{ kind: 'placeholder', name: 'hero-homepage-doors', label: tShell('illustration', { name: 'hero-homepage-doors' }), aspectRatio: '1440 / 497' }}
+				title={<><span className="block text-[clamp(2rem,1.3rem+2.8vw,3.875rem)] leading-tight">{t('heroLead')}</span><span className="block text-[clamp(2.75rem,1.7rem+4.2vw,5.3125rem)] uppercase leading-none">{t('heroEmphasis')}</span></>}
+				titleVariant="display"
+			/>
+			<div className="flex flex-col items-center px-6">
+			<h2 className="mt-10 font-robo text-3xl text-red-500">
 				{t('title')}
-			</h1>
+			</h2>
 			<Link
 				className="mt-6 rounded-md bg-[#27335a] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e294c]"
 				href="/auth/sign-in"
@@ -52,6 +60,7 @@ export default async function Home({ params }: HomeProps) {
 			<Suspense fallback={null}>
 				<GlobalContentProof labels={{ contact: t('contact'), endorsements: t('endorsements'), partners: t('partners'), socials: t('socials') }} locale={locale} />
 			</Suspense>
+			</div>
 		</main>
 	)
 }

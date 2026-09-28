@@ -1,10 +1,26 @@
 # Figma design inventory
 
-Status: initial inventory complete
+Status: initial inventory complete; re-verified against the working copy
 
 Inspected: 2026-07-29
 
-Figma file: [T P Websites](https://www.figma.com/design/EkXraQhczuS2gxSS36eaxq/T-P-Websites?node-id=5408-187&m=dev)
+Re-verified: 2026-09-28
+
+Working Figma file (read through the Figma MCP server):
+[T P Websites](https://www.figma.com/design/YWMif5AfcKTi4QTZghneHG/T-P-Websites?node-id=5408-616&m=dev)
+— file key `YWMif5AfcKTi4QTZghneHG`, single page `0:1`.
+
+Original source file (work account, not MCP-accessible):
+[T P Websites](https://www.figma.com/design/EkXraQhczuS2gxSS36eaxq/T-P-Websites?node-id=5408-187&m=dev)
+
+The working file is a duplicate of the original. Every frame node ID listed in
+this document was preserved and resolves in the working file. If the original
+design changes, the working copy must be refreshed deliberately; it does not
+sync automatically.
+
+The working file defines no Figma variables (`get_variable_defs` returns an
+empty set), so design tokens are defined in code from observed values (see
+section 5).
 
 ## 1. Scope
 
@@ -47,6 +63,7 @@ They must not become separate hard-coded page implementations.
 | Homepage | `5408:616` | `/` |
 | Who We Are / team listing | `5408:15` | `/who-we-are` |
 | Services | `5408:128` | `/services` |
+| Services (revised, all 12 services) | `6393:6` | `/services` |
 | Sectors | `5408:187` | `/sectors` |
 | Why Us | `5408:311` | `/why-us` |
 | Publications | `5408:334` | `/newsroom` |
@@ -212,6 +229,11 @@ The proposal repeatedly uses:
 These are observed values, not yet final semantic tokens. Contrast and state
 colors must be validated before they are locked.
 
+Implemented as `tp-*` palette and semantic tokens in `src/app/globals.css`
+(control tower section 15.3). White text on `#1976D2` measures about 4.6:1, so
+the bright accent is used for the language toggle and controls, not small text
+on navy; focus rings are white on navy and azure on light surfaces.
+
 ### 5.2 Typography
 
 The relevant frames primarily use:
@@ -241,6 +263,27 @@ Recurring patterns include:
 - A deep-navy global footer.
 - Bright-blue language and menu controls.
 
+### 5.4 Interaction annotations
+
+The canvas contains free-standing designer notes with arrows pointing at the
+affected elements. They are the only interaction specification in the file:
+
+- `FLIP When hovered` / `Flip When Selected` / `sequence flip for all cards
+  when page loads` — card flips.
+- `Slide When hovered` / `sequence slide for all cards when page loads`.
+- `animated` — repeated on service and sector detail illustrations.
+- `news scroll with slide effect` — homepage newsroom carousel.
+- `NUMBERS COUNT UP UNTIL REACHING FINAL METRIC` — statistics.
+- `SCROLL OF ENDORSEMENT LOGOS & DESCRIPTIONS`.
+- `focus card effect` and `Comet card effect`.
+- `animated ripple gif for selected point` — Our Outreach map selection.
+- `TITLE, E-MAIL & PHONE NUMBER CHANGE BASED ON SELECTION` — Contact offices.
+- `DROP-DOWN MENU: pages`, `DROP-DOWN MENU: CALENDAR`, and
+  `DROP-DOWN MENU: CATEGORIES` — navigation and newsroom filters.
+
+Every motion effect must respect `prefers-reduced-motion`, and hover-only
+effects need an equivalent focus or tap behavior.
+
 ## 6. Code component inventory
 
 Figma uses raw frames and layers rather than reusable component instances. It
@@ -249,14 +292,14 @@ variable collection that is not sufficient as an implementation token system.
 
 The reusable system therefore needs to be created in code:
 
-- `SiteHeader` and desktop/mobile navigation.
-- `LocaleSwitcher`.
-- `MobileMenu`.
-- `PageHero` with swappable line illustration.
+- `SiteHeader` and desktop/mobile navigation (implemented).
+- `LocaleSwitcher` (implemented).
+- `MobileMenu` (implemented).
+- `PageHero` with swappable line illustration (implemented).
 - `SectionHeading`.
-- `SiteFooter`.
-- `SocialLinks`.
-- `DownloadSnapshotLink`.
+- `SiteFooter` (implemented).
+- `SocialLinks` (implemented).
+- `DownloadSnapshotLink` (implemented; PDF and icon pending).
 - `TeamPortrait` and `TeamCard`.
 - `ArticleCard` with controlled visual variants.
 - `RelatedContentGrid`.
@@ -273,9 +316,10 @@ The reusable system therefore needs to be created in code:
 - `ContactForm`.
 
 The line illustrations, logo, icons, portraits, photographs, partner logos,
-flags, and country/office marks require an asset inventory and durable exports.
-Figma MCP asset URLs are temporary and must not be committed as application
-sources.
+flags, and country/office marks require an asset inventory. Assets are not
+exported from Figma: existing brand assets are used, and missing ones are shown
+as placeholders and logged in [`figma-asset-needs.md`](./figma-asset-needs.md).
+Figma MCP asset URLs are temporary and must never be committed.
 
 ## 7. CMS and schema implications
 
@@ -304,7 +348,12 @@ product decision.
 These should be resolved as each affected feature begins:
 
 1. The service inventory is inconsistent:
-   - Desktop landing page shows 9 services.
+   - The original desktop landing page (`5408:128`) shows 9 services. The
+     revised desktop landing page (`6393:6`) shows all 12 as circular tiles
+     and adds a `Business` / `Government Institute` / `Academia` audience
+     selector that appears to highlight a subset of services. Whether that
+     audience grouping is editorial (CMS-managed) data must be confirmed
+     before it is implemented.
    - Mobile landing page shows 11 services.
    - 12 desktop service detail designs exist.
    - For initial implementation, seed the union of all 12 as provisional
@@ -312,6 +361,12 @@ These should be resolved as each affected feature begins:
      stakeholder-approved catalogue can be applied without code changes.
 2. Navigation labels in Figma are outdated or inconsistent. The implemented
    navigation must contain both internal Our Outreach and external POE links.
+   Resolved 2026-09-28: the shell follows the revised desktop header
+   (`6393:6`): POE, Who we are, Our outreach, Services, Sectors, Why us,
+   Publications, Contact, and the language toggle. The desktop homepage frame
+   (`5408:616`) has no header. The "DROP-DOWN MENU: pages" annotations
+   (`5704:94`, `5774:314`, `5774:332`, `5774:351`, `5774:423`, `5774:442`)
+   describe the mobile burger panel, not a desktop drop-down.
 3. No mobile Our Outreach design exists.
 4. The mobile Contact frame shows offices but leaves a large unresolved area
    where the desktop form and head-office details would normally appear.
@@ -347,10 +402,17 @@ Use Figma for visual intent and hierarchy, with these rules:
 
 ## 10. Recommended implementation sequence from the design
 
-1. Export and establish brand assets, colors, type tokens, containers, header,
-   footer, and hero primitives.
-2. Implement the Who We Are/team vertical slice to prove responsive templates,
-   CMS media, translations, and related content.
+The CMS-backed data layer and functional public templates for team, services,
+sectors, newsroom, and Our Outreach already exist (control tower, Phase 5).
+This sequence now applies the visual design to them. Each step follows the
+legacy-presentation porting approach in control tower section 15.2: brand
+assets, fonts, and component markup come from `old-consulting` where an
+equivalent exists and are then corrected against Figma.
+
+1. Establish brand assets, colors, type tokens, containers, header, footer,
+   and hero primitives.
+2. Apply the design to the Who We Are/team templates to prove responsive
+   templates, CMS media, translations, and related content.
 3. Implement the reusable service and sector indexes/details.
 4. Implement the newsroom card system and extensible article detail renderer.
 5. Prototype and then implement Our Outreach.

@@ -1,4 +1,12 @@
 {
+	"_meta": {
+		"provisionalNamespaces": [
+			"Shell",
+			"HomePage.heroLead",
+			"HomePage.heroEmphasis"
+		],
+		"note": "Provisional translations drafted during the Phase 6 shell work; review with a native speaker before launch."
+	},
 	"HomePage": {
 		"title": "Time&Place Consulting",
 		"signIn": "Accedi",
@@ -11,7 +19,9 @@
 		"partners": "Partner",
 		"endorsements": "Testimonianze",
 		"contact": "Contatti",
-		"socials": "Social media"
+		"socials": "Social media",
+		"heroLead": "Il vostro punto di accesso per",
+		"heroEmphasis": "Impatto"
 	},
 	"Catalogue": {
 		"service": {
@@ -101,5 +111,51 @@
 		"title": "Questa pagina non è disponibile",
 		"description": "La pagina potrebbe non esistere o non essere pubblicata in questa lingua.",
 		"home": "Torna alla homepage"
+	},
+	"Shell": {
+		"skipToContent": "Vai al contenuto principale",
+		"homeLink": "Time&Place Consulting, home page",
+		"nav": {
+			"label": "Navigazione principale",
+			"poe": "POE",
+			"externalHint": "si apre in una nuova scheda",
+			"whoWeAre": "Chi siamo",
+			"ourOutreach": "La nostra presenza",
+			"services": "Servizi",
+			"sectors": "Settori",
+			"whyUs": "Perché noi",
+			"publications": "Pubblicazioni",
+			"contact": "Contatti"
+		},
+		"menu": {
+			"open": "Apri menu",
+			"close": "Chiudi menu",
+			"label": "Pagine"
+		},
+		"locale": {
+			"label": "Cambia lingua",
+			"current": "Lingua: {language}",
+			"names": {
+				"en": "English",
+				"de": "Deutsch",
+				"it": "Italiano",
+				"pt-BR": "Português (Brasil)",
+				"pt-PT": "Português (Portugal)"
+			}
+		},
+		"footer": {
+			"socialLabel": "Time&Place sui social media",
+			"legalLabel": "Note legali",
+			"cookieUse": "Uso dei cookie",
+			"privacyPolicy": "Informativa sulla privacy",
+			"termsAndConditions": "Termini e condizioni",
+			"copyright": "© {year} Time&Place Consulting. Tutti i diritti riservati.",
+			"contactLabel": "Recapiti",
+			"snapshotTitle": "Time&Place Snapshot",
+			"snapshotDownload": "Scarica il PDF"
+		},
+		"placeholder": {
+			"illustration": "Segnaposto illustrazione: {name}"
+		}
 	}
 }

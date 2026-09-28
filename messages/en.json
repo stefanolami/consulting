@@ -11,7 +11,9 @@
 		"partners": "Partners",
 		"endorsements": "Endorsements",
 		"contact": "Contact",
-		"socials": "Social links"
+		"socials": "Social links",
+		"heroLead": "Your point of access for",
+		"heroEmphasis": "Impact"
 	},
 	"Catalogue": {
 		"service": {
@@ -101,5 +103,51 @@
 		"title": "This page is not available",
 		"description": "The page may not exist, or it may not be published in this language.",
 		"home": "Return home"
+	},
+	"Shell": {
+		"skipToContent": "Skip to main content",
+		"homeLink": "Time&Place Consulting, home",
+		"nav": {
+			"label": "Main",
+			"poe": "POE",
+			"externalHint": "opens in a new tab",
+			"whoWeAre": "Who we are",
+			"ourOutreach": "Our outreach",
+			"services": "Services",
+			"sectors": "Sectors",
+			"whyUs": "Why us",
+			"publications": "Publications",
+			"contact": "Contact"
+		},
+		"menu": {
+			"open": "Open menu",
+			"close": "Close menu",
+			"label": "Pages"
+		},
+		"locale": {
+			"label": "Change language",
+			"current": "Language: {language}",
+			"names": {
+				"en": "English",
+				"de": "Deutsch",
+				"it": "Italiano",
+				"pt-BR": "Português (Brasil)",
+				"pt-PT": "Português (Portugal)"
+			}
+		},
+		"footer": {
+			"socialLabel": "Time&Place on social media",
+			"legalLabel": "Legal",
+			"cookieUse": "Cookie use",
+			"privacyPolicy": "Privacy policy",
+			"termsAndConditions": "Terms and conditions",
+			"copyright": "© {year} Time&Place Consulting. All rights reserved.",
+			"contactLabel": "Contact details",
+			"snapshotTitle": "Time&Place Snapshot",
+			"snapshotDownload": "Download PDF"
+		},
+		"placeholder": {
+			"illustration": "Illustration placeholder: {name}"
+		}
 	}
 }

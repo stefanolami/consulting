@@ -1,8 +1,9 @@
 # Supabase Content Platform
 
-Last updated: 2026-08-12
+Last updated: 2026-09-28
 
-Status: Initial schema and security design
+Status: Schema and security design; all listed migrations applied to the hosted
+project
 
 Related migrations:
 
@@ -10,6 +11,8 @@ Related migrations:
 - `supabase/migrations/20260729191000_content_schema.sql`
 - `supabase/migrations/20260729192000_content_rls.sql`
 - `supabase/migrations/20260812110000_team_profile_model.sql`
+- `supabase/migrations/20260818100000_media_library_safe_operations.sql`
+- `supabase/migrations/20260903120000_article_inline_media_guard.sql`
 
 ## 1. Purpose
 
@@ -395,9 +398,28 @@ edited manually.
 - Adds staff write policies and admin-only primary deletion.
 - Adds publication-aware anonymous and authenticated read policies.
 
+### `20260812110000_team_profile_model.sql`
+
+- Adds the controlled team-profile model described in section 3.3: team
+  groups, ordered localized roles, and the version-one `profile_document`.
+
+### `20260818100000_media_library_safe_operations.sql`
+
+- Adds the `replace_media_asset` and `delete_media_asset` staff-only
+  `SECURITY DEFINER` functions so media metadata and Storage objects change
+  together, and deletion is refused while any direct CMS reference remains.
+
+### `20260903120000_article_inline_media_guard.sql`
+
+- Replaces the `delete_media_asset(uuid)` body, keeping its signature, so
+  deletion is also refused while a version-2 `articleImage` node in article
+  JSON references the asset. See control tower section 13.2 for rollback
+  notes.
+
 ## 9. Deliberately deferred work
 
-- Content seeds and legacy-data migration.
+- Legacy-data migration beyond the dry-run-first bootstrap and representative
+  visual-test seeds (control tower sections 13.4, 13.5, and 14.5).
 - Final service catalogue and ordering.
 - Final country coverage and country statistics.
 - Automatic scheduled-publishing job.

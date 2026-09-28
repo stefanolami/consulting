@@ -1,0 +1,42 @@
+// Page composition stays in code (control tower §3.2). Order and labels follow
+// the Figma header in the revised Services frame (6393:6); POE is rendered
+// separately because its URL comes from the public site settings.
+
+export type NavKey = 'whoWeAre' | 'ourOutreach' | 'services' | 'sectors' | 'whyUs' | 'publications' | 'contact'
+
+export type NavItem = {
+	key: NavKey
+	href: string
+	/** Whether nested paths (detail pages) mark the item as current. */
+	matchNested: boolean
+}
+
+// Who we are points at the existing team listing until the route inventory is
+// confirmed (control tower §16). Why us and Contact are not built yet.
+export const PRIMARY_NAV: readonly NavItem[] = [
+	{ key: 'whoWeAre', href: '/team', matchNested: true },
+	{ key: 'ourOutreach', href: '/our-outreach', matchNested: true },
+	{ key: 'services', href: '/services', matchNested: true },
+	{ key: 'sectors', href: '/sectors', matchNested: true },
+	{ key: 'whyUs', href: '/why-us', matchNested: true },
+	{ key: 'publications', href: '/newsroom', matchNested: true },
+	{ key: 'contact', href: '/contact', matchNested: false },
+]
+
+export type LegalKey = 'cookieUse' | 'privacyPolicy' | 'termsAndConditions'
+
+// Legacy legal paths; the pages are not built yet.
+export const LEGAL_NAV: readonly { key: LegalKey; href: string }[] = [
+	{ key: 'cookieUse', href: '/cookie-use' },
+	{ key: 'privacyPolicy', href: '/privacy-policy' },
+	{ key: 'termsAndConditions', href: '/terms-and-conditions' },
+]
+
+// PLACEHOLDER: the Snapshot PDF is not in the repository yet (see
+// docs/figma-asset-needs.md). The link targets its intended static path.
+export const SNAPSHOT_PDF_HREF = '/downloads/time-and-place-snapshot.pdf'
+
+export function isCurrentPath(pathname: string, item: Pick<NavItem, 'href' | 'matchNested'>) {
+	if (pathname === item.href) return true
+	return item.matchNested && pathname.startsWith(`${item.href}/`)
+}

@@ -9,6 +9,7 @@ export type PublicGlobalContent = {
 	contact: { address: string | null; email: string | null; footerNote: string | null; phone: string | null } | null
 	endorsements: Array<{ attributionName: string; attributionTitle: string | null; id: string; partnerName: string | null; quote: string }>
 	partners: Array<{ alt: string; id: string; logoUrl: string; name: string; websiteUrl: string | null }>
+	poeUrl: string | null
 	socials: Array<{ platform: string; url: string }>
 }
 
@@ -34,7 +35,7 @@ async function loadPublishedGlobalContent(locale: AppLocale): Promise<PublicGlob
 		supabase.from('partner_translations').select('partner_id, alt_text').eq('locale', locale).eq('status', 'published').lte('published_at', now),
 		supabase.from('endorsements').select('id, partner_id, attribution_name, display_order').eq('is_active', true).order('display_order').order('attribution_name'),
 		supabase.from('endorsement_translations').select('endorsement_id, quote, attribution_title').eq('locale', locale).eq('status', 'published').lte('published_at', now),
-		supabase.from('site_settings').select('key, value').in('key', ['contact_footer', 'social_links']).eq('is_public', true),
+		supabase.from('site_settings').select('key, value').in('key', ['contact_footer', 'social_links', 'poe_external_link']).eq('is_public', true),
 	])
 	const error = partnersError ?? partnerTranslationsError ?? endorsementsError ?? endorsementTranslationsError ?? settingsError
 	if (error) throw new Error(`Unable to load public global content: ${error.message}`)
@@ -77,7 +78,9 @@ async function loadPublishedGlobalContent(locale: AppLocale): Promise<PublicGlob
 		return platform && SOCIAL_PLATFORMS.has(platform) && url ? [{ platform, url }] : []
 	}) : []
 
-	return { contact, endorsements: publicEndorsements, partners: publicPartners, socials }
+	const poeUrl = safeWebUrl(text(settingMap.get('poe_external_link')?.url))
+
+	return { contact, endorsements: publicEndorsements, partners: publicPartners, poeUrl, socials }
 }
 
 export const getPublishedGlobalContent = unstable_cache(

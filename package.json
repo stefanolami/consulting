@@ -19,6 +19,7 @@
 		"visual-test:assets": "node scripts/generate-visual-test-assets.mjs",
 		"visual-test:bootstrap": "node --env-file=.env.local scripts/bootstrap-visual-test.mjs",
 		"visual-test:verify": "node --env-file=.env.local scripts/verify-content-contracts.mjs",
+		"visual:screenshots": "node scripts/visual-screenshots.mjs",
 		"check": "npm run lint && npm run typecheck && npm run test && npm run build"
 	},
 	"dependencies": {
@@ -55,6 +56,7 @@
 		"brace-expansion": "1.1.17",
 		"eslint": "9.39.5",
 		"eslint-config-next": "16.2.12",
+		"playwright": "1.63.0",
 		"postcss": "8.5.24",
 		"tailwindcss": "4.3.3",
 		"tw-animate-css": "1.4.0",

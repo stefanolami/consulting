@@ -1,4 +1,12 @@
 {
+	"_meta": {
+		"provisionalNamespaces": [
+			"Shell",
+			"HomePage.heroLead",
+			"HomePage.heroEmphasis"
+		],
+		"note": "Provisional translations drafted during the Phase 6 shell work; review with a native speaker before launch."
+	},
 	"HomePage": {
 		"title": "Time&Place Consulting",
 		"signIn": "Iniciar sessão",
@@ -11,7 +19,9 @@
 		"partners": "Parceiros",
 		"endorsements": "Testemunhos",
 		"contact": "Contacto",
-		"socials": "Redes sociais"
+		"socials": "Redes sociais",
+		"heroLead": "O seu ponto de acesso para",
+		"heroEmphasis": "Impacto"
 	},
 	"Catalogue": {
 		"service": {
@@ -101,5 +111,51 @@
 		"title": "Esta página não está disponível",
 		"description": "A página pode não existir ou não estar publicada neste idioma.",
 		"home": "Voltar ao início"
+	},
+	"Shell": {
+		"skipToContent": "Saltar para o conteúdo principal",
+		"homeLink": "Time&Place Consulting, página inicial",
+		"nav": {
+			"label": "Navegação principal",
+			"poe": "POE",
+			"externalHint": "abre num novo separador",
+			"whoWeAre": "Quem somos",
+			"ourOutreach": "A nossa presença",
+			"services": "Serviços",
+			"sectors": "Setores",
+			"whyUs": "Porquê nós",
+			"publications": "Publicações",
+			"contact": "Contacto"
+		},
+		"menu": {
+			"open": "Abrir menu",
+			"close": "Fechar menu",
+			"label": "Páginas"
+		},
+		"locale": {
+			"label": "Mudar de idioma",
+			"current": "Idioma: {language}",
+			"names": {
+				"en": "English",
+				"de": "Deutsch",
+				"it": "Italiano",
+				"pt-BR": "Português (Brasil)",
+				"pt-PT": "Português (Portugal)"
+			}
+		},
+		"footer": {
+			"socialLabel": "Time&Place nas redes sociais",
+			"legalLabel": "Informação legal",
+			"cookieUse": "Utilização de cookies",
+			"privacyPolicy": "Política de privacidade",
+			"termsAndConditions": "Termos e condições",
+			"copyright": "© {year} Time&Place Consulting. Todos os direitos reservados.",
+			"contactLabel": "Contactos",
+			"snapshotTitle": "Time&Place Snapshot",
+			"snapshotDownload": "Descarregar PDF"
+		},
+		"placeholder": {
+			"illustration": "Marcador de posição da ilustração: {name}"
+		}
 	}
 }
