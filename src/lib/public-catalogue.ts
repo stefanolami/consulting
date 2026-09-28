@@ -25,18 +25,10 @@ export type CatalogueContact = {
 	slug: string
 }
 
-export type RelatedArticle = {
-	excerpt: string | null
-	publishedAt: string
-	slug: string
-	title: string
-}
-
 export type CatalogueDetail = CatalogueCard & {
 	alternates: Array<{ locale: AppLocale; slug: string }>
 	contacts: CatalogueContact[]
 	content: Json
-	relatedArticles: RelatedArticle[]
 	seoDescription: string | null
 	seoTitle: string | null
 }
@@ -234,36 +226,6 @@ async function loadContacts(
 	})
 }
 
-async function loadRelatedArticles(
-	kind: PublicCatalogueKind,
-	entityId: string,
-	locale: AppLocale,
-): Promise<RelatedArticle[]> {
-	const supabase = createPublicClient()
-	const relationQuery = kind === 'service'
-		? supabase.from('article_services').select('article_id').eq('service_id', entityId)
-		: supabase.from('article_sectors').select('article_id').eq('sector_id', entityId)
-	const { data: relations, error: relationsError } = await relationQuery
-	if (relationsError) throw new Error(`Unable to load related ${kind} articles: ${relationsError.message}`)
-	const articleIds = (relations ?? []).map((relation) => relation.article_id)
-	if (!articleIds.length) return []
-	const { data, error } = await supabase
-		.from('article_translations')
-		.select('slug, title, excerpt, published_at')
-		.in('article_id', articleIds)
-		.eq('locale', locale)
-		.eq('status', 'published')
-		.lte('published_at', publicationTime())
-		.order('published_at', { ascending: false })
-	if (error) throw new Error(`Unable to load localized related articles: ${error.message}`)
-	return (data ?? []).map((article) => ({
-		excerpt: article.excerpt,
-		publishedAt: article.published_at!,
-		slug: article.slug,
-		title: article.title,
-	}))
-}
-
 async function loadAlternates(
 	kind: PublicCatalogueKind,
 	entityId: string,
@@ -294,10 +256,11 @@ async function loadCatalogueDetail(
 		.maybeSingle()
 	if (error) throw new Error(`Unable to load this ${kind}: ${error.message}`)
 	if (!canonical) return null
-	const [media, contacts, relatedArticles, alternates] = await Promise.all([
+	// Related articles are read through the newsroom listing (filtered by this
+	// service or sector) so the cards carry covers and authors.
+	const [media, contacts, alternates] = await Promise.all([
 		canonical.icon_media_id ? localizedMedia([canonical.icon_media_id], locale) : Promise.resolve(new Map<string, PublicMedia>()),
 		loadContacts(kind, canonical.id, locale),
-		loadRelatedArticles(kind, canonical.id, locale),
 		loadAlternates(kind, canonical.id),
 	])
 	return {
@@ -307,7 +270,6 @@ async function loadCatalogueDetail(
 		id: canonical.id,
 		icon: canonical.icon_media_id ? media.get(canonical.icon_media_id) ?? null : null,
 		name: translation.name,
-		relatedArticles,
 		seoDescription: translation.seoDescription,
 		seoTitle: translation.seoTitle,
 		slug: translation.slug,

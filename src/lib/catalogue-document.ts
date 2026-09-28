@@ -56,6 +56,17 @@ export function parseCatalogueDocument(value: unknown): Json {
 	return { type: 'doc', content: document.content.map((block) => validateBlock(block)) }
 }
 
+/** Whether a stored body has any visible text, so empty bodies skip their section. */
+export function hasCatalogueContent(value: Json): boolean {
+	const hasText = (node: unknown): boolean => {
+		if (!node || typeof node !== 'object' || Array.isArray(node)) return false
+		const { content, text } = node as { content?: unknown; text?: unknown }
+		if (typeof text === 'string' && text.trim()) return true
+		return Array.isArray(content) && content.some(hasText)
+	}
+	return hasText(value)
+}
+
 export function emptyCatalogueDocument(): Json {
 	return { type: 'doc', content: [] }
 }

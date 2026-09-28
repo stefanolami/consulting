@@ -27,7 +27,39 @@ test('profile transformation preserves sections, roles, and endorsements', () =>
 
 test('empty hosted state produces a create-only representative baseline', () => {
 	const plan = createVisualTestPlan(catalogue, emptyVisualTestState())
-	assert.deepEqual(plan.counts, { created: 79, updated: 0, skipped: 0, conflicting: 0 })
+	assert.deepEqual(plan.counts, { created: 113, updated: 0, skipped: 0, conflicting: 0 })
 	assert.equal(plan.create.storageObjects.length, 10)
 	assert.equal(plan.create.peopleRoles.length, 9)
+	assert.equal(plan.create.servicePeople.length + plan.create.sectorPeople.length, 16)
+	assert.equal(plan.create.articleServices.length, 12)
+	assert.equal(plan.create.articleSectors.length, 12)
+})
+
+test('every visual-test service and sector has a body, a contact, and a related article', () => {
+	for (const entry of [...catalogue.services, ...catalogue.sectors]) assert.ok(entry.content.content.length, entry.stableKey)
+	for (const service of catalogue.services) {
+		assert.ok(catalogue.serviceContacts.some((relation) => relation.service === service.stableKey), service.stableKey)
+		assert.ok(catalogue.articleServices.some((relation) => relation.service === service.stableKey), service.stableKey)
+	}
+	for (const sector of catalogue.sectors) {
+		assert.ok(catalogue.sectorContacts.some((relation) => relation.sector === sector.stableKey), sector.stableKey)
+		assert.ok(catalogue.articleSectors.some((relation) => relation.sector === sector.stableKey), sector.stableKey)
+	}
+})
+
+test('version-2 empty catalogue bodies are promoted; edited bodies are conflicts', () => {
+	const service = catalogue.services[0]
+	const state = emptyVisualTestState()
+	state.services = [{ id: 's1', stable_key: service.stableKey, icon_media_id: null, display_order: service.displayOrder, is_active: true }]
+	const baseline = { service_id: 's1', locale: 'en', slug: service.slug, name: service.name, summary: service.summary, status: 'published', published_at: catalogue.publishedAt, updated_at: '2025-09-02T00:00:00+00:00' }
+	state.serviceTranslations = [{ ...baseline, content: { type: 'doc', content: [] } }]
+	const promoted = createVisualTestPlan(catalogue, state)
+	assert.equal(promoted.update.serviceTranslations.length, 1)
+	assert.equal(promoted.update.serviceTranslations[0].expectedUpdatedAt, baseline.updated_at)
+	assert.ok(!promoted.conflicts.some((item) => item.entity === 'service_translation'))
+
+	state.serviceTranslations = [{ ...baseline, content: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Edited by a colleague.' }] }] } }]
+	const edited = createVisualTestPlan(catalogue, state)
+	assert.equal(edited.update.serviceTranslations.length, 0)
+	assert.ok(edited.conflicts.some((item) => item.entity === 'service_translation' && item.key === `en:${service.stableKey}`))
 })

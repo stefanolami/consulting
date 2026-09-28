@@ -32,8 +32,9 @@ export async function loadVisualTestCatalogue({ configPath, teamPath, publicDire
 		}
 	}
 
+	const content = config.placeholderCatalogueContent ?? EMPTY_DOCUMENT
 	const sectors = await Promise.all(config.sectors.map(async (entry, displayOrder) => ({
-		...catalogueEntry(entry, displayOrder),
+		...catalogueEntry(entry, displayOrder, content),
 		icon: entry.icon ? await asset(new URL(`sectors/${entry.icon}`, publicDirectory), `visual-test/sectors/${entry.icon}`, mimeType(entry.icon), `${entry.title} sector icon.`) : null,
 	})))
 
@@ -42,10 +43,11 @@ export async function loadVisualTestCatalogue({ configPath, teamPath, publicDire
 		locale: config.locale,
 		publishedAt: config.publishedAt,
 		people,
-		services: config.services.map(catalogueEntry),
+		services: config.services.map((entry, displayOrder) => catalogueEntry(entry, displayOrder, content)),
 		sectors,
-		serviceContacts: config.serviceContacts,
-		sectorContacts: config.sectorContacts,
+		serviceContacts: config.serviceContacts.map(withDisplayOrder),
+		sectorContacts: config.sectorContacts.map(withDisplayOrder),
+		articleServices: config.articleServices ?? [],
 		articleSectors: config.articleSectors,
 	}
 }
@@ -62,6 +64,18 @@ export function validateVisualTestCatalogue(catalogue) {
 	if (catalogue.services.length !== 6 || catalogue.sectors.length !== 6) issues.push('Expected six visual-test services and six sectors.')
 	for (const duplicate of duplicates(catalogue.people.map((person) => person.stableKey))) issues.push(`Duplicate person: ${duplicate}.`)
 	for (const entry of [...catalogue.services, ...catalogue.sectors]) if (!entry.summary) issues.push(`${entry.stableKey} has no legacy summary.`)
+	// Version 3: every service and sector renders a full detail page.
+	const people = new Set(catalogue.people.map((person) => person.stableKey))
+	for (const entry of [...catalogue.services, ...catalogue.sectors]) if (!entry.content?.content?.length) issues.push(`${entry.stableKey} has no body.`)
+	for (const service of catalogue.services) {
+		if (!catalogue.serviceContacts.some((relation) => relation.service === service.stableKey)) issues.push(`${service.stableKey} has no contact.`)
+		if (!catalogue.articleServices.some((relation) => relation.service === service.stableKey)) issues.push(`${service.stableKey} has no related article.`)
+	}
+	for (const sector of catalogue.sectors) {
+		if (!catalogue.sectorContacts.some((relation) => relation.sector === sector.stableKey)) issues.push(`${sector.stableKey} has no contact.`)
+		if (!catalogue.articleSectors.some((relation) => relation.sector === sector.stableKey)) issues.push(`${sector.stableKey} has no related article.`)
+	}
+	for (const relation of [...catalogue.serviceContacts, ...catalogue.sectorContacts]) if (!people.has(relation.person)) issues.push(`Contact ${relation.person} is not a visual-test profile.`)
 	return { issues }
 }
 
@@ -82,12 +96,12 @@ export function profileDocument(source) {
 }
 
 export function emptyVisualTestState() {
-	return { people: [], peopleTranslations: [], peopleRoles: [], services: [], serviceTranslations: [], sectors: [], sectorTranslations: [], mediaAssets: [], mediaTranslations: [], storageObjects: [], servicePeople: [], sectorPeople: [], articles: [], articleSectors: [] }
+	return { people: [], peopleTranslations: [], peopleRoles: [], services: [], serviceTranslations: [], sectors: [], sectorTranslations: [], mediaAssets: [], mediaTranslations: [], storageObjects: [], servicePeople: [], sectorPeople: [], articles: [], articleServices: [], articleSectors: [] }
 }
 
 export function createVisualTestPlan(catalogue, existing) {
-	const create = { storageObjects: [], mediaAssets: [], mediaTranslations: [], people: [], peopleTranslations: [], peopleRoles: [], services: [], serviceTranslations: [], sectors: [], sectorTranslations: [], servicePeople: [], sectorPeople: [], articleSectors: [] }
-	const update = { people: [], peopleTranslations: [] }
+	const create = { storageObjects: [], mediaAssets: [], mediaTranslations: [], people: [], peopleTranslations: [], peopleRoles: [], services: [], serviceTranslations: [], sectors: [], sectorTranslations: [], servicePeople: [], sectorPeople: [], articleServices: [], articleSectors: [] }
+	const update = { people: [], peopleTranslations: [], serviceTranslations: [], sectorTranslations: [] }
 	const skipped = []
 	const conflicts = []
 	const by = (rows, key) => new Map(rows.map((row) => [key(row), row]))
@@ -155,6 +169,8 @@ export function createVisualTestPlan(catalogue, existing) {
 			const translation = translations.get(entry.stableKey)
 			if (!translation) create[`${kind}Translations`].push(entry)
 			else if (sameCatalogueTranslation(translation, entry, catalogue.publishedAt)) skip(`${kind}_translation`, `en:${entry.stableKey}`)
+			// Version 2 published empty bodies; promote only that exact baseline.
+			else if (sameCatalogueTranslation(translation, { ...entry, content: EMPTY_DOCUMENT }, catalogue.publishedAt)) update[`${kind}Translations`].push({ ...entry, expectedUpdatedAt: translation.updated_at })
 			else conflict(`${kind}_translation`, `en:${entry.stableKey}`, 'Existing English content differs.')
 		}
 	}
@@ -165,15 +181,17 @@ export function createVisualTestPlan(catalogue, existing) {
 		const articles = by(existing.articles, (row) => row.stable_key)
 		for (const relation of catalogue.serviceContacts) relationPlan('servicePeople', relation, existing.servicePeople.some((row) => row.service_id === services.get(relation.service)?.id && row.person_id === people.get(relation.person)?.id && row.relationship === 'contact'))
 		for (const relation of catalogue.sectorContacts) relationPlan('sectorPeople', relation, existing.sectorPeople.some((row) => row.sector_id === sectors.get(relation.sector)?.id && row.person_id === people.get(relation.person)?.id && row.relationship === 'contact'))
+		for (const relation of catalogue.articleServices) relationPlan('articleServices', relation, existing.articleServices.some((row) => row.article_id === articles.get(relation.article)?.id && row.service_id === services.get(relation.service)?.id))
 		for (const relation of catalogue.articleSectors) relationPlan('articleSectors', relation, existing.articleSectors.some((row) => row.article_id === articles.get(relation.article)?.id && row.sector_id === sectors.get(relation.sector)?.id))
 	}
 
-	function relationPlan(collection, relation, exists) { if (exists) skip(collection, Object.values(relation).join(':')); else create[collection].push(relation) }
+	function relationPlan(collection, relation, exists) { if (exists) skip(collection, [relation.service ?? relation.sector, relation.person ?? relation.article].join(':')); else create[collection].push(relation) }
 	function skip(entity, key) { skipped.push({ entity, key }) }
 	function conflict(entity, key, reason) { conflicts.push({ entity, key, reason }) }
 }
 
-function catalogueEntry(entry, displayOrder) { return { stableKey: entry.id, slug: entry.id, name: clean(entry.title), summary: clean(entry.excerpt), content: EMPTY_DOCUMENT, displayOrder } }
+function catalogueEntry(entry, displayOrder, content) { return { stableKey: entry.id, slug: entry.id, name: clean(entry.title), summary: clean(entry.excerpt), content, displayOrder } }
+function withDisplayOrder(relation) { return { ...relation, displayOrder: relation.displayOrder ?? 0 } }
 async function asset(path, objectPath, type, alt) { const bytes = await readFile(path); return { bytes, objectPath, filename: path.pathname.split('/').pop(), mimeType: type, alt, size: bytes.byteLength, checksum: createHash('sha256').update(bytes).digest('hex') } }
 function mimeType(filename) { if (filename.endsWith('.png')) return 'image/png'; if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg'; throw new Error(`Unsupported visual-test media type: ${filename}`) }
 function richText(values = []) { return { type: 'doc', content: values.map(clean).filter(Boolean).map((text) => ({ type: 'paragraph', content: [{ type: 'text', text }] })) } }

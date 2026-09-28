@@ -4,7 +4,18 @@
 			"Shell",
 			"HomePage.heroLead",
 			"HomePage.heroEmphasis",
-			"Team"
+			"Team",
+			"Catalogue.service.title",
+			"Catalogue.service.introduction",
+			"Catalogue.sector.title",
+			"Catalogue.sector.introduction",
+			"Catalogue.whatWeDo",
+			"Catalogue.getInTouch",
+			"Catalogue.email",
+			"Catalogue.phone",
+			"Catalogue.articlesFor",
+			"Catalogue.viewAllArticles",
+			"Catalogue.byline"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -26,9 +37,8 @@
 	},
 	"Catalogue": {
 		"service": {
-			"eyebrow": "Cosa facciamo",
-			"title": "I nostri servizi",
-			"introduction": "Scopri i servizi attualmente pubblicati dal nostro team in italiano.",
+			"title": "Servizi",
+			"introduction": "Un valore aggiunto di Time&Place Consulting è la combinazione dei nostri servizi per un approccio più olistico. Avete bisogno di gestione delle crisi? Colleghiamo la gestione della reputazione ai servizi legali per contrastare gli effetti negativi sui vostri prodotti, servizi e sulla vostra immagine.\n\nVolete dare risalto a una questione che incide sui vostri mercati per ottenere condizioni normative più sane? È possibile unendo strategie di relazioni istituzionali e con i media. Oppure, l’attuazione congiunta di standard di conformità e capacità CSR può aiutarvi a prevenire future sfide normative e reputazionali. Adattiamo le nostre capacità alle vostre esigenze.",
 			"catalogueLabel": "Servizi pubblicati",
 			"metaDescription": "Scopri i servizi pubblicati di Time&Place Consulting.",
 			"emptyTitle": "Nessun servizio è ancora pubblicato in italiano",
@@ -36,20 +46,21 @@
 			"loading": "Caricamento dei servizi"
 		},
 		"sector": {
-			"eyebrow": "La nostra esperienza",
-			"title": "I nostri settori",
-			"introduction": "Scopri i settori attualmente pubblicati dal nostro team in italiano.",
+			"title": "Settori",
+			"introduction": "Il nostro team riunisce un’ampia varietà di conoscenze specifiche per settore. Ogni settore ha una propria cultura e un proprio ecosistema. La nostra esperienza in essi fa sì che i nostri servizi abbiano un impatto fondato sulla conoscenza diretta.",
 			"catalogueLabel": "Settori pubblicati",
 			"metaDescription": "Scopri i settori seguiti da Time&Place Consulting.",
 			"emptyTitle": "Nessun settore è ancora pubblicato in italiano",
 			"emptyDescription": "I settori pubblicati appariranno qui quando saranno disponibili contenuti in italiano.",
 			"loading": "Caricamento dei settori"
 		},
-		"readMore": "Scopri di più",
-		"contentLabel": "Contenuto dettagliato",
-		"contacts": "I vostri contatti",
-		"newsroomEyebrow": "Newsroom",
-		"relatedArticles": "Articoli correlati"
+		"whatWeDo": "Cosa facciamo",
+		"getInTouch": "Contatta il team",
+		"email": "E-mail",
+		"phone": "Telefono",
+		"articlesFor": "Articoli su {name}",
+		"viewAllArticles": "Vedi tutti i {count} articoli su {name}",
+		"byline": "Di {authors}"
 	},
 	"Newsroom": {
 		"eyebrow": "Newsroom",

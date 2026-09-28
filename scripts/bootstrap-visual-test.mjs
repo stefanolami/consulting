@@ -12,9 +12,10 @@ if (args.includes('--help')) {
 	console.log(`Usage: npm run visual-test:bootstrap -- [--dry-run | --apply]
 
 Dry-run is the default. It validates and plans the selected legacy team,
-services, sectors, media, contacts, newsroom links, Brazil golden-country proof,
-and small global-content proof without changing hosted data. --apply performs
-only reported creates and narrowly controlled baseline promotions.`)
+services and sectors (with placeholder bodies), media, contacts, newsroom
+links, Brazil golden-country proof, and small global-content proof without
+changing hosted data. --apply performs only reported creates and narrowly
+controlled baseline promotions.`)
 	process.exit(0)
 }
 
@@ -63,14 +64,15 @@ async function fetchState(client) {
 		['people_translations', 'person_id, locale, slug, short_bio, profile_document, status, published_at'],
 		['people_profile_roles', 'person_id, locale, title, card_label, display_order, is_card_role'],
 		['services', 'id, stable_key, icon_media_id, display_order, is_active'],
-		['service_translations', 'service_id, locale, slug, name, summary, content, status, published_at'],
+		['service_translations', 'service_id, locale, slug, name, summary, content, status, published_at, updated_at'],
 		['sectors', 'id, stable_key, icon_media_id, display_order, is_active'],
-		['sector_translations', 'sector_id, locale, slug, name, summary, content, status, published_at'],
+		['sector_translations', 'sector_id, locale, slug, name, summary, content, status, published_at, updated_at'],
 		['media_assets', 'id, bucket_id, object_path, mime_type, file_size_bytes, checksum, is_public'],
 		['media_asset_translations', 'media_asset_id, locale, alt_text, caption'],
 		['service_people', 'service_id, person_id, relationship, display_order'],
 		['sector_people', 'sector_id, person_id, relationship, display_order'],
 		['articles', 'id, stable_key'],
+		['article_services', 'article_id, service_id'],
 		['article_sectors', 'article_id, sector_id'],
 		['countries', 'code, region_id, flag_media_id, outline_media_id, is_covered, map_config, display_order, last_reviewed_on, updated_at'],
 		['country_translations', 'country_code, locale, slug, name, summary, content, coverage_summary, seo_title, seo_description, status, published_at, updated_at'],
@@ -104,7 +106,7 @@ async function fetchState(client) {
 		...(outreachObjects.data ?? []).filter((item) => item.id).map((item) => ({ objectPath: `visual-test/outreach/${item.name}`, size: Number(item.metadata?.size ?? 0) })),
 		...(partnerObjects.data ?? []).filter((item) => item.id).map((item) => ({ objectPath: `visual-test/partners/${item.name}`, size: Number(item.metadata?.size ?? 0) })),
 	]
-	const names = ['people', 'peopleTranslations', 'peopleRoles', 'services', 'serviceTranslations', 'sectors', 'sectorTranslations', 'mediaAssets', 'mediaTranslations', 'servicePeople', 'sectorPeople', 'articles', 'articleSectors', 'countries', 'countryTranslations', 'countryServices', 'countryServiceTranslations', 'countryStatistics', 'countryStatisticTranslations', 'offices', 'officeTranslations', 'countryOffices', 'countryPeople', 'partners', 'partnerTranslations', 'endorsements', 'endorsementTranslations', 'siteSettings']
+	const names = ['people', 'peopleTranslations', 'peopleRoles', 'services', 'serviceTranslations', 'sectors', 'sectorTranslations', 'mediaAssets', 'mediaTranslations', 'servicePeople', 'sectorPeople', 'articles', 'articleServices', 'articleSectors', 'countries', 'countryTranslations', 'countryServices', 'countryServiceTranslations', 'countryStatistics', 'countryStatisticTranslations', 'offices', 'officeTranslations', 'countryOffices', 'countryPeople', 'partners', 'partnerTranslations', 'endorsements', 'endorsementTranslations', 'siteSettings']
 	return Object.fromEntries([...names.map((name, index) => [name, results[index].data ?? []]), ['storageObjects', storageObjects]])
 }
 
@@ -175,8 +177,16 @@ async function applyPlan(client, reference, importPlan) {
 	ids = await resolveIds(client)
 	await insert(client, 'service_translations', importPlan.create.serviceTranslations.map((entry) => translationRow('service_id', required(ids.services, entry.stableKey), entry, reference.publishedAt)))
 	await insert(client, 'sector_translations', importPlan.create.sectorTranslations.map((entry) => translationRow('sector_id', required(ids.sectors, entry.stableKey), entry, reference.publishedAt)))
-	await insert(client, 'service_people', importPlan.create.servicePeople.map((relation) => ({ service_id: required(ids.services, relation.service), person_id: required(ids.people, relation.person), relationship: 'contact', display_order: 0 })))
-	await insert(client, 'sector_people', importPlan.create.sectorPeople.map((relation) => ({ sector_id: required(ids.sectors, relation.sector), person_id: required(ids.people, relation.person), relationship: 'contact', display_order: 0 })))
+	// Version-2 empty bodies are promoted only if the row is unchanged since the dry-run read.
+	for (const [table, key, entries, lookup] of [['service_translations', 'service_id', importPlan.update.serviceTranslations, ids.services], ['sector_translations', 'sector_id', importPlan.update.sectorTranslations, ids.sectors]]) {
+		for (const entry of entries) {
+			const { data, error } = await client.from(table).update({ content: entry.content }).eq(key, required(lookup, entry.stableKey)).eq('locale', 'en').eq('updated_at', entry.expectedUpdatedAt).select(key)
+			if (error || data?.length !== 1) throw new Error(`Unable to add the placeholder body to ${entry.stableKey}: ${error?.message ?? 'record changed after dry-run'}`)
+		}
+	}
+	await insert(client, 'service_people', importPlan.create.servicePeople.map((relation) => ({ service_id: required(ids.services, relation.service), person_id: required(ids.people, relation.person), relationship: 'contact', display_order: relation.displayOrder })))
+	await insert(client, 'sector_people', importPlan.create.sectorPeople.map((relation) => ({ sector_id: required(ids.sectors, relation.sector), person_id: required(ids.people, relation.person), relationship: 'contact', display_order: relation.displayOrder })))
+	await insert(client, 'article_services', importPlan.create.articleServices.map((relation) => ({ article_id: required(ids.articles, relation.article), service_id: required(ids.services, relation.service) })))
 	await insert(client, 'article_sectors', importPlan.create.articleSectors.map((relation) => ({ article_id: required(ids.articles, relation.article), sector_id: required(ids.sectors, relation.sector) })))
 }
 
@@ -199,11 +209,11 @@ function required(values, key) { const value = values.get(key); if (!value) thro
 function report({ applyMode, catalogue, contractPlan, contractProof, contractValidation, existing, plan, validation }) {
 	return [
 		'VISUAL-TEST CONTENT BOOTSTRAP', `Mode: ${applyMode ? 'APPLY (pre-apply report)' : 'DRY RUN (default)'}`, `Reference version: ${catalogue.version}`, '',
-		'REFERENCE SCOPE', `- Team profiles: ${catalogue.people.length} (2 managing team, 3 team)`, `- Services: ${catalogue.services.length}`, `- Sectors: ${catalogue.sectors.length}`, `- Managed media: ${catalogue.people.length + catalogue.sectors.filter((sector) => sector.icon).length + 3}`, `- Contact relationships: ${catalogue.serviceContacts.length + catalogue.sectorContacts.length}`, `- Newsroom-sector relationships: ${catalogue.articleSectors.length}`, `- Golden country: ${contractProof.country.name} (${contractProof.country.offices.length} offices, ${contractProof.country.services.length} services, ${contractProof.country.experts.length} expert)`, '- Global proof: 1 partner, 1 endorsement, 2 public site settings', '',
+		'REFERENCE SCOPE', `- Team profiles: ${catalogue.people.length} (2 managing team, 3 team)`, `- Services: ${catalogue.services.length}`, `- Sectors: ${catalogue.sectors.length}`, `- Managed media: ${catalogue.people.length + catalogue.sectors.filter((sector) => sector.icon).length + 3}`, `- Placeholder bodies: ${catalogue.services.length + catalogue.sectors.length}`, `- Contact relationships: ${catalogue.serviceContacts.length + catalogue.sectorContacts.length}`, `- Newsroom-service / newsroom-sector relationships: ${catalogue.articleServices.length} / ${catalogue.articleSectors.length}`, `- Golden country: ${contractProof.country.name} (${contractProof.country.offices.length} offices, ${contractProof.country.services.length} services, ${contractProof.country.experts.length} expert)`, '- Global proof: 1 partner, 1 endorsement, 2 public site settings', '',
 		'LOCAL VALIDATION', `- Baseline issues: ${validation.issues.length}${validation.issues.length ? ` [${validation.issues.join('; ')}]` : ''}`, `- Contract-proof issues: ${contractValidation.issues.length}${contractValidation.issues.length ? ` [${contractValidation.issues.join('; ')}]` : ''}`, '',
 		'HOSTED SNAPSHOT (READ ONLY)', `- People / translations / roles: ${existing.people.length} / ${existing.peopleTranslations.length} / ${existing.peopleRoles.length}`, `- Services / translations: ${existing.services.length} / ${existing.serviceTranslations.length}`, `- Sectors / translations: ${existing.sectors.length} / ${existing.sectorTranslations.length}`, `- Media / translations / visual-test stored objects: ${existing.mediaAssets.length} / ${existing.mediaTranslations.length} / ${existing.storageObjects.length}`, '',
 		'BASELINE OPERATIONS', ...Object.entries(plan.create).map(([name, rows]) => `- Create ${name}: ${rows.length}`), ...Object.entries(plan.update).map(([name, rows]) => `- Update ${name}: ${rows.length}`), `- Total creates / safe updates / skipped: ${plan.counts.created} / ${plan.counts.updated} / ${plan.counts.skipped}`, `- Conflicts: ${plan.counts.conflicting}${plan.conflicts.length ? ` [${plan.conflicts.map((item) => `${item.entity} ${item.key}: ${item.reason}`).join('; ')}]` : ''}`, '',
 		'CONTRACT-PROOF OPERATIONS', ...Object.entries(contractPlan.create).map(([name, rows]) => `- Create ${name}: ${rows.length}`), ...Object.entries(contractPlan.update).map(([name, rows]) => `- Update ${name}: ${rows.length}`), `- Total creates / safe updates / skipped: ${contractPlan.counts.created} / ${contractPlan.counts.updated} / ${contractPlan.counts.skipped}`, `- Conflicts: ${contractPlan.counts.conflicting}${contractPlan.conflicts.length ? ` [${contractPlan.conflicts.map((item) => `${item.entity} ${item.key}: ${item.reason}`).join('; ')}]` : ''}`, '',
-		'SAFETY AND PUBLICATION', '- Publishes only the selected English legacy visual-test baseline.', '- Existing author-only and Brazil identity-only records may be promoted only while they match their prior deterministic baselines.', '- Human-authored content or metadata differences block apply and are never overwritten.', '- Brazil addresses, phones, coordinates, coverage levels, and unsupported global settings remain null or absent because the legacy sources do not supply them.',
+		'SAFETY AND PUBLICATION', '- Publishes only the selected English legacy visual-test baseline; service and sector bodies are lorem-ipsum placeholders and contacts/article links beyond the version-2 source-backed ones are assigned for visual testing.', '- Existing author-only and Brazil identity-only records may be promoted only while they match their prior deterministic baselines.', '- Human-authored content or metadata differences block apply and are never overwritten.', '- Brazil addresses, phones, coordinates, coverage levels, and unsupported global settings remain null or absent because the legacy sources do not supply them.',
 	].join('\n')
 }

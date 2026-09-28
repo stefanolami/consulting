@@ -674,6 +674,31 @@ the exact-locale published partner and endorsement plus public settings through
 anonymous RLS. Partner, settings, and shared-media actions invalidate the new
 hourly global-content cache.
 
+Version 3 (2026-09-28) makes every seeded service and sector a full detail
+page, at the product owner's request, so the Figma templates can be reviewed
+with complete content. It deliberately departs from the source-only rule
+above:
+
+- Every service and sector gets the same lorem-ipsum body
+  (`placeholderCatalogueContent`: paragraphs, a level-3 heading and a bullet
+  list). The legacy sources have no body copy; replace it before launch.
+- Contacts beyond the four source-backed ones rotate the five visual-test
+  profiles, so four pages show two contacts. These assignments are invented for
+  testing, not editorial fact.
+- Both published articles are related to every service and sector, so every
+  page shows two article cards, and the newsroom's service and sector filters
+  return both articles for every value.
+- Icons are unchanged: services and Space still show placeholders.
+
+The version-2 empty bodies are promoted only while the row still matches that
+exact baseline (checked again at write time through `updated_at`). Any edited
+body is a conflict that blocks apply. The hosted dry run proposed 34 creates
+(12 contacts, 12 article–service and 10 article–sector links) and 12 body
+promotions with no conflicts. Apply completed them; the rerun proposed 0
+creates and 0 updates and found 0 conflicts. The seed writes directly to the
+database, so public pages may show the previous data for up to an hour (the
+hourly cache) unless an admin save invalidates it first.
+
 The hosted version-2 dry run proposed 35 creates and 2 exact-baseline Brazil
 updates with no conflicts. Apply completed those operations; the immediate rerun
 proposed 0 creates and 0 updates, skipped all 112 baseline and proof checks, and
@@ -951,6 +976,67 @@ and `5494:972`:
   field (flagged, not added).
 - Unknown or unpublished profiles render the localized not-found page with
   `noindex` inside the stream (HTTP 200), as on the other dynamic templates.
+
+### 15.5 Services and sectors
+
+Implemented on 2026-09-28 against Figma `6393:6` (revised services), `5408:128`
+(original services), `5408:187` (sectors), the mobile indexes `5651:347` and
+`5651:406`, the detail examples `5488:464`, `5488:683`, `5488:926`, `5408:267`
+and `5480:511`, and the mobile details `5695:437` and `5695:370`:
+
+- Routes are unchanged. The legacy site served only `/services` and
+  `/sectors` (no detail pages), which match v2, so no redirects are needed.
+- One shared implementation in `src/components/catalogue/`: `CatalogueTile`
+  (one link per item), `CatalogueContacts`, `CatalogueArticles`, the restyled
+  `CatalogueRichText` and `CatalogueLoading`. All are Server Components except
+  the loading skeleton. `ArticleSummaryCard`
+  (`src/components/newsroom/article-summary-card.tsx`) was extracted from the
+  team "Articles by" block and is shared with it.
+- Index: navy `PageHero` with line illustration and intro (services copy from
+  Figma `6393:6`; the sectors frame is placeholder text, so the legacy sectors
+  copy is used), then a light band of tiles. From `lg`, round (service) or
+  square (sector) blue tiles, three per row with the last row centred, showing
+  the CMS icon faintly behind the title. Below `lg`, the Figma mobile rows: a
+  title cell and a navy summary cell, alternating sides. Items without a summary
+  use a full-width title cell.
+- Motion (Figma annotations): the summary slides up over the tile on hover
+  **and** keyboard focus; tiles fade in with a short stagger on page load
+  (`--animate-tile-in`). Both run only without `prefers-reduced-motion`; the
+  summary then appears instantly. The title names the link and the summary
+  describes it (`aria-describedby`), so assistive technology gets both at
+  every width. Deferred: the 3D card flip (it hides the title), tap-to-flip
+  (the tile is a link, and the mobile layout already shows the summary), and
+  "animated" detail illustrations (they need SVG artwork; CMS icons are
+  static images).
+- Detail: one template. A navy hero with the CMS icon as a centred emblem,
+  the name and the summary; then "What we do" (only when the body has text),
+  "Get in Touch with the Team", and "Articles for {name}". Each section renders
+  only when it has content. Contacts reuse `TeamPortrait` and add the name
+  linking to the profile, which Figma omits; the office address is not
+  rendered because the people contract has no address field (flagged, as in
+  section 15.4). The sector frames' "{name} Projects" heading is shown as
+  "Articles for {name}" because the data is articles.
+- Related articles now come from the public newsroom listing filtered by the
+  service or sector (`getPublishedNewsroomListing`), so the cards have covers
+  and authors under the newsroom publication rules. The catalogue loader's own
+  related-article query was removed; no schema or contract changed. Up to three
+  are shown, newest first, with a "View all" link to the filtered newsroom when
+  there are more. The link is omitted for slugs that the newsroom filters reject
+  (for example the legacy `culture-&-creativity` style).
+- The Business / Government Institute / Academia audience selector on `6393:6`
+  is omitted until open decision 23.10 is resolved; all tiles are shown at full
+  strength.
+- Placeholders: the sectors hero skyline (`hero-sectors-industry`) and every
+  missing CMS icon (dashed outline in tiles, labelled emblem box on details;
+  none of the seeded services has an icon). The services hero uses
+  `public/hero/hero-services-white.png`, a white-on-transparent copy derived
+  from the legacy `hero-services.png`. See
+  [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
+- Deviations from Figma: body copy is left-aligned rather than justified;
+  "WHAT DO WE DO" reads "What we do"; contacts show names; empty details
+  collapse to the hero.
+- New `Catalogue` strings are provisional in the non-English locales (listed
+  per key in `_meta.provisionalNamespaces`).
 
 ## 16. Public routes and legacy parity
 
@@ -1295,7 +1381,8 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
 - Implement the global shell, navigation, footer, and shared sections (shell
   done 2026-09-28; shared sections follow with the templates).
 - Apply the Figma design to the existing public templates (Who We Are and team
-  profiles done 2026-09-28, section 15.4).
+  profiles done 2026-09-28, section 15.4; services and sectors done
+  2026-09-28, section 15.5).
 - Build remaining marketing, services, sectors, why-us, contact, and legal
   pages.
 - Complete responsive and interaction states.
@@ -1372,6 +1459,11 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
   labels, menu structure, and the language toggle from Figma.
 - Serve team pages at the legacy `/who-we-are` and `/who-we-are/[slug]` paths,
   because printed business-card QR codes link to them (section 15.4).
+- Omit the services audience selector until decision 23.10 is made; recolour
+  the legacy services hero white; show visible placeholders for missing
+  service and sector icons; read catalogue related articles through the
+  newsroom listing; label them "Articles for {name}" for both services and
+  sectors (section 15.5).
 
 ## 22. Confirmed implementation defaults
 
@@ -1400,7 +1492,9 @@ These decisions should be resolved before the affected implementation begins:
 9. Final published service catalogue and ordering after stakeholder review.
 10. Whether the `Business` / `Government Institute` / `Academia` audience
     selector on the revised Services page (`6393:6`) is editorial data managed
-    in the admin, and which services belong to each audience.
+    in the admin, and which services belong to each audience. The selector is
+    omitted from the implemented services page until this is decided
+    (section 15.5).
 
 ## 24. Definition of completion
 
@@ -1427,9 +1521,11 @@ The rebuild is complete when:
 	[`docs/figma-asset-needs.md`](./figma-asset-needs.md), set the POE link in
 	the admin site settings, and review the provisional shell translations.
 2. Apply the Figma design to the existing public templates, one template at a
-	 time, following section 15.2. Who We Are and team profiles are done
-	 (section 15.4); services and sectors are next. Review the provisional
-	 `Team` translations with the shell strings.
+	 time, following section 15.2. Who We Are and team profiles (section 15.4)
+	 and services and sectors (section 15.5) are done; the newsroom card system
+	 and article detail are next. Review the provisional `Team` and `Catalogue`
+	 translations with the shell strings, and upload white line icons for the
+	 services and sectors through the admin media library.
 3. In parallel, colleagues use the admin to add reviewed English summaries and
 	 relationships to the 39 remaining published name-only country references,
 	 maintain coverage, and author, translate, review, and publish other locales

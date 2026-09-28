@@ -12,14 +12,16 @@ type TeamPortraitProps = {
 	sizes: string
 }
 
-// Circular portrait with the offset outline ring from the Figma team grid
-// (5408:15, 5651:258). The ring is drawn in CSS; the legacy portrait photos are
-// portrait-format, so the crop favours the upper part of the image.
+// Circular portrait framed by an outline ring (Figma team grid 5408:15,
+// 5651:258). The photo runs under the ring (inset by half the --ring width,
+// ring painted on top), so no gap shows even when the browser rounds the
+// border to whole pixels. The ring is drawn in CSS; the legacy portrait
+// photos are portrait-format, so the crop favours the upper part.
 export function TeamPortrait({ alt, className, name, portrait, sizes }: TeamPortraitProps) {
 	return (
-		<span className={cn('relative block aspect-square', className)}>
-			<span aria-hidden="true" className="absolute inset-0 -translate-x-[3%] -translate-y-[4%] rounded-pill border-[clamp(0.1875rem,0.15rem+0.2vw,0.375rem)] border-tp-mist transition-colors duration-200 group-hover:border-brand-strong group-focus-visible:border-brand-strong motion-reduce:transition-none" />
-			<span className="absolute inset-[5%] overflow-hidden rounded-pill bg-tp-mist">
+		<span className={cn('relative block aspect-square [--ring:clamp(0.1875rem,0.15rem+0.2vw,0.375rem)]', className)}>
+			<span aria-hidden="true" className="absolute inset-0 z-10 rounded-pill border-(length:--ring) border-tp-mist transition-colors duration-200 group-hover:border-brand-strong group-focus-visible:border-brand-strong motion-reduce:transition-none" />
+			<span className="absolute inset-[calc(var(--ring)/2)] overflow-hidden rounded-pill bg-tp-mist">
 				{portrait ? (
 					<Image alt={alt} className="object-cover object-[50%_18%]" fill sizes={sizes} src={portrait.url} />
 				) : (

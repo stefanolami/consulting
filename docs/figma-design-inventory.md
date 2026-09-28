@@ -148,6 +148,12 @@ A service requires, at minimum:
 - Related articles.
 - A short landing-page summary for the mobile alternating-card treatment.
 
+Implemented 2026-09-28 (control tower section 15.5). All 12 frames share one
+layout: navy hero with a large white line illustration, name and summary;
+"WHAT DO WE DO" body; "Get in Touch with the Team" with one or two contacts
+(portrait, phone, email, address, no name); three article cards. They differ
+only in content and in the number of contacts and articles.
+
 ### 3.5 Sector details
 
 All of these use one `/sectors/[slug]` template:
@@ -183,6 +189,12 @@ A sector requires, at minimum:
 - Assigned team contacts.
 - Related projects or articles.
 - A short landing-page summary for the mobile alternating-card treatment.
+
+Implemented 2026-09-28 with the service template (control tower section 15.5).
+The sector frames match the service frames except that the article section is
+headed "{name} Projects" (implemented as "Articles for {name}", because the
+data is articles) and some frames (`5480:511`) show two article cards without
+the teal marker or byline.
 
 ## 4. Mobile frames
 
@@ -308,10 +320,12 @@ The reusable system therefore needs to be created in code:
 - `DownloadSnapshotLink` (implemented; PDF and icon pending).
 - `TeamPortrait` and `TeamCard` (implemented).
 - `SnapshotCta` (implemented; PDF and icon pending).
-- `ArticleCard` with controlled visual variants.
+- `ArticleCard` with controlled visual variants (related-article variant
+  implemented as `ArticleSummaryCard`).
 - `RelatedContentGrid`.
-- `ServiceCard` and `SectorCard`.
-- `ContactPerson`.
+- `ServiceCard` and `SectorCard` (implemented as one `CatalogueTile`).
+- `ContactPerson` (implemented for services and sectors as
+  `CatalogueContacts`).
 - `OfficeCard`.
 - `LogoCloud`.
 - `EndorsementCard`.
@@ -360,7 +374,8 @@ These should be resolved as each affected feature begins:
      and adds a `Business` / `Government Institute` / `Academia` audience
      selector that appears to highlight a subset of services. Whether that
      audience grouping is editorial (CMS-managed) data must be confirmed
-     before it is implemented.
+     before it is implemented. The implemented services page (2026-09-28)
+     omits the selector until control tower decision 23.10 is made.
    - Mobile landing page shows 11 services.
    - 12 desktop service detail designs exist.
    - For initial implementation, seed the union of all 12 as provisional
@@ -420,7 +435,8 @@ equivalent exists and are then corrected against Figma.
    and hero primitives.
 2. Apply the design to the Who We Are/team templates to prove responsive
    templates, CMS media, translations, and related content (done 2026-09-28).
-3. Implement the reusable service and sector indexes/details.
+3. Implement the reusable service and sector indexes/details (done
+   2026-09-28).
 4. Implement the newsroom card system and extensible article detail renderer.
 5. Prototype and then implement Our Outreach.
 6. Complete Why Us, Contact, homepage composition, legal pages, and remaining

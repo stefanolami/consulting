@@ -4,7 +4,18 @@
 			"Shell",
 			"HomePage.heroLead",
 			"HomePage.heroEmphasis",
-			"Team"
+			"Team",
+			"Catalogue.service.title",
+			"Catalogue.service.introduction",
+			"Catalogue.sector.title",
+			"Catalogue.sector.introduction",
+			"Catalogue.whatWeDo",
+			"Catalogue.getInTouch",
+			"Catalogue.email",
+			"Catalogue.phone",
+			"Catalogue.articlesFor",
+			"Catalogue.viewAllArticles",
+			"Catalogue.byline"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -26,9 +37,8 @@
 	},
 	"Catalogue": {
 		"service": {
-			"eyebrow": "Was wir tun",
-			"title": "Unsere Leistungen",
-			"introduction": "Entdecken Sie die Leistungen, die unser Team derzeit auf Deutsch veröffentlicht hat.",
+			"title": "Leistungen",
+			"introduction": "Ein Mehrwert von Time&Place Consulting liegt darin, dass wir unsere Leistungen für einen ganzheitlicheren Ansatz kombinieren. Sie benötigen Krisenmanagement? Wir verbinden Reputationsmanagement mit juristischen Leistungen, um negative Auswirkungen auf Ihre Produkte, Dienstleistungen und Ihr Image abzuwenden.\n\nSie möchten ein Thema sichtbar machen, das Ihre Märkte betrifft, um gesündere regulatorische Rahmenbedingungen zu erreichen? Das gelingt durch die Verbindung von Strategien für Regierungs- und Medienbeziehungen. Oder die gemeinsame Umsetzung von Compliance-Standards und CSR-Kapazitäten hilft Ihnen, künftigen regulatorischen und reputationsbezogenen Herausforderungen zuvorzukommen. Wir passen unsere Kapazitäten an Ihre Bedürfnisse an.",
 			"catalogueLabel": "Veröffentlichte Leistungen",
 			"metaDescription": "Entdecken Sie die veröffentlichten Leistungen von Time&Place Consulting.",
 			"emptyTitle": "Noch keine Leistungen auf Deutsch veröffentlicht",
@@ -36,20 +46,21 @@
 			"loading": "Leistungen werden geladen"
 		},
 		"sector": {
-			"eyebrow": "Unsere Expertise",
-			"title": "Unsere Branchen",
-			"introduction": "Entdecken Sie die Branchen, die unser Team derzeit auf Deutsch veröffentlicht hat.",
+			"title": "Sektoren",
+			"introduction": "Unser Team vereint ein breites Spektrum an branchenspezifischem Wissen. Jeder Sektor hat seine eigene Kultur und sein eigenes Ökosystem. Unsere Erfahrung darin sorgt dafür, dass unsere Leistungen eine auf implizitem Wissen beruhende Wirkung entfalten.",
 			"catalogueLabel": "Veröffentlichte Branchen",
 			"metaDescription": "Entdecken Sie die Branchenexpertise von Time&Place Consulting.",
 			"emptyTitle": "Noch keine Branchen auf Deutsch veröffentlicht",
 			"emptyDescription": "Veröffentlichte Branchen erscheinen hier, sobald deutsche Inhalte verfügbar sind.",
 			"loading": "Branchen werden geladen"
 		},
-		"readMore": "Mehr erfahren",
-		"contentLabel": "Ausführliche Inhalte",
-		"contacts": "Ihre Ansprechpartner",
-		"newsroomEyebrow": "Newsroom",
-		"relatedArticles": "Verwandte Artikel"
+		"whatWeDo": "Was wir tun",
+		"getInTouch": "Kontakt zum Team",
+		"email": "E-Mail",
+		"phone": "Telefon",
+		"articlesFor": "Artikel zu {name}",
+		"viewAllArticles": "Alle {count} Artikel zu {name} ansehen",
+		"byline": "Von {authors}"
 	},
 	"Newsroom": {
 		"eyebrow": "Newsroom",

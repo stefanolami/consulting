@@ -1,10 +1,17 @@
 {
-	"version": 2,
+	"version": 3,
 	"locale": "en",
 	"publishedAt": "2025-09-01T00:00:00.000Z",
 	"team": {
-		"managingTeam": ["glenn", "corina"],
-		"team": ["omar", "guilherme", "mathias"]
+		"managingTeam": [
+			"glenn",
+			"corina"
+		],
+		"team": [
+			"omar",
+			"guilherme",
+			"mathias"
+		]
 	},
 	"services": [
 		{
@@ -75,13 +82,239 @@
 			"excerpt": "From strategy and policy design tailored for emerging space players, drawing up implementation plans for capacity-building, to establishing and managing institutional relations."
 		}
 	],
+	"placeholderCatalogueContent": {
+		"type": "doc",
+		"content": [
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+					}
+				]
+			},
+			{
+				"type": "heading",
+				"attrs": {
+					"level": 3
+				},
+				"content": [
+					{
+						"type": "text",
+						"text": "Lorem ipsum dolor sit amet"
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
+					}
+				]
+			},
+			{
+				"type": "bulletList",
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Ut enim ad minim veniam"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Quis nostrud exercitation ullamco"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Duis aute irure dolor in reprehenderit"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet."
+					}
+				]
+			}
+		]
+	},
 	"serviceContacts": [
-		{ "service": "association-management", "person": "glenn-cezanne" },
-		{ "service": "government-relations", "person": "glenn-cezanne" }
+		{
+			"service": "association-management",
+			"person": "glenn-cezanne",
+			"displayOrder": 0
+		},
+		{
+			"service": "association-management",
+			"person": "corina-gheorgheza",
+			"displayOrder": 1
+		},
+		{
+			"service": "government-relations",
+			"person": "glenn-cezanne",
+			"displayOrder": 0
+		},
+		{
+			"service": "market-research",
+			"person": "guilherme-ferreira",
+			"displayOrder": 0
+		},
+		{
+			"service": "project-management",
+			"person": "mathias-gerstner",
+			"displayOrder": 0
+		},
+		{
+			"service": "project-management",
+			"person": "omar-cutajar",
+			"displayOrder": 1
+		},
+		{
+			"service": "public-funds-finance-procurement",
+			"person": "omar-cutajar",
+			"displayOrder": 0
+		},
+		{
+			"service": "visibility-communications",
+			"person": "corina-gheorgheza",
+			"displayOrder": 0
+		}
 	],
 	"sectorContacts": [
-		{ "sector": "space", "person": "omar-cutajar" },
-		{ "sector": "international-trade", "person": "mathias-gerstner" }
+		{
+			"sector": "agrifood",
+			"person": "guilherme-ferreira",
+			"displayOrder": 0
+		},
+		{
+			"sector": "agrifood",
+			"person": "corina-gheorgheza",
+			"displayOrder": 1
+		},
+		{
+			"sector": "aviation",
+			"person": "glenn-cezanne",
+			"displayOrder": 0
+		},
+		{
+			"sector": "e-mobility",
+			"person": "mathias-gerstner",
+			"displayOrder": 0
+		},
+		{
+			"sector": "energy",
+			"person": "omar-cutajar",
+			"displayOrder": 0
+		},
+		{
+			"sector": "energy",
+			"person": "guilherme-ferreira",
+			"displayOrder": 1
+		},
+		{
+			"sector": "international-trade",
+			"person": "mathias-gerstner",
+			"displayOrder": 0
+		},
+		{
+			"sector": "space",
+			"person": "omar-cutajar",
+			"displayOrder": 0
+		}
+	],
+	"articleServices": [
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"service": "association-management"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"service": "government-relations"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"service": "market-research"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"service": "project-management"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"service": "public-funds-finance-procurement"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"service": "visibility-communications"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"service": "association-management"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"service": "government-relations"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"service": "market-research"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"service": "project-management"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"service": "public-funds-finance-procurement"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"service": "visibility-communications"
+		}
 	],
 	"articleSectors": [
 		{
@@ -91,6 +324,46 @@
 		{
 			"article": "the-european-union-and-latin-america-a-herculean-matter",
 			"sector": "international-trade"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"sector": "agrifood"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"sector": "aviation"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"sector": "e-mobility"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"sector": "energy"
+		},
+		{
+			"article": "europe-space-economy-turning-flagship-projects-into-growth-markets",
+			"sector": "international-trade"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"sector": "agrifood"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"sector": "aviation"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"sector": "e-mobility"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"sector": "energy"
+		},
+		{
+			"article": "the-european-union-and-latin-america-a-herculean-matter",
+			"sector": "space"
 		}
 	],
 	"goldenCountry": {
@@ -117,13 +390,21 @@
 		],
 		"seoTitle": "Brazil | Time&Place Consulting",
 		"seoDescription": "With a career focused on Public Affairs, Public Relations and Association Management on the international stage, Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies, whether it is to have an impact on legislation, primarily in Europe and in Brazil, or to increase political attention on specific issues of interest to clients.",
-		"flag": { "filename": "brazil-flag.svg", "alt": "Flag of Brazil." },
-		"outline": { "filename": "brazil-outline.svg", "alt": "Outline map of Brazil." },
+		"flag": {
+			"filename": "brazil-flag.svg",
+			"alt": "Flag of Brazil."
+		},
+		"outline": {
+			"filename": "brazil-outline.svg",
+			"alt": "Outline map of Brazil."
+		},
 		"services": [
 			{
 				"service": "government-relations",
 				"summary": "Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies, whether it is to have an impact on legislation, primarily in Europe and in Brazil, or to increase political attention on specific issues of interest to clients.",
-				"paragraphs": ["Glenn first began his career in Brussels at the American Chamber of Commerce to the EU before becoming Account Executive at Hume Brophy (now Penta). Thereafter, he became representative in the Brussels office of the Lottomatica Group (now IGT) – globally the largest provider of state/national lottery services and gaming technology solutions – where he was responsible for raising the company’s profile and establishing it as a key source of information for EU and national policy- and law-makers. Until recently, he ran the German Airports Association (ADV) Brussels office and is currently Head of Public Affairs EU for CharIN e.V., the global cross-industry association facilitating the roll-out of e-mobility based on technological solutions."]
+				"paragraphs": [
+					"Glenn first began his career in Brussels at the American Chamber of Commerce to the EU before becoming Account Executive at Hume Brophy (now Penta). Thereafter, he became representative in the Brussels office of the Lottomatica Group (now IGT) – globally the largest provider of state/national lottery services and gaming technology solutions – where he was responsible for raising the company’s profile and establishing it as a key source of information for EU and national policy- and law-makers. Until recently, he ran the German Airports Association (ADV) Brussels office and is currently Head of Public Affairs EU for CharIN e.V., the global cross-industry association facilitating the roll-out of e-mobility based on technological solutions."
+				]
 			},
 			{
 				"service": "association-management",
@@ -136,12 +417,16 @@
 			{
 				"service": "market-research",
 				"summary": "Furthermore, he provides market analyses helping businesses evaluate opportunities.",
-				"paragraphs": ["Furthermore, he provides market analyses helping businesses evaluate opportunities. He has also worked in analysing market circumstances, most recently in light of Mercosur-EU and Brexit negotiations helping companies make choices on, for example, production location and movement of labour."]
+				"paragraphs": [
+					"Furthermore, he provides market analyses helping businesses evaluate opportunities. He has also worked in analysing market circumstances, most recently in light of Mercosur-EU and Brexit negotiations helping companies make choices on, for example, production location and movement of labour."
+				]
 			},
 			{
 				"service": "visibility-communications",
 				"summary": "Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies.",
-				"paragraphs": ["With a career focused on Public Affairs, Public Relations and Association Management on the international stage, Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies, whether it is to have an impact on legislation, primarily in Europe and in Brazil, or to increase political attention on specific issues of interest to clients."]
+				"paragraphs": [
+					"With a career focused on Public Affairs, Public Relations and Association Management on the international stage, Glenn focuses on manoeuvering the political decision-making landscape with the aim of creating effective communication strategies, whether it is to have an impact on legislation, primarily in Europe and in Brazil, or to increase political attention on specific issues of interest to clients."
+				]
 			}
 		],
 		"statistic": {
@@ -151,18 +436,38 @@
 			"displayValue": "Rio de Janeiro, São Paulo, Brasilia"
 		},
 		"offices": [
-			{ "stableKey": "brazil-rio-de-janeiro", "name": "Rio de Janeiro", "city": "Rio de Janeiro", "email": "brazil@consultingontap.com" },
-			{ "stableKey": "brazil-sao-paulo", "name": "São Paulo", "city": "São Paulo", "email": "brazil@consultingontap.com" },
-			{ "stableKey": "brazil-brasilia", "name": "Brasilia", "city": "Brasilia", "email": "brazil@consultingontap.com" }
+			{
+				"stableKey": "brazil-rio-de-janeiro",
+				"name": "Rio de Janeiro",
+				"city": "Rio de Janeiro",
+				"email": "brazil@consultingontap.com"
+			},
+			{
+				"stableKey": "brazil-sao-paulo",
+				"name": "São Paulo",
+				"city": "São Paulo",
+				"email": "brazil@consultingontap.com"
+			},
+			{
+				"stableKey": "brazil-brasilia",
+				"name": "Brasilia",
+				"city": "Brasilia",
+				"email": "brazil@consultingontap.com"
+			}
 		],
-		"experts": ["glenn-cezanne"]
+		"experts": [
+			"glenn-cezanne"
+		]
 	},
 	"globalProof": {
 		"partner": {
 			"stableKey": "effa",
 			"name": "EFFA",
 			"websiteUrl": "https://effa.eu/",
-			"logo": { "filename": "effa.png", "alt": "EFFA logo" }
+			"logo": {
+				"filename": "effa.png",
+				"alt": "EFFA logo"
+			}
 		},
 		"endorsement": {
 			"stableKey": "alexander-mohr-effa",
@@ -187,9 +492,18 @@
 				"description": "Public social links sourced from the legacy footer.",
 				"value": {
 					"items": [
-						{ "platform": "facebook", "url": "https://www.facebook.com/profile.php?id=61566446167362" },
-						{ "platform": "instagram", "url": "https://www.instagram.com/groupontap/" },
-						{ "platform": "linkedin", "url": "https://www.linkedin.com/company/time-place-group/" }
+						{
+							"platform": "facebook",
+							"url": "https://www.facebook.com/profile.php?id=61566446167362"
+						},
+						{
+							"platform": "instagram",
+							"url": "https://www.instagram.com/groupontap/"
+						},
+						{
+							"platform": "linkedin",
+							"url": "https://www.linkedin.com/company/time-place-group/"
+						}
 					]
 				}
 			}
