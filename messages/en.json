@@ -99,6 +99,32 @@
 		"errorTitle": "Unable to load Our Outreach content",
 		"errorDescription": "Please try again shortly."
 	},
+	"Team": {
+		"title": "Who we are",
+		"metaDescription": "Meet the Time&Place Consulting team: founded in Brussels in 2016, working with EU and national policy decision-makers.",
+		"introduction": "Time&Place Consulting was founded in 2016 in Brussels with a clear purpose: to create meaningful dialogue between our clients and EU and national policy decision-makers. Over the years, we’ve expanded our services and sectors, building on deep expertise, a globally coordinated presence, and a strong local impact.",
+		"introductionClosing": "Our foundation? A dedicated and experienced team.",
+		"ourTeam": "Our team",
+		"groups": {
+			"managing_team": "Managing team",
+			"team": "Team"
+		},
+		"loading": "Loading team profiles…",
+		"emptyTitle": "No team profiles are published in English yet",
+		"emptyDescription": "Team profiles will appear here once they are published in this language.",
+		"snapshot": {
+			"label": "Get an overview of our whole Group. Download a snapshot of who we are and what we do at Time&Place Consulting.",
+			"fileHint": "PDF download"
+		},
+		"profile": {
+			"portraitAlt": "Portrait of {name}",
+			"contact": "Contact",
+			"email": "Email",
+			"phone": "Phone",
+			"articlesBy": "Articles by {name}",
+			"byline": "By {authors}"
+		}
+	},
 	"NotFound": {
 		"title": "This page is not available",
 		"description": "The page may not exist, or it may not be published in this language.",

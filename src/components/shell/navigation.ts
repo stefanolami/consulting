@@ -11,10 +11,10 @@ export type NavItem = {
 	matchNested: boolean
 }
 
-// Who we are points at the existing team listing until the route inventory is
-// confirmed (control tower §16). Why us and Contact are not built yet.
+// Who we are keeps the legacy `/who-we-are` path (team profiles are linked from
+// printed QR codes). Why us and Contact are not built yet.
 export const PRIMARY_NAV: readonly NavItem[] = [
-	{ key: 'whoWeAre', href: '/team', matchNested: true },
+	{ key: 'whoWeAre', href: '/who-we-are', matchNested: true },
 	{ key: 'ourOutreach', href: '/our-outreach', matchNested: true },
 	{ key: 'services', href: '/services', matchNested: true },
 	{ key: 'sectors', href: '/sectors', matchNested: true },

@@ -1,20 +1,57 @@
 import type { ReactNode } from 'react'
 
-import { parseProfileDocument } from '@/lib/team-profile-document'
-import type { ProfileEndorsement } from '@/lib/team-profile-document'
+import type { ProfileDocument, ProfileEndorsement as ProfileEndorsementData } from '@/lib/team-profile-document'
+import { cn } from '@/lib/utils'
 import type { Json } from '@/types/database.generated'
 
-export function TeamProfileDocument({ content }: { content: Json }) {
-	let document
-	try { document = parseProfileDocument(content) } catch { return null }
-	return <><RichText content={document.intro.content} />{document.intro.endorsement && <Endorsement endorsement={document.intro.endorsement} />}{document.sections.map((section) => <section className="mt-10 sm:mt-14" key={section.id}><h2 className="font-unna text-3xl leading-tight text-[#27335a] sm:text-4xl">{section.title}</h2><div className="mt-5"><RichText content={section.content} /></div>{section.endorsement && <Endorsement endorsement={section.endorsement} />}</section>)}</>
+// Renders the controlled profile document (src/lib/team-profile-document.ts).
+// Figma justifies body copy; it is left-aligned here for readability.
+
+export function ProfileSections({ document }: { document: ProfileDocument }) {
+	const { endorsement } = document.intro
+	if (!endorsement && !document.sections.length) return null
+	return (
+		<div className="space-y-[clamp(3rem,2.25rem+3vw,5.5rem)]">
+			{endorsement ? <ProfileEndorsement endorsement={endorsement} /> : null}
+			{document.sections.map((section) => (
+				<section aria-labelledby={`section-${section.id}`} key={section.id}>
+					<h2 className="font-display text-heading-2 font-bold text-black" id={`section-${section.id}`}>{section.title}</h2>
+					<ProfileRichText className="mt-[clamp(1.25rem,1rem+1vw,2rem)] text-black" content={section.content} />
+					{section.endorsement ? <ProfileEndorsement className="mt-[clamp(2rem,1.5rem+2vw,3.5rem)]" endorsement={section.endorsement} /> : null}
+				</section>
+			))}
+		</div>
+	)
 }
 
-function RichText({ content }: { content: Json }) {
+export function ProfileRichText({ className, content }: { className?: string; content: Json }) {
 	if (!content || typeof content !== 'object' || Array.isArray(content)) return null
 	const children = (content as { content?: unknown }).content
-	if (!Array.isArray(children)) return null
-	return <div className="space-y-5 text-lg leading-8 text-slate-700">{children.map((node, index) => renderBlock(node, index))}</div>
+	if (!Array.isArray(children) || !children.length) return null
+	return <div className={cn('space-y-5 font-label text-body-lg wrap-anywhere', className)}>{children.map((node, index) => renderBlock(node, index))}</div>
+}
+
+// Figma 5408:554: full-width muted-blue panel, italic quote, attribution
+// right-aligned below it.
+function ProfileEndorsement({ className, endorsement }: { className?: string; endorsement: ProfileEndorsementData }) {
+	return (
+		<figure className={cn('bg-tp-blue-muted px-[clamp(1.25rem,0.5rem+4vw,4.875rem)] py-[clamp(1.5rem,1.1rem+1.6vw,3rem)] font-label text-on-brand wrap-anywhere', className)}>
+			<blockquote className="text-lead italic">
+				<p>{quoted(endorsement.quote)}</p>
+			</blockquote>
+			{endorsement.attribution || endorsement.role ? (
+				<figcaption className="mt-5 text-right text-lead italic">
+					{endorsement.attribution ? <span className="block font-bold">{endorsement.attribution}</span> : null}
+					{endorsement.role ? <span className="block">{endorsement.role}</span> : null}
+				</figcaption>
+			) : null}
+		</figure>
+	)
+}
+
+// Migrated legacy quotes already carry their own quotation marks.
+function quoted(text: string) {
+	return /^["“„«'‘]/.test(text.trim()) ? text : `“${text}”`
 }
 
 function renderBlock(node: unknown, key: number): ReactNode {
@@ -51,13 +88,9 @@ function renderInline(content: unknown): ReactNode {
 			if (type === 'italic') child = <em>{child}</em>
 			if (type === 'link') {
 				const href = (mark as { attrs?: { href?: unknown } }).attrs?.href
-				if (typeof href === 'string') child = <a className="underline underline-offset-4" href={href} rel="noreferrer" target="_blank">{child}</a>
+				if (typeof href === 'string') child = <a className="rounded-control underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current" href={href} rel="noreferrer" target="_blank">{child}</a>
 			}
 		}
 		return <span key={index}>{child}</span>
 	})
-}
-
-function Endorsement({ endorsement }: { endorsement: ProfileEndorsement }) {
-	return <figure className="mt-8 rounded-r-xl border-l-4 border-[#53617f] bg-slate-50 px-6 py-5 text-slate-700"><blockquote className="font-unna text-2xl leading-snug text-[#27335a]">“{endorsement.quote}”</blockquote>{(endorsement.attribution || endorsement.role) && <figcaption className="mt-3 text-sm font-medium text-slate-600">{endorsement.attribution}{endorsement.attribution && endorsement.role ? ', ' : ''}{endorsement.role}</figcaption>}</figure>
 }

@@ -103,14 +103,20 @@ map in Figma is a reference, not an exportable production component.
 | --- | --- | --- |
 | Newsletter/article detail | `5534:989` | `/newsroom/[slug]` |
 | Video or podcast detail | `5542:2` | `/newsroom/[slug]` with media-specific blocks |
-| Corina Cătălina Gheorgheza profile (`OUR TEAM`) | `5494:162` | `/team/[slug]` |
-| Glenn Cezanne profile | `5408:536` | `/team/[slug]` |
-| Wilson Caldeira profile | `5494:891` | `/team/[slug]` |
-| Benjamin Wunnerlich profile | `5494:972` | `/team/[slug]` |
+| Corina Cătălina Gheorgheza profile (`OUR TEAM`) | `5494:162` | `/who-we-are/[slug]` |
+| Glenn Cezanne profile | `5408:536` | `/who-we-are/[slug]` |
+| Wilson Caldeira profile | `5494:891` | `/who-we-are/[slug]` |
+| Benjamin Wunnerlich profile | `5494:972` | `/who-we-are/[slug]` |
 
 These frames establish variant content, not four different profile templates.
 One profile renderer should support optional biography sections, quotes,
 credentials, languages, contact details, and related articles.
+
+Implemented 2026-09-28 (control tower section 15.4). Variation observed across
+the four frames: Corina has no portrait, Wilson and Benjamin have no articles,
+Benjamin's hero omits the name (treated as a design slip), section counts range
+from three to six, and languages appear as an ordinary section. The contact
+blocks show an office address that the people contract does not store.
 
 ### 3.4 Service details
 
@@ -300,7 +306,8 @@ The reusable system therefore needs to be created in code:
 - `SiteFooter` (implemented).
 - `SocialLinks` (implemented).
 - `DownloadSnapshotLink` (implemented; PDF and icon pending).
-- `TeamPortrait` and `TeamCard`.
+- `TeamPortrait` and `TeamCard` (implemented).
+- `SnapshotCta` (implemented; PDF and icon pending).
 - `ArticleCard` with controlled visual variants.
 - `RelatedContentGrid`.
 - `ServiceCard` and `SectorCard`.
@@ -412,7 +419,7 @@ equivalent exists and are then corrected against Figma.
 1. Establish brand assets, colors, type tokens, containers, header, footer,
    and hero primitives.
 2. Apply the design to the Who We Are/team templates to prove responsive
-   templates, CMS media, translations, and related content.
+   templates, CMS media, translations, and related content (done 2026-09-28).
 3. Implement the reusable service and sector indexes/details.
 4. Implement the newsroom card system and extensible article detail renderer.
 5. Prototype and then implement Our Outreach.

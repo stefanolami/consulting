@@ -3,9 +3,10 @@
 		"provisionalNamespaces": [
 			"Shell",
 			"HomePage.heroLead",
-			"HomePage.heroEmphasis"
+			"HomePage.heroEmphasis",
+			"Team"
 		],
-		"note": "Provisional translations drafted during the Phase 6 shell work; review with a native speaker before launch."
+		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
 	"HomePage": {
 		"title": "Time&Place Consulting",
@@ -106,6 +107,32 @@
 		"loading": "Unsere Reichweite wird geladen…",
 		"errorTitle": "Unsere Reichweite konnte nicht geladen werden",
 		"errorDescription": "Bitte versuchen Sie es in Kürze erneut."
+	},
+	"Team": {
+		"title": "Wer wir sind",
+		"metaDescription": "Lernen Sie das Team von Time&Place Consulting kennen: 2016 in Brüssel gegründet, im Dialog mit politischen Entscheidungsträgern in der EU und auf nationaler Ebene.",
+		"introduction": "Time&Place Consulting wurde 2016 in Brüssel mit einem klaren Ziel gegründet: einen fundierten Dialog zwischen unseren Kunden und politischen Entscheidungsträgern auf EU- und nationaler Ebene zu schaffen. Im Laufe der Jahre haben wir unsere Leistungen und Branchen erweitert – auf der Grundlage fundierter Expertise, einer global koordinierten Präsenz und einer starken lokalen Wirkung.",
+		"introductionClosing": "Unser Fundament? Ein engagiertes und erfahrenes Team.",
+		"ourTeam": "Unser Team",
+		"groups": {
+			"managing_team": "Geschäftsleitung",
+			"team": "Team"
+		},
+		"loading": "Teamprofile werden geladen …",
+		"emptyTitle": "Noch keine Teamprofile auf Deutsch veröffentlicht",
+		"emptyDescription": "Teamprofile erscheinen hier, sobald sie in dieser Sprache veröffentlicht sind.",
+		"snapshot": {
+			"label": "Verschaffen Sie sich einen Überblick über unsere gesamte Gruppe. Laden Sie einen Snapshot darüber herunter, wer wir sind und was wir bei Time&Place Consulting tun.",
+			"fileHint": "PDF-Download"
+		},
+		"profile": {
+			"portraitAlt": "Porträt von {name}",
+			"contact": "Kontakt",
+			"email": "E-Mail",
+			"phone": "Telefon",
+			"articlesBy": "Artikel von {name}",
+			"byline": "Von {authors}"
+		}
 	},
 	"NotFound": {
 		"title": "Diese Seite ist nicht verfügbar",

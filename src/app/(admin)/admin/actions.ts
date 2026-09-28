@@ -10,8 +10,9 @@ import { requireActiveStaff } from '@/lib/auth/authorization'
 import { parseProfileDocument } from '@/lib/team-profile-document'
 import { parseCatalogueDocument } from '@/lib/catalogue-document'
 import { articleImageMediaIds, parseArticleDocument } from '@/lib/article-document'
-import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG, PUBLIC_TEAM_CACHE_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
+import { teamPath } from '@/lib/team-paths'
 
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
 
@@ -257,7 +258,8 @@ export async function movePersonAction(formData: FormData) {
 	const failedUpdate = updates.find((result) => result.error)
 	if (failedUpdate?.error) throw new Error(`Could not save team order: ${failedUpdate.error.message}`)
 	revalidatePath('/admin/people')
-	revalidatePath('/team')
+	revalidateTag(PUBLIC_TEAM_CACHE_TAG, 'max')
+	revalidatePath(teamPath('en'))
 }
 
 export async function attachPersonPortraitAction(input: unknown) {
@@ -281,15 +283,14 @@ async function refreshPersonPaths(supabase: Awaited<ReturnType<typeof createClie
 	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
 	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
 	revalidateTag(PUBLIC_OUTREACH_CACHE_TAG, 'max')
+	revalidateTag(PUBLIC_TEAM_CACHE_TAG, 'max')
 	revalidatePath('/admin')
 	revalidatePath('/admin/people')
 	revalidatePath(`/admin/people/${personId}`)
-	revalidatePath('/team')
-	for (const locale of locales.filter((locale) => locale !== 'en')) revalidatePath(`/${locale}/team`)
+	for (const locale of locales) revalidatePath(teamPath(locale))
 	const { data: translations } = await supabase.from('people_translations').select('locale, slug').eq('person_id', personId)
 	for (const translation of translations ?? []) {
-		const prefix = translation.locale === 'en' ? '' : `/${translation.locale}`
-		revalidatePath(`${prefix}/team/${translation.slug}`)
+		if (locales.includes(translation.locale as (typeof locales)[number])) revalidatePath(teamPath(translation.locale as (typeof locales)[number], translation.slug))
 	}
 }
 

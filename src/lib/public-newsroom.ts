@@ -243,5 +243,14 @@ async function loadNewsroomDetail(locale: AppLocale, slug: string): Promise<News
 	return { ...card, alternates: (alternatesResult.data ?? []).filter((item) => routing.locales.includes(item.locale as AppLocale)).map((item) => ({ locale: item.locale as AppLocale, slug: item.slug })), content: translation.content, externalMediaUrl: canonical.externalMediaUrl, inlineMedia, relatedArticles: relatedArticleCards, sectors: sectors.get(translation.articleId) ?? [], seoDescription: translation.seoDescription, seoTitle: translation.seoTitle, services: services.get(translation.articleId) ?? [], sources: parseSources(translation.sources) }
 }
 
-export const getPublishedNewsroomListing = unstable_cache(loadNewsroomListing, ['published-newsroom-listing'], { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_NEWSROOM_CACHE_TAG] })
+async function loadArticlesByAuthor(locale: AppLocale, personId: string, limit: number): Promise<NewsroomArticleCard[]> {
+	const { data: relations, error } = await createPublicClient().from('article_authors').select('article_id').eq('person_id', personId)
+	if (error) throw new Error(`Unable to load articles by this author: ${error.message}`)
+	const ids = new Set((relations ?? []).map((item) => item.article_id)); if (!ids.size) return []
+	const translations = (await publishedArticleTranslations(locale)).filter((item) => ids.has(item.articleId)).slice(0, limit)
+	return (await articleCards(translations, locale)).cards
+}
+
+export const getPublishedNewsroomListing =unstable_cache(loadNewsroomListing, ['published-newsroom-listing'], { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_NEWSROOM_CACHE_TAG] })
 export const getPublishedNewsroomDetail = unstable_cache(loadNewsroomDetail, ['published-newsroom-detail'], { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_NEWSROOM_CACHE_TAG] })
+export const getPublishedArticlesByAuthor = unstable_cache(loadArticlesByAuthor, ['published-newsroom-by-author'], { revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_NEWSROOM_CACHE_TAG] })

@@ -12,7 +12,7 @@ import path from 'node:path'
 
 import { chromium } from 'playwright'
 
-const DEFAULT_PAGES = ['/', '/team', '/services', '/sectors', '/newsroom', '/our-outreach', '/de']
+const DEFAULT_PAGES = ['/', '/who-we-are', '/who-we-are/glenn-cezanne', '/services', '/sectors', '/newsroom', '/our-outreach', '/de']
 const VIEWPORTS = [
 	{ name: 'desktop', width: 1440, height: 900 },
 	{ name: 'mobile', width: 390, height: 844 },

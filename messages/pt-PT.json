@@ -3,9 +3,10 @@
 		"provisionalNamespaces": [
 			"Shell",
 			"HomePage.heroLead",
-			"HomePage.heroEmphasis"
+			"HomePage.heroEmphasis",
+			"Team"
 		],
-		"note": "Provisional translations drafted during the Phase 6 shell work; review with a native speaker before launch."
+		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
 	"HomePage": {
 		"title": "Time&Place Consulting",
@@ -106,6 +107,32 @@
 		"loading": "A carregar a nossa presença…",
 		"errorTitle": "Não foi possível carregar a nossa presença",
 		"errorDescription": "Tente novamente dentro de momentos."
+	},
+	"Team": {
+		"title": "Quem somos",
+		"metaDescription": "Conheça a equipa da Time&Place Consulting: fundada em Bruxelas em 2016, em diálogo com decisores políticos europeus e nacionais.",
+		"introduction": "A Time&Place Consulting foi fundada em 2016 em Bruxelas com um objetivo claro: criar um diálogo relevante entre os nossos clientes e os decisores políticos europeus e nacionais. Ao longo dos anos, alargámos os nossos serviços e setores, com base num conhecimento aprofundado, numa presença coordenada a nível global e num forte impacto local.",
+		"introductionClosing": "A nossa base? Uma equipa dedicada e experiente.",
+		"ourTeam": "A nossa equipa",
+		"groups": {
+			"managing_team": "Direção",
+			"team": "Equipa"
+		},
+		"loading": "A carregar os perfis da equipa…",
+		"emptyTitle": "Ainda não existem perfis da equipa publicados em português (Portugal)",
+		"emptyDescription": "Os perfis da equipa aparecerão aqui assim que forem publicados neste idioma.",
+		"snapshot": {
+			"label": "Obtenha uma visão geral de todo o nosso Grupo. Descarregue um resumo de quem somos e do que fazemos na Time&Place Consulting.",
+			"fileHint": "transferência em PDF"
+		},
+		"profile": {
+			"portraitAlt": "Retrato de {name}",
+			"contact": "Contacto",
+			"email": "E-mail",
+			"phone": "Telefone",
+			"articlesBy": "Artigos de {name}",
+			"byline": "Por {authors}"
+		}
 	},
 	"NotFound": {
 		"title": "Esta página não está disponível",

@@ -22,7 +22,7 @@ export default async function Home({ params }: HomeProps) {
 	const [t, tShell] = await Promise.all([getTranslations({ locale, namespace: 'HomePage' }), getTranslations({ locale, namespace: 'Shell.placeholder' })])
 	const localePrefix = locale === routing.defaultLocale ? '' : `/${locale}`
 	const testRoutes = [
-		{ href: `${localePrefix}/team`, label: t('team') },
+		{ href: `${localePrefix}/who-we-are`, label: t('team') },
 		{ href: `${localePrefix}/services`, label: t('services') },
 		{ href: `${localePrefix}/sectors`, label: t('sectors') },
 		{ href: `${localePrefix}/newsroom`, label: t('newsroom') },

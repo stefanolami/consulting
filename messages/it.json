@@ -3,9 +3,10 @@
 		"provisionalNamespaces": [
 			"Shell",
 			"HomePage.heroLead",
-			"HomePage.heroEmphasis"
+			"HomePage.heroEmphasis",
+			"Team"
 		],
-		"note": "Provisional translations drafted during the Phase 6 shell work; review with a native speaker before launch."
+		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
 	"HomePage": {
 		"title": "Time&Place Consulting",
@@ -106,6 +107,32 @@
 		"loading": "Caricamento della nostra presenza…",
 		"errorTitle": "Impossibile caricare la nostra presenza",
 		"errorDescription": "Riprova tra poco."
+	},
+	"Team": {
+		"title": "Chi siamo",
+		"metaDescription": "Scopri il team di Time&Place Consulting: fondata a Bruxelles nel 2016, in dialogo con i decisori politici europei e nazionali.",
+		"introduction": "Time&Place Consulting è stata fondata a Bruxelles nel 2016 con uno scopo preciso: creare un dialogo costruttivo tra i nostri clienti e i decisori politici europei e nazionali. Nel corso degli anni abbiamo ampliato i nostri servizi e settori, grazie a competenze approfondite, a una presenza coordinata a livello globale e a un forte impatto locale.",
+		"introductionClosing": "Il nostro fondamento? Un team dedicato ed esperto.",
+		"ourTeam": "Il nostro team",
+		"groups": {
+			"managing_team": "Direzione",
+			"team": "Team"
+		},
+		"loading": "Caricamento dei profili del team…",
+		"emptyTitle": "Non ci sono ancora profili del team pubblicati in italiano",
+		"emptyDescription": "I profili del team appariranno qui non appena saranno pubblicati in questa lingua.",
+		"snapshot": {
+			"label": "Scopri il nostro intero Gruppo. Scarica una panoramica di chi siamo e di cosa facciamo in Time&Place Consulting.",
+			"fileHint": "download PDF"
+		},
+		"profile": {
+			"portraitAlt": "Ritratto di {name}",
+			"contact": "Contatti",
+			"email": "E-mail",
+			"phone": "Telefono",
+			"articlesBy": "Articoli di {name}",
+			"byline": "Di {authors}"
+		}
 	},
 	"NotFound": {
 		"title": "Questa pagina non è disponibile",

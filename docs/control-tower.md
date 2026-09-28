@@ -916,6 +916,42 @@ Implemented on 2026-09-28:
 - `npm run visual:screenshots` (Playwright, development only) captures local
   pages at 1440 and 390 pixels into the git-ignored `visual-output/`.
 
+### 15.4 Who We Are and team profiles
+
+Implemented on 2026-09-28 against Figma `5408:15` (desktop listing), `5651:258`
+(mobile listing) and the profile examples `5494:162`, `5408:536`, `5494:891`
+and `5494:972`:
+
+- Routes moved from `/team` to the legacy `/who-we-are` and
+  `/who-we-are/[slug]` (locale-prefixed for non-English). Printed business-card
+  QR codes link to the English, unprefixed legacy profile URLs, so these paths
+  must stay stable. `next.config.ts` permanently redirects the interim `/team`
+  paths. Profile URLs keep working only while each English slug equals the
+  legacy path (`glenn-cezanne`, …): the Phase 7 migration must preserve them,
+  and an editor who renames a slug breaks that person's QR code until the
+  redirect registry is connected to public routing (section 25, item 9).
+- Public team reads moved into `src/lib/public-team.ts` (anonymous client,
+  hourly cache, `public-team` tag), with the same publication filters as
+  before. People and media admin actions invalidate the tag; only their
+  revalidation calls changed. Links elsewhere use `teamPath()` from
+  `src/lib/team-paths.ts`. "Articles by" uses the existing `article_authors`
+  relation through `getPublishedArticlesByAuthor` in the newsroom loader.
+- Listing: navy `PageHero` with intro copy (`Team` messages), an `OUR TEAM`
+  band with circular `TeamPortrait`/`TeamCard` items (managing team as a row
+  of two, then rows of three, last row centred; two columns on mobile), and the
+  shared `SnapshotCta` band.
+- Profile: one template. Navy header with name (new `tp-silver` token, about
+  5.2:1 on navy), ordered roles, introduction and a portrait-format photo;
+  profiles without a portrait use the full width. Body sections, endorsement
+  panels, contact and "Articles by" all render only when present. There is no
+  mobile profile design; narrow screens stack name, photo and introduction.
+- Deviations from Figma: body copy is left-aligned rather than justified; the
+  name is always shown (the Benjamin frame omits it); the office address in the
+  contact block is not rendered because the people contract has no address
+  field (flagged, not added).
+- Unknown or unpublished profiles render the localized not-found page with
+  `noindex` inside the stream (HTTP 200), as on the other dynamic templates.
+
 ## 16. Public routes and legacy parity
 
 The final route inventory will be confirmed against Figma. At minimum, the
@@ -1258,7 +1294,8 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
   2026-09-28, section 15.3).
 - Implement the global shell, navigation, footer, and shared sections (shell
   done 2026-09-28; shared sections follow with the templates).
-- Apply the Figma design to the existing public templates.
+- Apply the Figma design to the existing public templates (Who We Are and team
+  profiles done 2026-09-28, section 15.4).
 - Build remaining marketing, services, sectors, why-us, contact, and legal
   pages.
 - Complete responsive and interaction states.
@@ -1333,6 +1370,8 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
   placeholders logged in `docs/figma-asset-needs.md`.
 - Keep the legacy header look and hide-on-scroll behaviour; take navigation
   labels, menu structure, and the language toggle from Figma.
+- Serve team pages at the legacy `/who-we-are` and `/who-we-are/[slug]` paths,
+  because printed business-card QR codes link to them (section 15.4).
 
 ## 22. Confirmed implementation defaults
 
@@ -1388,7 +1427,9 @@ The rebuild is complete when:
 	[`docs/figma-asset-needs.md`](./figma-asset-needs.md), set the POE link in
 	the admin site settings, and review the provisional shell translations.
 2. Apply the Figma design to the existing public templates, one template at a
-	 time, following section 15.2.
+	 time, following section 15.2. Who We Are and team profiles are done
+	 (section 15.4); services and sectors are next. Review the provisional
+	 `Team` translations with the shell strings.
 3. In parallel, colleagues use the admin to add reviewed English summaries and
 	 relationships to the 39 remaining published name-only country references,
 	 maintain coverage, and author, translate, review, and publish other locales

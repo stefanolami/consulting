@@ -9,6 +9,7 @@ import { Suspense } from 'react'
 import { ArticleRichText } from '@/components/newsroom/article-rich-text'
 import { type AppLocale, routing } from '@/i18n/routing'
 import { getPublishedNewsroomDetail, getPublishedNewsroomListing, type NewsroomArticleCard, type NewsroomFilters } from '@/lib/public-newsroom'
+import { teamPath } from '@/lib/team-paths'
 
 const filterKeys = ['tag', 'service', 'sector', 'author'] as const
 
@@ -96,5 +97,4 @@ function TaxonomyList({ items, label }: { items: Array<{ label: string; slug: st
 export function NewsroomLoading() { return <main aria-busy="true" className="min-h-screen bg-white px-6 py-16 text-slate-700"><p className="mx-auto max-w-6xl">Loading newsroom content…</p></main> }
 
 function listingHref(locale: AppLocale, filters: NewsroomFilters, page: number) { const params = new URLSearchParams({ ...filters, page: String(page) }); return `${newsroomPath(locale)}?${params.toString()}` }
-function teamPath(locale: AppLocale, slug: string) { const prefix = locale === routing.defaultLocale ? '' : `/${locale}`; return `${prefix}/team/${slug}` }
 function formatDate(value: string, locale: AppLocale) { return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(value)) }

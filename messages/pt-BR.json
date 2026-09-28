@@ -3,9 +3,10 @@
 		"provisionalNamespaces": [
 			"Shell",
 			"HomePage.heroLead",
-			"HomePage.heroEmphasis"
+			"HomePage.heroEmphasis",
+			"Team"
 		],
-		"note": "Provisional translations drafted during the Phase 6 shell work; review with a native speaker before launch."
+		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
 	"HomePage": {
 		"title": "Time&Place Consulting",
@@ -106,6 +107,32 @@
 		"loading": "Carregando nossa atuação…",
 		"errorTitle": "Não foi possível carregar nossa atuação",
 		"errorDescription": "Tente novamente em breve."
+	},
+	"Team": {
+		"title": "Quem somos",
+		"metaDescription": "Conheça a equipe da Time&Place Consulting: fundada em Bruxelas em 2016, em diálogo com tomadores de decisão da UE e nacionais.",
+		"introduction": "A Time&Place Consulting foi fundada em 2016 em Bruxelas com um propósito claro: criar um diálogo significativo entre nossos clientes e os tomadores de decisão política da UE e nacionais. Ao longo dos anos, ampliamos nossos serviços e setores, com base em profundo conhecimento, uma presença coordenada globalmente e um forte impacto local.",
+		"introductionClosing": "Nossa base? Uma equipe dedicada e experiente.",
+		"ourTeam": "Nossa equipe",
+		"groups": {
+			"managing_team": "Diretoria",
+			"team": "Equipe"
+		},
+		"loading": "Carregando perfis da equipe…",
+		"emptyTitle": "Ainda não há perfis da equipe publicados em português (Brasil)",
+		"emptyDescription": "Os perfis da equipe aparecerão aqui assim que forem publicados neste idioma.",
+		"snapshot": {
+			"label": "Tenha uma visão geral de todo o nosso Grupo. Baixe um resumo de quem somos e do que fazemos na Time&Place Consulting.",
+			"fileHint": "download em PDF"
+		},
+		"profile": {
+			"portraitAlt": "Retrato de {name}",
+			"contact": "Contato",
+			"email": "E-mail",
+			"phone": "Telefone",
+			"articlesBy": "Artigos de {name}",
+			"byline": "Por {authors}"
+		}
 	},
 	"NotFound": {
 		"title": "Esta página não está disponível",

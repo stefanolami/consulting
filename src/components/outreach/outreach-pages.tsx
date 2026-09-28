@@ -11,6 +11,7 @@ import { OutreachExplorer } from '@/components/outreach/outreach-explorer'
 import { OutreachLoading } from '@/components/outreach/outreach-loading'
 import { type AppLocale, routing } from '@/i18n/routing'
 import { getPublishedOutreachDetail, getPublishedOutreachOverview, type OutreachStatistic } from '@/lib/public-outreach'
+import { teamPath } from '@/lib/team-paths'
 
 export function outreachPath(locale: AppLocale, slug?: string) {
 	const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
@@ -75,6 +76,5 @@ function StatisticCard({ locale, sourceLabel, statistic }: { locale: AppLocale; 
 }
 
 function cataloguePath(locale: AppLocale, slug: string) { const prefix = locale === routing.defaultLocale ? '' : `/${locale}`; return `${prefix}/services/${slug}` }
-function teamPath(locale: AppLocale, slug: string) { const prefix = locale === routing.defaultLocale ? '' : `/${locale}`; return `${prefix}/team/${slug}` }
 function formatStatistic(statistic: OutreachStatistic, locale: AppLocale) { if (statistic.displayValue) return statistic.displayValue; if (statistic.numericValue === null) return '—'; const value = new Intl.NumberFormat(locale).format(statistic.numericValue); return statistic.unit ? `${value} ${statistic.unit}` : value }
 function safeHttpUrl(value: string | null) { if (!value) return null; try { const url = new URL(value); return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : null } catch { return null } }

@@ -57,6 +57,8 @@
 	--color-tp-mist: #cbd2e1;
 	--color-tp-cloud: #f7f7f7;
 	--color-tp-stone: #e4e4e4;
+	/* Profile names on navy (Figma 5408:538); about 5.2:1 on tp-navy. */
+	--color-tp-silver: #a9a9a9;
 
 	/* Semantic roles */
 	--color-brand: var(--color-tp-navy);

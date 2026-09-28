@@ -14,6 +14,7 @@ import {
 	getPublishedCatalogueList,
 	type PublicCatalogueKind,
 } from '@/lib/public-catalogue'
+import { teamPath } from '@/lib/team-paths'
 
 export function cataloguePath(locale: AppLocale, kind: PublicCatalogueKind, slug?: string) {
 	const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
@@ -181,7 +182,7 @@ async function CatalogueDetailContent({
 							<ul className="mt-5 space-y-5">
 								{detail.contacts.map((contact) => (
 									<li className="rounded-2xl border border-slate-200 p-5" key={contact.id}>
-										<Link className="group block" href={cataloguePathForTeam(locale, contact.slug)}>
+										<Link className="group block" href={teamPath(locale, contact.slug)}>
 											{contact.portrait ? <Image alt={contact.portrait.alt} className="size-16 rounded-full object-cover" height={64} src={contact.portrait.url} width={64} /> : <span aria-hidden="true" className="flex size-16 items-center justify-center rounded-full bg-[#e8ebf3] font-jose text-sm font-semibold">{initials(contact.cardName)}</span>}
 											<span className="mt-4 block font-unna text-2xl leading-tight group-hover:underline">{contact.cardName}</span>
 											{contact.role ? <span className="mt-1 block text-sm leading-6 text-slate-600">{contact.role}</span> : null}
@@ -213,11 +214,6 @@ async function CatalogueDetailContent({
 			</article>
 		</main>
 	)
-}
-
-function cataloguePathForTeam(locale: AppLocale, slug: string) {
-	const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
-	return `${prefix}/team/${slug}`
 }
 
 function newsroomPath(locale: AppLocale, slug: string) {
