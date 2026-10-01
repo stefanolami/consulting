@@ -550,7 +550,7 @@ export const team = {
 			},
 		],
 	}, */
-	liga: {
+	/* liga: {
 		name: 'Līga Aija Lagzdiņa',
 		path: 'liga-aija-lagzdina',
 		img: '/team/liga.png',
@@ -579,7 +579,7 @@ export const team = {
 				],
 			},
 		],
-	},
+	}, */
 	stefano: {
 		name: 'Stefano Lami',
 		path: 'stefano-lami',
