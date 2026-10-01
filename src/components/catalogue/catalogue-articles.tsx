@@ -4,23 +4,24 @@ import { ArticleSummaryCard, articleSummaryGridClass } from '@/components/newsro
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import type { PublicCatalogueKind } from '@/lib/public-catalogue'
-import { getPublishedNewsroomListing } from '@/lib/public-newsroom'
+import { getPublishedArticleSelection } from '@/lib/public-newsroom'
 
 const ARTICLE_LIMIT = 3
 // Slugs the newsroom filters accept (src/components/newsroom/newsroom-pages.tsx).
 const FILTERABLE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 // "Articles for …" (Figma 5488:464; the sector frames' "… Projects" heading is
-// shown as articles because that is what the data holds). Reads the public
-// newsroom listing filtered by this service or sector, so the cards carry
-// covers and authors under the newsroom publication rules. Up to three are
-// shown, newest first, with a link to the filtered newsroom when there are more.
+// shown as articles because that is what the data holds). Reads the newsroom
+// articles filtered by this service or sector, so the cards carry covers and
+// authors under the newsroom publication rules, without the listing's filter
+// options. Up to three are shown, newest first, with a link to the filtered
+// newsroom when there are more.
 export async function CatalogueArticles({ kind, locale, name, slug }: { kind: PublicCatalogueKind; locale: AppLocale; name: string; slug: string }) {
 	const [listing, t] = await Promise.all([
-		getPublishedNewsroomListing(locale, 1, { [kind]: slug }),
+		getPublishedArticleSelection(locale, { [kind]: slug }, ARTICLE_LIMIT),
 		getTranslations({ locale, namespace: 'Catalogue' }),
 	])
-	const articles = listing.articles.slice(0, ARTICLE_LIMIT)
+	const { articles } = listing
 	if (!articles.length) return null
 	const dateFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'long' })
 	return (

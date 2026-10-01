@@ -15,8 +15,12 @@ export function ArticleRichText({ content, media }: { content: Json; media: Reco
 	if (!document || typeof document !== 'object' || Array.isArray(document)) return null
 	const blocks = (document as { content?: unknown }).content
 	if (!Array.isArray(blocks) || !blocks.length) return null
-	return <div className="space-y-6 text-lg leading-8 text-slate-700">{blocks.map((node, index) => renderBlock(node, index, media))}</div>
+	return <div className="space-y-5 font-label text-body-lg text-black wrap-anywhere">{blocks.map((node, index) => renderBlock(node, index, media))}</div>
 }
+
+// Figma 5534:989 body: Josefin 18 px in black, sub-titles in bold upper-case
+// Roboto Serif. Body copy is left-aligned rather than justified, as on the
+// other templates.
 
 function renderBlock(node: unknown, key: number, media: Record<string, PublicArticleImage>): ReactNode {
 	if (!node || typeof node !== 'object' || Array.isArray(node)) return null
@@ -26,14 +30,14 @@ function renderBlock(node: unknown, key: number, media: Record<string, PublicArt
 	if (value.type === 'heading') {
 		const level = value.attrs && typeof value.attrs === 'object' && !Array.isArray(value.attrs) ? (value.attrs as { level?: unknown }).level : null
 		return level === 3
-			? <h3 className="pt-3 font-unna text-2xl leading-tight text-[#27335a] sm:text-3xl" key={key}>{renderInline(value.content)}</h3>
-			: <h2 className="pt-4 font-unna text-3xl leading-tight text-[#27335a] sm:text-4xl" key={key}>{renderInline(value.content)}</h2>
+			? <h3 className="pt-2 font-serif text-lead font-bold uppercase" key={key}>{renderInline(value.content)}</h3>
+			: <h2 className="pt-4 font-serif text-heading-3 font-bold uppercase" key={key}>{renderInline(value.content)}</h2>
 	}
-	if (value.type === 'blockquote') return <blockquote className="border-l-4 border-[#8d9bc0] bg-[#f3f5fa] px-6 py-5 font-unna text-2xl leading-snug text-[#27335a]" key={key}>{renderInline(value.content)}</blockquote>
+	if (value.type === 'blockquote') return <blockquote className="bg-tp-blue-muted px-[clamp(1.25rem,0.5rem+4vw,4.875rem)] py-[clamp(1.5rem,1.1rem+1.6vw,3rem)] text-lead italic text-on-brand" key={key}>{renderInline(value.content)}</blockquote>
 	if (value.type === 'bulletList' || value.type === 'orderedList') {
 		const Tag = value.type === 'bulletList' ? 'ul' : 'ol'
 		const start = value.type === 'orderedList' && value.attrs && typeof value.attrs === 'object' && !Array.isArray(value.attrs) ? (value.attrs as { start?: number }).start : undefined
-		return <Tag className={value.type === 'bulletList' ? 'list-disc space-y-3 pl-7' : 'list-decimal space-y-3 pl-7'} key={key} start={start}>{Array.isArray(value.content) ? value.content.map((item, index) => renderListItem(item, index, media)) : null}</Tag>
+		return <Tag className={value.type === 'bulletList' ? 'list-disc space-y-2 pl-6' : 'list-decimal space-y-2 pl-6'} key={key} start={start}>{Array.isArray(value.content) ? value.content.map((item, index) => renderListItem(item, index, media)) : null}</Tag>
 	}
 	return null
 }
@@ -48,7 +52,7 @@ function renderImage(attributes: unknown, key: number, media: Record<string, Pub
 		: block.layout === 'wide'
 			? 'relative left-1/2 w-[min(calc(100vw-3rem),72rem)] -translate-x-1/2'
 			: 'mx-auto max-w-3xl'
-	return <figure className={layout} key={key}><Image alt={block.alt} className="h-auto w-full rounded-lg object-cover" height={asset.height ?? 900} sizes={block.layout === 'content' ? '(max-width: 768px) 100vw, 768px' : '100vw'} src={asset.url} unoptimized={asset.mimeType === 'image/svg+xml'} width={asset.width ?? 1600} />{block.caption ? <figcaption className="mx-auto mt-2 max-w-3xl text-sm leading-6 text-slate-600">{block.caption}</figcaption> : null}</figure>
+	return <figure className={layout} key={key}><Image alt={block.alt} className="h-auto w-full object-cover" height={asset.height ?? 900} sizes={block.layout === 'content' ? '(max-width: 768px) 100vw, 768px' : '100vw'} src={asset.url} unoptimized={asset.mimeType === 'image/svg+xml'} width={asset.width ?? 1600} />{block.caption ? <figcaption className="mx-auto mt-2 max-w-3xl text-body text-black/75">{block.caption}</figcaption> : null}</figure>
 }
 
 function renderListItem(node: unknown, key: number, media: Record<string, PublicArticleImage>): ReactNode {
@@ -72,7 +76,7 @@ function renderInline(content: unknown): ReactNode {
 			const typedMark = mark as { attrs?: { href?: unknown }; type?: unknown }
 			if (typedMark.type === 'bold') child = <strong>{child}</strong>
 			if (typedMark.type === 'italic') child = <em>{child}</em>
-			if (typedMark.type === 'link' && typeof typedMark.attrs?.href === 'string') child = <a className="font-medium text-[#27335a] underline decoration-[#8d9bc0] decoration-2 underline-offset-4 hover:decoration-[#27335a]" href={typedMark.attrs.href}>{child}</a>
+			if (typedMark.type === 'link' && typeof typedMark.attrs?.href === 'string') child = <a className="rounded-control font-bold text-brand underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" href={typedMark.attrs.href}>{child}</a>
 		}
 		return <span key={index}>{child}</span>
 	})

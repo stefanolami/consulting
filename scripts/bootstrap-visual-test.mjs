@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { readFile } from 'node:fs/promises'
 
 import { createContractProofPlan, loadContractProofCatalogue, validateContractProofCatalogue } from './lib/contract-proof-bootstrap.mjs'
+import { createPlaceholderArticlePlan, loadPlaceholderArticles, validatePlaceholderArticles } from './lib/placeholder-articles-bootstrap.mjs'
 import { createVisualTestPlan, loadVisualTestCatalogue, validateVisualTestCatalogue } from './lib/visual-test-bootstrap.mjs'
 
 const args = process.argv.slice(2)
@@ -13,7 +14,8 @@ if (args.includes('--help')) {
 
 Dry-run is the default. It validates and plans the selected legacy team,
 services and sectors (with placeholder bodies), media, contacts, newsroom
-links, Brazil golden-country proof, and small global-content proof without
+links, Brazil golden-country proof, small global-content proof, and
+placeholder newsroom articles without
 changing hosted data. --apply performs only reported creates and narrowly
 controlled baseline promotions.`)
 	process.exit(0)
@@ -39,24 +41,30 @@ const catalogue = await loadVisualTestCatalogue({
 const contractProof = await loadContractProofCatalogue({ config, publicDirectory: new URL('../public/', import.meta.url) })
 const validation = validateVisualTestCatalogue(catalogue)
 const contractValidation = validateContractProofCatalogue(contractProof)
+const placeholderArticles = loadPlaceholderArticles(config)
+const placeholderValidation = validatePlaceholderArticles(placeholderArticles)
 const supabase = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
 const existing = await fetchState(supabase)
 const plan = createVisualTestPlan(catalogue, existing)
 const contractPlan = createContractProofPlan(contractProof, existing)
+const articlePlan = createPlaceholderArticlePlan(placeholderArticles, existing)
 console.log(report({ applyMode, catalogue, contractPlan, contractProof, contractValidation, existing, plan, validation }))
+console.log(articleReport(placeholderArticles, placeholderValidation, articlePlan))
+const blocked = validation.issues.length || contractValidation.issues.length || placeholderValidation.issues.length || plan.conflicts.length || contractPlan.conflicts.length || articlePlan.conflicts.length
 
 if (!applyMode) {
 	console.log('\nDRY RUN ONLY: no hosted records or Storage objects were changed.')
-	process.exit(validation.issues.length || contractValidation.issues.length || plan.conflicts.length || contractPlan.conflicts.length ? 2 : 0)
+	process.exit(blocked ? 2 : 0)
 }
-if (validation.issues.length || contractValidation.issues.length || plan.conflicts.length || contractPlan.conflicts.length) {
+if (blocked) {
 	console.error('\nApply refused because validation issues or hosted-data conflicts exist.')
 	process.exit(2)
 }
 
 await applyPlan(supabase, catalogue, plan)
 await applyContractProofPlan(supabase, contractProof, contractPlan)
-console.log(`\nAPPLY COMPLETE: created ${plan.counts.created + contractPlan.counts.created}, updated ${plan.counts.updated + contractPlan.counts.updated}, skipped ${plan.counts.skipped + contractPlan.counts.skipped}, conflicting 0.`)
+await applyPlaceholderArticlePlan(supabase, articlePlan)
+console.log(`\nAPPLY COMPLETE: created ${plan.counts.created + contractPlan.counts.created + articlePlan.counts.created}, updated ${plan.counts.updated + contractPlan.counts.updated}, skipped ${plan.counts.skipped + contractPlan.counts.skipped + articlePlan.counts.skipped}, conflicting 0.`)
 
 async function fetchState(client) {
 	const specs = [
@@ -71,7 +79,7 @@ async function fetchState(client) {
 		['media_asset_translations', 'media_asset_id, locale, alt_text, caption'],
 		['service_people', 'service_id, person_id, relationship, display_order'],
 		['sector_people', 'sector_id, person_id, relationship, display_order'],
-		['articles', 'id, stable_key'],
+		['articles', 'id, stable_key, kind, cover_media_id, external_media_url, is_featured, featured_order'],
 		['article_services', 'article_id, service_id'],
 		['article_sectors', 'article_id, sector_id'],
 		['countries', 'code, region_id, flag_media_id, outline_media_id, is_covered, map_config, display_order, last_reviewed_on, updated_at'],
@@ -89,6 +97,11 @@ async function fetchState(client) {
 		['endorsements', 'id, stable_key, partner_id, portrait_media_id, attribution_name, display_order, is_active'],
 		['endorsement_translations', 'endorsement_id, locale, quote, attribution_title, status, published_at'],
 		['site_settings', 'key, value, is_public, description'],
+		['article_translations', 'article_id, locale, slug, title, excerpt, content, sources, status, published_at'],
+		['article_authors', 'article_id, person_id, display_order'],
+		['article_tags', 'article_id, tag_id'],
+		['article_relations', 'source_article_id, related_article_id, display_order'],
+		['tags', 'id, stable_key'],
 	]
 	const results = await Promise.all(specs.map(([table, fields]) => client.from(table).select(fields)))
 	const failed = results.findIndex((result) => result.error)
@@ -106,7 +119,7 @@ async function fetchState(client) {
 		...(outreachObjects.data ?? []).filter((item) => item.id).map((item) => ({ objectPath: `visual-test/outreach/${item.name}`, size: Number(item.metadata?.size ?? 0) })),
 		...(partnerObjects.data ?? []).filter((item) => item.id).map((item) => ({ objectPath: `visual-test/partners/${item.name}`, size: Number(item.metadata?.size ?? 0) })),
 	]
-	const names = ['people', 'peopleTranslations', 'peopleRoles', 'services', 'serviceTranslations', 'sectors', 'sectorTranslations', 'mediaAssets', 'mediaTranslations', 'servicePeople', 'sectorPeople', 'articles', 'articleServices', 'articleSectors', 'countries', 'countryTranslations', 'countryServices', 'countryServiceTranslations', 'countryStatistics', 'countryStatisticTranslations', 'offices', 'officeTranslations', 'countryOffices', 'countryPeople', 'partners', 'partnerTranslations', 'endorsements', 'endorsementTranslations', 'siteSettings']
+	const names = ['people', 'peopleTranslations', 'peopleRoles', 'services', 'serviceTranslations', 'sectors', 'sectorTranslations', 'mediaAssets', 'mediaTranslations', 'servicePeople', 'sectorPeople', 'articles', 'articleServices', 'articleSectors', 'countries', 'countryTranslations', 'countryServices', 'countryServiceTranslations', 'countryStatistics', 'countryStatisticTranslations', 'offices', 'officeTranslations', 'countryOffices', 'countryPeople', 'partners', 'partnerTranslations', 'endorsements', 'endorsementTranslations', 'siteSettings', 'articleTranslations', 'articleAuthors', 'articleTags', 'articleRelations', 'tags']
 	return Object.fromEntries([...names.map((name, index) => [name, results[index].data ?? []]), ['storageObjects', storageObjects]])
 }
 
@@ -142,6 +155,37 @@ async function applyContractProofPlan(client, reference, importPlan) {
 	ids = await resolveProofIds(client)
 	await insert(client, 'endorsement_translations', importPlan.create.endorsementTranslations.map((item) => ({ endorsement_id: required(ids.endorsements, item.stableKey), locale: 'en', quote: item.quote, attribution_title: item.attributionTitle, status: 'published', published_at: reference.publishedAt })))
 	await insert(client, 'site_settings', importPlan.create.siteSettings.map((item) => ({ key: item.key, value: item.value, is_public: true, description: item.description })))
+}
+
+async function applyPlaceholderArticlePlan(client, importPlan) {
+	let ids = await resolveArticleIds(client)
+	await insert(client, 'articles', importPlan.create.articles.map((article) => ({ stable_key: article.stableKey, kind: article.kind, cover_media_id: article.cover ? required(ids.media, article.cover) : null, external_media_url: null, is_featured: article.isFeatured, featured_order: article.featuredOrder })))
+	ids = await resolveArticleIds(client)
+	await insert(client, 'article_translations', importPlan.create.articleTranslations.map((article) => ({ article_id: required(ids.articles, article.stableKey), locale: 'en', slug: article.slug, title: article.title, excerpt: article.excerpt, content: article.content, sources: article.sources, seo_title: null, seo_description: null, status: 'published', published_at: article.publishedAt })))
+	await insert(client, 'article_authors', importPlan.create.articleAuthors.map((item) => ({ article_id: required(ids.articles, item.article), person_id: required(ids.people, item.person), display_order: item.displayOrder })))
+	await insert(client, 'article_tags', importPlan.create.articleTags.map((item) => ({ article_id: required(ids.articles, item.article), tag_id: required(ids.tags, item.tag) })))
+	await insert(client, 'article_services', importPlan.create.articleServices.map((item) => ({ article_id: required(ids.articles, item.article), service_id: required(ids.services, item.service) })))
+	await insert(client, 'article_sectors', importPlan.create.articleSectors.map((item) => ({ article_id: required(ids.articles, item.article), sector_id: required(ids.sectors, item.sector) })))
+	await insert(client, 'article_relations', importPlan.create.articleRelations.map((item) => ({ source_article_id: required(ids.articles, item.article), related_article_id: required(ids.articles, item.related), display_order: item.displayOrder })))
+}
+
+async function resolveArticleIds(client) {
+	const specs = [['media_assets', 'id, object_path'], ['people', 'id, stable_key'], ['tags', 'id, stable_key'], ['services', 'id, stable_key'], ['sectors', 'id, stable_key'], ['articles', 'id, stable_key']]
+	const results = await Promise.all(specs.map(([table, fields]) => client.from(table).select(fields)))
+	const failed = results.find((result) => result.error)
+	if (failed) throw new Error(`Unable to resolve placeholder-article records: ${failed.error.message}`)
+	return { media: map(results[0].data, 'object_path'), people: map(results[1].data, 'stable_key'), tags: map(results[2].data, 'stable_key'), services: map(results[3].data, 'stable_key'), sectors: map(results[4].data, 'stable_key'), articles: map(results[5].data, 'stable_key') }
+}
+
+function articleReport(articles, articleValidation, importPlan) {
+	return [
+		'', 'PLACEHOLDER NEWSROOM ARTICLES (VERSION 4)', `- Articles: ${articles.length} (${[...new Set(articles.map((article) => article.kind))].join(', ')}), featured: ${articles.filter((article) => article.isFeatured).length}`,
+		`- Validation issues: ${articleValidation.issues.length}${articleValidation.issues.length ? ` [${articleValidation.issues.join('; ')}]` : ''}`,
+		...Object.entries(importPlan.create).map(([name, rows]) => `- Create ${name}: ${rows.length}`),
+		`- Total creates / skipped: ${importPlan.counts.created} / ${importPlan.counts.skipped}`,
+		`- Conflicts: ${importPlan.counts.conflicting}${importPlan.conflicts.length ? ` [${importPlan.conflicts.map((item) => `${item.entity} ${item.key}: ${item.reason}`).join('; ')}]` : ''}`,
+		'- English lorem-ipsum placeholders with placeholder-* keys; covers reuse the managed legacy newsroom images. Remove before launch.',
+	].join('\n')
 }
 
 async function resolveProofIds(client) {

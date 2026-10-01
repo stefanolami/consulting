@@ -1,5 +1,5 @@
 {
-	"version": 3,
+	"version": 4,
 	"locale": "en",
 	"publishedAt": "2025-09-01T00:00:00.000Z",
 	"team": {
@@ -508,5 +508,542 @@
 				}
 			}
 		]
-	}
+	},
+	"placeholderArticleContent": {
+		"type": "doc",
+		"attrs": {
+			"schemaVersion": 2
+		},
+		"content": [
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+					}
+				]
+			},
+			{
+				"type": "heading",
+				"attrs": {
+					"level": 2
+				},
+				"content": [
+					{
+						"type": "text",
+						"text": "Lorem ipsum sub-title"
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+					}
+				]
+			},
+			{
+				"type": "bulletList",
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Sed ut perspiciatis unde omnis iste natus error."
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur."
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet."
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "blockquote",
+				"content": [
+					{
+						"type": "text",
+						"text": "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur."
+					}
+				]
+			},
+			{
+				"type": "heading",
+				"attrs": {
+					"level": 3
+				},
+				"content": [
+					{
+						"type": "text",
+						"text": "Lorem ipsum minor heading"
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+					}
+				]
+			}
+		]
+	},
+	"placeholderArticles": [
+		{
+			"stableKey": "placeholder-01-newsletter",
+			"slug": "placeholder-01-newsletter",
+			"kind": "newsletter",
+			"title": "Lorem ipsum dolor sit amet: the quarterly consectetur outlook",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+			"publishedAt": "2026-08-20T09:00:00.000Z",
+			"cover": "newsroom/legacy/space-banner-cropped.png",
+			"isFeatured": true,
+			"featuredOrder": 0,
+			"authors": [
+				"mathias-gerstner"
+			],
+			"tags": [
+				"space"
+			],
+			"services": [
+				"market-research"
+			],
+			"sectors": [
+				"space"
+			],
+			"related": [
+				"placeholder-02-announcement",
+				"placeholder-03-event"
+			],
+			"sources": [
+				{
+					"label": "Lorem ipsum source (example.com)",
+					"url": "https://www.example.com/"
+				}
+			]
+		},
+		{
+			"stableKey": "placeholder-02-announcement",
+			"slug": "placeholder-02-announcement",
+			"kind": "announcement",
+			"title": "Consectetur adipiscing elit announces new sed do eiusmod office",
+			"excerpt": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+			"publishedAt": "2026-07-14T09:00:00.000Z",
+			"cover": null,
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [],
+			"tags": [],
+			"services": [
+				"association-management"
+			],
+			"sectors": [],
+			"related": [
+				"placeholder-01-newsletter",
+				"placeholder-03-event"
+			],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-03-event",
+			"slug": "placeholder-03-event",
+			"kind": "event",
+			"title": "Tempor incididunt ut labore: annual roundtable in Brussels",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+			"publishedAt": "2026-06-02T09:00:00.000Z",
+			"cover": "newsroom/legacy/latam-content.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"omar-cutajar"
+			],
+			"tags": [
+				"eu-latam"
+			],
+			"services": [
+				"government-relations"
+			],
+			"sectors": [
+				"international-trade"
+			],
+			"related": [
+				"placeholder-01-newsletter",
+				"placeholder-02-announcement"
+			],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-04-video",
+			"slug": "placeholder-04-video",
+			"kind": "video",
+			"title": "Ut enim ad minim veniam, quis nostrud exercitation",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+			"publishedAt": "2026-04-18T09:00:00.000Z",
+			"cover": "newsroom/legacy/space-content.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"guilherme-ferreira",
+				"omar-cutajar"
+			],
+			"tags": [
+				"space"
+			],
+			"services": [],
+			"sectors": [
+				"space",
+				"aviation"
+			],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-05-article",
+			"slug": "placeholder-05-article",
+			"kind": "article",
+			"title": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur",
+			"excerpt": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+			"publishedAt": "2026-03-09T09:00:00.000Z",
+			"cover": "newsroom/legacy/latam-banner.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"mathias-gerstner",
+				"guilherme-ferreira"
+			],
+			"tags": [
+				"eu-latam"
+			],
+			"services": [
+				"public-funds-finance-procurement"
+			],
+			"sectors": [
+				"agrifood"
+			],
+			"related": [],
+			"sources": [
+				{
+					"label": "Lorem ipsum source (example.com)",
+					"url": "https://www.example.com/"
+				}
+			]
+		},
+		{
+			"stableKey": "placeholder-06-podcast",
+			"slug": "placeholder-06-podcast",
+			"kind": "podcast",
+			"title": "Excepteur sint occaecat: a conversation on cupidatat",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+			"publishedAt": "2026-01-27T09:00:00.000Z",
+			"cover": null,
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"omar-cutajar"
+			],
+			"tags": [],
+			"services": [
+				"visibility-communications"
+			],
+			"sectors": [
+				"e-mobility"
+			],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-07-newsletter",
+			"slug": "placeholder-07-newsletter",
+			"kind": "newsletter",
+			"title": "Sunt in culpa qui officia deserunt mollit anim",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+			"publishedAt": "2025-12-15T09:00:00.000Z",
+			"cover": "newsroom/legacy/space-banner-cropped.png",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"guilherme-ferreira"
+			],
+			"tags": [
+				"space"
+			],
+			"services": [
+				"project-management"
+			],
+			"sectors": [
+				"energy"
+			],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-08-book",
+			"slug": "placeholder-08-book",
+			"kind": "book",
+			"title": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem",
+			"excerpt": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+			"publishedAt": "2025-11-03T09:00:00.000Z",
+			"cover": "newsroom/legacy/latam-content.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"mathias-gerstner"
+			],
+			"tags": [],
+			"services": [
+				"market-research"
+			],
+			"sectors": [
+				"international-trade"
+			],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-09-media",
+			"slug": "placeholder-09-media",
+			"kind": "media",
+			"title": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+			"publishedAt": "2025-10-21T09:00:00.000Z",
+			"cover": "newsroom/legacy/space-content.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [],
+			"tags": [
+				"space"
+			],
+			"services": [],
+			"sectors": [
+				"space"
+			],
+			"related": [],
+			"sources": [
+				{
+					"label": "Lorem ipsum source (example.com)",
+					"url": "https://www.example.com/"
+				}
+			]
+		},
+		{
+			"stableKey": "placeholder-10-article",
+			"slug": "placeholder-10-article",
+			"kind": "article",
+			"title": "Neque porro quisquam est",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+			"publishedAt": "2025-08-11T09:00:00.000Z",
+			"cover": null,
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"omar-cutajar",
+				"mathias-gerstner"
+			],
+			"tags": [
+				"eu-latam"
+			],
+			"services": [
+				"government-relations"
+			],
+			"sectors": [
+				"agrifood"
+			],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-11-announcement",
+			"slug": "placeholder-11-announcement",
+			"kind": "announcement",
+			"title": "Quis autem vel eum iure reprehenderit qui in ea voluptate",
+			"excerpt": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+			"publishedAt": "2025-06-30T09:00:00.000Z",
+			"cover": "newsroom/legacy/latam-banner.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"guilherme-ferreira"
+			],
+			"tags": [],
+			"services": [
+				"association-management"
+			],
+			"sectors": [],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-12-event",
+			"slug": "placeholder-12-event",
+			"kind": "event",
+			"title": "At vero eos et accusamus et iusto odio dignissimos ducimus",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+			"publishedAt": "2025-04-16T09:00:00.000Z",
+			"cover": "newsroom/legacy/latam-content.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"mathias-gerstner"
+			],
+			"tags": [
+				"eu-latam"
+			],
+			"services": [
+				"public-funds-finance-procurement"
+			],
+			"sectors": [
+				"aviation"
+			],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-13-article",
+			"slug": "placeholder-13-article",
+			"kind": "article",
+			"title": "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+			"publishedAt": "2025-02-05T09:00:00.000Z",
+			"cover": "newsroom/legacy/space-banner-cropped.png",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"omar-cutajar"
+			],
+			"tags": [
+				"space"
+			],
+			"services": [
+				"project-management"
+			],
+			"sectors": [
+				"space",
+				"energy"
+			],
+			"related": [],
+			"sources": [
+				{
+					"label": "Lorem ipsum source (example.com)",
+					"url": "https://www.example.com/"
+				}
+			]
+		},
+		{
+			"stableKey": "placeholder-14-vodcast",
+			"slug": "placeholder-14-vodcast",
+			"kind": "vodcast",
+			"title": "Temporibus autem quibusdam et aut officiis debitis",
+			"excerpt": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+			"publishedAt": "2024-11-19T09:00:00.000Z",
+			"cover": "newsroom/legacy/space-content.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"guilherme-ferreira"
+			],
+			"tags": [],
+			"services": [
+				"visibility-communications"
+			],
+			"sectors": [
+				"e-mobility"
+			],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-15-newsletter",
+			"slug": "placeholder-15-newsletter",
+			"kind": "newsletter",
+			"title": "Itaque earum rerum hic tenetur a sapiente delectus",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+			"publishedAt": "2024-07-08T09:00:00.000Z",
+			"cover": "newsroom/legacy/latam-banner.jpg",
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"mathias-gerstner",
+				"omar-cutajar"
+			],
+			"tags": [
+				"eu-latam"
+			],
+			"services": [
+				"market-research"
+			],
+			"sectors": [
+				"international-trade"
+			],
+			"related": [],
+			"sources": []
+		},
+		{
+			"stableKey": "placeholder-16-article",
+			"slug": "placeholder-16-article",
+			"kind": "article",
+			"title": "Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
+			"excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+			"publishedAt": "2024-03-12T09:00:00.000Z",
+			"cover": null,
+			"isFeatured": false,
+			"featuredOrder": 0,
+			"authors": [
+				"guilherme-ferreira"
+			],
+			"tags": [],
+			"services": [
+				"government-relations"
+			],
+			"sectors": [
+				"agrifood"
+			],
+			"related": [],
+			"sources": []
+		}
+	]
 }

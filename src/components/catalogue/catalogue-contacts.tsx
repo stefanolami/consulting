@@ -8,6 +8,8 @@ import { TEAM_SEGMENT } from '@/lib/team-paths'
 
 type CatalogueContactsProps = {
 	contacts: CatalogueContact[]
+	/** Defaults to the catalogue section id; article pages pass their own. */
+	headingId?: string
 	labels: { email: string; heading: string; phone: string }
 	locale: AppLocale
 }
@@ -22,11 +24,11 @@ const linkClass = 'rounded-control underline-offset-4 hover:underline focus-visi
 // name; it is added (linking to the profile) because a portrait alone does not
 // identify the person. Figma's office address is not in the people contract,
 // so it is not rendered (control tower §15.4).
-export function CatalogueContacts({ contacts, labels, locale }: CatalogueContactsProps) {
+export function CatalogueContacts({ contacts, headingId = 'catalogue-contacts-heading', labels, locale }: CatalogueContactsProps) {
 	if (!contacts.length) return null
 	return (
-		<section aria-labelledby="catalogue-contacts-heading">
-			<h2 className="border-b-2 border-black pb-3 font-display text-heading-2 font-bold text-black" id="catalogue-contacts-heading">{labels.heading}</h2>
+		<section aria-labelledby={headingId}>
+			<h2 className="border-b-2 border-black pb-3 font-display text-heading-2 font-bold text-black" id={headingId}>{labels.heading}</h2>
 			<ul className={listClass}>
 				{contacts.map((contact) => (
 					<li className={itemClass} key={contact.id}>
@@ -56,12 +58,12 @@ export function CatalogueContacts({ contacts, labels, locale }: CatalogueContact
 	)
 }
 
-export function CatalogueContactsSkeleton() {
+export function CatalogueContactsSkeleton({ count = 2 }: { count?: number }) {
 	return (
 		<div>
 			<SkeletonSectionHeading width="w-3/5" />
 			<ul className={listClass}>
-				{Array.from({ length: 2 }, (_, index) => (
+				{Array.from({ length: count }, (_, index) => (
 					<li className={itemClass} key={index}>
 						<Skeleton className={`${portraitClass} aspect-square rounded-pill`} tone="light" />
 						<div className="min-w-0 flex-1">

@@ -699,6 +699,28 @@ creates and 0 updates and found 0 conflicts. The seed writes directly to the
 database, so public pages may show the previous data for up to an hour (the
 hourly cache) unless an admin save invalidates it first.
 
+Version 4 (2026-09-28) adds 16 placeholder newsroom articles, at the product
+owner's request, so the newsroom grid, filters, pagination and detail template
+can be reviewed with more than the two legacy articles
+(`scripts/lib/placeholder-articles-bootstrap.mjs`, data under
+`placeholderArticles` in `scripts/data/visual-test-bootstrap.json`):
+
+- English only, lorem-ipsum titles, excerpts and one shared version-2 body;
+  every stable key and slug starts with `placeholder-`. Remove them before
+  launch.
+- They cover every labelled kind (newsletter, announcement, event, video,
+  vodcast, podcast, book, media, article), publication dates from 2024 to
+  August 2026, and four with no cover. `placeholder-01-newsletter` is the one
+  featured article, so the lead card shows.
+- Covers reuse the four managed legacy newsroom images; nothing is uploaded.
+  Authors rotate the three article authors; tags, services, sectors and three
+  explicit related-article pairs are invented for testing, not editorial fact.
+- Create-only: a missing reference or an existing placeholder that differs is
+  a conflict that blocks apply. The hosted dry run proposed 96 creates with no
+  conflicts and no change to the earlier baselines; apply completed them and
+  the rerun proposed 0 creates and found 0 conflicts. The listing then showed
+  18 articles over two pages.
+
 The hosted version-2 dry run proposed 35 creates and 2 exact-baseline Brazil
 updates with no conflicts. Apply completed those operations; the immediate rerun
 proposed 0 creates and 0 updates, skipped all 112 baseline and proof checks, and
@@ -1075,9 +1097,107 @@ same pattern:
   per region in English and German, no pulse under reduced motion, measured
   CLS 0 on the team listing, profile and service and sector details, and
   skeleton heroes within about 15 px of the loaded heroes.
-- The newsroom and Our Outreach loading states are still the pre-Figma
-  placeholders (the newsroom one is hard-coded English); they get template
-  skeletons when those pages receive the Figma design.
+- The Our Outreach loading state is still the pre-Figma placeholder; it gets
+  a template skeleton when that page receives the Figma design. The newsroom
+  received its skeletons in section 15.7.
+
+### 15.7 Newsroom listing and article detail
+
+Implemented on 2026-09-28 against Figma `5408:334` (desktop Publications),
+`5651:90` (mobile Publications), `5534:989` (newsletter/article detail) and
+`5542:2` (video/podcast detail). Routes are unchanged (`/newsroom`,
+`/newsroom/[slug]`).
+
+- Listing: navy `PageHero` titled "Publications" (the navigation label) with
+  the intro, then a filter bar, a centred results heading ("Latest
+  publications", or the kind label when filtered by kind), the result count,
+  the cards and pagination. The hero is static and renders at once; the bar,
+  cards and pagination stream behind a Suspense boundary keyed by the filters
+  and page, so each new query shows the skeleton.
+- Filter bar, as in Figma: a grey search pill with a round search button, and
+  round calendar and categories buttons that open native disclosures sharing
+  one `name` (opening one closes the other). Calendar offers the publication
+  years that have published articles in the locale; Categories offers type
+  (kind), tag, service, sector and author. Everything is one GET form, so
+  every choice lives in the URL (`q`, `year`, `kind`, `tag`, `service`,
+  `sector`, `author`, `page`). `NewsroomFilterForm` is the only client piece:
+  it wraps `next/form` for client-side navigation and leaves empty fields out
+  of the URL; without JavaScript the form still submits. Active filters show as
+  removable chips with a "Clear filters" link. The "Subscribe to Newsletter"
+  button is omitted because there is no subscription feature (section 23).
+- Cards (`src/components/newsroom/newsroom-card.tsx`): Figma's three
+  variants. On two columns, white and navy alternate like a chequerboard
+  (Figma rows one and three), and navy cards split on desktop with the picture
+  on the side facing the other column; in the single mobile column the tones
+  simply alternate (5651:90) and the picture is always on top. In a split card
+  the text column takes three fifths and the kind icon moves onto the kind line
+  so long titles keep the full column. The lead story
+  (`NewsroomLeadCard`, Figma "NEWS 3") is the full-width cover card behind an
+  80 % navy scrim (white text stays above 5:1 on any photograph); it is the
+  featured article (`is_featured`, lowest `featured_order`, then newest), only
+  on the unfiltered first page, and it leaves the regular sequence so it never
+  appears twice. Each card is one link (the title, stretched over the card);
+  "Read more" is its visual affordance, not a second link; the focus ring
+  wraps the whole card. Cards fade in with the existing `tile-in` stagger
+  under `motion-safe` only.
+- Kind: the public card now carries the canonical `articles.kind`. Known keys
+  (`article`, `newsletter`, `announcement`, `event`, `video`, `vodcast`,
+  `podcast`, `book`, `media`) get a localized label (`Newsroom.kinds`) and an
+  icon; an unknown key shows neither and is not offered as a filter. Every
+  seeded article is `article`. No schema or admin change.
+- Pagination keeps crawlable URL pages (previous, "Page x of y", next) in the
+  Figma "LOAD MORE" button style instead of a load-more control.
+- Detail (`src/components/newsroom/newsroom-article.tsx`): Figma leaves the top
+  as an empty navy block (5534:989) or a full-bleed photograph (5542:2), so the
+  navy header carries the kind, title, excerpt, linked authors and date, and
+  the cover follows at full width (up to 90 rem) with its caption. Then the
+  body (restyled `ArticleRichText`: Josefin 18 px, bold upper-case Roboto Serif
+  sub-titles), "Related topics" (tags, services and sectors as links to the
+  filtered listing), "Sources", "More about the author(s)" and "Similar
+  articles". Each renders only with content. "More about the author" reuses
+  `CatalogueContacts` with the author's published team profile
+  (`getPublishedTeamProfile`, already cached per request), so authors without a
+  public profile appear only in the byline; it streams with its own skeleton.
+  "Similar articles" are the explicit related articles as
+  `ArticleSummaryCard`s; the video frame's "Similar Videos & Podcasts" heading
+  is not varied by kind.
+- Loading: `NewsroomToolbarSkeleton`, `NewsroomCardSkeleton` and the listing
+  skeleton (bar, heading, count, four cards, two on mobile) inside a
+  `LoadingRegion`; `NewsroomDetailSkeleton` for the article (route
+  `loading.tsx` for `[slug]` and the page Suspense fallback). The hard-coded
+  English `NewsroomLoading` and the listing route `loading.tsx` were removed.
+- Loader (`src/lib/public-newsroom.ts`): card paths (listing, "Articles by",
+  "Articles for", related articles) select only card columns
+  (`article_id, slug, title, excerpt, published_at`); the content, sources and
+  SEO columns are read only for the one detail translation. "Articles by" and
+  related articles query just their article IDs instead of every published
+  translation. `CatalogueArticles` uses the new `getPublishedArticleSelection`
+  (filtered cards and a total, no filter options). Search (`q`) matches every
+  term, case- and accent-insensitively, against the localized title and
+  excerpt; searches bypass the shared cache so arbitrary queries cannot grow
+  it. `getPublishedNewsroomDetail` is wrapped in React `cache()` so metadata
+  and the page share one read. Existing results were compared before and after
+  on 21 listing, filter, profile, service, sector and article URLs: identical.
+- Checked at 1440 and 390 against `5408:334`, `5651:90` and `5534:989`
+  (`npm run visual:screenshots`), first with the two legacy articles (the lead
+  card through a temporary override), then with the version-4 placeholder
+  articles (section 13.5), which show the lead card, the full grid rhythm and
+  two pages.
+  Search, year and kind filters and their combination with tag, service,
+  sector and author filters were exercised. Loading states, checked once with
+  the loaders delayed in development: one polite status per region in English
+  and German, no pulse under reduced motion, CLS 0 on the listing, a search
+  and the article.
+- Deviations from Figma: card titles use the heading-3 size instead of 36 px
+  (real titles are long); body copy is left-aligned rather than justified;
+  cards show the author names and date on two lines rather than "Name, date";
+  the listing's "NEWSLETTER" heading reads "Latest publications" (or the kind);
+  no Subscribe button; pagination instead of "Load more".
+- Placeholders: the publications hero (`hero-publications-papers`), the
+  newsroom kind icons and the filter-bar icons (Lucide stand-ins). See
+  [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
+- New and changed `Newsroom` strings (including the title "Publications" and
+  "Similar articles") are provisional in the non-English locales.
 
 ## 16. Public routes and legacy parity
 
@@ -1527,7 +1647,9 @@ These decisions should be resolved before the affected implementation begins:
 4. Final Our Outreach country fields, service descriptions, contacts, and calls
    to action.
 5. Mobile Our Outreach selection, summary, and map/list interaction.
-6. Search requirements for the newsroom.
+6. Search requirements for the newsroom. A basic title-and-excerpt search is
+   implemented (section 15.7); whether body text, authors or a database-side
+   full-text index are needed remains open.
 7. Analytics, consent, monitoring, SMTP, and spam-protection providers.
 8. Post-launch Git and persistent Supabase development branch naming.
 9. Final published service catalogue and ordering after stakeholder review.
@@ -1536,6 +1658,10 @@ These decisions should be resolved before the affected implementation begins:
     in the admin, and which services belong to each audience. The selector is
     omitted from the implemented services page until this is decided
     (section 15.5).
+11. Whether the newsroom gets a newsletter subscription (Figma `5408:334`
+    "Subscribe to Newsletter") and with which provider, and the approved
+    vocabulary of article kinds (`articles.kind` is free text; section 15.7
+    labels nine keys). The Subscribe button is omitted until this is decided.
 
 ## 24. Definition of completion
 
@@ -1562,12 +1688,16 @@ The rebuild is complete when:
 	[`docs/figma-asset-needs.md`](./figma-asset-needs.md), set the POE link in
 	the admin site settings, and review the provisional shell translations.
 2. Apply the Figma design to the existing public templates, one template at a
-	 time, following section 15.2. Who We Are and team profiles (section 15.4)
-	 and services and sectors (section 15.5) are done; the newsroom card system
-	 and article detail are next, with template skeletons built on the loading
-	 foundation (section 15.6). Review the provisional `Team` and `Catalogue`
-	 translations with the shell strings, and upload white line icons for the
-	 services and sectors through the admin media library.
+	 time, following section 15.2. Who We Are and team profiles (section 15.4),
+	 services and sectors (section 15.5) and the newsroom listing and article
+	 detail (section 15.7) are done; Our Outreach is next, with template
+	 skeletons built on the loading foundation (section 15.6). Review the
+	 provisional `Team`, `Catalogue` and `Newsroom` translations with the shell
+	 strings, upload white line icons for the services and sectors through the
+	 admin media library, and decide open decision 11 (newsletter subscription
+	 and the article-kind vocabulary). The 16 `placeholder-*` newsroom articles
+	 (section 13.5, version 4) are test content and must be deleted before
+	 launch.
 3. In parallel, colleagues use the admin to add reviewed English summaries and
 	 relationships to the 39 remaining published name-only country references,
 	 maintain coverage, and author, translate, review, and publish other locales

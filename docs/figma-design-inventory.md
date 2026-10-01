@@ -108,7 +108,15 @@ map in Figma is a reference, not an exportable production component.
 | Wilson Caldeira profile | `5494:891` | `/who-we-are/[slug]` |
 | Benjamin Wunnerlich profile | `5494:972` | `/who-we-are/[slug]` |
 
-These frames establish variant content, not four different profile templates.
+The two publication frames are one template (implemented 2026-09-28, control
+tower section 15.7). Both leave the top as a placeholder: an empty navy block
+(`5534:989`) or a full-bleed photograph with the kind icon (`5542:2`). Both
+then show a sub-titled body, "More About the Author" (portrait, phone, email,
+address, no name) and three "Similar Articles" cards in the related-article
+style. The video frame adds an empty "VIDEO TITLE" area for an embedded
+player; the article contract has only an external media link, so no player is
+rendered. The team frames below establish variant content, not four different
+profile templates.
 One profile renderer should support optional biography sections, quotes,
 credentials, languages, contact details, and related articles.
 
@@ -213,6 +221,15 @@ not copy its raw coordinates.
 | Contact | `5651:504` | Office grid; form area unresolved |
 | Association Management | `5695:437` | Representative service detail |
 | Agrifood | `5695:370` | Representative sector detail |
+
+Publications (`5408:334` desktop, `5651:90` mobile; implemented 2026-09-28,
+control tower section 15.7): the desktop listing is a mosaic of three card
+variants — white with the picture on top, navy split with the picture beside
+the text, and a full-width card over a photograph — each with a kind label,
+kind icon, excerpt, "Name, date" and a "READ MORE" outline button; the mobile
+listing is one column of alternating white and navy cards with the picture on
+top. Above the cards: a search pill, round search, calendar and categories
+buttons, and a "Subscribe to Newsletter" pill; below them a "LOAD MORE" button.
 
 Responsive behavior that is not supplied by Figma must be designed in code:
 
@@ -320,8 +337,11 @@ The reusable system therefore needs to be created in code:
 - `DownloadSnapshotLink` (implemented; PDF and icon pending).
 - `TeamPortrait` and `TeamCard` (implemented).
 - `SnapshotCta` (implemented; PDF and icon pending).
-- `ArticleCard` with controlled visual variants (related-article variant
-  implemented as `ArticleSummaryCard`).
+- `ArticleCard` with controlled visual variants (implemented: related-article
+  variant `ArticleSummaryCard`; newsroom listing `NewsroomCard` in white and
+  navy split tones and `NewsroomLeadCard`).
+- `NewsroomToolbar` with search, calendar and categories drop-downs
+  (implemented).
 - `RelatedContentGrid`.
 - `ServiceCard` and `SectorCard` (implemented as one `CatalogueTile`).
 - `ContactPerson` (implemented for services and sectors as
@@ -394,8 +414,15 @@ These should be resolved as each affected feature begins:
    where the desktop form and head-office details would normally appear.
 5. Publication detail designs cover newsletter/article and video/podcast
    examples, but other card types need to use the same extensible content
-   model.
+   model. Resolved 2026-09-28: one detail template renders every kind; the
+   listing labels seven Figma categories through the canonical
+   `articles.kind` key (control tower section 15.7). The approved kind
+   vocabulary is open decision 23.11.
 6. Several publication-detail areas are obvious media/content placeholders.
+   Resolved 2026-09-28: the empty navy top becomes a header with the kind,
+   title, excerpt, authors and date, followed by the cover; the empty "VIDEO
+   TITLE" player area is not rendered (the contract stores only an external
+   media link, shown as a button when there is no cover).
 7. Team profiles vary greatly in length and section composition.
 8. Legal pages are linked in the footer but have no relevant proposal frames.
 9. Some frames omit or vary the header/footer and navigation labels.
@@ -438,7 +465,8 @@ equivalent exists and are then corrected against Figma.
    templates, CMS media, translations, and related content (done 2026-09-28).
 3. Implement the reusable service and sector indexes/details (done
    2026-09-28).
-4. Implement the newsroom card system and extensible article detail renderer.
+4. Implement the newsroom card system and extensible article detail renderer
+   (done 2026-09-28).
 5. Prototype and then implement Our Outreach.
 6. Complete Why Us, Contact, homepage composition, legal pages, and remaining
    content migration.

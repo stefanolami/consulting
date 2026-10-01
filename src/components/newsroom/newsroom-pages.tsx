@@ -1,17 +1,26 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
-import { Suspense } from 'react'
+import { type ReactNode, Suspense } from 'react'
 
+import { LoadingMessage } from '@/components/loading/loading-message'
+import { LoadingRegion } from '@/components/loading/loading-region'
+import { SkeletonText } from '@/components/loading/skeleton-text'
+import { isArticleKind } from '@/components/newsroom/article-kind'
 import { ArticleRichText } from '@/components/newsroom/article-rich-text'
+import { ArticleSummaryCard, articleSummaryGridClass } from '@/components/newsroom/article-summary-card'
+import { ArticleAuthors, ArticleAuthorsSkeleton, articleBodyClass, ArticleCover, ArticleHeader, articleSectionHeadingClass, ArticleSources, ArticleTopics, NewsroomDetailSkeleton } from '@/components/newsroom/newsroom-article'
+import { NewsroomCard, NewsroomCardSkeleton, newsroomGridClass, NewsroomLeadCard } from '@/components/newsroom/newsroom-card'
+import { NewsroomActiveFilters, NewsroomToolbar, NewsroomToolbarSkeleton, type NewsroomToolbarLabels } from '@/components/newsroom/newsroom-toolbar'
+import { PageHero } from '@/components/shell/page-hero'
+import { Link } from '@/i18n/navigation'
 import { type AppLocale, routing } from '@/i18n/routing'
-import { getPublishedNewsroomDetail, getPublishedNewsroomListing, type NewsroomArticleCard, type NewsroomFilters } from '@/lib/public-newsroom'
-import { teamPath } from '@/lib/team-paths'
+import { getPublishedNewsroomDetail, getPublishedNewsroomListing, type NewsroomFilters } from '@/lib/public-newsroom'
 
-const filterKeys = ['tag', 'service', 'sector', 'author'] as const
+const slugFilterKeys = ['kind', 'tag', 'service', 'sector', 'author'] as const
+const SEARCH_MAX_LENGTH = 100
+const PUBLICATIONS_HERO_PLACEHOLDER = 'hero-publications-papers'
 
 export function newsroomPath(locale: AppLocale, slug?: string) {
 	const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
@@ -23,10 +32,17 @@ function newsroomListingLanguages() {
 }
 
 export function newsroomFiltersFromSearchParams(searchParams: Record<string, string | string[] | undefined>): NewsroomFilters {
-	return Object.fromEntries(filterKeys.flatMap((key) => {
+	const filters: NewsroomFilters = Object.fromEntries(slugFilterKeys.flatMap((key) => {
 		const value = searchParams[key]
 		return typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) ? [[key, value]] : []
 	}))
+	const { q, year } = searchParams
+	if (typeof year === 'string' && /^\d{4}$/.test(year)) filters.year = year
+	if (typeof q === 'string') {
+		const query = q.replace(/\s+/g, ' ').trim().slice(0, SEARCH_MAX_LENGTH)
+		if (query) filters.q = query
+	}
+	return filters
 }
 
 export function newsroomPageFromSearchParams(searchParams: Record<string, string | string[] | undefined>) {
@@ -53,48 +69,159 @@ export async function generateNewsroomDetailMetadata(locale: AppLocale, slug: st
 	return { alternates: { canonical, languages }, description, openGraph: { description, title, url: canonical }, title }
 }
 
-export function NewsroomListingPage({ filters, locale, page }: { filters: NewsroomFilters; locale: AppLocale; page: number }) {
-	return <Suspense fallback={<NewsroomLoading />}><NewsroomListingContent filters={filters} locale={locale} page={page} /></Suspense>
+function kindLabel(t: (key: string) => string, kind: string) {
+	return isArticleKind(kind) ? t(`kinds.${kind}`) : null
+}
+
+type SearchParams = Record<string, string | string[] | undefined>
+
+// Figma 5408:334 (desktop) and 5651:90 (mobile). The hero is static and renders
+// at once; the filter bar, cards and pagination stream in. A new filter or page
+// remounts the stream (inner Suspense key), so its skeleton shows while it loads.
+export async function NewsroomListingPage({ locale, searchParams }: { locale: AppLocale; searchParams: Promise<SearchParams> }) {
+	const [t, tShell] = await Promise.all([
+		getTranslations({ locale, namespace: 'Newsroom' }),
+		getTranslations({ locale, namespace: 'Shell.placeholder' }),
+	])
+	const skeleton = <LoadingRegion label={t('loadingListing')}><NewsroomListingSkeleton /></LoadingRegion>
+	return (
+		<main>
+			<PageHero illustration={{ kind: 'placeholder', name: PUBLICATIONS_HERO_PLACEHOLDER, label: tShell('illustration', { name: PUBLICATIONS_HERO_PLACEHOLDER }), aspectRatio: '1440 / 480' }} title={t('title')}>
+				<p>{t('introduction')}</p>
+			</PageHero>
+			<div className="mx-auto max-w-content px-gutter py-section">
+				<Suspense fallback={skeleton}>
+					<NewsroomListingQuery fallback={skeleton} locale={locale} searchParams={searchParams} />
+				</Suspense>
+			</div>
+		</main>
+	)
+}
+
+async function NewsroomListingQuery({ fallback, locale, searchParams }: { fallback: ReactNode; locale: AppLocale; searchParams: Promise<SearchParams> }) {
+	const query = await searchParams
+	const filters = newsroomFiltersFromSearchParams(query); const page = newsroomPageFromSearchParams(query)
+	return <Suspense fallback={fallback} key={JSON.stringify([filters, page])}><NewsroomListingContent filters={filters} locale={locale} page={page} /></Suspense>
 }
 
 async function NewsroomListingContent({ filters, locale, page }: { filters: NewsroomFilters; locale: AppLocale; page: number }) {
 	await connection()
 	const [listing, t] = await Promise.all([getPublishedNewsroomListing(locale, page, filters), getTranslations({ locale, namespace: 'Newsroom' })])
-	return <main className="min-h-screen bg-white px-6 py-12 text-slate-900 sm:px-10 sm:py-16 lg:px-16"><div className="mx-auto max-w-6xl"><header className="max-w-3xl"><p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-600">{t('eyebrow')}</p><h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">{t('title')}</h1><p className="mt-5 text-lg leading-8 text-slate-700">{t('introduction')}</p></header><NewsroomFiltersForm filters={filters} locale={locale} options={listing.filters} t={{ apply: t('applyFilters'), author: t('author'), clear: t('clearFilters'), sector: t('sector'), service: t('service'), tag: t('tag') }} /><p aria-live="polite" className="mt-8 text-sm text-slate-600">{t('results', { count: listing.total })}</p>{listing.articles.length ? <ul className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{listing.articles.map((article) => <li key={article.id}><ArticleCard article={article} locale={locale} /></li>)}</ul> : <div className="mt-6 rounded-lg border border-dashed border-slate-300 p-8" role="status"><h2 className="text-xl font-semibold">{t('emptyTitle')}</h2><p className="mt-2 text-slate-700">{t(Object.keys(filters).length ? 'emptyFilteredDescription' : 'emptyDescription')}</p></div>}{listing.pageCount > 1 ? <Pagination filters={filters} locale={locale} page={listing.page} pageCount={listing.pageCount} t={{ next: t('next'), page: t('page', { page: listing.page, pageCount: listing.pageCount }), previous: t('previous') }} /> : null}</div></main>
+	const dateFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'long' })
+	const kinds = Object.fromEntries(listing.filters.kinds.flatMap((kind) => { const label = kindLabel(t, kind); return label ? [[kind, label]] : [] }))
+	const labels: NewsroomToolbarLabels = {
+		activeFilters: t('activeFilters'), anyOption: t('anyOption'), anyYear: t('anyYear'), apply: t('applyFilters'), author: t('author'), calendar: t('calendar'), categories: t('categories'), clear: t('clearFilters'), kind: t('kind'), kinds,
+		removeFilter: (label) => t('removeFilter', { label }), search: t('search'), searchChip: (query) => t('searchChip', { query }), searchPlaceholder: t('searchPlaceholder'), searchSubmit: t('searchSubmit'), sector: t('sector'), service: t('service'), tag: t('tag'), year: t('year'),
+	}
+	const heading = filters.kind ? kindLabel(t, filters.kind) ?? t('latest') : t('latest')
+	const cardLabels = (kind: string) => ({ kind: kindLabel(t, kind), readMore: t('readMore') })
+	const filtered = Object.keys(filters).length > 0
+	return (
+		<>
+			<NewsroomToolbar action={newsroomPath(locale)} filters={filters} labels={labels} options={listing.filters} />
+			<NewsroomActiveFilters filters={filters} labels={labels} locale={locale} options={listing.filters} />
+			<section aria-labelledby="newsroom-results-heading" className="mt-[clamp(2.5rem,2rem+2vw,3.5rem)]">
+				<h2 className={listingHeadingClass} id="newsroom-results-heading">{heading}</h2>
+				<p aria-live="polite" className="mt-2 text-center font-label text-body text-brand">{t('results', { count: listing.total })}</p>
+				{listing.featured || listing.articles.length ? (
+					<div className="mt-[clamp(1.5rem,1.2rem+1vw,2.25rem)] space-y-[clamp(1.25rem,0.9rem+1.2vw,1.5rem)]">
+						{listing.featured ? <NewsroomLeadCard article={listing.featured} dateFormat={dateFormat} labels={cardLabels(listing.featured.kind)} locale={locale} /> : null}
+						{listing.articles.length ? (
+							<ul className={newsroomGridClass}>
+								{listing.articles.map((article, index) => (
+									<li className="motion-safe:animate-tile-in" key={article.id} style={{ animationDelay: `${Math.min(index, 11) * 60}ms` }}>
+										<NewsroomCard article={article} dateFormat={dateFormat} index={index} labels={cardLabels(article.kind)} locale={locale} />
+									</li>
+								))}
+							</ul>
+						) : null}
+					</div>
+				) : (
+					<div className="mx-auto mt-8 max-w-2xl rounded-panel border border-dashed border-tp-mist bg-surface-soft px-6 py-12 text-center text-brand" role="status">
+						<p className="font-display text-heading-3 font-bold">{t('emptyTitle')}</p>
+						<p className="mt-3 font-label text-body-lg">{t(filtered ? 'emptyFilteredDescription' : 'emptyDescription')}</p>
+						{filtered ? <p className="mt-6"><Link className="inline-block bg-tp-blue px-6 py-2.5 font-serif uppercase text-on-brand hover:bg-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" href="/newsroom" locale={locale}>{t('clearFilters')}</Link></p> : null}
+					</div>
+				)}
+				{listing.pageCount > 1 ? <Pagination filters={filters} locale={locale} page={listing.page} pageCount={listing.pageCount} t={{ label: t('pagination'), next: t('next'), page: t('page', { page: listing.page, pageCount: listing.pageCount }), previous: t('previous') }} /> : null}
+			</section>
+		</>
+	)
 }
 
-function NewsroomFiltersForm({ filters, locale, options, t }: { filters: NewsroomFilters; locale: AppLocale; options: Awaited<ReturnType<typeof getPublishedNewsroomListing>>['filters']; t: { apply: string; author: string; clear: string; sector: string; service: string; tag: string } }) {
-	return <form action={newsroomPath(locale)} className="mt-10 grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-5 sm:grid-cols-2 lg:grid-cols-4"><FilterSelect defaultValue={filters.tag} label={t.tag} name="tag" options={options.tags} /><FilterSelect defaultValue={filters.service} label={t.service} name="service" options={options.services} /><FilterSelect defaultValue={filters.sector} label={t.sector} name="sector" options={options.sectors} /><FilterSelect defaultValue={filters.author} label={t.author} name="author" options={options.authors} /><div className="flex items-end gap-3 sm:col-span-2 lg:col-span-4"><button className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white" type="submit">{t.apply}</button><Link className="rounded-md px-4 py-2 text-sm font-medium underline underline-offset-4" href={newsroomPath(locale)}>{t.clear}</Link></div></form>
+const listingHeadingClass = 'text-center font-serif text-heading-2 font-bold uppercase text-tp-blue-muted'
+const pageButtonClass = 'inline-block bg-tp-blue px-[clamp(1.25rem,1rem+1vw,1.75rem)] py-3 font-serif text-lead uppercase text-on-brand transition-colors hover:bg-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-reduce:transition-none'
+
+// Figma shows a single "LOAD MORE" button; the listing keeps crawlable,
+// shareable URL pages instead, in the same button style.
+function Pagination({ filters, locale, page, pageCount, t }: { filters: NewsroomFilters; locale: AppLocale; page: number; pageCount: number; t: { label: string; next: string; page: string; previous: string } }) {
+	const href = (target: number) => ({ pathname: '/newsroom' as const, query: { ...filters, page: String(target) } })
+	return (
+		<nav aria-label={t.label} className="mt-[clamp(2.5rem,2rem+2vw,3.5rem)] flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
+			{page > 1 ? <Link className={pageButtonClass} href={href(page - 1)} locale={locale} rel="prev">{t.previous}</Link> : null}
+			<p aria-current="page" className="font-serif text-body-lg text-brand">{t.page}</p>
+			{page < pageCount ? <Link className={pageButtonClass} href={href(page + 1)} locale={locale} rel="next">{t.next}</Link> : null}
+		</nav>
+	)
 }
 
-function FilterSelect({ defaultValue, label, name, options }: { defaultValue?: string; label: string; name: string; options: Array<{ label: string; slug: string }> }) {
-	return <label className="grid gap-1.5 text-sm font-medium"><span>{label}</span><select className="h-10 rounded-md border border-slate-300 bg-white px-3" defaultValue={defaultValue ?? ''} name={name}><option value="">All {label.toLowerCase()}s</option>{options.map((option) => <option key={option.slug} value={option.slug}>{option.label}</option>)}</select></label>
+// Filter bar, heading, count and four cards (two on mobile) while the listing loads.
+function NewsroomListingSkeleton() {
+	return (
+		<>
+			<NewsroomToolbarSkeleton />
+			<div className="mt-[clamp(2.5rem,2rem+2vw,3.5rem)]">
+				<SkeletonText className={`${listingHeadingClass} mx-auto w-64`} lastLineWidth="w-full" />
+				<SkeletonText className="mx-auto mt-2 w-24 font-label text-body" lastLineWidth="w-full" />
+				<ul className={`mt-[clamp(1.5rem,1.2rem+1vw,2.25rem)] ${newsroomGridClass}`}>
+					{Array.from({ length: 4 }, (_, index) => <li className={index > 1 ? 'max-md:hidden' : undefined} key={index}><NewsroomCardSkeleton index={index} /></li>)}
+				</ul>
+			</div>
+		</>
+	)
 }
 
-function ArticleCard({ article, locale }: { article: NewsroomArticleCard; locale: AppLocale }) {
-	return <article className="flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white"><Link aria-label={article.title} className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950" href={newsroomPath(locale, article.slug)}>{article.cover ? <Image alt={article.cover.alt} className="aspect-[16/9] w-full object-cover" height={360} src={article.cover.url} width={640} /> : <div aria-hidden="true" className="aspect-[16/9] bg-slate-100" />}</Link><div className="flex flex-1 flex-col p-5"><time className="text-sm text-slate-600" dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time><h2 className="mt-3 text-2xl font-semibold leading-tight"><Link className="underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4" href={newsroomPath(locale, article.slug)}>{article.title}</Link></h2>{article.excerpt ? <p className="mt-3 leading-7 text-slate-700">{article.excerpt}</p> : null}{article.authors.length ? <p className="mt-4 text-sm text-slate-600">{article.authors.map((author, index) => <span key={author.id}>{index ? ', ' : null}{author.profileSlug ? <Link className="underline underline-offset-2" href={teamPath(locale, author.profileSlug)}>{author.name}</Link> : author.name}</span>)}</p> : null}{article.tags.length ? <ul className="mt-4 flex flex-wrap gap-2">{article.tags.map((tag) => <li className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-700" key={tag.slug}>{tag.label}</li>)}</ul> : null}</div></article>
-}
-
-function Pagination({ filters, locale, page, pageCount, t }: { filters: NewsroomFilters; locale: AppLocale; page: number; pageCount: number; t: { next: string; page: string; previous: string } }) {
-	return <nav aria-label="Pagination" className="mt-10 flex items-center justify-between gap-4"><span className="text-sm text-slate-600">{t.page}</span>{page > 1 ? <Link className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium" href={listingHref(locale, filters, page - 1)}>{t.previous}</Link> : <span />}{page < pageCount ? <Link className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium" href={listingHref(locale, filters, page + 1)}>{t.next}</Link> : <span />}</nav>
-}
-
+// One template for every kind (Figma 5534:989 newsletter/article, 5542:2
+// video/podcast). Every section after the body renders only when it has content.
 export function NewsroomDetailPage({ locale, slug }: { locale: AppLocale; slug: string }) {
-	return <Suspense fallback={<NewsroomLoading />}><NewsroomDetailContent locale={locale} slug={slug} /></Suspense>
+	return <Suspense fallback={<NewsroomDetailSkeleton label={<LoadingMessage messageKey="Newsroom.loadingArticle" />} />}><NewsroomDetailContent locale={locale} slug={slug} /></Suspense>
 }
 
 async function NewsroomDetailContent({ locale, slug }: { locale: AppLocale; slug: string }) {
 	await connection()
 	const [article, t] = await Promise.all([getPublishedNewsroomDetail(locale, slug), getTranslations({ locale, namespace: 'Newsroom' })])
 	if (!article) notFound()
-	return <main className="min-h-screen overflow-x-clip bg-white px-6 py-12 text-slate-900 sm:px-10 sm:py-16 lg:px-16"><article className="mx-auto max-w-4xl"><Link className="text-sm font-medium underline underline-offset-4" href={newsroomPath(locale)}>← {t('title')}</Link><header className="mt-10"><time className="text-sm text-slate-600" dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time><h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">{article.title}</h1>{article.excerpt ? <p className="mt-6 text-xl leading-8 text-slate-700">{article.excerpt}</p> : null}{article.authors.length ? <p className="mt-6 text-sm text-slate-700">{t('byline')}: {article.authors.map((author, index) => <span key={author.id}>{index ? ', ' : null}{author.profileSlug ? <Link className="underline underline-offset-2" href={teamPath(locale, author.profileSlug)}>{author.name}</Link> : author.name}</span>)}</p> : null}{article.tags.length ? <TaxonomyList items={article.tags} label={t('tags')} /> : null}{article.cover ? <figure className="mt-8"><Image alt={article.cover.alt} className="w-full rounded-lg object-cover" height={720} priority src={article.cover.url} width={1280} />{article.cover.caption ? <figcaption className="mt-2 text-sm text-slate-600">{article.cover.caption}</figcaption> : null}</figure> : article.externalMediaUrl ? <p className="mt-8 text-sm"><a className="underline underline-offset-4" href={article.externalMediaUrl} rel="noreferrer" target="_blank">{t('externalMedia')}</a></p> : null}</header><div className="mt-10"><ArticleRichText content={article.content} media={article.inlineMedia} /></div>{article.services.length || article.sectors.length ? <section className="mt-12 border-t border-slate-200 pt-8"><h2 className="text-2xl font-semibold">{t('relatedTopics')}</h2>{article.services.length ? <TaxonomyList items={article.services} label={t('services')} /> : null}{article.sectors.length ? <TaxonomyList items={article.sectors} label={t('sectors')} /> : null}</section> : null}{article.sources.length ? <section className="mt-12 border-t border-slate-200 pt-8"><h2 className="text-2xl font-semibold">{t('sources')}</h2><ol className="mt-4 list-decimal space-y-2 pl-5">{article.sources.map((source) => <li key={`${source.label}-${source.url}`}><a className="underline underline-offset-4" href={source.url} rel="noreferrer" target="_blank">{source.label}</a></li>)}</ol></section> : null}{article.relatedArticles.length ? <section className="mt-12 border-t border-slate-200 pt-8"><h2 className="text-2xl font-semibold">{t('relatedArticles')}</h2><ul className="mt-5 grid gap-5 sm:grid-cols-2">{article.relatedArticles.map((related) => <li key={related.id}><ArticleCard article={related} locale={locale} /></li>)}</ul></section> : null}</article></main>
+	const dateFormat = new Intl.DateTimeFormat(locale, { dateStyle: 'long' })
+	return (
+		<main>
+			<article>
+				<ArticleHeader article={article} bylineTemplate={t.raw('byline') as string} dateFormat={dateFormat} kindLabel={kindLabel(t, article.kind)} locale={locale} />
+				<ArticleCover article={article} externalMediaLabel={t('externalMedia')} />
+				<div className={articleBodyClass}>
+					<ArticleRichText content={article.content} media={article.inlineMedia} />
+					<ArticleTopics
+						groups={[{ items: article.tags, key: 'tag', label: t('tags') }, { items: article.services, key: 'service', label: t('services') }, { items: article.sectors, key: 'sector', label: t('sectors') }]}
+						heading={t('relatedTopics')}
+						locale={locale}
+					/>
+					<ArticleSources heading={t('sources')} sources={article.sources} />
+					<Suspense fallback={<ArticleAuthorsSkeleton label={t('loadingAuthors')} />}>
+						<ArticleAuthors authors={article.authors} labels={{ email: t('email'), heading: (count) => t('moreAboutAuthors', { count }), phone: t('phone') }} locale={locale} />
+					</Suspense>
+					{article.relatedArticles.length ? (
+						<section aria-labelledby="article-related-heading">
+							<h2 className={articleSectionHeadingClass} id="article-related-heading">{t('relatedArticles')}</h2>
+							<ul className={articleSummaryGridClass}>
+								{article.relatedArticles.map((related) => (
+									<li key={related.id}>
+										<ArticleSummaryCard article={related} byline={related.authors.length ? t('byline', { authors: related.authors.map((author) => author.name).join(', ') }) : null} dateFormat={dateFormat} locale={locale} />
+									</li>
+								))}
+							</ul>
+						</section>
+					) : null}
+				</div>
+			</article>
+		</main>
+	)
 }
-
-function TaxonomyList({ items, label }: { items: Array<{ label: string; slug: string }>; label: string }) {
-	return <div className="mt-5"><h2 className="text-sm font-semibold uppercase tracking-wide text-slate-600">{label}</h2><ul className="mt-2 flex flex-wrap gap-2">{items.map((item) => <li className="rounded-full bg-slate-100 px-3 py-1 text-sm" key={item.slug}>{item.label}</li>)}</ul></div>
-}
-
-export function NewsroomLoading() { return <main aria-busy="true" className="min-h-screen bg-white px-6 py-16 text-slate-700"><p className="mx-auto max-w-6xl">Loading newsroom content…</p></main> }
-
-function listingHref(locale: AppLocale, filters: NewsroomFilters, page: number) { const params = new URLSearchParams({ ...filters, page: String(page) }); return `${newsroomPath(locale)}?${params.toString()}` }
-function formatDate(value: string, locale: AppLocale) { return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(value)) }
