@@ -1,6 +1,6 @@
 # Consulting Website Rework — Control Tower
 
-Last updated: 2026-09-28
+Last updated: 2026-10-05
 
 Status: High-level plan and architectural source of truth
 
@@ -955,9 +955,9 @@ Implemented on 2026-09-28:
   (Figma "pages" drop-down), `LocaleSwitcher`, `SiteFooter`, `SocialLinks`,
   `DownloadSnapshotLink`, `PoeLink`, `PageHero`, `SkipLink`. Navigation
   labels follow Figma (`Publications` links to `/newsroom`; `Who we are`
-  links to `/team` for now). Links to Contact and the legal pages target
-  their intended paths and return 404 until those pages exist (Why us exists
-  since section 15.8).
+  links to `/team` for now). Links to the legal pages target their intended
+  paths and return 404 until those pages exist (Why us exists since section
+  15.8, Contact since section 15.10).
 - The POE link reads the existing public `poe_external_link` site setting and
   is hidden while it is empty.
 - Interface strings live in the `Shell` message namespace. Non-English
@@ -1355,6 +1355,145 @@ unchanged; the test harness that occupied it is gone.
 - The `HomePage` and new `Partners` namespaces are provisional in the
   non-English locales.
 
+### 15.10 Contact
+
+Implemented on 2026-10-05 against Figma `5408:348` (desktop) and `5651:504`
+(mobile), with the structure and behaviour of the legacy
+`old-consulting/src/components/contact/` (`contact.jsx`, `contact-form.jsx`,
+`contact-map-desktop.jsx`, `contact-map-mobile.jsx`) and the legacy Zoho route
+`old-consulting/src/app/api/email/route.js`. The new route `/contact`
+(locale-prefixed for non-English) is the legacy path, so no redirect is
+needed; the header already linked to it.
+
+- Page (`src/components/contact/contact-page.tsx`, route
+  `src/app/[locale]/contact/page.tsx` in the Why Us shape): navy `PageHero`
+  titled "Contact" without an introduction (Figma has placeholder Latin and
+  the legacy page had none); "Our global network"; then the blue-muted band
+  with the form ("Send us a message") and the head office. Copy lives in the
+  new `Contact` messages. Metadata: localized title and description,
+  canonical and hreflang alternates for every locale plus `x-default`.
+- Office network (`office-network.tsx`, `office-network-explorer.tsx`): the
+  CMS offices grouped by country, read by `getPublishedOfficeNetwork`
+  (`src/lib/public-offices.ts`) through `country_offices`, the relation the
+  admin country editor orders. Every level must be public in the exact
+  locale: an active office with a published office translation, a covered
+  country with a published country translation, each with `published_at` not
+  in the future; there is no English fallback. Countries follow
+  `countries.display_order`, then the localized name; cities follow the
+  relation order, then `offices.display_order`. A country shows its office
+  cities (`office_translations.city`, else the office name) and the distinct
+  office email addresses: the schema has no country-level email, and the
+  offices of a country share one address as on the legacy page. The read uses
+  the hourly cache with the existing `public-outreach` tag, which office and
+  country admin actions already invalidate. No schema migration. The heading
+  is part of the streamed content, so a locale without published offices
+  renders no section. `OfficeNetworkSkeleton` (heading, card shapes below
+  `lg`, buttons, panel and map from `lg`) sits in a `LoadingRegion`.
+- Country choice (Figma annotation "TITLE, E-MAIL & PHONE NUMBER CHANGE BASED
+  ON SELECTION"; legacy country buttons): the server markup lists every
+  country as a card (the mobile design). After hydration, from `lg`, a group
+  of real `<button aria-pressed>` toggles (one per country, `aria-controls`
+  the panel) selects the country shown in one panel (`role="region"`,
+  `aria-live="polite"`), starting with the first country as the legacy page
+  did; below `lg` the cards stay. Without JavaScript the cards show at every
+  width. Hover pins and the map interaction of the legacy page are not
+  rebuilt; Our Outreach code is not used.
+- Head office (`head-office.tsx`): address, email (`mailto:`) and phone
+  (`tel:`, digits with the "(0)" trunk prefix removed) from the public
+  `contact_footer` site setting, streamed with its own skeleton; only the
+  details that are set are shown, and without any the block is omitted. The
+  heading reads "Head office" because the address is CMS data.
+- Form (`contact-form.tsx`, the page's form client piece): name, email,
+  subject and message, each with a visible label, a required marker and
+  `autocomplete` where it applies. It posts to the Server Action
+  `submitContactForm` (`src/lib/contact/contact-action.ts`) through
+  `useActionState`, so it works without JavaScript: the browser's own checks
+  (`required`, `minLength`, `maxLength`, `type="email"`) apply and the page is
+  re-rendered with the result and the visitor's input. With JavaScript the form
+  sets `noValidate` and runs the same rules as the server before sending;
+  errors appear under their fields (`aria-invalid`, `aria-describedby`), focus
+  moves to the first invalid field or to the result, and one polite status
+  announces the outcome. React's automatic form reset restores the returned
+  values after an error and clears the form after success. A short notice
+  links to the planned `/privacy-policy` route.
+- Validation (`src/lib/contact/contact-rules.mjs`, shared by the client and
+  the Server Action, zod): every field is trimmed and bounded (name 2–100,
+  email up to 254 and a valid address, subject 2–150, message 10–5,000
+  characters); name, email and subject reject control characters, line breaks
+  and the Unicode line and paragraph separators; the message allows line feeds
+  and tabs and normalizes CRLF. Errors are codes that the interface localizes.
+- Delivery (`src/lib/contact/contact-delivery.ts`, `contact-mail.mjs`): the
+  legacy Zoho SMTP route ported to nodemailer 10.0.14 (pinned). TLS
+  certificates are verified (the legacy `rejectUnauthorized: false` is gone);
+  port 465 uses implicit TLS, any other port must use STARTTLS. Credentials
+  come from server-only `CONTACT_SMTP_HOST`, `CONTACT_SMTP_PORT`,
+  `CONTACT_SMTP_USER`, `CONTACT_SMTP_PASSWORD` and `CONTACT_TO_EMAIL`,
+  validated when a message is sent (README "Contact form"). The message is
+  plain text, sent from the configured mailbox with the visitor only as
+  `replyTo`; header text is stripped of control characters and line breaks
+  and bounded. Missing configuration shows the visitor a generic localized
+  error and logs the variable names, never values. `CONTACT_MAIL_TRANSPORT=json`
+  uses nodemailer's jsonTransport outside production and prints the generated
+  message instead of sending it.
+- Spam protection (`src/lib/contact/contact-guard.mjs`, no third-party
+  CAPTCHA while decision 23.7 is open): a hidden honeypot field; a minimum fill
+  time of 3 seconds measured from a signed timestamp in the HttpOnly
+  `tp_contact_form` cookie, which the proxy (`src/proxy.ts`) issues on a GET of
+  the Contact page when none is valid and keeps for 24 hours, so prefetches and
+  reloads do not restart it (`CONTACT_FORM_SECRET`, required in production);
+  and a sliding-window limit of 5 accepted messages per 15 minutes per client
+  address. A tripped honeypot or a too-fast submission is answered as if sent
+  and logged; a missing, forged or expired cookie gets a visible "send again"
+  error and a fresh cookie, so a visitor who blocks cookies cannot send. The
+  rate limit is in memory: on serverless hosting each instance and cold start
+  counts separately, so it only slows a single client; a shared store is
+  needed for a real quota. The client address comes from `x-forwarded-for` or
+  `x-real-ip`, trustworthy only behind a proxy that overwrites them. The token
+  is a cookie rather than a hidden field because streamed markup is inserted by
+  script and would not reach a visitor without JavaScript.
+- Tests: `scripts/contact-rules.test.mjs` (schema, lengths, characters,
+  `tel:`) and `scripts/contact-guard.test.mjs` (honeypot, token timing and
+  forgery, rate limit, path matching, client address, mail configuration and
+  message headers). The shared logic is plain `.mjs` with `.d.mts`
+  declarations so `node --test` can import it.
+- Checked in development with jsonTransport: `/contact` (Brazil, the only
+  published office country) and `/de/contact` (no offices) at 375, 768, 1024
+  and 1440: no horizontal overflow, one `h1`, outline `h1` → `h2` network →
+  `h3` countries → `h2` form → `h2` head office, no text under 14 px in
+  `main`, hreflang as above; German renders no network section. The selector
+  and the Figma rhythm (five then three buttons, panel and map) were checked
+  with the eight legacy countries through a temporary loader override, and the
+  skeletons with a temporary delay (one polite status per region in English
+  and German, no pulse under reduced motion); both were removed. Form
+  scenarios: success (message logged with the mailbox as sender and the
+  visitor as Reply-To), each validation error on the client and on the server,
+  honeypot, too fast, missing cookie, rate limit (the sixth accepted message
+  within the window is refused), missing SMTP configuration, and a submission
+  with JavaScript disabled. Keyboard order: skip link, header, country
+  buttons, the panel email, the four fields, the privacy link, Send, head
+  office email and phone; every stop shows a focus outline.
+- Known limit: without JavaScript the streamed sections (office network, head
+  office, and the footer's CMS details on every page) keep their skeletons,
+  because React reveals streamed content with inline scripts. The office
+  network renders every country without JavaScript once its markup is in the
+  page, but making it part of the initial HTML needs prerendered data
+  (`'use cache'`), which would make builds depend on the CMS (section 20,
+  Phase 5); see open decision 23.14.
+- Deviations from Figma: the hero intro is omitted; labels sit above the
+  fields instead of placeholders inside them, with 3 px borders; the form
+  heading reads "Send us a message" rather than a second "CONTACT"; the head
+  office heading is "Head office" rather than "Brussels Head Office"; the
+  phone and email are links; the address icon is a pin (Figma uses an
+  envelope); the country name is repeated below its badge, and small card
+  badges show no name; the mobile map behind the country grid is omitted; the
+  mobile and tablet form, which Figma does not show (design gap 4), stacks the
+  form above the head office, with name and email side by side from 640 px.
+- Placeholders: the hero telephone drawing (`hero-contact-telephone`), the
+  country icon buttons (`contact-country-icon-<code>`), the world map
+  (`contact-world-map`) and the head office icons (Lucide stand-ins). See
+  [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
+- The `Contact` namespace is provisional in the non-English locales.
+
 ## 16. Public routes and legacy parity
 
 The final route inventory will be confirmed against Figma. At minimum, the
@@ -1468,7 +1607,17 @@ Before launch, confirm:
 - Analytics provider and event requirements.
 - Cookie/consent requirements.
 - Newsletter provider and migration behavior.
-- Contact-form delivery and spam protection.
+- Contact-form delivery and spam protection. Implemented provisionally
+  (section 15.10): SMTP through nodemailer with the legacy Zoho mailbox model
+  (`CONTACT_*` server-only variables, TLS verified, visitor as Reply-To), a
+  honeypot, a 3-second minimum fill time from a signed HttpOnly cookie, and an
+  in-memory limit of 5 accepted messages per 15 minutes per client address.
+  Before launch: set the variables and `CONTACT_FORM_SECRET` in production,
+  confirm the mailbox and recipient, and decide whether the in-memory limit
+  (per instance on serverless) needs a shared store or a CAPTCHA provider
+  (open decision 7). The `tp_contact_form` cookie is a strictly necessary
+  security cookie holding only a signed timestamp; list it in the cookie
+  policy.
 - Supabase Auth SMTP provider and templates.
 - Error monitoring.
 - Backup and recovery procedure for both database and Storage.
@@ -1703,7 +1852,9 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
 - Build the remaining marketing, contact, and legal pages (Why Us done
   2026-10-05, section 15.8, including the reusable endorsements section; Home
   done 2026-10-05, section 15.9, with the reusable partners section and
-  without the deferred newsroom feature).
+  without the deferred newsroom feature; Contact done 2026-10-05, section
+  15.10, with the CMS office network, the head office from the site settings
+  and the SMTP form; the legal pages remain).
 - Complete responsive and interaction states.
 - Have realistic profiles, articles, services, sectors, countries, and other
   content authored through the admin and reviewed on their public pages.
@@ -1808,7 +1959,14 @@ These decisions should be resolved before the affected implementation begins:
 6. Search requirements for the newsroom. A basic title-and-excerpt search is
    implemented (section 15.7); whether body text, authors or a database-side
    full-text index are needed remains open.
-7. Analytics, consent, monitoring, SMTP, and spam-protection providers.
+7. Analytics, consent, monitoring, SMTP, and spam-protection providers. The
+   contact form (section 15.10) uses SMTP through nodemailer with the
+   `CONTACT_*` variables (the legacy Zoho mailbox is the expected provider),
+   and a honeypot, a signed-cookie minimum fill time and an in-memory per-IP
+   rate limit instead of a CAPTCHA. Still open: the production mailbox and
+   recipient, whether a CAPTCHA (and which provider) is wanted, and whether the
+   rate limit needs a shared store (the in-memory limit counts per serverless
+   instance).
 8. Post-launch Git and persistent Supabase development branch naming.
 9. Final published service catalogue and ordering after stakeholder review.
 10. Whether the `Business` / `Government Institute` / `Academia` audience
@@ -1830,6 +1988,18 @@ These decisions should be resolved before the affected implementation begins:
     shows (featured, latest, by kind), how many, and whether it advances on
     its own. It is deferred and not built (section 15.9). Also whether the
     homepage should show the endorsements band, which Figma does not include.
+14. Whether CMS sections must be visible without JavaScript. Streamed
+    sections are revealed by inline scripts, so without JavaScript the
+    Contact office network and head office, the footer's CMS details and the
+    other CMS sections keep their skeletons (section 15.10). Making them part
+    of the initial HTML needs prerendered data (`'use cache'`), which makes
+    builds depend on the CMS. The contact form itself works without
+    JavaScript.
+15. The Contact country icon buttons and world map (Figma `5408:348`): the
+    artwork, and whether the map should mark the selected country (the legacy
+    page showed a pin). Also which offices and countries to publish: only
+    Brazil (three offices, English) is published; the legacy page listed
+    Austria, Belgium, France, Germany, Ireland, Portugal and Romania too.
 
 ## 24. Definition of completion
 
@@ -1858,8 +2028,13 @@ The rebuild is complete when:
 2. Apply the Figma design to the existing public templates, one template at a
 	 time, following section 15.2. Who We Are and team profiles (section 15.4),
 	 services and sectors (section 15.5) and the newsroom listing and article
-	 detail (section 15.7) are done, and Why Us (section 15.8) and Home
-	 (section 15.9) are built. Our Outreach is next, with template skeletons
+	 detail (section 15.7) are done, and Why Us (section 15.8), Home
+	 (section 15.9) and Contact (section 15.10) are built. Author the
+	 remaining legacy offices (Austria, Belgium, France, Germany, Ireland,
+	 Portugal and Romania, each with city, country email, a published
+	 translation per locale and a `country_offices` link) in the admin, set
+	 the `CONTACT_*` variables and `CONTACT_FORM_SECRET` for production, and
+	 review the provisional `Contact` translations. Our Outreach is next, with template skeletons
 	 built on the loading foundation (section 15.6). Review the provisional
 	 `Team`, `Catalogue`, `Newsroom`, `WhyUs`, `Endorsements`, `HomePage` and
 	 `Partners` translations with the shell strings, confirm the Why Us figures

@@ -44,7 +44,8 @@
 			"Newsroom.kinds",
 			"WhyUs",
 			"Endorsements",
-			"Partners"
+			"Partners",
+			"Contact"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -271,6 +272,51 @@
 	"Partners": {
 		"title": "Partner und Kunden",
 		"loading": "Partner und Kunden werden geladen"
+	},
+	"Contact": {
+		"title": "Kontakt",
+		"metaDescription": "Kontaktieren Sie Time&Place Consulting: Senden Sie uns eine Nachricht, erreichen Sie unseren Hauptsitz in Brüssel oder finden Sie die Büros unseres globalen Netzwerks.",
+		"network": {
+			"title": "Unser globales Netzwerk",
+			"chooseCountry": "Wählen Sie ein Land, um seine Büros zu sehen",
+			"loading": "Unsere Büros werden geladen",
+			"mapPlaceholder": "Platzhalter für Karte: {name}"
+		},
+		"headOffice": {
+			"title": "Hauptsitz",
+			"address": "Adresse",
+			"email": "E-Mail",
+			"phone": "Telefon",
+			"loading": "Angaben zum Hauptsitz werden geladen"
+		},
+		"form": {
+			"title": "Schreiben Sie uns",
+			"requiredNote": "Mit * markierte Felder sind Pflichtfelder.",
+			"name": "Name",
+			"email": "E-Mail",
+			"subject": "Betreff",
+			"message": "Nachricht",
+			"messagePlaceholder": "Wie können wir Ihnen helfen?",
+			"messageHint": "Höchstens {max, number} Zeichen.",
+			"honeypot": "Dieses Feld leer lassen",
+			"privacy": "Wir verwenden Ihre Angaben nur, um Ihre Nachricht zu beantworten. Lesen Sie unsere <link>Datenschutzerklärung</link>.",
+			"submit": "Senden",
+			"sending": "Wird gesendet…",
+			"errors": {
+				"required": "Dieses Feld ist erforderlich.",
+				"tooShort": "Geben Sie mindestens {min, number} Zeichen ein.",
+				"tooLong": "Verwenden Sie höchstens {max, number} Zeichen.",
+				"invalidEmail": "Geben Sie eine gültige E-Mail-Adresse ein, zum Beispiel name@example.com.",
+				"invalidCharacters": "Entfernen Sie Zeilenumbrüche und Steuerzeichen."
+			},
+			"status": {
+				"success": "Vielen Dank. Ihre Nachricht wurde gesendet, wir antworten so bald wie möglich.",
+				"invalid": "{count, plural, one {Bitte korrigieren Sie das unten markierte Feld.} other {Bitte korrigieren Sie die # unten markierten Felder.}}",
+				"verification": "Wir konnten dieses Formular nicht überprüfen. Bitte warten Sie einige Sekunden und senden Sie es erneut. Das Formular verwendet ein kleines Sicherheits-Cookie, daher müssen Cookies für diese Website erlaubt sein.",
+				"rateLimited": "Sie haben in kurzer Zeit mehrere Nachrichten gesendet. Bitte warten Sie einige Minuten und versuchen Sie es erneut.",
+				"unavailable": "Ihre Nachricht konnte gerade nicht gesendet werden. Bitte versuchen Sie es später erneut oder schreiben Sie uns eine E-Mail."
+			}
+		}
 	},
 	"NotFound": {
 		"title": "Diese Seite ist nicht verfügbar",

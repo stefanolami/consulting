@@ -72,6 +72,9 @@
 	--color-glow: #66a2b6;
 	--color-focus: var(--color-tp-azure);
 	--color-focus-on-dark: #ffffff;
+	/* Form errors (Contact): about 7.7:1 on white; about 6.2:1 on tp-blue-muted. */
+	--color-error: #a3112b;
+	--color-error-on-brand: #ffd2d2;
 
 	/* Type scale: fluid between ~390px and ~1440px viewports */
 	--text-display: clamp(2.5rem, 1.75rem + 3vw, 4.5rem);

@@ -223,6 +223,51 @@
 		"title": "Partners and clients",
 		"loading": "Loading partners and clients"
 	},
+	"Contact": {
+		"title": "Contact",
+		"metaDescription": "Contact Time&Place Consulting: send us a message, reach our head office in Brussels, or find the offices of our global network.",
+		"network": {
+			"title": "Our global network",
+			"chooseCountry": "Choose a country to see its offices",
+			"loading": "Loading our offices",
+			"mapPlaceholder": "Map placeholder: {name}"
+		},
+		"headOffice": {
+			"title": "Head office",
+			"address": "Address",
+			"email": "Email",
+			"phone": "Phone",
+			"loading": "Loading the head office details"
+		},
+		"form": {
+			"title": "Send us a message",
+			"requiredNote": "Fields marked with * are required.",
+			"name": "Name",
+			"email": "Email",
+			"subject": "Subject",
+			"message": "Message",
+			"messagePlaceholder": "How can we be of service?",
+			"messageHint": "Up to {max, number} characters.",
+			"honeypot": "Leave this field empty",
+			"privacy": "We use your details only to answer your message. Read our <link>privacy policy</link>.",
+			"submit": "Send",
+			"sending": "Sending…",
+			"errors": {
+				"required": "This field is required.",
+				"tooShort": "Enter at least {min, number} characters.",
+				"tooLong": "Use no more than {max, number} characters.",
+				"invalidEmail": "Enter a valid email address, such as name@example.com.",
+				"invalidCharacters": "Remove line breaks and special control characters."
+			},
+			"status": {
+				"success": "Thank you. Your message has been sent and we will reply as soon as we can.",
+				"invalid": "{count, plural, one {Please correct the field marked below.} other {Please correct the # fields marked below.}}",
+				"verification": "We could not verify this form. Please wait a few seconds and send it again. The form uses a small security cookie, so cookies must be allowed for this site.",
+				"rateLimited": "You have sent several messages in a short time. Please wait a few minutes and try again.",
+				"unavailable": "Your message could not be sent right now. Please try again later or write to us by email."
+			}
+		}
+	},
 	"NotFound": {
 		"title": "This page is not available",
 		"description": "The page may not exist, or it may not be published in this language.",

@@ -218,7 +218,7 @@ not copy its raw coordinates.
 | Sectors | `5651:406` | Alternating title/summary cards |
 | Why Us | `5651:450` | Stacked content and endorsement cards |
 | Publications | `5651:90` | Single-column article cards |
-| Contact | `5651:504` | Office grid; form area unresolved |
+| Contact | `5651:504` | Office grid; form area unresolved (designed in code, gap 4) |
 | Association Management | `5695:437` | Representative service detail |
 | Agrifood | `5695:370` | Representative sector detail |
 
@@ -325,7 +325,9 @@ affected elements. They are the only interaction specification in the file:
 - `SCROLL OF ENDORSEMENT LOGOS & DESCRIPTIONS`.
 - `focus card effect` and `Comet card effect`.
 - `animated ripple gif for selected point` — Our Outreach map selection.
-- `TITLE, E-MAIL & PHONE NUMBER CHANGE BASED ON SELECTION` — Contact offices.
+- `TITLE, E-MAIL & PHONE NUMBER CHANGE BASED ON SELECTION` — Contact offices
+  (implemented as country toggle buttons and one panel from 1024 px; control
+  tower section 15.10).
 - `DROP-DOWN MENU: pages`, `DROP-DOWN MENU: CALENDAR`, and
   `DROP-DOWN MENU: CATEGORIES` — navigation and newsroom filters.
 
@@ -359,7 +361,9 @@ The reusable system therefore needs to be created in code:
 - `ServiceCard` and `SectorCard` (implemented as one `CatalogueTile`).
 - `ContactPerson` (implemented for services and sectors as
   `CatalogueContacts`).
-- `OfficeCard`.
+- `OfficeCard` (implemented as the Contact country card and panel,
+  `src/components/contact/office-network-explorer.tsx`; control tower
+  section 15.10).
 - `LogoCloud`.
 - `EndorsementCard` (implemented with the scrolling `Endorsements` section;
   control tower section 15.8).
@@ -368,7 +372,8 @@ The reusable system therefore needs to be created in code:
 - `CountryList`.
 - `CountrySummaryPanel`.
 - `CountryStats`.
-- `ContactForm`.
+- `ContactForm` (implemented with the Contact page; control tower section
+  15.10).
 
 The line illustrations, logo, icons, portraits, photographs, partner logos,
 flags, and country/office marks require an asset inventory. Assets are not
@@ -427,6 +432,13 @@ These should be resolved as each affected feature begins:
 3. No mobile Our Outreach design exists.
 4. The mobile Contact frame shows offices but leaves a large unresolved area
    where the desktop form and head-office details would normally appear.
+   Resolved 2026-10-05 in code (control tower section 15.10): below 1024 px
+   the blue band stacks the form, then the head office, centred like the
+   desktop column; name and email sit side by side from 640 px, the other
+   fields are full width, and labels sit above the fields. Countries show as
+   the mobile frame's cards up to 1024 px and as the desktop selector above.
+   Validation and result states are defined in code (errors under each field,
+   one status message above the form). Confirm with the designer.
 5. Publication detail designs cover newsletter/article and video/podcast
    examples, but other card types need to use the same extensible content
    model. Resolved 2026-09-28: one detail template renders every kind; the

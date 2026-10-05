@@ -44,7 +44,8 @@
 			"Newsroom.kinds",
 			"WhyUs",
 			"Endorsements",
-			"Partners"
+			"Partners",
+			"Contact"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -271,6 +272,51 @@
 	"Partners": {
 		"title": "Parceiros e clientes",
 		"loading": "A carregar parceiros e clientes"
+	},
+	"Contact": {
+		"title": "Contacto",
+		"metaDescription": "Contacte a Time&Place Consulting: envie-nos uma mensagem, contacte a nossa sede em Bruxelas ou encontre os escritórios da nossa rede global.",
+		"network": {
+			"title": "A nossa rede global",
+			"chooseCountry": "Escolha um país para ver os seus escritórios",
+			"loading": "A carregar os nossos escritórios",
+			"mapPlaceholder": "Marcador de posição do mapa: {name}"
+		},
+		"headOffice": {
+			"title": "Sede",
+			"address": "Morada",
+			"email": "E-mail",
+			"phone": "Telefone",
+			"loading": "A carregar os dados da sede"
+		},
+		"form": {
+			"title": "Envie-nos uma mensagem",
+			"requiredNote": "Os campos assinalados com * são obrigatórios.",
+			"name": "Nome",
+			"email": "E-mail",
+			"subject": "Assunto",
+			"message": "Mensagem",
+			"messagePlaceholder": "Como podemos ajudar?",
+			"messageHint": "No máximo {max, number} caracteres.",
+			"honeypot": "Deixe este campo vazio",
+			"privacy": "Utilizamos os seus dados apenas para responder à sua mensagem. Leia a nossa <link>política de privacidade</link>.",
+			"submit": "Enviar",
+			"sending": "A enviar…",
+			"errors": {
+				"required": "Este campo é obrigatório.",
+				"tooShort": "Introduza pelo menos {min, number} caracteres.",
+				"tooLong": "Utilize no máximo {max, number} caracteres.",
+				"invalidEmail": "Introduza um e-mail válido, como nome@example.com.",
+				"invalidCharacters": "Remova as quebras de linha e os caracteres de controlo."
+			},
+			"status": {
+				"success": "Obrigado. A sua mensagem foi enviada e responderemos assim que possível.",
+				"invalid": "{count, plural, one {Corrija o campo assinalado abaixo.} other {Corrija os # campos assinalados abaixo.}}",
+				"verification": "Não foi possível verificar este formulário. Aguarde alguns segundos e envie-o novamente. O formulário utiliza um pequeno cookie de segurança, pelo que os cookies têm de estar permitidos para este site.",
+				"rateLimited": "Enviou várias mensagens num curto espaço de tempo. Aguarde alguns minutos e tente novamente.",
+				"unavailable": "Não foi possível enviar a sua mensagem neste momento. Tente novamente mais tarde ou escreva-nos por e-mail."
+			}
+		}
 	},
 	"NotFound": {
 		"title": "Esta página não está disponível",
