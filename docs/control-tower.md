@@ -252,10 +252,12 @@ The initial CMS scope includes:
 - Offices and contact locations.
 - Service and sector catalogue content.
 - Media uploaded for those entities.
+- Legal pages: privacy policy, terms and conditions and cookie use (decided
+  2026-10-05; section 10.6). The three pages are fixed in code; colleagues
+  edit and publish their localized text.
 
-Legal content and downloadable documents may also move into Supabase if
-colleagues need to maintain them. That scope should be confirmed before the
-schema is finalized.
+Downloadable documents may also move into Supabase if colleagues need to
+maintain them. That scope is still open (decision 23.2).
 
 ### 8.2 Content that normally stays in code
 
@@ -267,8 +269,8 @@ schema is finalized.
 - Highly structured marketing sections that do not require regular editorial
   changes.
 
-Legal-page content can stay in localized files or move into Supabase depending
-on who is expected to maintain it.
+Legal-page text is admin-managed (section 8.1), but which legal pages exist,
+their public paths, their order in the footer and their labels stay in code.
 
 ## 9. Internationalization
 
@@ -403,6 +405,57 @@ Consider:
 - `created_by` and `updated_by` on editable entities.
 - Consistent `created_at`, `updated_at`, and publication timestamps.
 - A controlled media metadata table if Storage paths alone are insufficient.
+
+### 10.6 Legal pages
+
+Designed on 2026-10-05; migration `20261005120000_legal_pages.sql` is written
+and not yet applied. The full design is in
+[`docs/supabase-content-platform.md`](./supabase-content-platform.md)
+section 11.
+
+- `legal_pages`: one canonical row for each fixed key (`privacy-policy`,
+  `terms-and-conditions`, `cookie-use`), created by the migration. Staff
+  cannot create, delete or re-key pages.
+- `legal_page_translations`: per-locale title, legal document body, an
+  editor-set `last_updated_on` date (required to publish), SEO fields, the
+  shared publication status, and per-locale `created_by`/`updated_by`. A
+  trigger stamps the audit fields from `auth.uid()`, so clients cannot spoof
+  them. There is no slug: the public paths are the legacy, locale-prefixed
+  ones in code.
+- Grants: the migration revokes Supabase's default table privileges from
+  `anon` and `authenticated` before granting, so the column-level grant really
+  limits staff on `legal_pages` to `updated_by`.
+- Body: legal document version 1, which is the catalogue rich-text contract
+  plus hard breaks and locale-neutral internal links (`/cookie-use`). There
+  are no tables or images.
+- Admins and editors edit and publish; only admins delete a translation.
+- A locale without a published translation shows a localized, `noindex`
+  notice that links to the English page. It does not fall back to English
+  content. Without a published English page, every locale returns 404.
+- Cache tag `public-legal`, invalidated by every legal admin action.
+- The English text will be seeded from the legacy pages as drafts by an
+  idempotent `legal:bootstrap` script, run later by a person.
+
+Content points for the product owner before publication (the seed keeps the
+legacy wording):
+
+- The cookie policy does not list the strictly necessary `tp_contact_form`
+  cookie (section 15.10). Proposed wording is in the platform document,
+  section 11.7.
+- The cookie policy describes a consent banner (accept, reject, customize) and
+  analytics, functional and advertising cookies. The rebuilt site has no
+  banner yet and no analytics while decision 23.7 is open.
+- The privacy policy does not describe the contact form (name, email, subject
+  and message sent through the Zoho mailbox) or the transient use of the IP
+  address for rate limiting.
+- The terms call the company "Time&Place Funding … public funding advisory",
+  and the privacy policy mentions "public funding advice". Both look copied
+  from the funding site.
+- The terms describe user accounts, which the public site does not have.
+- The privacy policy and terms promise an effective or revision date, but the
+  legacy pages show none. The new `last_updated_on` field covers this.
+- "Analytical/Performance Cookies*" has an asterisk with no footnote, and the
+  Safari help link points to the Romanian (`ro-ro`) Apple page.
 
 ## 11. Supabase Auth, RLS, and Storage
 
@@ -1951,7 +2004,10 @@ These decisions should be resolved before the affected implementation begins:
 
 1. Whether all migrated content must be translated at launch or whether
    translations can be completed progressively.
-2. Whether legal content and downloadable documents are admin-managed.
+2. Whether downloadable documents are admin-managed. Settled for legal
+   content on 2026-10-05: the privacy policy, terms and conditions and cookie
+   use pages are admin-managed, as fixed code-owned pages with CMS text
+   (section 10.6). Downloadable documents remain open.
 3. Whether static route segments should be translated or only locale-prefixed.
 4. Final Our Outreach country fields, service descriptions, contacts, and calls
    to action.
