@@ -669,9 +669,11 @@ The same repeat-safe workflow adds a deliberately small global-content proof:
 the legacy EFFA partner/logo and website, Alexander Mohr's linked endorsement,
 and the legacy public contact/footer and social-link settings. No POE external
 URL or reusable CTA is seeded because the legacy implementation supplies no
-approved external POE URL or reusable CTA contract. The home test harness renders
+approved external POE URL or reusable CTA contract. The home test harness rendered
 the exact-locale published partner and endorsement plus public settings through
-anonymous RLS. Partner, settings, and shared-media actions invalidate the new
+anonymous RLS (replaced on 2026-10-05 by the designed homepage, whose partner
+band, the Why Us endorsements and the footer now render the same data;
+section 15.9). Partner, settings, and shared-media actions invalidate the new
 hourly global-content cache.
 
 Version 3 (2026-09-28) makes every seeded service and sector a full detail
@@ -953,8 +955,9 @@ Implemented on 2026-09-28:
   (Figma "pages" drop-down), `LocaleSwitcher`, `SiteFooter`, `SocialLinks`,
   `DownloadSnapshotLink`, `PoeLink`, `PageHero`, `SkipLink`. Navigation
   labels follow Figma (`Publications` links to `/newsroom`; `Who we are`
-  links to `/team` for now). Links to Why us, Contact and the legal pages
-  target their intended paths and return 404 until those pages exist.
+  links to `/team` for now). Links to Contact and the legal pages target
+  their intended paths and return 404 until those pages exist (Why us exists
+  since section 15.8).
 - The POE link reads the existing public `poe_external_link` site setting and
   is hidden while it is empty.
 - Interface strings live in the `Shell` message namespace. Non-English
@@ -1198,6 +1201,159 @@ Implemented on 2026-09-28 against Figma `5408:334` (desktop Publications),
   [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
 - New and changed `Newsroom` strings (including the title "Publications" and
   "Similar articles") are provisional in the non-English locales.
+
+### 15.8 Why Us
+
+Implemented on 2026-10-05 against Figma `5408:311` (desktop) and `5651:450`
+(mobile), with the copy and endorsement behaviour of the legacy
+`old-consulting/src/app/why-us/page.jsx` (`Overview`, `ClientCodex`,
+`Endorsements`). The new route `/why-us` (locale-prefixed for non-English) is
+the legacy path, so no redirect is needed. The header already linked to it;
+the link no longer marks nested paths as current.
+
+- Page (`src/components/why-us/why-us-page.tsx`, route
+  `src/app/[locale]/why-us/page.tsx`): navy `PageHero` titled "Why us"; a
+  soft-grey band with the figures statement ("Our services are provided in 14
+  languages across 10 countries in 3 continents", Roboto Serif black italic)
+  and six topics (reputation, languages, integrity, geographic presence,
+  expertise, experience), each an `h2` and body; the blue-muted "Client codex"
+  band (`h2`, introduction, five principles as `h3`); then the endorsements.
+  All copy is static and lives in the new `WhyUs` messages. Metadata: localized
+  title and description, canonical and hreflang alternates for every locale
+  plus `x-default`, as on the other templates.
+- Figures (Figma annotation "NUMBERS COUNT UP UNTIL REACHING FINAL METRIC"):
+  `CountUp` is the page's only client piece. The server renders the final
+  figures; with motion allowed they count up from zero once, on entering the
+  viewport. The animated sentence is `aria-hidden` and the complete sentence is
+  provided as text, so assistive technology never reads an intermediate
+  number. Figma shows "XX", so the figures are provisional and kept in one
+  constant (`FIGURES`): 14 is the language list on the page; 10 countries and
+  3 continents are those of the offices listed under "Geographic presence"
+  (open decision 23.12).
+- Endorsements (`src/components/endorsements/`, built for reuse on the
+  homepage): `Endorsements` takes only the locale. Its heading is part of the
+  streamed content, so a locale without published endorsements renders no
+  section at all. While loading, `EndorsementsSkeleton` (heading and a row of
+  card shapes) sits in a `LoadingRegion` with one localized status.
+  `EndorsementCard` follows the legacy card and the Figma mobile frame: the
+  logo on white above a navy panel with name, title and quote, marked up as
+  `figure`, `blockquote` and `figcaption` (the quote precedes the attribution
+  in the DOM; the attribution is shown first). The picture is the linked
+  partner's public logo, else the endorsement portrait, else the partner name
+  as text, so all cards keep one rhythm. Layout: fewer than three
+  endorsements are centred statically; from three they scroll in a CSS
+  marquee (Figma "SCROLL OF ENDORSEMENT LOGOS & DESCRIPTIONS"), and from six
+  in two rows moving in opposite directions (contiguous halves, so the reading
+  order stays the editorial order). Each row repeats its cards until a half
+  holds at least six, so the loop never shows a gap, and only the first copy
+  of each card is exposed to assistive technology. A visible Pause/Play button
+  (`EndorsementMarquee`, the section's only client piece) satisfies WCAG
+  2.2.2; hovering also pauses. Under `prefers-reduced-motion` nothing moves:
+  the copies and the button are removed and the cards wrap, centred. The
+  `marquee` keyframes and `--animate-marquee(-reverse)` tokens are in
+  `globals.css` (`@theme inline`, so the per-track `--marquee-duration` and
+  `--marquee-state` apply).
+- Data: `getPublishedGlobalContent` keeps its contract (active record, exact
+  locale, published translation whose `published_at` is not in the future, no
+  English fallback). It now also returns, per endorsement, `logo` (the linked
+  partner's logo while that partner is itself public in the locale) and
+  `portrait` (public media with localized alt text; without that the portrait
+  is omitted and the endorsement still shows). Both use the existing media
+  read. No schema, admin or cache-tag change; the homepage test harness is
+  unchanged.
+- Checked with `/why-us` (one published English endorsement, EFFA) and
+  `/de/why-us` (none) at 375, 768, 1024 and 1440: no horizontal overflow, one
+  `h1` and the heading outline above, `aria-current` on "Why us", visible
+  focus on the Pause button. German renders no endorsements section. The
+  marquee was exercised with the English endorsement temporarily repeated
+  eight times: two rows, Pause stops both, the duration scales with the cards,
+  and reduced motion shows the eight originals wrapped. The skeleton was
+  checked with the loader temporarily delayed: one polite status in English
+  and German, no pulse under reduced motion. Both overrides were removed.
+- Deviations from Figma: the hero intro is omitted (Figma has placeholder
+  Latin and the legacy page had none); body copy is left-aligned at every
+  width (the mobile frame centres it) with a 1.6 line height instead of
+  22 px on 18 px; topic and principle headings use the heading-3 size (28 px
+  rather than 30 px); the trailing "…" after the figures is dropped; the
+  office list fixes the legacy typos "Dubin" and "São Paolo"; endorsement text
+  is 16–18 px (the Figma and legacy cards use about 10–14 px); the
+  endorsements get a Pause control that the design does not show.
+- Placeholder: the hero laptop-and-coffee line drawing (`hero-why-us-laptop`).
+  The legacy `hero-why-us.png` is a different drawing (a certificate). See
+  [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
+- The `WhyUs` and `Endorsements` namespaces are provisional in the non-English
+  locales.
+
+### 15.9 Home
+
+Implemented on 2026-10-05 against Figma `5408:616` (desktop) and `5651:631`
+(mobile), with the structure of the legacy
+`old-consulting/src/components/home/` (`home-page.jsx`, `hero.jsx`,
+`partners.jsx`). The route `/` (and `/de`, `/it`, `/pt-BR`, `/pt-PT`) is
+unchanged; the test harness that occupied it is gone.
+
+- Page (`src/components/home/home-page.tsx`, route `src/app/[locale]/page.tsx`
+  in the Why Us shape): the navy `PageHero` with the display title "Your point
+  of access for IMPACT" (the only `h1`); the mist "snapshot" band with the
+  `h2` "Time&Place Consulting", "A Time&Place Group pillar", the blue rule,
+  "Us in a snapshot" and the two intro paragraphs (Figma copy, newer than the
+  legacy text); then the partner logos. "Time&Place Group" links to
+  `https://www.groupontap.com/en` in a new tab, as on the legacy site, with a
+  small external-link icon and a visually hidden "(opens in a new tab)".
+  Copy lives in the `HomePage` messages. Metadata: localized title (absolute,
+  so the layout's "| Time&Place Consulting" suffix is not doubled) and
+  description, canonical and hreflang alternates for every locale plus
+  `x-default`.
+- Partners (`src/components/partners/partners-section.tsx`, shaped like
+  `Endorsements` and reusable): `Partners` takes only the locale and streams
+  behind Suspense; `PartnersSkeleton` (a centred wall of 14 logo cells) sits in
+  a `LoadingRegion` with one localized status; a locale with no published
+  partner renders no section at all. It reads `partners` from
+  `getPublishedGlobalContent`, unchanged: active record, exact locale,
+  published translation whose `published_at` is not in the future, logo
+  through public managed media with localized alt text, no English fallback,
+  and only `http(s)` website URLs. Logos sit in fixed cells (seven a row at
+  1440 px as in Figma, five at 768, three at 375) with `object-contain`. A
+  logo with a website is one link whose name is the logo's alt text plus
+  "(opens in a new tab)"; without a website it is a plain image. The band is
+  static, so it needs no pause control; the hover zoom runs only under
+  `motion-safe`. Figma shows no heading, so the section is labelled by a
+  visually hidden `h2` ("Partners and clients") to keep the outline.
+- Removed: the sign-in link, the template-testing route list,
+  `src/components/home/global-content-proof.tsx` (nothing else used it) and the
+  `HomePage` keys only the harness used (`title`, `signIn`, `testNavigation`,
+  `team`, `services`, `sectors`, `newsroom`, `outreach`, `partners`,
+  `endorsements`, `contact`, `socials`) in all five locales. The footer
+  already renders the public contact and social settings that the harness
+  proved; sign-in remains at `/auth/sign-in`.
+- Deferred, not built and with no empty slot: the Figma newsroom feature
+  ("STAY UPDATED WITH OUR TIME&PLACE NEWSROOM", the "NEWS SCROLL" card with
+  arrows, annotation "news scroll with slide effect"). Its content rules
+  (which articles, how many, autoplay) are open decision 23.13. The newsroom
+  and Our Outreach code are untouched.
+- Checked with `/` (one published English partner, EFFA), `/de` and `/pt-BR`
+  (none) at 375, 768, 1024 and 1440: no horizontal overflow, one `h1`, the
+  outline `h1` → `h2` ("Time&Place Consulting") → `h2` (partners), metadata
+  and alternates as above, no text under 14 px in `main`. German and
+  Portuguese render no partner section. Keyboard order on `/`: skip link,
+  header, Time&Place Group, the EFFA logo, footer; every stop shows a focus
+  outline. The wall was checked with EFFA temporarily repeated twenty times
+  (three rows of seven at 1440, three a row at 375, no overflow), and the
+  skeleton with the loader temporarily delayed: one polite status in English
+  and German, no pulse under reduced motion. Both overrides were removed.
+- Deviations from Figma: the intro paragraphs have a narrower measure (52 rem
+  rather than about 65 rem) and are left-aligned below 768 px (Figma centres
+  them at every width); "Time&Place Group" is underlined and has an
+  external-link icon because it is a link; the intro uses the fluid lead size
+  (18–20 px) and the title the heading-1 size (32–48 px); the partner band
+  shows CMS logos in uniform cells instead of the flat image; no newsroom
+  feature; the homepage does not show endorsements (Figma has none there,
+  although section 15.8 anticipated reuse).
+- Placeholder: the hero doors line drawing (`hero-homepage-doors`, already
+  logged). Partner logos are CMS content and need authoring, not a
+  placeholder. See [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
+- The `HomePage` and new `Partners` namespaces are provisional in the
+  non-English locales.
 
 ## 16. Public routes and legacy parity
 
@@ -1526,8 +1682,8 @@ testing shows that manual ordering or taxonomy-independent selections are
 	should use a separate ordered relationship rather than changing taxonomy by
 	default.
 
-	The minimum public global-content connection is now present on the home test
-	harness. It filters partners and endorsements by active canonical state, exact
+	The minimum public global-content connection was first proved on the home test
+	harness (since replaced by the designed homepage, section 15.9). It filters partners and endorsements by active canonical state, exact
 	locale, publication status and time; resolves logos only through public managed
 	media with localized alt text; and allowlists public site-setting keys and safe
 	external URL protocols. This proves the existing contracts without turning the
@@ -1543,9 +1699,11 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
   done 2026-09-28; shared sections follow with the templates).
 - Apply the Figma design to the existing public templates (Who We Are and team
   profiles done 2026-09-28, section 15.4; services and sectors done
-  2026-09-28, section 15.5).
-- Build remaining marketing, services, sectors, why-us, contact, and legal
-  pages.
+  2026-09-28, section 15.5; newsroom done 2026-09-28, section 15.7).
+- Build the remaining marketing, contact, and legal pages (Why Us done
+  2026-10-05, section 15.8, including the reusable endorsements section; Home
+  done 2026-10-05, section 15.9, with the reusable partners section and
+  without the deferred newsroom feature).
 - Complete responsive and interaction states.
 - Have realistic profiles, articles, services, sectors, countries, and other
   content authored through the admin and reviewed on their public pages.
@@ -1662,6 +1820,16 @@ These decisions should be resolved before the affected implementation begins:
     "Subscribe to Newsletter") and with which provider, and the approved
     vocabulary of article kinds (`articles.kind` is free text; section 15.7
     labels nine keys). The Subscribe button is omitted until this is decided.
+12. The Why Us figures ("Our services are provided in XX languages across XX
+    countries in XX continents", Figma `5408:311`), and whether the hero gets
+    an introduction (Figma shows placeholder text). The page shows provisional
+    figures (14 / 10 / 3, derived from its own copy) and no introduction
+    (section 15.8).
+13. The homepage newsroom feature (Figma `5408:616` "STAY UPDATED WITH OUR
+    TIME&PLACE NEWSROOM", "news scroll with slide effect"): which articles it
+    shows (featured, latest, by kind), how many, and whether it advances on
+    its own. It is deferred and not built (section 15.9). Also whether the
+    homepage should show the endorsements band, which Figma does not include.
 
 ## 24. Definition of completion
 
@@ -1690,10 +1858,16 @@ The rebuild is complete when:
 2. Apply the Figma design to the existing public templates, one template at a
 	 time, following section 15.2. Who We Are and team profiles (section 15.4),
 	 services and sectors (section 15.5) and the newsroom listing and article
-	 detail (section 15.7) are done; Our Outreach is next, with template
-	 skeletons built on the loading foundation (section 15.6). Review the
-	 provisional `Team`, `Catalogue` and `Newsroom` translations with the shell
-	 strings, upload white line icons for the services and sectors through the
+	 detail (section 15.7) are done, and Why Us (section 15.8) and Home
+	 (section 15.9) are built. Our Outreach is next, with template skeletons
+	 built on the loading foundation (section 15.6). Review the provisional
+	 `Team`, `Catalogue`, `Newsroom`, `WhyUs`, `Endorsements`, `HomePage` and
+	 `Partners` translations with the shell strings, confirm the Why Us figures
+	 and hero introduction (open decision 12), decide the homepage newsroom
+	 feature (open decision 13), author and publish the remaining legacy
+	 endorsements and the homepage partners (logo, alt text, website and a
+	 published translation) in each locale through the admin (only the English
+	 EFFA endorsement and partner exist), upload white line icons for the services and sectors through the
 	 admin media library, and decide open decision 11 (newsletter subscription
 	 and the article-kind vocabulary). The 16 `placeholder-*` newsroom articles
 	 (section 13.5, version 4) are test content and must be deleted before

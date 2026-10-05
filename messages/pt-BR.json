@@ -2,8 +2,7 @@
 	"_meta": {
 		"provisionalNamespaces": [
 			"Shell",
-			"HomePage.heroLead",
-			"HomePage.heroEmphasis",
+			"HomePage",
 			"Team",
 			"Catalogue.service.title",
 			"Catalogue.service.introduction",
@@ -42,25 +41,25 @@
 			"Newsroom.loadingListing",
 			"Newsroom.loadingArticle",
 			"Newsroom.loadingAuthors",
-			"Newsroom.kinds"
+			"Newsroom.kinds",
+			"WhyUs",
+			"Endorsements",
+			"Partners"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
 	"HomePage": {
-		"title": "Time&Place Consulting",
-		"signIn": "Entrar",
-		"testNavigation": "Teste dos modelos",
-		"team": "Equipe",
-		"services": "Serviços",
-		"sectors": "Setores",
-		"newsroom": "Newsroom",
-		"outreach": "Nossa atuação",
-		"partners": "Parceiros",
-		"endorsements": "Depoimentos",
-		"contact": "Contato",
-		"socials": "Redes sociais",
 		"heroLead": "Seu ponto de acesso para",
-		"heroEmphasis": "Impacto"
+		"heroEmphasis": "Impacto",
+		"metaTitle": "Time&Place Consulting | Seu ponto de acesso para o impacto",
+		"metaDescription": "A Time&Place Consulting, um pilar do Time&Place Group, é uma agência de comunicação estratégica, desenvolvimento de negócios e gestão de projetos com presença internacional e alcance local.",
+		"intro": {
+			"title": "Time&Place Consulting",
+			"pillar": "Um pilar do <group>Time&Place Group</group>",
+			"snapshot": "Quem somos em resumo",
+			"lead": "Com presença internacional e alcance local, a <strong>Time&Place Consulting</strong> oferece estratégias integradas que impulsionam a tomada de decisões e apoiam o crescimento sustentável.",
+			"body": "Como agência de comunicação estratégica, desenvolvimento de negócios e gestão de projetos, nossa equipe global fortalece sua capacidade de decisão e amplia seus canais de influência. Somos seu ponto de entrada estratégico em novos mercados e seu canal de comunicação com governos, órgãos reguladores, a opinião pública e as principais instituições de compras públicas, financiamento e fomento."
+		}
 	},
 	"Catalogue": {
 		"service": {
@@ -204,6 +203,74 @@
 			"byline": "Por {authors}",
 			"loading": "Carregando perfil"
 		}
+	},
+	"WhyUs": {
+		"title": "Por que nós",
+		"metaDescription": "Por que organizações trabalham com a Time&Place Consulting: nossa reputação, idiomas, integridade, presença geográfica, especialização e experiência, e o código do cliente que seguimos.",
+		"figures": "Nossos serviços são prestados em <languages>{languageCount}</languages> idiomas, em <countries>{countryCount}</countries> países de <continents>{continentCount}</continents> continentes",
+		"overview": {
+			"reputation": {
+				"title": "Nossa reputação",
+				"body": "A Time&Place foi indicada para a lista Best in Brussels como uma das principais consultorias boutique de 2022/2023 e foi convidada para a lista de 2023/2024. Da mesma forma, o CEO e fundador do Time&Place Group, Glenn Cezanne, foi indicado duas vezes seguidas desde 2021/2022 (e será também em 2023/2024) como um dos 200 principais consultores de Bruxelas. Em 2020, a Time&Place foi parceira oficial do Comitê Paralímpico Europeu, apoiando a projeção das pautas do EPC nos mais altos níveis da UE."
+			},
+			"languages": {
+				"title": "Idiomas",
+				"body": "Cada idioma que nossa equipe domina abre uma nova oportunidade de comunicação: bengali, dinamarquês, holandês, inglês, francês, alemão, hindi, italiano, norueguês, polonês, português, romeno, espanhol e sueco."
+			},
+			"integrity": {
+				"title": "Integridade",
+				"body": "No centro da nossa abordagem estão a confiança e a visão de longo prazo. Acreditamos em relações sólidas tanto com nossos clientes quanto com os tomadores de decisão que abordamos para atender às suas necessidades. Nosso código do cliente é uma homenagem a isso. No mesmo espírito, fazemos questão de que você obtenha os serviços que procura. Não fingimos que podemos. Não desperdiçamos os seus nem os nossos recursos em atividades que não podemos oferecer. Em vez disso, temos sempre o prazer de ajudar a encontrar outra pessoa para você."
+			},
+			"presence": {
+				"title": "Presença geográfica",
+				"body": "Com escritórios parceiros e satélites ao redor do mundo, somos acessíveis localmente e presentes internacionalmente. Um dos muitos benefícios: a T&P pode influenciar processos globais de decisão política e legislativa diretamente a partir das capitais.",
+				"offices": "Bruxelas (Bélgica), Berlim (Alemanha), Frankfurt am Main (Alemanha), Calcutá (Índia), Dublin (Irlanda), Galway (Irlanda), Paris (França), Bordeaux (França), Viena (Áustria), Milão (Itália), Bucareste (Romênia), Ploiești (Romênia), Cluj (Romênia), Varsóvia (Polônia), Rio de Janeiro (Brasil), São Paulo (Brasil)"
+			},
+			"expertise": {
+				"title": "Especialização",
+				"body": "Temos diversas áreas específicas de especialização, como mobilidade elétrica, aviação e comércio internacional. Mas também sabemos como dar voz à sua especialização e maximizar o impacto dos seus interesses."
+			},
+			"experience": {
+				"title": "Experiência",
+				"body": "Nosso Grupo é formado por profissionais experientes com grande conhecimento tácito. Atividades como networking de alto nível, a construção de uma imagem positiva ou de pautas de interesse, a tradução de resultados políticos em impacto para os negócios e o relacionamento estratégico fazem parte do dia a dia da nossa equipe. Entendemos o contexto do quadro geral e o valor do menor detalhe."
+			}
+		},
+		"codex": {
+			"title": "Código do cliente",
+			"introduction": "As relações que estabelecemos com nossos clientes são tão importantes quanto nossas relações com os tomadores de decisão governamentais. Relações governamentais e relações públicas tratam de comunicação e, portanto, de pessoas. Focamos na confiança e na visão de longo prazo, fundamentais para qualquer negócio saudável baseado na interação humana. Uma excelente reputação é um dos muitos sinais disso. Nosso código do cliente é uma homenagem a isso.",
+			"principles": {
+				"opportunities": {
+					"title": "Não vendemos oportunidades onde não existem",
+					"body": "Nosso objetivo é oferecer valor agregado e resultados. Criar uma oportunidade e não conseguir concretizá-la porque ela nunca existiu vai contra um histórico positivo, importante para qualquer reputação."
+				},
+				"billableDays": {
+					"title": "Não buscamos maximizar dias faturáveis",
+					"body": "Nosso diferencial competitivo é, acima de tudo, nossa experiência e nossa abordagem de longo prazo com todas as partes interessadas com as quais nos relacionamos, mas nenhuma parceria acontece sem uma conversa sobre um preço competitivo. É também por isso que promovemos uma política de trabalho flexível, em que os contratos não precisam cobrir áreas não rentáveis de uma organização."
+				},
+				"honesty": {
+					"title": "Se não podemos fazer, não fingimos que podemos",
+					"body": "Não aprendemos no caminho às custas dos nossos clientes. Se nossa experiência, nossas redes e nosso conhecimento não forem adequados às suas necessidades, não aceitamos o projeto. Em vez disso, fazemos o possível para ajudar você a encontrar quem possa fazê-lo."
+				},
+				"whoYouMeet": {
+					"title": "Quem você conhece é quem trabalha para você",
+					"body": "Não repassamos nossas tarefas a colegas com menos experiência fingindo que nós mesmos estamos fazendo o trabalho."
+				},
+				"conflicts": {
+					"title": "Evitamos conflitos de interesse",
+					"body": "Se um potencial novo cliente puder criar um conflito de interesse, consultamos nossos clientes antes de assumir novos projetos."
+				}
+			}
+		}
+	},
+	"Endorsements": {
+		"title": "Depoimentos",
+		"loading": "Carregando depoimentos",
+		"pause": "Pausar depoimentos",
+		"play": "Retomar depoimentos"
+	},
+	"Partners": {
+		"title": "Parceiros e clientes",
+		"loading": "Carregando parceiros e clientes"
 	},
 	"NotFound": {
 		"title": "Esta página não está disponível",

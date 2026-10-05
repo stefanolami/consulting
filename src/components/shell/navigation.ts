@@ -12,13 +12,13 @@ export type NavItem = {
 }
 
 // Who we are keeps the legacy `/who-we-are` path (team profiles are linked from
-// printed QR codes). Why us and Contact are not built yet.
+// printed QR codes). Contact is not built yet.
 export const PRIMARY_NAV: readonly NavItem[] = [
 	{ key: 'whoWeAre', href: '/who-we-are', matchNested: true },
 	{ key: 'ourOutreach', href: '/our-outreach', matchNested: true },
 	{ key: 'services', href: '/services', matchNested: true },
 	{ key: 'sectors', href: '/sectors', matchNested: true },
-	{ key: 'whyUs', href: '/why-us', matchNested: true },
+	{ key: 'whyUs', href: '/why-us', matchNested: false },
 	{ key: 'publications', href: '/newsroom', matchNested: true },
 	{ key: 'contact', href: '/contact', matchNested: false },
 ]

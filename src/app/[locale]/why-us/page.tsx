@@ -3,20 +3,20 @@ import { hasLocale } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
-import { generateHomeMetadata, HomePage } from '@/components/home/home-page'
+import { generateWhyUsMetadata, WhyUsPage } from '@/components/why-us/why-us-page'
 import { routing } from '@/i18n/routing'
 
-type HomeRouteProps = { params: Promise<{ locale: string }> }
+type WhyUsRouteProps = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params }: HomeRouteProps): Promise<Metadata> {
+export async function generateMetadata({ params }: WhyUsRouteProps): Promise<Metadata> {
 	const { locale } = await params
 	if (!hasLocale(routing.locales, locale)) return {}
-	return generateHomeMetadata(locale)
+	return generateWhyUsMetadata(locale)
 }
 
-export default async function HomeRoute({ params }: HomeRouteProps) {
+export default async function WhyUsRoute({ params }: WhyUsRouteProps) {
 	const { locale } = await params
 	if (!hasLocale(routing.locales, locale)) notFound()
 	setRequestLocale(locale)
-	return <HomePage locale={locale} />
+	return <WhyUsPage locale={locale} />
 }

@@ -2,8 +2,7 @@
 	"_meta": {
 		"provisionalNamespaces": [
 			"Shell",
-			"HomePage.heroLead",
-			"HomePage.heroEmphasis",
+			"HomePage",
 			"Team",
 			"Catalogue.service.title",
 			"Catalogue.service.introduction",
@@ -42,25 +41,25 @@
 			"Newsroom.loadingListing",
 			"Newsroom.loadingArticle",
 			"Newsroom.loadingAuthors",
-			"Newsroom.kinds"
+			"Newsroom.kinds",
+			"WhyUs",
+			"Endorsements",
+			"Partners"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
 	"HomePage": {
-		"title": "Time&Place Consulting",
-		"signIn": "Anmelden",
-		"testNavigation": "Vorlagen testen",
-		"team": "Team",
-		"services": "Leistungen",
-		"sectors": "Branchen",
-		"newsroom": "Newsroom",
-		"outreach": "Unsere Reichweite",
-		"partners": "Partner",
-		"endorsements": "Empfehlungen",
-		"contact": "Kontakt",
-		"socials": "Soziale Medien",
 		"heroLead": "Ihr Zugangspunkt für",
-		"heroEmphasis": "Wirkung"
+		"heroEmphasis": "Wirkung",
+		"metaTitle": "Time&Place Consulting | Ihr Zugangspunkt für Wirkung",
+		"metaDescription": "Time&Place Consulting, eine Säule der Time&Place Group, ist eine Agentur für strategische Kommunikation, Geschäftsentwicklung und Projektmanagement mit internationaler Präsenz und lokaler Reichweite.",
+		"intro": {
+			"title": "Time&Place Consulting",
+			"pillar": "Eine Säule der <group>Time&Place Group</group>",
+			"snapshot": "Wir auf einen Blick",
+			"lead": "Mit internationaler Präsenz und lokaler Reichweite entwickelt <strong>Time&Place Consulting</strong> integrierte Strategien, die Entscheidungen voranbringen und nachhaltiges Wachstum unterstützen.",
+			"body": "Als Agentur für strategische Kommunikation, Geschäftsentwicklung und Projektmanagement stärkt unser globales Team Ihre Entscheidungsfähigkeit und erweitert Ihre Einflusskanäle. Wir sind Ihr strategischer Zugang zu neuen Märkten und Ihr Kommunikationskanal zu Regierungen, Regulierungsbehörden, der öffentlichen Meinung sowie zu zentralen Institutionen der öffentlichen Beschaffung, Finanzierung und Förderung."
+		}
 	},
 	"Catalogue": {
 		"service": {
@@ -204,6 +203,74 @@
 			"byline": "Von {authors}",
 			"loading": "Profil wird geladen"
 		}
+	},
+	"WhyUs": {
+		"title": "Warum wir",
+		"metaDescription": "Warum Organisationen mit Time&Place Consulting zusammenarbeiten: unser Ruf, unsere Sprachen, Integrität, geografische Präsenz, Expertise und Erfahrung sowie der Kunden-Kodex, nach dem wir arbeiten.",
+		"figures": "Unsere Leistungen werden in <languages>{languageCount}</languages> Sprachen in <countries>{countryCount}</countries> Ländern auf <continents>{continentCount}</continents> Kontinenten erbracht",
+		"overview": {
+			"reputation": {
+				"title": "Unser Ruf",
+				"body": "Time&Place wurde in die Liste „Best in Brussels“ als eine der führenden Boutique-Beratungen für 2022/2023 aufgenommen und für die Liste 2023/2024 eingeladen. Ebenso wurde Glenn Cezanne, CEO und Gründer der Time&Place Group, seit 2021/2022 zweimal in Folge (und erneut für 2023/2024) als einer der Top-200-Berater in Brüssel nominiert. 2020 war Time&Place offizieller Partner des Europäischen Paralympischen Komitees und unterstützte es dabei, seine Anliegen auf höchster EU-Ebene zu profilieren."
+			},
+			"languages": {
+				"title": "Sprachen",
+				"body": "Mit jeder Sprache, die unser Team beherrscht, eröffnet sich eine neue Möglichkeit der Kommunikation: Bengalisch, Dänisch, Deutsch, Englisch, Französisch, Hindi, Italienisch, Niederländisch, Norwegisch, Polnisch, Portugiesisch, Rumänisch, Schwedisch und Spanisch."
+			},
+			"integrity": {
+				"title": "Integrität",
+				"body": "Im Mittelpunkt unseres Ansatzes stehen Vertrauen und langfristiges Denken. Wir setzen auf solide Beziehungen sowohl zu unseren Kunden als auch zu den Entscheidungsträgern, an die wir uns in Ihrem Auftrag wenden. Unser Kunden-Kodex ist Ausdruck davon. Im selben Sinne legen wir Wert darauf, dass Sie die Leistungen erhalten, die Sie suchen. Wir geben nicht vor, etwas zu können, was wir nicht können. Wir verschwenden weder Ihre noch unsere Ressourcen auf Tätigkeiten, die wir nicht erbringen können. Stattdessen helfen wir Ihnen gerne, jemand anderen zu finden."
+			},
+			"presence": {
+				"title": "Geografische Präsenz",
+				"body": "Mit Partner- und Satellitenbüros rund um den Globus sind wir lokal erreichbar und international präsent. Einer von vielen Vorteilen: T&P kann über die Hauptstädte direkt auf globale politische und gesetzgeberische Entscheidungsprozesse einwirken.",
+				"offices": "Brüssel (Belgien), Berlin (Deutschland), Frankfurt am Main (Deutschland), Kolkata (Indien), Dublin (Irland), Galway (Irland), Paris (Frankreich), Bordeaux (Frankreich), Wien (Österreich), Mailand (Italien), Bukarest (Rumänien), Ploiești (Rumänien), Cluj (Rumänien), Warschau (Polen), Rio de Janeiro (Brasilien), São Paulo (Brasilien)"
+			},
+			"expertise": {
+				"title": "Expertise",
+				"body": "Wir verfügen über eine Vielzahl spezifischer Fachgebiete wie E-Mobilität, Luftfahrt und internationalen Handel. Wir wissen aber auch, wie wir Ihrer Expertise eine Stimme geben und die Wirkung Ihrer Interessen maximieren."
+			},
+			"experience": {
+				"title": "Erfahrung",
+				"body": "Unsere Gruppe besteht aus erfahrenen Fachleuten mit einem reichen Schatz an implizitem Wissen. Hochrangiges Networking, die Profilierung eines positiven Images oder bestimmter Anliegen, die Übersetzung politischer Ergebnisse in geschäftliche Wirkung und strategische Kontaktarbeit gehören für unser Team zum Alltag. Wir verstehen den größeren Zusammenhang und den Wert des kleinsten Details."
+			}
+		},
+		"codex": {
+			"title": "Kunden-Kodex",
+			"introduction": "Die Beziehungen, die wir zu unseren Kunden aufbauen, sind ebenso wichtig wie unsere Beziehungen zu staatlichen Entscheidungsträgern. Bei Public Affairs und Public Relations geht es um Kommunikation und damit um Menschen. Wir setzen auf Vertrauen und langfristiges Denken, die für jedes gesunde, auf menschlicher Interaktion beruhende Geschäft entscheidend sind. Ein ausgezeichneter Ruf ist eines von vielen Zeichen dafür. Unser Kunden-Kodex ist Ausdruck davon.",
+			"principles": {
+				"opportunities": {
+					"title": "Wir verkaufen keine Chancen, wo es keine gibt",
+					"body": "Unser Ziel ist es, Ihnen Mehrwert und Ergebnisse zu liefern. Eine Chance zu schaffen und sie dann nicht umsetzen zu können, weil es sie nie gab, widerspricht einer positiven Erfolgsbilanz, die für jedes Ansehen wichtig ist."
+				},
+				"billableDays": {
+					"title": "Wir wollen keine abrechenbaren Tage maximieren",
+					"body": "Unser Wettbewerbsvorteil sind in erster Linie unsere Erfahrung und unser langfristiger Ansatz gegenüber allen Interessengruppen, mit denen wir zusammenarbeiten. Doch keine Partnerschaft kommt ohne ein Gespräch über einen wettbewerbsfähigen Preis aus. Deshalb setzen wir auch auf flexible Arbeitsmodelle, bei denen Verträge keine unrentablen Bereiche einer Organisation abdecken müssen."
+				},
+				"honesty": {
+					"title": "Wenn wir es nicht können, tun wir nicht so, als ob",
+					"body": "Wir lernen nicht auf Kosten unserer Kunden dazu. Wenn unsere Erfahrung, unsere Netzwerke und unser Verständnis nicht zu Ihren Anforderungen passen, nehmen wir das Projekt nicht an. Stattdessen helfen wir Ihnen nach Kräften, jemanden zu finden, der es kann."
+				},
+				"whoYouMeet": {
+					"title": "Wen Sie kennenlernen, der arbeitet für Sie",
+					"body": "Wir schieben unsere Aufgaben nicht an weniger erfahrene Kolleginnen und Kollegen ab und geben dabei vor, die Arbeit selbst zu übernehmen."
+				},
+				"conflicts": {
+					"title": "Wir vermeiden Interessenkonflikte",
+					"body": "Wenn potenzielle neue Kunden einen Interessenkonflikt verursachen könnten, stimmen wir uns mit unseren bestehenden Kunden ab, bevor wir neue Projekte übernehmen."
+				}
+			}
+		}
+	},
+	"Endorsements": {
+		"title": "Empfehlungen",
+		"loading": "Empfehlungen werden geladen",
+		"pause": "Empfehlungen anhalten",
+		"play": "Empfehlungen abspielen"
+	},
+	"Partners": {
+		"title": "Partner und Kunden",
+		"loading": "Partner und Kunden werden geladen"
 	},
 	"NotFound": {
 		"title": "Diese Seite ist nicht verfügbar",

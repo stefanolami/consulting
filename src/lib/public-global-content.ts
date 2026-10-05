@@ -7,10 +7,26 @@ import type { Json } from '@/types/database.generated'
 
 export type PublicGlobalContent = {
 	contact: { address: string | null; email: string | null; footerNote: string | null; phone: string | null } | null
-	endorsements: Array<{ attributionName: string; attributionTitle: string | null; id: string; partnerName: string | null; quote: string }>
+	endorsements: PublicEndorsement[]
 	partners: Array<{ alt: string; id: string; logoUrl: string; name: string; websiteUrl: string | null }>
 	poeUrl: string | null
 	socials: Array<{ platform: string; url: string }>
+}
+
+export type PublicMediaImage = { alt: string; url: string }
+
+// An endorsement is public only through its exact-locale published translation.
+// `logo` is the linked partner's logo while that partner is itself public in
+// the locale; `portrait` needs public media with localized alt text. Neither
+// falls back to another locale.
+export type PublicEndorsement = {
+	attributionName: string
+	attributionTitle: string | null
+	id: string
+	logo: PublicMediaImage | null
+	partnerName: string | null
+	portrait: PublicMediaImage | null
+	quote: string
 }
 
 const CACHE_REVALIDATE_SECONDS = 60 * 60
@@ -33,7 +49,7 @@ async function loadPublishedGlobalContent(locale: AppLocale): Promise<PublicGlob
 	const [{ data: partners, error: partnersError }, { data: partnerTranslations, error: partnerTranslationsError }, { data: endorsements, error: endorsementsError }, { data: endorsementTranslations, error: endorsementTranslationsError }, { data: settings, error: settingsError }] = await Promise.all([
 		supabase.from('partners').select('id, name, logo_media_id, website_url, display_order').eq('is_active', true).order('display_order').order('name'),
 		supabase.from('partner_translations').select('partner_id, alt_text').eq('locale', locale).eq('status', 'published').lte('published_at', now),
-		supabase.from('endorsements').select('id, partner_id, attribution_name, display_order').eq('is_active', true).order('display_order').order('attribution_name'),
+		supabase.from('endorsements').select('id, partner_id, portrait_media_id, attribution_name, display_order').eq('is_active', true).order('display_order').order('attribution_name'),
 		supabase.from('endorsement_translations').select('endorsement_id, quote, attribution_title').eq('locale', locale).eq('status', 'published').lte('published_at', now),
 		supabase.from('site_settings').select('key, value').in('key', ['contact_footer', 'social_links', 'poe_external_link']).eq('is_public', true),
 	])
@@ -42,12 +58,17 @@ async function loadPublishedGlobalContent(locale: AppLocale): Promise<PublicGlob
 
 	const partnerTranslation = new Map((partnerTranslations ?? []).map((item) => [item.partner_id, item]))
 	const visiblePartners = (partners ?? []).filter((partner) => partnerTranslation.has(partner.id) && partner.logo_media_id)
-	const mediaIds = visiblePartners.flatMap((partner) => partner.logo_media_id ? [partner.logo_media_id] : [])
+	const translationsByEndorsement = new Map((endorsementTranslations ?? []).map((item) => [item.endorsement_id, item]))
+	const visibleEndorsements = (endorsements ?? []).filter((endorsement) => translationsByEndorsement.has(endorsement.id))
+	const mediaIds = [...new Set([
+		...visiblePartners.flatMap((partner) => partner.logo_media_id ? [partner.logo_media_id] : []),
+		...visibleEndorsements.flatMap((endorsement) => endorsement.portrait_media_id ? [endorsement.portrait_media_id] : []),
+	])]
 	const [{ data: media, error: mediaError }, { data: mediaTranslations, error: mediaTranslationsError }] = mediaIds.length ? await Promise.all([
 		supabase.from('media_assets').select('id, bucket_id, object_path').in('id', mediaIds).eq('is_public', true),
 		supabase.from('media_asset_translations').select('media_asset_id, alt_text').in('media_asset_id', mediaIds).eq('locale', locale),
 	]) : [{ data: [], error: null }, { data: [], error: null }]
-	if (mediaError || mediaTranslationsError) throw new Error(`Unable to load public partner media: ${mediaError?.message ?? mediaTranslationsError?.message}`)
+	if (mediaError || mediaTranslationsError) throw new Error(`Unable to load public global media: ${mediaError?.message ?? mediaTranslationsError?.message}`)
 	const mediaAlt = new Map((mediaTranslations ?? []).filter((item) => item.alt_text.trim()).map((item) => [item.media_asset_id, item.alt_text]))
 	const mediaById = new Map((media ?? []).flatMap((item) => {
 		const alt = mediaAlt.get(item.id)
@@ -59,12 +80,20 @@ async function loadPublishedGlobalContent(locale: AppLocale): Promise<PublicGlob
 		return [{ alt: logo.alt, id: partner.id, logoUrl: logo.url, name: partner.name, websiteUrl: safeWebUrl(partner.website_url) }]
 	})
 
-	const partnerNames = new Map(publicPartners.map((partner) => [partner.id, partner.name]))
-	const translationsByEndorsement = new Map((endorsementTranslations ?? []).map((item) => [item.endorsement_id, item]))
-	const publicEndorsements = (endorsements ?? []).flatMap((endorsement) => {
+	const partnersById = new Map(publicPartners.map((partner) => [partner.id, partner]))
+	const publicEndorsements = visibleEndorsements.flatMap((endorsement): PublicEndorsement[] => {
 		const translation = translationsByEndorsement.get(endorsement.id)
 		if (!translation) return []
-		return [{ attributionName: endorsement.attribution_name, attributionTitle: translation.attribution_title, id: endorsement.id, partnerName: endorsement.partner_id ? partnerNames.get(endorsement.partner_id) ?? null : null, quote: translation.quote }]
+		const partner = endorsement.partner_id ? partnersById.get(endorsement.partner_id) ?? null : null
+		return [{
+			attributionName: endorsement.attribution_name,
+			attributionTitle: translation.attribution_title,
+			id: endorsement.id,
+			logo: partner ? { alt: partner.alt, url: partner.logoUrl } : null,
+			partnerName: partner?.name ?? null,
+			portrait: endorsement.portrait_media_id ? mediaById.get(endorsement.portrait_media_id) ?? null : null,
+			quote: translation.quote,
+		}]
 	})
 
 	const settingMap = new Map((settings ?? []).map((item) => [item.key, record(item.value)]))

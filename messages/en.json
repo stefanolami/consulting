@@ -1,19 +1,16 @@
 {
 	"HomePage": {
-		"title": "Time&Place Consulting",
-		"signIn": "Sign in",
-		"testNavigation": "Template testing",
-		"team": "Team",
-		"services": "Services",
-		"sectors": "Sectors",
-		"newsroom": "Newsroom",
-		"outreach": "Our Outreach",
-		"partners": "Partners",
-		"endorsements": "Endorsements",
-		"contact": "Contact",
-		"socials": "Social links",
 		"heroLead": "Your point of access for",
-		"heroEmphasis": "Impact"
+		"heroEmphasis": "Impact",
+		"metaTitle": "Time&Place Consulting | Your point of access for impact",
+		"metaDescription": "Time&Place Consulting, a Time&Place Group pillar, is a strategic communications, business development and project management agency with an international presence and local reach.",
+		"intro": {
+			"title": "Time&Place Consulting",
+			"pillar": "A <group>Time&Place Group</group> pillar",
+			"snapshot": "Us in a snapshot",
+			"lead": "With an international presence and local reach, <strong>Time&Place Consulting</strong> delivers integrated strategies that drive decision-making and support sustainable growth.",
+			"body": "As a strategic communications, business development, and project management agency, our global team strengthens your decision-making capacity and expands your channels of influence. We serve as your strategic entry point to new markets and your line of communication with governments, regulatory bodies, public opinion, and key institutions in public procurement, financing, and funding."
+		}
 	},
 	"Catalogue": {
 		"service": {
@@ -157,6 +154,74 @@
 			"byline": "By {authors}",
 			"loading": "Loading profile"
 		}
+	},
+	"WhyUs": {
+		"title": "Why us",
+		"metaDescription": "Why organisations work with Time&Place Consulting: our reputation, languages, integrity, geographic presence, expertise and experience, and the client codex we work by.",
+		"figures": "Our services are provided in <languages>{languageCount}</languages> languages across <countries>{countryCount}</countries> countries in <continents>{continentCount}</continents> continents",
+		"overview": {
+			"reputation": {
+				"title": "Our reputation",
+				"body": "Time&Place has been nominated to the Best in Brussels listing as one of the leading boutique consultancies for 2022/2023 and has been invited for the 2023/2024 listing. Equally, CEO & Founder of Time&Place Group, Glenn Cezanne has been nominated twice in a row from 2021/2022 (and will be for 2023/2024) as one of the top-200 Consultants in Brussels. In 2020, Time&Place was Official Partner of the European Paralympic Committee, whereby we provided support in the profiling of the EPC’s concerns at the highest EU-levels."
+			},
+			"languages": {
+				"title": "Languages",
+				"body": "A new opportunity for communication is opened with every language that our team masters: Bengali, Danish, Dutch, English, French, German, Hindi, Italian, Norwegian, Polish, Portuguese, Romanian, Spanish and Swedish."
+			},
+			"integrity": {
+				"title": "Integrity",
+				"body": "At the heart of our approach are trust and long-term vision. We believe in solid relations both with our clients and the decision-makers we approach for your needs. Our client codex is a tribute to this. In the same spirit, we believe in making sure that you get the services you seek. We don’t pretend we can. We don’t waste your and our resources on activities we cannot provide. Instead, we are always happy to see how we could help find someone else for you."
+			},
+			"presence": {
+				"title": "Geographic presence",
+				"body": "With partner and satellite offices across the globe we are locally accessible and internationally present. One of many benefits: T&P can have an impact on global policy and legislative decision-making processes directly through the capital cities.",
+				"offices": "Brussels (Belgium), Berlin (Germany), Frankfurt/Main (Germany), Kolkata (India), Dublin (Ireland), Galway (Ireland), Paris (France), Bordeaux (France), Vienna (Austria), Milan (Italy), Bucharest (Romania), Ploiesti (Romania), Cluj (Romania), Warsaw (Poland), Rio de Janeiro (Brazil), São Paulo (Brazil)"
+			},
+			"expertise": {
+				"title": "Expertise",
+				"body": "We have a variety of specific fields of expertise, such as e-mobility, aviation, and international trade. But, we also know how to give your expertise a voice and maximise the impact of your interests."
+			},
+			"experience": {
+				"title": "Experience",
+				"body": "Our Group is made up of seasoned professionals with a wealth in tacit knowledge. Activities such as high-level networking, profiling a positive image or issues of concern, translating policy output into business impact, and strategic outreach are a daily affair for our team. We understand the context of the bigger picture and the value of the smallest detail."
+			}
+		},
+		"codex": {
+			"title": "Client codex",
+			"introduction": "The relations we establish with our clients are just as important as our relations with governmental decision-makers. Public Affairs and Public Relations are about communication, and therefore about people. We focus on trust and long-term vision which are key to any healthy business based on human interaction. An excellent reputation is one of many symptoms thereof. Our client codex is a tribute to this.",
+			"principles": {
+				"opportunities": {
+					"title": "We don’t sell opportunities where there are none",
+					"body": "Our goal is to provide you added value and results. Creating an opportunity and failing to carry it out as there was none in the first place is counter to a positive progress report which is important for any standing."
+				},
+				"billableDays": {
+					"title": "We don’t look to maximise billable days",
+					"body": "Our competitive edge is primarily our experience and our long-term approach to all stakeholders we engage with, but no partnership goes without a discussion about a competitive price. This is also why we promote a flexible workforce policy where contracts do not have to cover non-profitable branches of one’s organisation."
+				},
+				"honesty": {
+					"title": "If we can’t do it, we don’t pretend we can",
+					"body": "We don’t do learning as we go along at the expense of our clients. If our experience, networks and understanding are not suitable to carry out your needs, we don’t accept the project. Instead, we try our best to help you find someone that can."
+				},
+				"whoYouMeet": {
+					"title": "Who you meet is who you get",
+					"body": "We don’t push our tasks to colleagues with less experience pretending to take on the work ourselves."
+				},
+				"conflicts": {
+					"title": "We avoid conflicts of interest",
+					"body": "If potential new clients could create a conflict of interest, we double check with our clientele before taking on new projects."
+				}
+			}
+		}
+	},
+	"Endorsements": {
+		"title": "Endorsements",
+		"loading": "Loading endorsements",
+		"pause": "Pause endorsements",
+		"play": "Play endorsements"
+	},
+	"Partners": {
+		"title": "Partners and clients",
+		"loading": "Loading partners and clients"
 	},
 	"NotFound": {
 		"title": "This page is not available",
