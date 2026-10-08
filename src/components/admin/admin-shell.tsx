@@ -6,6 +6,7 @@ import {
 	ImageIcon,
 	LayoutDashboard,
 	LogOut,
+	Scale,
 	Route,
 	Settings,
 	UsersRound,
@@ -37,6 +38,7 @@ const navigation = [
 	},
 	{ label: 'Media', href: '/admin/media', icon: ImageIcon, enabled: true },
 	{ label: 'Partners', href: '/admin/partners', icon: HeartHandshake, enabled: true },
+	{ label: 'Legal pages', href: '/admin/legal', icon: Scale, enabled: true },
 	{ label: 'Site settings', href: '/admin/settings', icon: Settings, enabled: true },
 	{ label: 'Redirects', href: '/admin/redirects', icon: Route, enabled: true },
 ]

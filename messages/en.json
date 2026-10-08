@@ -273,6 +273,14 @@
 		"description": "The page may not exist, or it may not be published in this language.",
 		"home": "Return home"
 	},
+	"Legal": {
+		"loading": "Loading the page",
+		"lastUpdated": "Last updated: <time>{date}</time>",
+		"notice": {
+			"unavailable": "This page is not available in this language yet.",
+			"readInEnglish": "Read the English version: <link></link>"
+		}
+	},
 	"Shell": {
 		"skipToContent": "Skip to main content",
 		"homeLink": "Time&Place Consulting, home",

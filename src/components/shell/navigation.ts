@@ -25,7 +25,9 @@ export const PRIMARY_NAV: readonly NavItem[] = [
 
 export type LegalKey = 'cookieUse' | 'privacyPolicy' | 'termsAndConditions'
 
-// Legacy legal paths; the pages are not built yet.
+// Legacy legal paths, served by the admin-managed legal pages (platform doc
+// §11). The links are static: a locale without a published translation shows
+// a notice that links to English, so no publication read is needed here.
 export const LEGAL_NAV: readonly { key: LegalKey; href: string }[] = [
 	{ key: 'cookieUse', href: '/cookie-use' },
 	{ key: 'privacyPolicy', href: '/privacy-policy' },

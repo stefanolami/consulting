@@ -45,7 +45,8 @@
 			"WhyUs",
 			"Endorsements",
 			"Partners",
-			"Contact"
+			"Contact",
+			"Legal"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -322,6 +323,14 @@
 		"title": "Esta página não está disponível",
 		"description": "A página pode não existir ou não estar publicada neste idioma.",
 		"home": "Voltar ao início"
+	},
+	"Legal": {
+		"loading": "Carregando a página",
+		"lastUpdated": "Última atualização: <time>{date}</time>",
+		"notice": {
+			"unavailable": "Esta página ainda não está disponível em português.",
+			"readInEnglish": "Leia a versão em inglês: <link></link>"
+		}
 	},
 	"Shell": {
 		"skipToContent": "Pular para o conteúdo principal",

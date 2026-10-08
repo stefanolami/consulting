@@ -1,0 +1,1979 @@
+{
+	"version": 1,
+	"description": "English legal texts transcribed from the legacy pages as version-1 legal documents (platform doc §11.7). Wording is unchanged; only the structure is mapped. Seeded as drafts by npm run legal:bootstrap.",
+	"pages": [
+		{
+			"stableKey": "privacy-policy",
+			"title": "Privacy Policy",
+			"locale": "en",
+			"source": "old-consulting/src/app/privacy-policy/page.jsx",
+			"content": {
+				"type": "doc",
+				"attrs": {
+					"schemaVersion": 1
+				},
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Consulting is committed to protecting your privacy and ensuring that your personal data is handled in compliance with applicable laws, including the General Data Protection Regulation (EU) 2016/679 (GDPR). This Privacy Policy explains how we collect, use, disclose, and protect your personal information when you visit our website and interact with our services."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "1. Data Controller"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "The data controller responsible for processing your personal data is:"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Group"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Rue de la Loi 81A,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "1040 Brussels,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Belgium"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Email: info@consultingontap.com"
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "2. Data We Collect"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We collect personal data that you provide directly to us or that we collect automatically through your use of our website. The types of personal data we collect include:"
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Personal Identification Information: name, email address, phone number, company name, and job title."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Usage Data: information about how you use our website, including IP address, browser type and version, device information, pages visited, time spent on pages, and interactions with website features."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Cookies and Tracking Technologies: data collected through cookies and similar technologies, such as browser cookies, pixels, and analytics tools. For more information, please see our "
+											},
+											{
+												"type": "text",
+												"text": "Cookie Policy",
+												"marks": [
+													{
+														"type": "link",
+														"attrs": {
+															"href": "/cookie-use"
+														}
+													}
+												]
+											},
+											{
+												"type": "text",
+												"text": "."
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "3. Legal Basis for Processing"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We process your personal data based on the following legal grounds:"
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Consent: When you provide us with your explicit consent to process your personal data (e.g., when subscribing to our newsletter or accepting cookies)."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Contractual necessity: When processing your data is necessary for the performance of a contract with you (e.g., providing our services or responding to your inquiries)."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Legitimate interests: When processing is necessary for our legitimate interests, provided that these interests are not overridden by your rights (e.g., improving our website, marketing communications)."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Legal obligations: When processing is necessary for compliance with legal obligations (e.g., maintaining financial records)."
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "4. How We Use Your Data"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We use the personal data we collect for the following purposes:"
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "To provide and manage our services, including responding to inquiries and providing public funding advice."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "To improve and personalize your experience on our website."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "To analyze website usage and improve the functionality and content of our website."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "To send you marketing communications and updates, where you have consented to receive such communications."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "To comply with our legal obligations."
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "5. Data Retention"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We will retain your personal data for as long as necessary to fulfill the purposes for which it was collected, or as required by law. When your data is no longer necessary, we will securely delete or anonymize it."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "6. Sharing Your Data"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We may share your personal data with third parties under the following circumstances:"
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Service Providers: We may engage third-party companies to perform functions on our behalf, such as website hosting, data analysis, or email marketing. These service providers are contractually bound to process your personal data only in accordance with our instructions and applicable data protection laws."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Legal Obligations: We may disclose your data where required by law or to comply with legal proceedings, court orders, or government regulations."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Business Transfers: In the event of a merger, acquisition, or sale of assets, your personal data may be transferred as part of the transaction."
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We do not sell or rent your personal data to third parties."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "7. International Data Transfers"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "If we transfer your personal data outside the European Economic Area (EEA), we will ensure that appropriate safeguards are in place to protect your data, such as entering into standard contractual clauses approved by the European Commission or ensuring that the recipient is subject to an adequacy decision by the European Commission."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "8. Your Rights Under GDPR"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "As a data subject, you have the following rights concerning your personal data:"
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right of access: You have the right to request access to the personal data we hold about you."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to rectification: You have the right to request correction of any inaccurate or incomplete data."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to erasure: You have the right to request the deletion of your data in certain circumstances, also known as the \"right to be forgotten.\""
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to restrict processing: You have the right to request a restriction on how we process your personal data under specific conditions."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to data portability: You have the right to receive your data in a structured, commonly used, and machine-readable format and have the right to transmit the data to another controller."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to object: You have the right to object to the processing of your data based on legitimate interests, including for direct marketing purposes."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to withdraw consent: If you have given consent to the processing of your data, you have the right to withdraw your consent at any time, without affecting the lawfulness of processing based on consent before its withdrawal."
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "To exercise any of these rights, please contact us using the contact details provided in this policy."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "9. Security of Your Data"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We implement appropriate technical and organisational measures to protect your personal data against unauthorized access, loss, destruction, or alteration. However, please note that no method of transmission over the internet or electronic storage is 100% secure. While we strive to protect your personal data, we cannot guarantee its absolute security."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "10. Cookies and Tracking Technologies"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We use cookies and similar tracking technologies to collect information about your browsing activities on our website. This data is used to improve your user experience, analyze traffic, and provide personalized content. For detailed information on the cookies we use and how you can manage your cookie preferences, please refer to our "
+							},
+							{
+								"type": "text",
+								"text": "Cookie Policy",
+								"marks": [
+									{
+										"type": "link",
+										"attrs": {
+											"href": "/cookie-use"
+										}
+									}
+								]
+							},
+							{
+								"type": "text",
+								"text": "."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "11. Marketing Communications"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "If you have opted in to receive marketing communications from us, we will use your personal data to send you information about our services, events, and other relevant updates. You may opt out of receiving these communications at any time by clicking the \"unsubscribe\" link in any email or contacting us directly."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "12. Third-Party Links"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Our website may contain links to external websites operated by third parties. These websites have their own privacy policies, and we are not responsible for their content or practices. We recommend reviewing the privacy policies of any third-party websites you visit."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "13. Changes to This Privacy Policy"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. Any changes will be posted on this page, and the \"Effective Date\" will be updated accordingly. We encourage you to review this policy regularly to stay informed about how we are protecting your personal data."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "14. Contact Us"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "If you have any questions or concerns about this Privacy Policy, or if you wish to exercise your data protection rights, please contact us at:"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Group"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Rue de la Loi 81A,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "1040 Brussels,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Belgium"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Email: info@consultingontap.com"
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"stableKey": "terms-and-conditions",
+			"title": "Terms and Conditions",
+			"locale": "en",
+			"source": "old-consulting/src/app/terms-and-conditions/page.jsx",
+			"content": {
+				"type": "doc",
+				"attrs": {
+					"schemaVersion": 1
+				},
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Welcome to the Time&Place Consulting website. These Terms and Conditions govern your use of our website and services. By accessing or using our website, you agree to be bound by these terms. If you do not agree with any part of these Terms and Conditions, you must refrain from using the website."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "These Terms and Conditions are issued in compliance with applicable laws and regulations, including but not limited to the General Data Protection Regulation (EU) 2016/679 (GDPR)."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "1. General Information"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Group"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Rue de la Loi 81A,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "1040 Brussels,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Belgium"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Email: info@consultingontap.com"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Funding is a Brussels-based provider of public funding advisory and consulting services."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "2. Use of the Website"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "You agree to use this website in accordance with applicable laws and regulations and in a manner that does not infringe the rights of third parties or restrict or inhibit the use of the website by others. Unauthorized use of this website may give rise to a claim for damages and/or be a criminal offense under Belgian law."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "3. Website Content"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "All content available on the Time&Place Consulting website, including but not limited to text, images, graphics, logos, and software, is the intellectual property of Time&Place Consulting unless otherwise indicated. You are permitted to view, download, and print content from this website for personal, non-commercial use, provided that you do not modify, reproduce, distribute, or exploit the content without prior written consent from Time&Place Consulting."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "4. User Accounts"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Certain areas of the website may require you to create an account or provide personal information. When creating an account, you must ensure that the information you provide is accurate, current, and complete. You are responsible for maintaining the confidentiality of your account credentials and for any activities that occur under your account."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We reserve the right to suspend or terminate your account at our discretion if we suspect any unauthorized or unlawful activity."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "5. Privacy and Data Protection"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Your privacy is important to us. We are committed to protecting your personal data and ensuring its lawful use in accordance with the GDPR. Our "
+							},
+							{
+								"type": "text",
+								"text": "Privacy Policy",
+								"marks": [
+									{
+										"type": "link",
+										"attrs": {
+											"href": "/privacy-policy"
+										}
+									}
+								]
+							},
+							{
+								"type": "text",
+								"text": " outlines how we collect, process, and protect your personal information. By using this website, you acknowledge that you have read and understood our Privacy Policy."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "6. Cookies"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "This website uses cookies to enhance user experience, provide functionality, and collect analytical data. Our "
+							},
+							{
+								"type": "text",
+								"text": "Cookie Policy",
+								"marks": [
+									{
+										"type": "link",
+										"attrs": {
+											"href": "/cookie-use"
+										}
+									}
+								]
+							},
+							{
+								"type": "text",
+								"text": " explains the types of cookies we use, how they work, and how you can manage your cookie preferences."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "7. Intellectual Property"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "All intellectual property rights related to the website and its content are owned by or licensed to Time&Place Consulting. The website and its content are protected by copyright, trademark, and other intellectual property laws. You may not use, reproduce, distribute, or modify any content without our express written permission."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Any unauthorized use of our intellectual property may result in legal action."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "8. Third-Party Links"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "This website may contain links to external websites operated by third parties. These links are provided for your convenience only, and Time&Place Consulting has no control over the content or availability of such websites. We are not responsible for the accuracy, reliability, or legality of any third-party content or services provided through linked websites."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "The inclusion of any link does not imply endorsement by Time&Place Consulting. Use of third-party websites is at your own risk, and we encourage you to review the terms and policies of any third-party sites you visit."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "9. Limitation of Liability"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "While we make every effort to ensure that the content of this website is accurate and up to date, Time&Place Consulting does not guarantee the completeness, accuracy, or reliability of the information provided. The website and its content are provided \"as is\" without any warranties, express or implied."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "To the fullest extent permitted by law, Time&Place Consulting excludes all liability for any loss or damage, including but not limited to indirect or consequential loss or damage, arising from your use of or inability to use this website or any information contained therein."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "10. Indemnification"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "You agree to indemnify, defend, and hold harmless Time&Place Consulting, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, or expenses, including reasonable legal fees, arising out of or related to your use of the website or any violation of these Terms and Conditions."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "11. Modifications to Terms and Website"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Consulting reserves the right to modify these Terms and Conditions at any time. Any changes will be posted on this page, and we will indicate the date of the latest revision at the top of this page. Your continued use of the website after any modifications constitutes your acceptance of the updated Terms and Conditions."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We also reserve the right to modify, suspend, or discontinue any part of the website or its services at any time without notice."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "12. Governing Law and Jurisdiction"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "These Terms and Conditions and any disputes arising out of or relating to your use of the website shall be governed by and construed in accordance with the laws of Belgium, without regard to its conflict of law principles. You agree to submit to the exclusive jurisdiction of the courts located in Brussels, Belgium, to resolve any legal matters arising from these Terms and Conditions."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "13. Contact Us"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "If you have any questions or concerns about these Terms and Conditions, please contact us at:"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Group"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Rue de la Loi 81A,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "1040 Brussels,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Belgium"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Email: info@consultingontap.com"
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"stableKey": "cookie-use",
+			"title": "Cookie Use",
+			"locale": "en",
+			"source": "old-consulting/src/app/cookie-use/page.jsx",
+			"content": {
+				"type": "doc",
+				"attrs": {
+					"schemaVersion": 1
+				},
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Consulting, headquartered in Brussels, Belgium, is committed to ensuring the privacy and protection of your personal data while visiting our website. This Cookie Policy outlines how we use cookies and similar technologies, in compliance with Regulation (EU) 2016/679 (General Data Protection Regulation - GDPR) and Directive 2002/58/EC (ePrivacy Directive)."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "1. What Are Cookies?"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Cookies are small text files that are placed on your device (e.g., computer, tablet, smartphone) when you visit a website. Cookies help enhance your browsing experience by remembering your preferences, providing analytical insights, and enabling certain functionalities."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "2. Types of Cookies Used on This Website"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "We use both “first-party” and “third-party cookies” on our website. First-party cookies are set by “Time&Place Consulting”, while third-party cookies are set by external service providers."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "3. The categories of cookies used are:"
+							}
+						]
+					},
+					{
+						"type": "orderedList",
+						"attrs": {
+							"start": 1
+						},
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Strictly Necessary Cookies",
+												"marks": [
+													{
+														"type": "bold"
+													}
+												]
+											},
+											{
+												"type": "hardBreak"
+											},
+											{
+												"type": "text",
+												"text": "These cookies are essential for the functioning of the website. They enable core functionality such as security features, access to secure areas, and network management. These cookies do not require user consent."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Analytical/Performance Cookies*",
+												"marks": [
+													{
+														"type": "bold"
+													}
+												]
+											},
+											{
+												"type": "hardBreak"
+											},
+											{
+												"type": "text",
+												"text": "These cookies collect aggregated data on how visitors use the website, such as pages visited and links clicked. This data is anonymized and helps us optimize the website’s performance. These cookies are deployed only with your explicit consent."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Functional Cookies",
+												"marks": [
+													{
+														"type": "bold"
+													}
+												]
+											},
+											{
+												"type": "hardBreak"
+											},
+											{
+												"type": "text",
+												"text": "Functional cookies allow the website to remember your settings and preferences, such as language choice or region. They enhance your experience but are not essential to the functioning of the website. Consent is required for their activation."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Targeting/Advertising Cookies",
+												"marks": [
+													{
+														"type": "bold"
+													}
+												]
+											},
+											{
+												"type": "hardBreak"
+											},
+											{
+												"type": "text",
+												"text": "These cookies are used to deliver advertisements that are more relevant to you and your interests. They may also be used to limit the number of times you see an ad and help measure the effectiveness of ad campaigns. These cookies may track your browsing activity across other websites and require your consent."
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "4. Legal Basis for Using Cookies"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Under Article 6(1)(a) of the GDPR, we will obtain your prior consent before placing any cookies on your device, except for those cookies that are strictly necessary for the functioning of the website. You can accept or reject non-essential cookies through the cookie banner that appears when you first visit our website."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "You may withdraw your consent at any time by changing your cookie settings as described below."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "5. Managing Your Cookie Preferences"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "You have the right to control and manage the use of cookies on our website. Upon your first visit, you will be presented with a cookie consent banner, allowing you to:"
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Accept all cookies"
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Reject non-essential cookies"
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Customize your cookie settings"
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "You can also manage or delete cookies through your browser settings at any time. Please note that disabling certain cookies may impact the functionality of our website."
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Manage cookies in Google Chrome",
+												"marks": [
+													{
+														"type": "link",
+														"attrs": {
+															"href": "https://support.google.com/chrome/answer/95647?hl=en"
+														}
+													}
+												]
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Manage cookies in Mozilla Firefox",
+												"marks": [
+													{
+														"type": "link",
+														"attrs": {
+															"href": "https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop?redirectslug=enable-and-disable-cookies-website-preferences&redirectlocale=en-US"
+														}
+													}
+												]
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Manage cookies in Microsoft Edge",
+												"marks": [
+													{
+														"type": "link",
+														"attrs": {
+															"href": "https://support.microsoft.com/en-us/windows/manage-cookies-in-microsoft-edge-view-allow-block-delete-and-use-168dab11-0753-043d-7c16-ede5947fc64d"
+														}
+													}
+												]
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Manage cookies in Safari",
+												"marks": [
+													{
+														"type": "link",
+														"attrs": {
+															"href": "https://support.apple.com/ro-ro/guide/safari/sfri11471/mac"
+														}
+													}
+												]
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "6. Third-Party Cookies"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Our website may contain cookies from third-party providers, including, but not limited to, analytics services (such as Google Analytics) and social media platforms (such as LinkedIn, Facebook, Instagram, X, YouTube). These third parties may collect data about your online activity across different websites."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "7. Data Collected via Cookies"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "The information collected via cookies may include, but is not limited to, the following:"
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "IP address"
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Browser type and version"
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Device operating system"
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Pages visited on our website"
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Time spent on pages"
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Interaction with site features"
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "This information is used solely to improve your user experience, analyze site performance, and tailor our services to your preferences. Personal data collected via cookies will be processed in accordance with our "
+							},
+							{
+								"type": "text",
+								"text": "Privacy Policy",
+								"marks": [
+									{
+										"type": "link",
+										"attrs": {
+											"href": "/privacy-policy"
+										}
+									}
+								]
+							},
+							{
+								"type": "text",
+								"text": "."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "8. Data Retention"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Cookies will be stored on your device for a duration appropriate to their purpose. Session cookies are automatically deleted when you close your browser, while persistent cookies remain on your device for a predetermined period unless deleted manually."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "9. Your Rights"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "As a data subject under the GDPR, you have the following rights concerning your personal data:"
+							}
+						]
+					},
+					{
+						"type": "bulletList",
+						"content": [
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right of access – You may request access to the data we hold about you."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to rectification – You may request correction of inaccurate data."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to erasure (\"right to be forgotten\") – You may request the deletion of your data under certain conditions."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to restrict processing – You may request restrictions on how we process your data."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to data portability – You may request the transfer of your data to another service provider."
+											}
+										]
+									}
+								]
+							},
+							{
+								"type": "listItem",
+								"content": [
+									{
+										"type": "paragraph",
+										"content": [
+											{
+												"type": "text",
+												"text": "Right to object – You may object to the processing of your data, including data processing via cookies."
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "To exercise these rights or for any questions related to our use of cookies, please contact us using the details below."
+							}
+						]
+					},
+					{
+						"type": "heading",
+						"attrs": {
+							"level": 2
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "10. Contact Us"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "If you have any questions or concerns about this Cookie Policy or how we use cookies, please contact us at:"
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Time&Place Group"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Rue de la Loi 81A,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "1040 Brussels,"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Belgium"
+							},
+							{
+								"type": "hardBreak"
+							},
+							{
+								"type": "text",
+								"text": "Email: info@consultingontap.com"
+							}
+						]
+					}
+				]
+			}
+		}
+	]
+}

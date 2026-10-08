@@ -425,11 +425,20 @@ edited manually.
   JSON references the asset. See control tower section 13.2 for rollback
   notes.
 
-### `20261005120000_legal_pages.sql` (written, not applied)
+### `20261005120000_legal_pages.sql`
 
 - Creates `legal_pages` with exactly three fixed rows and
   `legal_page_translations`, with RLS, grants and update triggers. Additive
   only: no existing table, policy or function changes. See section 11.
+- Applied to the hosted project on 2026-10-05. Its select policies on the two
+  tables refer to each other, so every RLS-filtered read failed with
+  `42P17` until the next migration (section 11.6).
+
+### `20261008120000_legal_pages_policy_recursion_fix.sql` (written, not applied)
+
+- Drops and recreates only the two `legal_pages` select policies, so they no
+  longer read `legal_page_translations` (section 11.6). No grant, trigger,
+  function or translation-policy change.
 
 ## 9. Deliberately deferred work
 
@@ -623,8 +632,8 @@ Rejected alternatives:
 
 | Table | Role | Grant | Policy |
 | --- | --- | --- | --- |
-| `legal_pages` | `anon` | select | `legal_pages_public_select`: the page is active and has a published translation whose `published_at` has passed. |
-| `legal_pages` | `authenticated` | select, update (`updated_by` only) | `legal_pages_authenticated_select`: the public condition, or active staff. `legal_pages_staff_update`: active staff. |
+| `legal_pages` | `anon` | select | `legal_pages_public_select`: the page is active. |
+| `legal_pages` | `authenticated` | select, update (`updated_by` only) | `legal_pages_authenticated_select`: the page is active, or the user is active staff. `legal_pages_staff_update`: active staff. |
 | `legal_page_translations` | `anon` | select | `legal_page_translations_public_select`: published, `published_at` has passed, and the parent page is active. |
 | `legal_page_translations` | `authenticated` | select, insert, update, delete | `..._authenticated_select`: the public condition, or active staff. `..._staff_insert` and `..._staff_update`: active staff. `..._admin_delete`: active admins. |
 | both | `service_role` | all | Bypasses RLS (seed script only). |
@@ -633,9 +642,42 @@ The grant column is the complete set of privileges. The migration revokes
 everything from `anon` and `authenticated` before granting (section 11.2), so
 Supabase's default table privileges add nothing.
 
+In plain words:
+
+- Anyone can see that each of the three pages exists while it is active.
+  That reveals nothing new: the keys are fixed by code and every footer links
+  to all three paths.
+- Visitors can read a translation only when it is published, its publication
+  time has passed and its page is active. Signed-in users who are not active
+  staff get the same view.
+- Active staff (admins and editors) can read every page and translation,
+  including inactive pages, drafts, scheduled, archived and future-dated
+  text, and can create, edit and publish translations. Only active admins can
+  delete one. Nobody can add, delete or re-key a page or switch it off
+  through the API.
+
 Unlike the other translation tables, the public translation policy also
 requires the parent row to be active. This keeps `is_active` effective even
 for a direct API query.
+
+**Lesson: two tables' policies must not read each other.** The first
+migration also required a published translation in the `legal_pages`
+policies. PostgreSQL applies a table's policies to every subquery that reads
+that table, and expands them when the query is planned, not row by row. The
+`legal_pages` policy read the translations, whose policy read `legal_pages`
+again, so every RLS-filtered query on either table failed with `42P17`
+("infinite recursion detected in policy"); an `or private.is_staff()` branch
+does not help, because the expansion happens before any condition is
+evaluated. Migration `20261008120000_legal_pages_policy_recursion_fix.sql`
+removed the translation check from the `legal_pages` policies. Every other
+canonical and translation pair already has the cross-table check on one side
+only: on the canonical side for services, sectors, people and tags (active
+and has a published translation; their translation policies do not check the
+parent), and now on the translation side for the legal tables. When a policy
+needs a condition on a related table, check that the related table's policies
+do not refer back. A `SECURITY DEFINER` helper is not the fix here: `anon`
+has no `USAGE` on the `private` schema, and granting it would expose every
+private function.
 
 Attribution cannot be spoofed. A `BEFORE INSERT OR UPDATE` trigger runs
 `private.stamp_legal_audit()` on both tables. The function has a pinned empty
