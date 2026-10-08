@@ -10,7 +10,17 @@ import { safeParseLegalDocument } from '@/lib/legal-document.mjs'
 import { LEGAL_PAGE_KEYS, legalPath, type LegalPageKey } from '@/lib/legal-pages'
 import { createClient } from '@/lib/supabase/server'
 
-export type LegalActionState = { error?: string; field?: LegalField; success?: string }
+/** The stored values after a save, so the form shows what the database holds. */
+export type LegalSavedTranslation = {
+	lastUpdatedOn: string | null
+	scheduledFor: string | null
+	seoDescription: string | null
+	seoTitle: string | null
+	status: (typeof statuses)[number]
+	title: string
+	updatedAt: string
+}
+export type LegalActionState = { error?: string; field?: LegalField; saved?: LegalSavedTranslation; success?: string }
 type LegalField = 'content' | 'lastUpdatedOn' | 'scheduledFor' | 'seoDescription' | 'seoTitle' | 'status' | 'title'
 
 const statuses = ['draft', 'scheduled', 'published', 'archived'] as const
@@ -113,7 +123,7 @@ export async function saveLegalTranslationAction(_: LegalActionState, formData: 
 		const pageId = await legalPageId(supabase, translation.stableKey)
 		// No created_by or updated_by: the audit trigger stamps both from the
 		// signed-in user and keeps created_by on update (platform doc §11.6).
-		const { error } = await supabase.from('legal_page_translations').upsert({
+		const { data: saved, error } = await supabase.from('legal_page_translations').upsert({
 			legal_page_id: pageId,
 			locale: translation.locale,
 			title: translation.title,
@@ -124,14 +134,23 @@ export async function saveLegalTranslationAction(_: LegalActionState, formData: 
 			status: translation.status,
 			scheduled_for: translation.scheduledFor,
 			published_at: translation.status === 'published' ? new Date().toISOString() : null,
-		}, { onConflict: 'legal_page_id,locale' })
+		}, { onConflict: 'legal_page_id,locale' }).select('title, status, last_updated_on, scheduled_for, seo_title, seo_description, updated_at').single()
 		if (error) return { error: `Could not save this translation: ${error.message}` }
+		const stored: LegalSavedTranslation = {
+			lastUpdatedOn: saved.last_updated_on,
+			scheduledFor: saved.scheduled_for,
+			seoDescription: saved.seo_description,
+			seoTitle: saved.seo_title,
+			status: saved.status,
+			title: saved.title,
+			updatedAt: saved.updated_at,
+		}
 		// Record the touch on the canonical row. Staff may update only
 		// updated_by there, and the trigger replaces the value with the actor.
 		const { error: touchError } = await supabase.from('legal_pages').update({ updated_by: null }).eq('id', pageId)
 		refreshLegalPaths(translation.stableKey)
-		if (touchError) return { success: `${translation.locale} translation saved, but the page's last editor could not be recorded: ${touchError.message}` }
-		return { success: `${translation.locale} translation saved${translation.status === 'published' ? ' and published' : ''}.` }
+		if (touchError) return { saved: stored, success: `${translation.locale} translation saved, but the page's last editor could not be recorded: ${touchError.message}` }
+		return { saved: stored, success: `${translation.locale} translation saved${stored.status === 'published' ? ' and published' : ''}.` }
 	} catch (error) {
 		if (error instanceof FieldError) return { error: error.message, field: error.field }
 		return { error: error instanceof Error ? error.message : 'Could not save this translation.' }

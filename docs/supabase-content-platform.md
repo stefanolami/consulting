@@ -33,7 +33,9 @@ Development uses the hosted Supabase `main` branch directly.
 - No local Supabase database is required.
 - No Docker-based Supabase stack is required.
 - Every schema change is represented by a committed migration.
-- Migrations are inspected with `db push --dry-run` before being applied.
+- Migrations are applied by the Supabase GitHub integration when the commit
+  that adds them is pushed, not with a manual `supabase db push` (section
+  7.2). Review happens before the push.
 - The current live website remains unaffected until the rebuilt application is
   launched because it does not use this content platform.
 - After launch, the current Supabase branch becomes production and a persistent
@@ -356,18 +358,23 @@ The project reference is the subdomain in
 
 ### 7.2 Inspect and apply migrations
 
-Always inspect the remote migration state first:
+Migrations are applied by the Supabase GitHub integration: pushing the commit
+that adds a file under `supabase/migrations/` applies it to the hosted project.
+Nobody runs `supabase db push` by hand, so review a migration before it is
+pushed, and never push a migration file that has not been reviewed. Since
+2026-10-08 (the legal pages policy fix) this is how migrations reach the
+hosted project.
+
+The CLI is still used read-only to inspect the result:
 
 ```powershell
 supabase migration list
-supabase db push --dry-run
+supabase db push --dry-run   # shows what is pending; applies nothing
 ```
 
-Apply pending migrations:
-
-```powershell
-supabase db push
-```
+`supabase migration list` must show the same timestamps locally and remotely
+after a push. A migration that is pending remotely after its commit was pushed
+means the integration did not run; investigate rather than pushing manually.
 
 Never run `supabase db reset --linked`. This project deliberately develops
 against the hosted branch and that command is destructive.
@@ -434,11 +441,13 @@ edited manually.
   tables refer to each other, so every RLS-filtered read failed with
   `42P17` until the next migration (section 11.6).
 
-### `20261008120000_legal_pages_policy_recursion_fix.sql` (written, not applied)
+### `20261008120000_legal_pages_policy_recursion_fix.sql`
 
 - Drops and recreates only the two `legal_pages` select policies, so they no
   longer read `legal_page_translations` (section 11.6). No grant, trigger,
   function or translation-policy change.
+- Applied to the hosted project on 2026-10-08 by the Supabase GitHub
+  integration.
 
 ## 9. Deliberately deferred work
 
@@ -468,9 +477,13 @@ edited manually.
 
 ## 11. Legal pages
 
-Status: designed on 2026-10-05. Migration `20261005120000_legal_pages.sql` is
-written and not applied. No application code exists yet; section 11.10 lists
-the follow-up work. This settles control tower open decision 23.2 for legal
+Status: designed on 2026-10-05 and implemented on 2026-10-08 (control tower
+section 15.11). Migrations `20261005120000_legal_pages.sql` and
+`20261008120000_legal_pages_policy_recursion_fix.sql` are applied to the
+hosted project; both were applied by the Supabase GitHub integration on push,
+not by a manual `supabase db push` (section 7.2). The admin, public pages,
+validator and seed script exist; the seed has not been applied, and no legal
+text is published. This settles control tower open decision 23.2 for legal
 content: the privacy policy, terms and conditions and cookie use pages are
 admin-managed. Downloadable documents remain open.
 
@@ -782,8 +795,8 @@ These are not changed by this slice:
 
 Once the migration has been reviewed and applied:
 
-1. **Types.** Run `supabase migration list` and `supabase db push --dry-run`,
-   apply, then regenerate `src/types/database.generated.ts` (section 7.3) and
+1. **Types.** Push the reviewed migration (the GitHub integration applies it,
+   section 7.2), confirm it with `supabase migration list`, then regenerate `src/types/database.generated.ts` (section 7.3) and
    commit it.
 2. **Document contract.** Add `src/lib/legal-document.mjs` and `.d.mts`
    (version 1, section 11.4), with unit tests: hard breaks, internal and

@@ -110,7 +110,7 @@ export function LegalRichTextEditor({ describedBy, id, initialValue, invalid = f
 	}
 
 	return (
-		<div className={`mt-1.5 overflow-hidden rounded-md border bg-white shadow-xs ${invalid ? 'border-red-500 ring-1 ring-red-500' : 'border-input'}`}>
+		<div className={`mt-1.5 overflow-hidden rounded-md border bg-white shadow-xs focus-within:ring-2 focus-within:ring-[#27335a]/50 ${invalid ? 'border-red-500 ring-1 ring-red-500' : 'border-input'}`}>
 			<input name={name} type="hidden" value={JSON.stringify(value)} />
 			<div aria-label="Formatting" className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-1.5" role="toolbar">
 				<ToolButton active={active?.bold ?? false} disabled={!editor} label="Bold" onClick={() => editor?.chain().focus().toggleBold().run()}><Bold /></ToolButton>
@@ -123,7 +123,17 @@ export function LegalRichTextEditor({ describedBy, id, initialValue, invalid = f
 				<ToolButton active={active?.link ?? false} disabled={!editor} label={active?.link ? 'Edit link' : 'Link'} onClick={openLinkDialog}><Link2 /></ToolButton>
 			</div>
 			<p aria-live="polite" className="px-3 pt-1 text-xs text-slate-600 empty:hidden">{notice}</p>
-			<EditorContent className="profile-rich-text min-h-72 px-3 py-2 text-sm leading-6 text-slate-800" editor={editor} />
+			{/* The editable element fills the whole box, so a click anywhere in it
+			    places the cursor; clicks on the wrapper itself go to the end. */}
+			<EditorContent
+				className={EDITING_AREA_CLASS}
+				editor={editor}
+				onMouseDown={(event) => {
+					if (event.target !== event.currentTarget || !editor) return
+					event.preventDefault()
+					editor.commands.focus('end')
+				}}
+			/>
 			<dialog
 				aria-labelledby={`${dialogId}-title`}
 				className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-slate-200 p-5 shadow-xl backdrop:bg-slate-950/40"
@@ -155,6 +165,20 @@ export function LegalRichTextEditor({ describedBy, id, initialValue, invalid = f
 		</div>
 	)
 }
+
+// Shows the document structure while editing: section headings and
+// subheadings stand out, lists keep their markers and links are underlined.
+// The page styles itself on the public site (LegalRichText).
+const EDITING_AREA_CLASS = [
+	'text-sm leading-6 text-slate-800',
+	'[&_.ProseMirror]:min-h-72 [&_.ProseMirror]:cursor-text [&_.ProseMirror]:px-3 [&_.ProseMirror]:py-2 [&_.ProseMirror]:outline-none',
+	'[&_.ProseMirror>*+*]:mt-3',
+	'[&_h2]:pt-3 [&_h2]:font-robo [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:leading-7 [&_h2]:text-slate-950',
+	'[&_h3]:pt-2 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-slate-900',
+	'[&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:mt-1 [&_li]:marker:text-slate-500',
+	'[&_a]:text-[#1d4ed8] [&_a]:underline [&_a]:underline-offset-2',
+	'[&_strong]:font-semibold [&_em]:italic',
+].join(' ')
 
 function ToolButton({ active, children, disabled, label, onClick }: { active: boolean; children: React.ReactNode; disabled: boolean; label: string; onClick: () => void }) {
 	return <Button aria-label={label} aria-pressed={active} className={active ? 'bg-[#27335a] text-white hover:bg-[#1e294c]' : ''} disabled={disabled} onClick={onClick} size="icon" title={label} type="button" variant="ghost">{children}</Button>

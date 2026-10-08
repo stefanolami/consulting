@@ -79,7 +79,7 @@ async function LegalPageContent({ legalKey, locale }: { legalKey: LegalPageKey; 
 						<p className={UPDATED_CLASS}>
 							{t.rich('lastUpdated', { date: formatLegalDate(page.lastUpdatedOn, locale), time: (chunks) => <time dateTime={page.lastUpdatedOn}>{chunks}</time> })}
 						</p>
-						<LegalRichText className="mt-[clamp(1.5rem,1.2rem+1vw,2.5rem)]" document={page.content} locale={locale} />
+						<LegalRichText className="mt-[clamp(1.5rem,1.2rem+1vw,2.5rem)]" document={page.content} />
 					</div>
 				</div>
 			</article>

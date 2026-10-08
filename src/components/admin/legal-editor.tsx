@@ -1,7 +1,7 @@
 'use client'
 
 import { ExternalLink, LoaderCircle } from 'lucide-react'
-import { useActionState, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react'
 
 import { deleteLegalTranslationAction, saveLegalTranslationAction, type LegalActionState } from '@/app/(admin)/admin/legal/actions'
 import { LegalRichTextEditor } from '@/components/admin/legal-rich-text-editor'
@@ -30,6 +30,9 @@ const initialState: LegalActionState = {}
 
 export function LegalEditor({ canDelete, stableKey, translations }: { canDelete: boolean; stableKey: LegalPageKey; translations: LegalEditorTranslation[] }) {
 	const [activeLocale, setActiveLocale] = useState<AppLocale>(routing.defaultLocale)
+	// Statuses saved or deleted in this session, so the tab badges change at
+	// once instead of waiting for the refreshed server data.
+	const [savedStatuses, setSavedStatuses] = useState<Partial<Record<AppLocale, LegalStatus | null>>>({})
 	const tabRefs = useRef<Partial<Record<AppLocale, HTMLButtonElement | null>>>({})
 	const baseId = useId()
 	const tabId = (locale: AppLocale) => `${baseId}-tab-${locale}`
@@ -52,7 +55,7 @@ export function LegalEditor({ canDelete, stableKey, translations }: { canDelete:
 			<p className="mt-1 text-sm text-slate-600">Each language has its own title, text, “Last updated” date, SEO fields and publication state. Nothing falls back to English.</p>
 			<div aria-label="Languages" className="mt-5 flex flex-wrap gap-2" role="tablist">
 				{routing.locales.map((locale) => {
-					const status = translations.find((item) => item.locale === locale)?.status ?? null
+					const status = locale in savedStatuses ? savedStatuses[locale] ?? null : translations.find((item) => item.locale === locale)?.status ?? null
 					const selected = activeLocale === locale
 					return (
 						<button
@@ -76,16 +79,20 @@ export function LegalEditor({ canDelete, stableKey, translations }: { canDelete:
 				})}
 			</div>
 			<div aria-labelledby={tabId(activeLocale)} id={panelId} role="tabpanel">
-				<TranslationForm canDelete={canDelete} key={activeLocale} locale={activeLocale} stableKey={stableKey} translation={translations.find((item) => item.locale === activeLocale)} />
+				<TranslationForm canDelete={canDelete} key={activeLocale} locale={activeLocale} onStatusChange={(status) => setSavedStatuses((current) => ({ ...current, [activeLocale]: status }))} stableKey={stableKey} translation={translations.find((item) => item.locale === activeLocale)} />
 			</div>
 		</section>
 	)
 }
 
-function TranslationForm({ canDelete, locale, stableKey, translation }: { canDelete: boolean; locale: AppLocale; stableKey: LegalPageKey; translation?: LegalEditorTranslation }) {
-	const [state, action, pending] = useActionState(saveLegalTranslationAction, initialState)
-	// Controlled fields, so React's form reset after an action never discards
-	// what the editor typed when the server returns an error.
+function TranslationForm({ canDelete, locale, onStatusChange, stableKey, translation }: { canDelete: boolean; locale: AppLocale; onStatusChange: (status: LegalStatus | null) => void; stableKey: LegalPageKey; translation?: LegalEditorTranslation }) {
+	// Controlled fields. After a save, every field, the "Last saved" line and
+	// the language tab take the values the database stored. The form is
+	// dispatched from onSubmit (see submit below), not through React's
+	// <form action> handling, which resets the form after the action: that
+	// puts a controlled <select> back on the option it was first rendered with
+	// (a new translation's "Draft") while its state keeps the saved status, so
+	// a second save would silently change the status.
 	const [title, setTitle] = useState(translation?.title ?? '')
 	const [lastUpdatedOn, setLastUpdatedOn] = useState(translation?.lastUpdatedOn ?? '')
 	const [status, setStatus] = useState<LegalStatus>(translation?.status ?? 'draft')
@@ -93,6 +100,18 @@ function TranslationForm({ canDelete, locale, stableKey, translation }: { canDel
 	const [seoTitle, setSeoTitle] = useState(translation?.seoTitle ?? '')
 	const [seoDescription, setSeoDescription] = useState(translation?.seoDescription ?? '')
 	const [editorKey, setEditorKey] = useState(0)
+	const [record, setRecord] = useState(translation ? { status: translation.status, updatedAt: translation.updatedAt } : null)
+	const [state, action, pending] = useActionState(async (previous: LegalActionState, formData: FormData) => {
+		const result = await saveLegalTranslationAction(previous, formData)
+		const { saved } = result
+		if (saved) {
+			setTitle(saved.title); setLastUpdatedOn(saved.lastUpdatedOn ?? ''); setStatus(saved.status); setScheduledFor(toDateTimeLocal(saved.scheduledFor))
+			setSeoTitle(saved.seoTitle ?? ''); setSeoDescription(saved.seoDescription ?? '')
+			setRecord({ status: saved.status, updatedAt: saved.updatedAt })
+			onStatusChange(saved.status)
+		}
+		return result
+	}, initialState)
 	// After an admin deletes the translation, the form starts again from an
 	// empty draft.
 	const [deleteState, deleteAction, deleting] = useActionState(async (previous: LegalActionState, formData: FormData) => {
@@ -100,6 +119,8 @@ function TranslationForm({ canDelete, locale, stableKey, translation }: { canDel
 		if (result.success) {
 			setTitle(''); setLastUpdatedOn(''); setStatus('draft'); setScheduledFor(''); setSeoTitle(''); setSeoDescription('')
 			setEditorKey((key) => key + 1)
+			setRecord(null)
+			onStatusChange(null)
 		}
 		return result
 	}, initialState)
@@ -123,22 +144,32 @@ function TranslationForm({ canDelete, locale, stableKey, translation }: { canDel
 		if ((next === 'published' || next === 'scheduled') && !lastUpdatedOn) setLastUpdatedOn(localToday())
 	}
 
-	const exists = Boolean(translation) && !deleteState.success
+	// Preventing the default skips React's form action and its reset; the
+	// action attribute stays so that a submit before hydration goes nowhere.
+	function submit(event: FormEvent<HTMLFormElement>) {
+		event.preventDefault()
+		const formData = new FormData(event.currentTarget)
+		startTransition(() => action(formData))
+	}
+
+	const exists = record !== null
 	const publicHref = legalPath(stableKey, locale)
+	// The editor's name is known only for the save the page was loaded with.
+	const savedBy = translation && record?.updatedAt === translation.updatedAt ? translation.updatedByName : null
 
 	return (
 		<div className="mt-6 space-y-6">
 			<div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
 				<p>
-					{exists && translation
-						? <>Last saved {formatDateTime(translation.updatedAt)}{translation.updatedByName ? <> by {translation.updatedByName}</> : null}.</>
+					{record
+						? <>Last saved {formatDateTime(record.updatedAt)}{savedBy ? <> by {savedBy}</> : null}.</>
 						: <>No {LOCALE_NAMES[locale]} translation yet. Saving creates it.</>}
 				</p>
-				{exists && translation?.status === 'published'
+				{record?.status === 'published'
 					? <a className="inline-flex items-center gap-1 font-medium text-[#27335a] underline-offset-4 hover:underline" href={publicHref} rel="noreferrer" target="_blank">View public page<ExternalLink aria-hidden="true" className="size-3.5" /><span className="sr-only"> (opens in a new tab)</span></a>
 					: null}
 			</div>
-			<form action={action} className="grid gap-5 md:grid-cols-2" noValidate ref={formRef}>
+			<form action={action} className="grid gap-5 md:grid-cols-2" noValidate onSubmit={submit} ref={formRef}>
 				<input name="stableKey" type="hidden" value={stableKey} />
 				<input name="locale" type="hidden" value={locale} />
 				<Field className="md:col-span-2" htmlFor={fieldId('title')} label="Page title" required>

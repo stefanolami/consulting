@@ -197,7 +197,9 @@ During the rebuild:
 - Real launch content may be entered and reviewed there throughout development.
 - Database migrations are still stored in Git for history, review,
   reproducibility, and future branching.
-- Migrations are applied to the hosted Supabase branch.
+- Migrations are applied to the hosted Supabase branch by the Supabase
+  GitHub integration when their commit is pushed, not by a manual
+  `supabase db push` (platform document section 7.2).
 - Destructive schema changes should be avoided; prefer additive, reversible
   migrations and take backups before material changes.
 
@@ -408,8 +410,10 @@ Consider:
 
 ### 10.6 Legal pages
 
-Designed on 2026-10-05; migration `20261005120000_legal_pages.sql` is written
-and not yet applied. The full design is in
+Designed on 2026-10-05 and implemented on 2026-10-08 (section 15.11);
+migrations `20261005120000_legal_pages.sql` and
+`20261008120000_legal_pages_policy_recursion_fix.sql` are applied. The full
+design is in
 [`docs/supabase-content-platform.md`](./supabase-content-platform.md)
 section 11.
 
@@ -1008,9 +1012,9 @@ Implemented on 2026-09-28:
   (Figma "pages" drop-down), `LocaleSwitcher`, `SiteFooter`, `SocialLinks`,
   `DownloadSnapshotLink`, `PoeLink`, `PageHero`, `SkipLink`. Navigation
   labels follow Figma (`Publications` links to `/newsroom`; `Who we are`
-  links to `/team` for now). Links to the legal pages target their intended
-  paths and return 404 until those pages exist (Why us exists since section
-  15.8, Contact since section 15.10).
+  links to `/team` for now). Links to the legal pages target the
+  pages built in section 15.11 (Why us exists since section 15.8, Contact
+  since section 15.10).
 - The POE link reads the existing public `poe_external_link` site setting and
   is hidden while it is empty.
 - Interface strings live in the `Shell` message namespace. Non-English
@@ -1468,7 +1472,7 @@ needed; the header already linked to it.
   moves to the first invalid field or to the result, and one polite status
   announces the outcome. React's automatic form reset restores the returned
   values after an error and clears the form after success. A short notice
-  links to the planned `/privacy-policy` route.
+  links to `/privacy-policy` (section 15.11).
 - Validation (`src/lib/contact/contact-rules.mjs`, shared by the client and
   the Server Action, zod): every field is trimmed and bounded (name 2–100,
   email up to 254 and a valid address, subject 2–150, message 10–5,000
@@ -1546,6 +1550,146 @@ needed; the header already linked to it.
   (`contact-world-map`) and the head office icons (Lucide stand-ins). See
   [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
 - The `Contact` namespace is provisional in the non-English locales.
+
+### 15.11 Legal pages
+
+Implemented on 2026-10-08 from the design in
+[`docs/supabase-content-platform.md`](./supabase-content-platform.md)
+section 11. There is no Figma frame; the pages use the site's type scale,
+`PageHero` and content-width tokens. The routes are the legacy
+`/privacy-policy`, `/terms-and-conditions` and `/cookie-use`
+(locale-prefixed outside English), so no redirect is needed; the footer and
+the contact form notice already linked to them.
+
+- Schema: `20261005120000_legal_pages.sql` and
+  `20261008120000_legal_pages_policy_recursion_fix.sql`, both applied by the
+  Supabase GitHub integration on push. The first migration's select policies
+  on `legal_pages` and `legal_page_translations` referred to each other, so
+  every RLS-filtered query on either table failed with `42P17` ("infinite
+  recursion detected in policy"). The fix makes the `legal_pages` select
+  policies check only `is_active` (or active staff); the translation
+  policies keep their parent-active check. The platform document (section
+  11.6) records the lesson. Generated types were regenerated; the manual
+  `| null` on the `replace_media_asset` `p_width`/`p_height` arguments was
+  kept, because the generator drops it and the media action passes `null`
+  for SVGs.
+- Document format: legal document version 1 in `src/lib/legal-document.mjs`
+  (`.d.mts` declaration, the `contact-rules.mjs` pattern): the catalogue
+  rich-text contract plus `hardBreak` and root-relative internal links
+  without a locale segment, with `attrs.schemaVersion: 1` on the root.
+  Errors name the failing block ("Block 3 (paragraph): …"). The catalogue
+  rules moved into `src/lib/rich-text-rules.mjs`, which
+  `src/lib/catalogue-document.ts` now uses with options that reproduce its
+  previous behaviour (46 inputs, including every error message, compared
+  byte for byte before and after); the article validator is unchanged. Tests:
+  `scripts/legal-document.test.mjs`, `scripts/rich-text-rules.test.mjs`.
+- Public pages (`src/components/legal/legal-page.tsx`, three thin routes
+  under `src/app/[locale]/`): the navy `PageHero` without artwork (the hero
+  now accepts no illustration), then the document at a prose measure
+  (`max-w-prose` inside `max-w-content`) with "Last updated" (`<time>`,
+  formatted per locale) above it. `LegalRichText` renders paragraphs,
+  `h2`/`h3`, lists, quotations, hard breaks, bold and italic. Internal links
+  go through the next-intl `Link` without a `locale` prop, so `/cookie-use`
+  becomes `/de/cookie-use` in German and stays canonical in English; external
+  links are plain anchors. The reader `getPublishedLegalPage`
+  (`src/lib/public-legal.ts`) reads every published, past-dated translation
+  of an active page with the anonymous client (hourly cache, tag
+  `public-legal`) and returns `published`, `english-only` or `missing`; there
+  is no English fallback. Metadata: SEO title or title, SEO description,
+  canonical, and hreflang only for published locales, plus `x-default` when
+  English is published.
+- Missing translation (platform document section 11.5): when English is
+  published but the locale is not, the page shows the localized page name as
+  `h1`, "This page is not available in this language yet" and a link to
+  `/en/{page}` with `hrefLang="en"` and `lang="en"` on the English title,
+  with `robots: noindex, follow` and a canonical to the English page. The
+  link carries the `/en` prefix on purpose: next-intl then switches the
+  locale cookie, whereas a bare `/privacy-policy` would send a visitor whose
+  cookie is German back to `/de/privacy-policy`. With no published English,
+  every locale renders the localized not-found page with `noindex`; as on the
+  other streamed templates the HTTP status is 200, not 404 (section 15.4).
+- Skeleton: `LegalPageSkeleton` (hero title, the date line, heading and
+  paragraph shapes in the same type) in a `LoadingRegion`, labelled through
+  `LoadingMessage` (`Legal.loading`).
+- Admin (`/admin/legal`, "Legal pages" in the navigation): exactly the three
+  pages, each with per-locale status and a warning when the page is switched
+  off or English is not published; no create, delete or archive-page
+  control. The editor has locale tabs (arrow keys, Home and End), title, the
+  TipTap editor (`legal-rich-text-editor.tsx`: bold, italic, section heading,
+  subheading, lists, line break with Shift+Enter, and a link dialog that
+  accepts site paths such as `/cookie-use` and explains why it refuses
+  language prefixes, `javascript:` and `mailto:`), status, the "Last
+  updated" date (required to publish or schedule; today is suggested, with a
+  Today button), schedule time, SEO title and description, and an admin-only
+  "Delete translation" with a confirmation. Quotations are not offered:
+  TipTap nests paragraphs in them, which the shared contract rejects, and the
+  legal texts use none. The editor removes TipTap's editor-only attributes
+  before saving. The Server Actions (`src/app/(admin)/admin/legal/actions.ts`)
+  call `requireActiveStaff`, validate with the shared validator, return
+  field-level errors that move focus to the field, never send `created_by`
+  or `updated_by` (the trigger stamps them), record a touch on the canonical
+  row through `updated_by`, and invalidate `public-legal` on every save and
+  delete.
+- Editor fixes after the end-to-end admin test on 2026-10-08:
+  1. After a save, the status select showed the option it was first rendered
+     with (a new translation's "Draft") while the row was saved as
+     published, so the next save would silently unpublish. Cause: React
+     resets a form after a `<form action>` completes, and a controlled
+     `<select>` returns to its first-rendered option in the DOM while its
+     state is unchanged. The form now dispatches the action from `onSubmit`
+     with `preventDefault`, so React's form action and its reset do not run;
+     the `action` attribute stays, so a submit before hydration goes nowhere.
+     After every save, the fields, the "Last saved" line and the language tab
+     badge take the values the database returned.
+  2. Headings, lists and links looked like plain paragraphs while editing:
+     the shared `profile-rich-text` class has no styles. The legal editor now
+     styles them itself.
+  3. Only the strip of text at the top of the editor box was editable. The
+     editable element now fills the box, a click on the wrapper focuses the
+     end of the document, and the box shows a focus ring.
+- Seed: `npm run legal:bootstrap -- [--dry-run | --apply]`
+  (`scripts/bootstrap-legal.mjs`, `scripts/lib/legal-bootstrap.mjs`,
+  `scripts/data/legal-pages.json`, `scripts/legal-bootstrap.test.mjs`). The
+  JSON holds the three legacy English texts as version-1 documents with the
+  wording unchanged; a test compares the whole text word for word with the
+  legacy JSX when `old-consulting` is present. Dry run by default; `--apply`
+  only inserts missing English drafts with no "last updated" date and never
+  updates or publishes. It has not been applied. The proposed
+  `tp_contact_form` cookie wording is not seeded (section 10.6).
+- `Legal` messages (loading label, "Last updated", notice) in all five
+  locales; provisional outside English.
+- Checks on 2026-10-08:
+  - Anonymous RLS against the hosted project, with marked test rows on
+    `cookie-use` created and removed by the service role: anon reads both
+    tables without errors and sees only published, past-dated text; drafts,
+    archived, scheduled and future-dated published translations are hidden;
+    with the page switched off, its published translation and the page row
+    are hidden; every anon insert, update and delete on both tables is
+    refused with `42501`. All 17 checks passed. Staff-side checks are run
+    separately with a real staff sign-in.
+  - Pages in a production build at 375, 768, 1024 and 1440 px in English and
+    German: published (a marked long-form test translation of the cookie
+    text, and the short English privacy policy from the admin test),
+    English-only notice (`/de/privacy-policy`) and nothing published
+    (`/terms-and-conditions`, `/de/terms-and-conditions`). No horizontal
+    overflow, one `h1`, no text under 14 px in `main`, a measure of
+    325–340 px on phones and 582 px from 768 px. Dates read "Last updated:
+    October 8, 2026" and "Zuletzt aktualisiert: 8. Oktober 2026".
+  - The three editor fixes in the admin with a staff session against a
+    production build, with saves short-circuited by a temporary guard so
+    nothing was written (removed afterwards). The status bug was first
+    reproduced with the previous editor.
+- Known limits: in `next dev` (Next.js 16.2.12), every admin Server Action
+  fails in the render that follows it with "Invariant: Received an
+  underlying cookies object that does not match either `cookies` or
+  `mutableCookies`": a dev-only check in
+  `next/dist/server/request/cookies.js` compares the action-phase cookie
+  store with the wrong object. It affects every admin area (reproduced on the
+  catalogue), not production builds; until it is fixed upstream, test admin
+  saves against `next build && next start`. Scheduled translations are not
+  published automatically (platform document section 9).
+- The legacy legal content points for the product owner are listed in
+  section 10.6.
 
 ## 16. Public routes and legacy parity
 
@@ -1907,7 +2051,8 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
   done 2026-10-05, section 15.9, with the reusable partners section and
   without the deferred newsroom feature; Contact done 2026-10-05, section
   15.10, with the CMS office network, the head office from the site settings
-  and the SMTP form; the legal pages remain).
+  and the SMTP form; legal pages done 2026-10-08, section 15.11, with the
+  admin editor, the missing-translation notice and the draft seed script).
 - Complete responsive and interaction states.
 - Have realistic profiles, articles, services, sectors, countries, and other
   content authored through the admin and reviewed on their public pages.
@@ -2085,15 +2230,23 @@ The rebuild is complete when:
 	 time, following section 15.2. Who We Are and team profiles (section 15.4),
 	 services and sectors (section 15.5) and the newsroom listing and article
 	 detail (section 15.7) are done, and Why Us (section 15.8), Home
-	 (section 15.9) and Contact (section 15.10) are built. Author the
+	 (section 15.9), Contact (section 15.10) and the legal pages (section
+	 15.11) are built. For the legal pages: run the staff-side RLS checks with
+	 a real staff sign-in; run `npm run legal:bootstrap` (dry run), then
+	 `-- --apply` to seed the three English drafts; have the product owner
+	 decide the content points in section 10.6 (including the
+	 `tp_contact_form` cookie wording); publish English with its "Last
+	 updated" date before launch (without it every locale returns not found);
+	 then translate. Test admin saves against a production build until the
+	 Next.js dev-only cookies invariant (section 15.11) is fixed. Author the
 	 remaining legacy offices (Austria, Belgium, France, Germany, Ireland,
 	 Portugal and Romania, each with city, country email, a published
 	 translation per locale and a `country_offices` link) in the admin, set
 	 the `CONTACT_*` variables and `CONTACT_FORM_SECRET` for production, and
 	 review the provisional `Contact` translations. Our Outreach is next, with template skeletons
 	 built on the loading foundation (section 15.6). Review the provisional
-	 `Team`, `Catalogue`, `Newsroom`, `WhyUs`, `Endorsements`, `HomePage` and
-	 `Partners` translations with the shell strings, confirm the Why Us figures
+	 `Team`, `Catalogue`, `Newsroom`, `WhyUs`, `Endorsements`, `HomePage`,
+	 `Partners` and `Legal` translations with the shell strings, confirm the Why Us figures
 	 and hero introduction (open decision 12), decide the homepage newsroom
 	 feature (open decision 13), author and publish the remaining legacy
 	 endorsements and the homepage partners (logo, alt text, website and a
