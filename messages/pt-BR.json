@@ -44,7 +44,6 @@
 			"Newsroom.kinds",
 			"WhyUs",
 			"Endorsements",
-			"Partners",
 			"Contact",
 			"Legal"
 		],
@@ -61,6 +60,19 @@
 			"snapshot": "Quem somos em resumo",
 			"lead": "Com presença internacional e alcance local, a <strong>Time&Place Consulting</strong> oferece estratégias integradas que impulsionam a tomada de decisões e apoiam o crescimento sustentável.",
 			"body": "Como agência de comunicação estratégica, desenvolvimento de negócios e gestão de projetos, nossa equipe global fortalece sua capacidade de decisão e amplia seus canais de influência. Somos seu ponto de entrada estratégico em novos mercados e seu canal de comunicação com governos, órgãos reguladores, a opinião pública e as principais instituições de compras públicas, financiamento e fomento."
+		},
+		"newsroom": {
+			"eyebrow": "Fique por dentro com a nossa <strong>Time&Place</strong>",
+			"title": "Newsroom",
+			"viewArticle": "Ver artigo",
+			"viewAll": "Ver todas as publicações",
+			"previous": "Artigo anterior",
+			"next": "Próximo artigo",
+			"status": "Slide {current} de {total}",
+			"slideLabel": "{current} de {total}",
+			"carousel": "carrossel",
+			"slide": "slide",
+			"loading": "Carregando as publicações mais recentes"
 		}
 	},
 	"Catalogue": {
@@ -269,10 +281,6 @@
 		"loading": "Carregando depoimentos",
 		"pause": "Pausar depoimentos",
 		"play": "Retomar depoimentos"
-	},
-	"Partners": {
-		"title": "Parceiros e clientes",
-		"loading": "Carregando parceiros e clientes"
 	},
 	"Contact": {
 		"title": "Contato",

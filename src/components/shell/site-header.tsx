@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import { getPublishedGlobalContent } from '@/lib/public-global-content'
+import { cn } from '@/lib/utils'
 
 import { HeaderFrame } from './header-frame'
 import { LocaleSwitcher } from './locale-switcher'
@@ -88,12 +89,9 @@ async function DesktopPoe({ locale }: SiteHeaderProps) {
 	const [{ poeUrl }, t] = await Promise.all([getPublishedGlobalContent(locale), getTranslations({ locale, namespace: 'Shell.nav' })])
 	if (!poeUrl) return null
 	return (
-		<PoeLink
-			className="mr-2 self-center px-4 py-4 text-body-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark"
-			externalHint={t('externalHint')}
-			href={poeUrl}
-			label={t('poe')}
-		/>
+		// First header item, as on the production site: the graphic is as tall as
+		// the header and takes the same hover and focus treatment as the links.
+		<PoeLink className={cn(desktopLink, 'h-(--header-height) px-0 min-[87.5rem]:px-1')} externalHint={t('externalHint')} href={poeUrl} label={t('poe')} />
 	)
 }
 

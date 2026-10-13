@@ -44,7 +44,6 @@
 			"Newsroom.kinds",
 			"WhyUs",
 			"Endorsements",
-			"Partners",
 			"Contact",
 			"Legal"
 		],
@@ -61,6 +60,19 @@
 			"snapshot": "Wir auf einen Blick",
 			"lead": "Mit internationaler Präsenz und lokaler Reichweite entwickelt <strong>Time&Place Consulting</strong> integrierte Strategien, die Entscheidungen voranbringen und nachhaltiges Wachstum unterstützen.",
 			"body": "Als Agentur für strategische Kommunikation, Geschäftsentwicklung und Projektmanagement stärkt unser globales Team Ihre Entscheidungsfähigkeit und erweitert Ihre Einflusskanäle. Wir sind Ihr strategischer Zugang zu neuen Märkten und Ihr Kommunikationskanal zu Regierungen, Regulierungsbehörden, der öffentlichen Meinung sowie zu zentralen Institutionen der öffentlichen Beschaffung, Finanzierung und Förderung."
+		},
+		"newsroom": {
+			"eyebrow": "Bleiben Sie informiert mit unserem <strong>Time&Place</strong>",
+			"title": "Newsroom",
+			"viewArticle": "Artikel ansehen",
+			"viewAll": "Alle Veröffentlichungen ansehen",
+			"previous": "Vorheriger Artikel",
+			"next": "Nächster Artikel",
+			"status": "Folie {current} von {total}",
+			"slideLabel": "{current} von {total}",
+			"carousel": "Karussell",
+			"slide": "Folie",
+			"loading": "Die neuesten Veröffentlichungen werden geladen"
 		}
 	},
 	"Catalogue": {
@@ -269,10 +281,6 @@
 		"loading": "Empfehlungen werden geladen",
 		"pause": "Empfehlungen anhalten",
 		"play": "Empfehlungen abspielen"
-	},
-	"Partners": {
-		"title": "Partner und Kunden",
-		"loading": "Partner und Kunden werden geladen"
 	},
 	"Contact": {
 		"title": "Kontakt",

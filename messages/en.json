@@ -10,6 +10,19 @@
 			"snapshot": "Us in a snapshot",
 			"lead": "With an international presence and local reach, <strong>Time&Place Consulting</strong> delivers integrated strategies that drive decision-making and support sustainable growth.",
 			"body": "As a strategic communications, business development, and project management agency, our global team strengthens your decision-making capacity and expands your channels of influence. We serve as your strategic entry point to new markets and your line of communication with governments, regulatory bodies, public opinion, and key institutions in public procurement, financing, and funding."
+		},
+		"newsroom": {
+			"eyebrow": "Stay updated with our <strong>Time&Place</strong>",
+			"title": "Newsroom",
+			"viewArticle": "View article",
+			"viewAll": "View all publications",
+			"previous": "Previous article",
+			"next": "Next article",
+			"status": "Slide {current} of {total}",
+			"slideLabel": "{current} of {total}",
+			"carousel": "carousel",
+			"slide": "slide",
+			"loading": "Loading the latest publications"
 		}
 	},
 	"Catalogue": {
@@ -218,10 +231,6 @@
 		"loading": "Loading endorsements",
 		"pause": "Pause endorsements",
 		"play": "Play endorsements"
-	},
-	"Partners": {
-		"title": "Partners and clients",
-		"loading": "Loading partners and clients"
 	},
 	"Contact": {
 		"title": "Contact",

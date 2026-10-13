@@ -212,7 +212,7 @@ not copy its raw coordinates.
 
 | Design | Figma node | Coverage |
 | --- | --- | --- |
-| Homepage | `5651:631` | Mobile header, hero, intro, newsroom feature (deferred), client logos |
+| Homepage | `5651:631` | Mobile header, hero, intro, newsroom feature, client logos (not implemented) |
 | Who We Are | `5651:258` | Two-column team grid |
 | Services | `5651:347` | Alternating title/summary cards |
 | Sectors | `5651:406` | Alternating title/summary cards |
@@ -240,8 +240,10 @@ NEWSROOM" band with a single photographic "NEWS SCROLL" card and arrow buttons
 (annotation "news scroll with slide effect"); and a grey band of partner and
 client logos (`5527:46` / `5651:680`, "Homepage Sponsors", a flat image of 21
 logos, seven a row, with no heading). The mobile frame repeats the desktop
-composition at a narrower card width. The newsroom feature is deferred
-(section 15.9); the logos are rendered from CMS partners.
+composition with a portrait card, the text panel below the picture and the
+arrows beside the card. The newsroom feature was implemented on 2026-10-13
+with provisional content rules (control tower section 15.9 and open decision
+23.13). The partner logo band was removed from Home the same day.
 
 Responsive behavior that is not supplied by Figma must be designed in code:
 
@@ -319,8 +321,9 @@ affected elements. They are the only interaction specification in the file:
   when page loads` — card flips.
 - `Slide When hovered` / `sequence slide for all cards when page loads`.
 - `animated` — repeated on service and sector detail illustrations.
-- `news scroll with slide effect` — homepage newsroom carousel (deferred;
-  control tower section 15.9).
+- `news scroll with slide effect` — homepage newsroom carousel
+  (implemented 2026-10-13 as a button-driven slide with no autoplay; control
+  tower section 15.9).
 - `NUMBERS COUNT UP UNTIL REACHING FINAL METRIC` — statistics.
 - `SCROLL OF ENDORSEMENT LOGOS & DESCRIPTIONS`.
 - `focus card effect` and `Comet card effect`.
@@ -395,8 +398,9 @@ editorial relationships:
   years/sources, service coverage, assigned experts, office/coverage marks, and
   `last reviewed` dates.
 - Offices are structured content used by Contact and country coverage.
-- Partners/client logos appear on the homepage (implemented from CMS partners,
-  control tower section 15.9).
+- Partners/client logos appear on the homepage in Figma (implemented from
+  CMS partners on 2026-10-05, then removed from Home on 2026-10-13; control
+  tower section 15.9). Partner logos still appear with endorsements.
 - Endorsements appear on Why Us.
 - Downloadable snapshot/PDF assets appear in the footer and team page.
 
@@ -496,5 +500,5 @@ equivalent exists and are then corrected against Figma.
    (done 2026-09-28).
 5. Prototype and then implement Our Outreach.
 6. Complete Why Us (done 2026-10-05), Contact, homepage composition (done
-   2026-10-05 without the newsroom feature), legal pages, and remaining
+   2026-10-05; newsroom feature added 2026-10-13), legal pages, and remaining
    content migration.

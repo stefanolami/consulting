@@ -1015,8 +1015,20 @@ Implemented on 2026-09-28:
   links to `/team` for now). Links to the legal pages target the
   pages built in section 15.11 (Why us exists since section 15.8, Contact
   since section 15.10).
-- The POE link reads the existing public `poe_external_link` site setting and
-  is hidden while it is empty.
+- POE (2026-10-13). The link reads the existing public `poe_external_link`
+  site setting, and nothing renders while the setting is empty. On desktop it
+  is the first header item, as on the production site, and shows the
+  production graphic: `public/brand/poe-highlight.png`, from
+  `main:public/poe-highlight.png`. The 1851 × 1390 original (687 KB) was
+  resized to 400 × 300 (13 KB) with its aspect ratio and transparency kept.
+  The graphic is as tall as the header, its alt text is "POE", a visually
+  hidden "(opens in a new tab)" follows it, and it has the same hover and
+  focus treatment as the links. The CSS glow and its `--color-glow` token are
+  gone. In the mobile pages menu POE is the first row, shown as text in the
+  same style as the page rows, with an external-link icon. The graphic is
+  white lettering on a glow made for the navy header, so on the light mist
+  panel it would need its own navy chip and would break the icon-and-label
+  rhythm. Figma's menu has no POE row.
 - Interface strings live in the `Shell` message namespace. Non-English
   strings are provisional and marked with `_meta.provisionalNamespaces` in
   each locale file; `scripts/messages.test.mjs` checks key parity.
@@ -1395,28 +1407,68 @@ unchanged; the test harness that occupied it is gone.
   of access for IMPACT" (the only `h1`); the mist "snapshot" band with the
   `h2` "Time&Place Consulting", "A Time&Place Group pillar", the blue rule,
   "Us in a snapshot" and the two intro paragraphs (Figma copy, newer than the
-  legacy text); then the partner logos. "Time&Place Group" links to
+  legacy text); then the newsroom feature. "Time&Place Group" links to
   `https://www.groupontap.com/en` in a new tab, as on the legacy site, with a
   small external-link icon and a visually hidden "(opens in a new tab)".
   Copy lives in the `HomePage` messages. Metadata: localized title (absolute,
   so the layout's "| Time&Place Consulting" suffix is not doubled) and
   description, canonical and hreflang alternates for every locale plus
   `x-default`.
-- Partners (`src/components/partners/partners-section.tsx`, shaped like
-  `Endorsements` and reusable): `Partners` takes only the locale and streams
-  behind Suspense; `PartnersSkeleton` (a centred wall of 14 logo cells) sits in
-  a `LoadingRegion` with one localized status; a locale with no published
-  partner renders no section at all. It reads `partners` from
-  `getPublishedGlobalContent`, unchanged: active record, exact locale,
-  published translation whose `published_at` is not in the future, logo
-  through public managed media with localized alt text, no English fallback,
-  and only `http(s)` website URLs. Logos sit in fixed cells (seven a row at
-  1440 px as in Figma, five at 768, three at 375) with `object-contain`. A
-  logo with a website is one link whose name is the logo's alt text plus
-  "(opens in a new tab)"; without a website it is a plain image. The band is
-  static, so it needs no pause control; the hover zoom runs only under
-  `motion-safe`. Figma shows no heading, so the section is labelled by a
-  visually hidden `h2` ("Partners and clients") to keep the outline.
+- Newsroom feature (2026-10-13, settles open decision 13 with provisional
+  defaults). `src/components/home/home-newsroom.tsx` and the client
+  `home-newsroom-carousel.tsx`, against Figma `5408:625`/`5408:628`
+  (heading), `5411:829` (card), `5411:833` (panel), `5652:39` (kind icon),
+  `5412:853` (arrows) and the mobile `5651:646`, `5651:637` and `5652:40`.
+  - Content: the five newest articles from `getPublishedArticleSelection`
+    with no filters, so the newsroom rules apply unchanged: exact locale,
+    published translation, publication time passed, no English fallback.
+    Featured articles get no special place. Each slide shows the cover, the
+    kind label (`Newsroom.kinds`) and the kind icon (`ArticleKindIcon`,
+    placeholders), the title (Figma's "NEWS SCROLL" is placeholder text for
+    it), the excerpt and a "View article" link to the localized article. A
+    slide without a cover keeps the muted-blue picture block, as the
+    newsroom cards do. "View all publications" below the card links to
+    `/newsroom`.
+  - Layout: the soft-grey band with "STAY UPDATED WITH OUR **TIME&PLACE**" and
+    "NEWSROOM" as one `h2`; slide titles are `h3`. From `lg`, the 70 rem card
+    has a 10 px navy frame and a landscape picture (1100:459), with the navy
+    panel over its bottom left, the kind icon at the top right and the arrows
+    at the bottom right. Below `lg`, the card is at most 36 rem wide: a
+    portrait picture (4:5 on phones, 4:3 from 640 px), the panel below it
+    with the kind icon under the kind label, and the arrows centred on the
+    picture. The arrows sit inside the picture's sides on phones and beside
+    the card from 768 px, as in Figma. Slides share the tallest slide's
+    height, so changing slides never moves the page.
+  - Behaviour: previous and next buttons that wrap around, and no automatic
+    advancing. Every slide is server-rendered; the slides not shown are
+    off-canvas and `inert`, so only the visible slide's link is focusable.
+    The carousel is a `group` with the localized `aria-roledescription`
+    "carousel" and the section heading as its name; each slide is a
+    "slide" group labelled "n of m". A polite, atomic live region announces
+    "Slide n of m" after each change (not on load). The buttons are labelled
+    "Previous article" and "Next article", have a white halo inside the
+    azure focus outline so it shows on any photograph, and render only after
+    hydration and only with two or more slides. A horizontal swipe of more
+    than 40 px changes the slide on touch screens. The 500 ms slide runs only
+    without `prefers-reduced-motion`.
+  - Loading: the section streams behind Suspense. `HomeNewsroomSkeleton`
+    (heading lines, one framed slide with its panel, the "View all" line)
+    sits in a `LoadingRegion` with one polite status, "Loading the latest
+    publications". With no published article in the locale the whole
+    section, heading included, is omitted.
+  - Without JavaScript: the carousel markup itself works without scripts
+    (first slide, its link and "View all", and no dead buttons), but the
+    section streams, and streamed sections are revealed by script (open
+    decision 14). Until that is settled, a `<noscript>` "View all
+    publications" link to `/newsroom` sits under the skeleton.
+  - Links use the next-intl `Link` without a `locale` prop, so English paths
+    stay unprefixed (section 15.11).
+- Partners removed from Home (2026-10-13). The partner logo band
+  (`src/components/partners/partners-section.tsx`) had no other user, so the
+  component and its `Partners` messages were deleted in all five locales.
+  The partner records, the admin and the `partners` field of
+  `getPublishedGlobalContent` are unchanged; endorsements still use the
+  partner logos.
 - Removed: the sign-in link, the template-testing route list,
   `src/components/home/global-content-proof.tsx` (nothing else used it) and the
   `HomePage` keys only the harness used (`title`, `signIn`, `testNavigation`,
@@ -1424,12 +1476,8 @@ unchanged; the test harness that occupied it is gone.
   `endorsements`, `contact`, `socials`) in all five locales. The footer
   already renders the public contact and social settings that the harness
   proved; sign-in remains at `/auth/sign-in`.
-- Deferred, not built and with no empty slot: the Figma newsroom feature
-  ("STAY UPDATED WITH OUR TIME&PLACE NEWSROOM", the "NEWS SCROLL" card with
-  arrows, annotation "news scroll with slide effect"). Its content rules
-  (which articles, how many, autoplay) are open decision 23.13. The newsroom
-  and Our Outreach code are untouched.
-- Checked with `/` (one published English partner, EFFA), `/de` and `/pt-BR`
+- Checked on 2026-10-05, before the newsroom feature, with `/` (one
+  published English partner, EFFA), `/de` and `/pt-BR`
   (none) at 375, 768, 1024 and 1440: no horizontal overflow, one `h1`, the
   outline `h1` → `h2` ("Time&Place Consulting") → `h2` (partners), metadata
   and alternates as above, no text under 14 px in `main`. German and
@@ -1439,19 +1487,42 @@ unchanged; the test harness that occupied it is gone.
   (three rows of seven at 1440, three a row at 375, no overflow), and the
   skeleton with the loader temporarily delayed: one polite status in English
   and German, no pulse under reduced motion. Both overrides were removed.
+- Checked on 2026-10-13 with `/` (18 published English articles, the five
+  newest shown, one of them without a cover) and `/de` (none) at 375, 768,
+  1024 and 1440: no horizontal overflow, and German shows the intro followed
+  directly by the footer. A keyboard-only run at 1440 went skip link, header
+  (POE through a temporary local override of the empty setting, since
+  removed), Time&Place Group, "View article", "Previous article", "Next
+  article". Enter and Space change the slide, focus stays on the button, the
+  live region reads "Slide 2 of 5", and Previous from the first slide wraps
+  to "Slide 5 of 5". Shift+Tab reaches the visible slide's link, every stop
+  shows an outline, and Enter opens the article at its unprefixed path.
+  Other checks: the transition is 0.5 s with motion allowed and 0 s under
+  reduced motion; a touch swipe at 375 moves to slide 2; without JavaScript
+  the skeleton and the `<noscript>` link render.
 - Deviations from Figma: the intro paragraphs have a narrower measure (52 rem
   rather than about 65 rem) and are left-aligned below 768 px (Figma centres
   them at every width); "Time&Place Group" is underlined and has an
   external-link icon because it is a link; the intro uses the fluid lead size
-  (18–20 px) and the title the heading-1 size (32–48 px); the partner band
-  shows CMS logos in uniform cells instead of the flat image; no newsroom
-  feature; the homepage does not show endorsements (Figma has none there,
-  although section 15.8 anticipated reuse).
+  (18–20 px) and the title the heading-1 size (32–48 px); the partner band is
+  not shown (removed 2026-10-13); the homepage does not show endorsements
+  (Figma has none there, although section 15.8 anticipated reuse). Newsroom
+  feature: slide titles use the heading-3 size instead of 36 px and are
+  clamped (three lines from `lg`, four below), the excerpt is clamped and
+  left-aligned instead of justified, and "View article" keeps the message's
+  capitals (Figma ">view article"). The panel grows with the title instead of
+  keeping 425 × 140. The arrows are white-filled so they read on any
+  photograph, and they sit inside the picture on phones because 375 px leaves
+  no room beside the card. The mobile picture is 4:5, or 4:3 from 640 px,
+  instead of Figma's 2:3, so the panel fits a phone screen. "View all
+  publications" is added; Figma has no link to the newsroom.
 - Hero: the designer's doors line drawing (`hero-homepage-doors`, supplied
-  2026-10-13). Partner logos are CMS content and need authoring, not a
-  placeholder. See [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
-- The `HomePage` and new `Partners` namespaces are provisional in the
-  non-English locales.
+  2026-10-13). Placeholders in the newsroom feature: the kind icons (shared
+  with the newsroom) and the round arrows (Lucide stand-ins). See
+  [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
+- The `HomePage` namespace, including the new `HomePage.newsroom` strings, is
+  provisional in the non-English locales. The `Partners` namespace was
+  removed.
 
 ### 15.10 Contact
 
@@ -2089,8 +2160,8 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
   2026-09-28, section 15.5; newsroom done 2026-09-28, section 15.7).
 - Build the remaining marketing, contact, and legal pages (Why Us done
   2026-10-05, section 15.8, including the reusable endorsements section; Home
-  done 2026-10-05, section 15.9, with the reusable partners section and
-  without the deferred newsroom feature; Contact done 2026-10-05, section
+  done 2026-10-05, section 15.9, with the newsroom feature added and the
+  partners band removed on 2026-10-13; Contact done 2026-10-05, section
   15.10, with the CMS office network, the head office from the site settings
   and the SMTP form; legal pages done 2026-10-08, section 15.11, with the
   admin editor, the missing-translation notice and the draft seed script).
@@ -2226,10 +2297,15 @@ These decisions should be resolved before the affected implementation begins:
     figures (14 / 10 / 3, derived from its own copy) and no introduction
     (section 15.8).
 13. The homepage newsroom feature (Figma `5408:616` "STAY UPDATED WITH OUR
-    TIME&PLACE NEWSROOM", "news scroll with slide effect"): which articles it
-    shows (featured, latest, by kind), how many, and whether it advances on
-    its own. It is deferred and not built (section 15.9). Also whether the
-    homepage should show the endorsements band, which Figma does not include.
+    TIME&PLACE NEWSROOM", "news scroll with slide effect"). Settled
+    provisionally on 2026-10-13 (section 15.9): the five newest published
+    articles in the locale under the newsroom rules (featured articles get
+    no special place), previous and next buttons, and no automatic
+    advancing. Still open: whether the product owner wants a different
+    selection (featured, by kind), a different number, or autoplay (which
+    would need a pause control). Also open: whether the homepage should show
+    the endorsements band, which Figma does not include. The partner band was
+    removed from Home on 2026-10-13.
 14. Whether CMS sections must be visible without JavaScript. Streamed
     sections are revealed by inline scripts, so without JavaScript the
     Contact office network and head office, the footer's CMS details and the
@@ -2286,11 +2362,11 @@ The rebuild is complete when:
 	 the `CONTACT_*` variables and `CONTACT_FORM_SECRET` for production, and
 	 review the provisional `Contact` translations. Our Outreach is next, with template skeletons
 	 built on the loading foundation (section 15.6). Review the provisional
-	 `Team`, `Catalogue`, `Newsroom`, `WhyUs`, `Endorsements`, `HomePage`,
-	 `Partners` and `Legal` translations with the shell strings, confirm the Why Us figures
-	 and hero introduction (open decision 12), decide the homepage newsroom
-	 feature (open decision 13), author and publish the remaining legacy
-	 endorsements and the homepage partners (logo, alt text, website and a
+	 `Team`, `Catalogue`, `Newsroom`, `WhyUs`, `Endorsements`, `HomePage`
+	 and `Legal` translations with the shell strings, confirm the Why Us figures
+	 and hero introduction (open decision 12), confirm or change the provisional
+	 homepage newsroom defaults (open decision 13), author and publish the remaining legacy
+	 endorsements and the partners whose logos they show (logo, alt text, website and a
 	 published translation) in each locale through the admin (only the English
 	 EFFA endorsement and partner exist), upload white line icons for the services and sectors through the
 	 admin media library, and decide open decision 11 (newsletter subscription

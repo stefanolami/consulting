@@ -1,6 +1,6 @@
 'use client'
 
-import { ChartPie, Cog, FileText, Map as MapIcon, MessageCircleQuestion, Phone, Users, type LucideIcon } from 'lucide-react'
+import { ChartPie, Cog, ExternalLink, FileText, Map as MapIcon, MessageCircleQuestion, Phone, Users, type LucideIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useId, useRef, useState } from 'react'
 
@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils'
 
 import { NavLink } from './nav-link'
 import { PRIMARY_NAV, type NavKey } from './navigation'
-import { PoeLink } from './poe-link'
 
 // PLACEHOLDER icons: the Figma pages menu uses raster icons that are not in
 // the repository yet (see docs/figma-asset-needs.md).
@@ -21,6 +20,8 @@ const ICONS: Record<NavKey, LucideIcon> = {
 	publications: FileText,
 	contact: Phone,
 }
+
+const rowClass = 'flex items-center gap-4 rounded-control font-serif text-body-lg font-bold uppercase underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus'
 
 type MobileMenuProps = {
 	poeUrl: string | null
@@ -80,12 +81,24 @@ export function MobileMenu({ poeUrl }: MobileMenuProps) {
 				id={panelId}
 			>
 				<ul className="flex flex-col gap-5">
+					{/* POE stays first, as in the desktop header. The header graphic is
+					    white on a glow made for navy, so this light panel shows the
+					    name as text in the same row style as the pages. */}
+					{poeUrl ? (
+						<li>
+							<a className={rowClass} href={poeUrl} onClick={() => setOpen(false)} rel="noopener" target="_blank">
+								<ExternalLink aria-hidden="true" className="size-8 shrink-0" strokeWidth={1.75} />
+								{t('nav.poe')}
+								<span className="sr-only"> ({t('nav.externalHint')})</span>
+							</a>
+						</li>
+					) : null}
 					{PRIMARY_NAV.map((item) => {
 						const Icon = ICONS[item.key]
 						return (
 							<li key={item.key}>
 								<NavLink
-									className="flex items-center gap-4 rounded-control font-serif text-body-lg font-bold uppercase underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+									className={rowClass}
 									currentClassName="underline decoration-2"
 									href={item.href}
 									matchNested={item.matchNested}
@@ -98,11 +111,6 @@ export function MobileMenu({ poeUrl }: MobileMenuProps) {
 						)
 					})}
 				</ul>
-				{poeUrl ? (
-					<div className="mt-6 border-t border-brand/20 pt-5">
-						<PoeLink className="rounded-control bg-brand px-6 py-2 text-heading-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus" externalHint={t('nav.externalHint')} href={poeUrl} label={t('nav.poe')} />
-					</div>
-				) : null}
 			</nav>
 		</div>
 	)

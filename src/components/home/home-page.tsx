@@ -3,10 +3,11 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import type { ReactNode } from 'react'
 
-import { Partners } from '@/components/partners/partners-section'
 import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero } from '@/components/shell/page-hero'
 import { routing, type AppLocale } from '@/i18n/routing'
+
+import { HomeNewsroom } from './home-newsroom'
 
 // The Time&Place Group site (legacy home-page.jsx); opens in a new tab.
 const GROUP_URL = 'https://www.groupontap.com/en'
@@ -28,8 +29,8 @@ const LABEL = 'font-serif text-lead font-medium uppercase'
 const BODY = 'font-serif text-lead font-medium text-pretty text-left md:text-center'
 
 // Figma 5408:616 (desktop) and 5651:631 (mobile); structure from the legacy
-// home-page.jsx. The Figma newsroom "news scroll" is deferred (control tower
-// §15.9) and has no slot here.
+// home-page.jsx. The Figma partner logo band is not shown (control tower
+// §15.9).
 export async function HomePage({ locale }: { locale: AppLocale }) {
 	const [t, tShell] = await Promise.all([
 		getTranslations({ locale, namespace: 'HomePage' }),
@@ -69,7 +70,7 @@ export async function HomePage({ locale }: { locale: AppLocale }) {
 					</div>
 				</div>
 			</section>
-			<Partners locale={locale} />
+			<HomeNewsroom locale={locale} />
 		</main>
 	)
 }

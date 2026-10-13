@@ -1,29 +1,23 @@
+import Image from 'next/image'
+
 import { cn } from '@/lib/utils'
 
 type PoeLinkProps = {
 	className?: string
 	externalHint: string
 	href: string
+	/** Alt text of the graphic, which names the link. */
 	label: string
 }
 
-// POE is a separate platform on another domain (control tower §21). The glow
-// reproduces the Figma "POE" artwork in CSS instead of the legacy raster
-// (main: public/poe-highlight.png), so it stays crisp at any size.
+// POE is a separate platform on another domain (control tower §21). The
+// graphic is the production header artwork (main: public/poe-highlight.png),
+// white "POE" on a teal glow over a transparent background, so it is drawn on
+// the navy header only. It fills the height its wrapper gives it.
 export function PoeLink({ className, externalHint, href, label }: PoeLinkProps) {
 	return (
-		<a
-			className={cn(
-				'relative isolate inline-flex items-center justify-center font-display font-bold tracking-wide text-on-brand',
-				'before:absolute before:inset-0 before:-z-10 before:rounded-pill before:bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--color-glow)_85%,transparent),color-mix(in_srgb,var(--color-glow)_35%,transparent)_55%,transparent)]',
-				'[text-shadow:0_0_0.25em_rgb(255_255_255/0.9),0_0_0.6em_var(--color-glow)]',
-				className,
-			)}
-			href={href}
-			rel="noopener"
-			target="_blank"
-		>
-			{label}
+		<a className={cn('flex items-center', className)} href={href} rel="noopener" target="_blank">
+			<Image alt={label} className="h-full w-auto" height={300} sizes="8rem" src="/brand/poe-highlight.png" width={400} />
 			<span className="sr-only"> ({externalHint})</span>
 		</a>
 	)
