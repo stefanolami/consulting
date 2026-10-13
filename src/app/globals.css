@@ -239,9 +239,37 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+	/*
+	  Shell sizing, the one source of truth for the sticky header's height.
+	  Below xl the header row is py-3 around the taller of the menu button's
+	  wrapper (3.1875rem: the 44px inline button sits on a text line, which
+	  adds the line's descent) and the fluid logo (694 x 182 artwork); from xl
+	  it is the 6rem desktop row. SiteHeader sizes itself from these values,
+	  and the page heroes and scroll padding subtract them.
+
+	  --page-hero-height: the drawing heroes fill the small viewport below the
+	  header, capped at 900px, 800px from xl and 750px from 2xl (the model of
+	  the Time&Place Spaces inner-page heroes).
+	*/
+	:root {
+		--header-logo-width: clamp(7.75rem, 5.6rem + 8.86vw, 13.5rem);
+		--header-height: calc(max(3.1875rem, var(--header-logo-width) * 182 / 694) + 1.5rem);
+		--page-hero-height: min(100svh - var(--header-height), 900px);
+	}
+	@media (width >= 80rem) {
+		:root {
+			--header-height: 6rem;
+			--page-hero-height: min(100svh - var(--header-height), 800px);
+		}
+	}
+	@media (width >= 96rem) {
+		:root {
+			--page-hero-height: min(100svh - var(--header-height), 750px);
+		}
+	}
 	html {
 		/* Keep in-page targets clear of the sticky site header. */
-		scroll-padding-top: 7rem;
+		scroll-padding-top: calc(var(--header-height) + 1rem);
 	}
 	@media (prefers-reduced-motion: no-preference) {
 		html:focus-within {

@@ -97,9 +97,7 @@ export async function CatalogueListingPage({
 	return (
 		<main>
 			<PageHero illustration={listingIllustration(kind)} title={t(`${kind}.title`)}>
-				<div className="space-y-4">
-					{t(`${kind}.introduction`).split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}
-				</div>
+				<p>{t(`${kind}.introduction`)}</p>
 			</PageHero>
 			<section aria-labelledby={`${kind}-catalogue-heading`} className="bg-surface-soft px-gutter py-section">
 				<div className="mx-auto max-w-content">

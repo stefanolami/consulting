@@ -33,7 +33,9 @@ export async function ContactPage({ locale }: { locale: AppLocale }) {
 			<PageHero
 				illustration={HERO_ART.contact}
 				title={t('title')}
-			/>
+			>
+				<p>{t('introduction')}</p>
+			</PageHero>
 			<OfficeNetwork locale={locale} />
 			<section aria-labelledby="contact-form-heading" className="bg-tp-blue-muted px-gutter py-section text-on-brand">
 				<div className="mx-auto grid max-w-shell gap-[clamp(3rem,2rem+4vw,6rem)] lg:grid-cols-[minmax(0,3fr)_minmax(16rem,2fr)] lg:items-start">

@@ -49,7 +49,9 @@ export async function WhyUsPage({ locale }: { locale: AppLocale }) {
 			<PageHero
 				illustration={HERO_ART.whyUs}
 				title={t('title')}
-			/>
+			>
+				<p>{t('introduction')}</p>
+			</PageHero>
 			<div className="bg-surface-soft px-gutter py-section text-tp-blue-muted">
 				<p className="mx-auto max-w-content text-balance text-center font-serif text-[clamp(1.5rem,0.95rem+2.3vw,2.6875rem)] font-black uppercase italic leading-[1.15] text-tp-blue">
 					<span className="sr-only">{t.markup('figures', { ...figureValues, languages: (chunks) => chunks, countries: (chunks) => chunks, continents: (chunks) => chunks })}</span>

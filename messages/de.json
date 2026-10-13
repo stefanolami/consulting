@@ -66,7 +66,7 @@
 	"Catalogue": {
 		"service": {
 			"title": "Leistungen",
-			"introduction": "Ein Mehrwert von Time&Place Consulting liegt darin, dass wir unsere Leistungen für einen ganzheitlicheren Ansatz kombinieren. Sie benötigen Krisenmanagement? Wir verbinden Reputationsmanagement mit juristischen Leistungen, um negative Auswirkungen auf Ihre Produkte, Dienstleistungen und Ihr Image abzuwenden.\n\nSie möchten ein Thema sichtbar machen, das Ihre Märkte betrifft, um gesündere regulatorische Rahmenbedingungen zu erreichen? Das gelingt durch die Verbindung von Strategien für Regierungs- und Medienbeziehungen. Oder die gemeinsame Umsetzung von Compliance-Standards und CSR-Kapazitäten hilft Ihnen, künftigen regulatorischen und reputationsbezogenen Herausforderungen zuvorzukommen. Wir passen unsere Kapazitäten an Ihre Bedürfnisse an.",
+			"introduction": "Ein Mehrwert von Time&Place Consulting liegt darin, dass wir unsere Leistungen für einen ganzheitlicheren Ansatz kombinieren. Sie benötigen Krisenmanagement? Wir verbinden Reputationsmanagement mit juristischen Leistungen, um negative Auswirkungen auf Ihre Produkte, Dienstleistungen und Ihr Image abzuwenden.",
 			"catalogueLabel": "Veröffentlichte Leistungen",
 			"metaDescription": "Entdecken Sie die veröffentlichten Leistungen von Time&Place Consulting.",
 			"emptyTitle": "Noch keine Leistungen auf Deutsch veröffentlicht",
@@ -76,7 +76,7 @@
 		},
 		"sector": {
 			"title": "Sektoren",
-			"introduction": "Unser Team vereint ein breites Spektrum an branchenspezifischem Wissen. Jeder Sektor hat seine eigene Kultur und sein eigenes Ökosystem. Unsere Erfahrung darin sorgt dafür, dass unsere Leistungen eine auf implizitem Wissen beruhende Wirkung entfalten.",
+			"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 			"catalogueLabel": "Veröffentlichte Branchen",
 			"metaDescription": "Entdecken Sie die Branchenexpertise von Time&Place Consulting.",
 			"emptyTitle": "Noch keine Branchen auf Deutsch veröffentlicht",
@@ -94,7 +94,7 @@
 	},
 	"Newsroom": {
 		"title": "Publikationen",
-		"introduction": "Veröffentlichte Updates, Analysen und Perspektiven von Time&Place Consulting.",
+		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"metaDescription": "Veröffentlichte Updates und Perspektiven von Time&Place Consulting.",
 		"results": "{count, plural, =0 {Keine Artikel} one {# Artikel} other {# Artikel}}",
 		"emptyTitle": "Noch keine Artikel auf Deutsch veröffentlicht",
@@ -182,8 +182,7 @@
 	"Team": {
 		"title": "Wer wir sind",
 		"metaDescription": "Lernen Sie das Team von Time&Place Consulting kennen: 2016 in Brüssel gegründet, im Dialog mit politischen Entscheidungsträgern in der EU und auf nationaler Ebene.",
-		"introduction": "Time&Place Consulting wurde 2016 in Brüssel mit einem klaren Ziel gegründet: einen fundierten Dialog zwischen unseren Kunden und politischen Entscheidungsträgern auf EU- und nationaler Ebene zu schaffen. Im Laufe der Jahre haben wir unsere Leistungen und Branchen erweitert – auf der Grundlage fundierter Expertise, einer global koordinierten Präsenz und einer starken lokalen Wirkung.",
-		"introductionClosing": "Unser Fundament? Ein engagiertes und erfahrenes Team.",
+		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"ourTeam": "Unser Team",
 		"groups": {
 			"managing_team": "Geschäftsleitung",
@@ -208,6 +207,7 @@
 	},
 	"WhyUs": {
 		"title": "Warum wir",
+		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"metaDescription": "Warum Organisationen mit Time&Place Consulting zusammenarbeiten: unser Ruf, unsere Sprachen, Integrität, geografische Präsenz, Expertise und Erfahrung sowie der Kunden-Kodex, nach dem wir arbeiten.",
 		"figures": "Unsere Leistungen werden in <languages>{languageCount}</languages> Sprachen in <countries>{countryCount}</countries> Ländern auf <continents>{continentCount}</continents> Kontinenten erbracht",
 		"overview": {
@@ -276,6 +276,7 @@
 	},
 	"Contact": {
 		"title": "Kontakt",
+		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"metaDescription": "Kontaktieren Sie Time&Place Consulting: Senden Sie uns eine Nachricht, erreichen Sie unseren Hauptsitz in Brüssel oder finden Sie die Büros unseres globalen Netzwerks.",
 		"network": {
 			"title": "Unser globales Netzwerk",

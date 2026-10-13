@@ -1022,6 +1022,48 @@ Implemented on 2026-09-28:
   each locale file; `scripts/messages.test.mjs` checks key parity.
 - `npm run visual:screenshots` (Playwright, development only) captures local
   pages at 1440 and 390 pixels into the git-ignored `visual-output/`.
+- Hero height model (2026-10-13). Copied from the Time&Place Spaces inner-page
+  heroes (`spaces/src/components/services/hero-services.tsx`:
+  `h-[100vh] max-h-[900px] xl:max-h-[800px] 2xl:max-h-[750px]`) and adapted:
+  - The header height has one source of truth, `--header-height` in
+    `globals.css`. Below `xl` it is `py-3` around the taller of the menu
+    button's wrapper (3.1875rem, because the inline 44px button sits on a text
+    line) and the fluid logo (`--header-logo-width` × 182/694); from `xl` it
+    is 6rem. `SiteHeader` sizes its logo and rows from these tokens, and
+    `scroll-padding-top` is `--header-height + 1rem`. The public `<body>`
+    paints a navy band of that height at the top of the page, so the header
+    slot never flashes white while a hidden header slides back in. The measured header
+    equals the token at 375, 768, 1024, 1279, 1280 and 1536 px (75, 75, 75,
+    77.2, 96 and 96 px).
+  - Every `PageHero` with a line drawing (Home, Who We Are, Services, Sectors,
+    Why Us, Publications, Contact) is at least `--page-hero-height` tall: that
+    is `100svh - --header-height`, capped at 900px, 800px from `xl` and 750px
+    from `2xl`. `svh` keeps phones from jumping when the address bar moves.
+    The hero sits below the sticky header and never under it (product
+    owner's decision): the header covers no part of a drawing.
+  - The height is a minimum, not a fixed height. The drawing takes the space
+    left above the title and intro and is scaled to fit (`object-contain`:
+    never cropped, distorted or darkened). It never gets shorter than its
+    full-width height, 15rem or 40svh, whichever is smallest. Long intros
+    (Who We Are, Services) and short windows (landscape phones, 1440×700,
+    200% zoom) grow the hero instead of clipping text.
+  - Hero copy is normalised so every drawing hero has the same proportions
+    (product owner, 2026-10-13): Services keeps only the first paragraph of
+    its intro, and Who We Are, Sectors, Why Us, Publications and Contact show
+    one placeholder lorem ipsum paragraph (`introduction` in `Team`,
+    `Catalogue.sector`, `WhyUs`, `Newsroom` and `Contact`, the same string in
+    every locale) chosen to wrap like the English Services paragraph from 320
+    to 1920 px. In English the six heroes then have the same hero height,
+    drawing frame and title position at every tested size. The drawings keep
+    their own shapes inside that frame. Home's two-line display title
+    is within about 5 px of the others from 1280 px; on phones and portrait
+    tablets its drawing gets more room, because the other heroes' paragraph
+    runs to four to nine lines there. Real copy replaces the lorem paragraphs
+    later; any copy of a different length changes that hero's proportions.
+  - Emblem heroes (service and sector details) and heroes without artwork
+    (legal pages) keep their content height. `PageHeroSkeleton` takes a
+    drawing's `{ width, height }` and reproduces the same frame, so a drawing
+    hero's skeleton has the loaded hero's height (section 15.6).
 
 ### 15.4 Who We Are and team profiles
 
@@ -1074,9 +1116,9 @@ and `5480:511`, and the mobile details `5695:437` and `5695:370`:
   Components. `ArticleSummaryCard`
   (`src/components/newsroom/article-summary-card.tsx`) was extracted from the
   team "Articles by" block and is shared with it.
-- Index: navy `PageHero` with line illustration and intro (services copy from
-  Figma `6393:6`; the sectors frame is placeholder text, so the legacy sectors
-  copy is used), then a light band of tiles. From `lg`, round (service) or
+- Index: navy `PageHero` with line illustration and intro (the first
+  paragraph of the services copy from Figma `6393:6`; sectors show the
+  placeholder lorem paragraph of section 15.3 since 2026-10-13), then a light band of tiles. From `lg`, round (service) or
   square (sector) blue tiles, three per row with the last row centred, showing
   the CMS icon faintly behind the title. Below `lg`, the Figma mobile rows: a
   title cell and a navy summary cell, alternating sides. Items without a summary
@@ -1325,8 +1367,9 @@ the link no longer marks nested paths as current.
   and reduced motion shows the eight originals wrapped. The skeleton was
   checked with the loader temporarily delayed: one polite status in English
   and German, no pulse under reduced motion. Both overrides were removed.
-- Deviations from Figma: the hero intro is omitted (Figma has placeholder
-  Latin and the legacy page had none); body copy is left-aligned at every
+- Deviations from Figma: the hero intro was omitted (Figma has placeholder
+  Latin and the legacy page had none); since 2026-10-13 it shows the shared
+  placeholder lorem paragraph (section 15.3) until real copy exists; body copy is left-aligned at every
   width (the mobile frame centres it) with a 1.6 line height instead of
   22 px on 18 px; topic and principle headings use the heading-3 size (28 px
   rather than 30 px); the trailing "…" after the figures is dropped; the
@@ -1422,8 +1465,9 @@ needed; the header already linked to it.
 
 - Page (`src/components/contact/contact-page.tsx`, route
   `src/app/[locale]/contact/page.tsx` in the Why Us shape): navy `PageHero`
-  titled "Contact" without an introduction (Figma has placeholder Latin and
-  the legacy page had none); "Our global network"; then the blue-muted band
+  titled "Contact" (Figma has placeholder Latin and the legacy page had no
+  introduction; since 2026-10-13 the hero shows the shared placeholder lorem
+  paragraph of section 15.3); "Our global network"; then the blue-muted band
   with the form ("Send us a message") and the head office. Copy lives in the
   new `Contact` messages. Metadata: localized title and description,
   canonical and hreflang alternates for every locale plus `x-default`.

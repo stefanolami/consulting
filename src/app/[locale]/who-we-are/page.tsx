@@ -39,7 +39,6 @@ export default async function WhoWeArePage({ params }: WhoWeArePageProps) {
 				title={t('title')}
 			>
 				<p>{t('introduction')}</p>
-				<p>{t('introductionClosing')}</p>
 			</PageHero>
 			<section aria-labelledby="our-team-heading" className="bg-surface-soft px-gutter py-section">
 				<div className="mx-auto max-w-content">

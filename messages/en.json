@@ -15,7 +15,7 @@
 	"Catalogue": {
 		"service": {
 			"title": "Services",
-			"introduction": "An added value of Time&Place Consulting is that we combine our services for a more holistic approach. Crisis management needs? We link reputation management with legal services to counteract negative impact on your products, services and image.\n\nLooking to profile an issue which is affecting your markets to get healthier regulatory conditions? This can be solved by joining government and media relations strategies. Or, the joint implementation of compliance standards and CSR capacities can help you pre-empt regulatory and reputational challenges in the future. We adapt our capacities to your needs.",
+			"introduction": "An added value of Time&Place Consulting is that we combine our services for a more holistic approach. Crisis management needs? We link reputation management with legal services to counteract negative impact on your products, services and image.",
 			"catalogueLabel": "Published services",
 			"metaDescription": "Explore Time&Place Consulting's published services.",
 			"emptyTitle": "No services are published in English yet",
@@ -25,7 +25,7 @@
 		},
 		"sector": {
 			"title": "Sectors",
-			"introduction": "Our team brings together a broad variety of sector-specific knowledge. Each sector is its own culture and eco-system. Our experience therein drives our services to have a tacit-based impact.",
+			"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 			"catalogueLabel": "Published sectors",
 			"metaDescription": "Explore the sectors covered by Time&Place Consulting.",
 			"emptyTitle": "No sectors are published in English yet",
@@ -43,7 +43,7 @@
 	},
 	"Newsroom": {
 		"title": "Publications",
-		"introduction": "Published updates, analysis and perspectives from Time&Place Consulting.",
+		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"metaDescription": "Published updates and perspectives from Time&Place Consulting.",
 		"results": "{count, plural, =0 {No articles} one {# article} other {# articles}}",
 		"emptyTitle": "No articles are published in English yet",
@@ -131,8 +131,7 @@
 	"Team": {
 		"title": "Who we are",
 		"metaDescription": "Meet the Time&Place Consulting team: founded in Brussels in 2016, working with EU and national policy decision-makers.",
-		"introduction": "Time&Place Consulting was founded in 2016 in Brussels with a clear purpose: to create meaningful dialogue between our clients and EU and national policy decision-makers. Over the years, we’ve expanded our services and sectors, building on deep expertise, a globally coordinated presence, and a strong local impact.",
-		"introductionClosing": "Our foundation? A dedicated and experienced team.",
+		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"ourTeam": "Our team",
 		"groups": {
 			"managing_team": "Managing team",
@@ -157,6 +156,7 @@
 	},
 	"WhyUs": {
 		"title": "Why us",
+		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"metaDescription": "Why organisations work with Time&Place Consulting: our reputation, languages, integrity, geographic presence, expertise and experience, and the client codex we work by.",
 		"figures": "Our services are provided in <languages>{languageCount}</languages> languages across <countries>{countryCount}</countries> countries in <continents>{continentCount}</continents> continents",
 		"overview": {
@@ -225,6 +225,7 @@
 	},
 	"Contact": {
 		"title": "Contact",
+		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"metaDescription": "Contact Time&Place Consulting: send us a message, reach our head office in Brussels, or find the offices of our global network.",
 		"network": {
 			"title": "Our global network",

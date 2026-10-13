@@ -31,8 +31,10 @@ export default async function LocaleLayout({
 
 	return (
 		<html lang={locale}>
+			{/* The navy band behind the header slot keeps the page from flashing
+			    white while the hidden header slides back in at the top. */}
 			<body
-				className={`${jose.variable} ${unna.variable} ${robo.variable} flex min-h-dvh flex-col font-serif antialiased`}
+				className={`${jose.variable} ${unna.variable} ${robo.variable} flex min-h-dvh flex-col bg-[linear-gradient(var(--color-brand),var(--color-brand))] bg-size-[100%_var(--header-height)] bg-top bg-no-repeat font-serif antialiased`}
 			>
 				<NextIntlClientProvider
 					locale={locale}

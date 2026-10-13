@@ -29,9 +29,11 @@ type SiteHeaderProps = {
 export async function SiteHeader({ locale }: SiteHeaderProps) {
 	const t = await getTranslations({ locale, namespace: 'Shell' })
 
+	// Width and row heights come from --header-logo-width and --header-height
+	// (globals.css), which the page heroes and scroll padding also use.
 	const logo = (
 		<Link
-			className="relative block aspect-[694/182] w-[clamp(7.75rem,5.6rem+8.86vw,13.5rem)] shrink-0 rounded-control focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus-on-dark"
+			className="relative block aspect-[694/182] w-(--header-logo-width) shrink-0 rounded-control focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus-on-dark"
 			href="/"
 		>
 			<Image
@@ -47,7 +49,7 @@ export async function SiteHeader({ locale }: SiteHeaderProps) {
 	return (
 		<HeaderFrame>
 			{/* Narrow screens: language toggle, centred logo, pages menu (Figma 5651:631). */}
-			<div className="mx-auto grid max-w-[90rem] grid-cols-[1fr_auto_1fr] items-center gap-4 px-gutter py-3 xl:hidden">
+			<div className="mx-auto grid min-h-(--header-height) max-w-[90rem] grid-cols-[1fr_auto_1fr] items-center gap-4 px-gutter py-3 xl:hidden">
 				<LocaleSwitcher className="justify-self-start" />
 				{logo}
 				<div className="justify-self-end">
@@ -58,7 +60,7 @@ export async function SiteHeader({ locale }: SiteHeaderProps) {
 			</div>
 
 			{/* Wide screens: logo, POE and pages inline, language toggle (Figma 6393:6). */}
-			<div className="mx-auto hidden min-h-24 max-w-[90rem] items-stretch gap-6 px-gutter xl:flex">
+			<div className="mx-auto hidden min-h-(--header-height) max-w-[90rem] items-stretch gap-6 px-gutter xl:flex">
 				<div className="flex items-center">{logo}</div>
 				<nav aria-label={t('nav.label')} className="ml-auto flex items-stretch">
 					<Suspense fallback={null}>
