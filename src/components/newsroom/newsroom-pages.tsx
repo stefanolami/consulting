@@ -13,6 +13,7 @@ import { ArticleSummaryCard, articleSummaryGridClass } from '@/components/newsro
 import { ArticleAuthors, ArticleAuthorsSkeleton, articleBodyClass, ArticleCover, ArticleHeader, articleSectionHeadingClass, ArticleSources, ArticleTopics, NewsroomDetailSkeleton } from '@/components/newsroom/newsroom-article'
 import { NewsroomCard, NewsroomCardSkeleton, newsroomGridClass, NewsroomLeadCard } from '@/components/newsroom/newsroom-card'
 import { NewsroomActiveFilters, NewsroomToolbar, NewsroomToolbarSkeleton, type NewsroomToolbarLabels } from '@/components/newsroom/newsroom-toolbar'
+import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero } from '@/components/shell/page-hero'
 import { Link } from '@/i18n/navigation'
 import { type AppLocale, routing } from '@/i18n/routing'
@@ -20,7 +21,6 @@ import { getPublishedNewsroomDetail, getPublishedNewsroomListing, type NewsroomF
 
 const slugFilterKeys = ['kind', 'tag', 'service', 'sector', 'author'] as const
 const SEARCH_MAX_LENGTH = 100
-const PUBLICATIONS_HERO_PLACEHOLDER = 'hero-publications-papers'
 
 export function newsroomPath(locale: AppLocale, slug?: string) {
 	const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
@@ -79,14 +79,11 @@ type SearchParams = Record<string, string | string[] | undefined>
 // at once; the filter bar, cards and pagination stream in. A new filter or page
 // remounts the stream (inner Suspense key), so its skeleton shows while it loads.
 export async function NewsroomListingPage({ locale, searchParams }: { locale: AppLocale; searchParams: Promise<SearchParams> }) {
-	const [t, tShell] = await Promise.all([
-		getTranslations({ locale, namespace: 'Newsroom' }),
-		getTranslations({ locale, namespace: 'Shell.placeholder' }),
-	])
+	const t = await getTranslations({ locale, namespace: 'Newsroom' })
 	const skeleton = <LoadingRegion label={t('loadingListing')}><NewsroomListingSkeleton /></LoadingRegion>
 	return (
 		<main>
-			<PageHero illustration={{ kind: 'placeholder', name: PUBLICATIONS_HERO_PLACEHOLDER, label: tShell('illustration', { name: PUBLICATIONS_HERO_PLACEHOLDER }), aspectRatio: '1440 / 480' }} title={t('title')}>
+			<PageHero illustration={HERO_ART.publications} title={t('title')}>
 				<p>{t('introduction')}</p>
 			</PageHero>
 			<div className="mx-auto max-w-content px-gutter py-section">

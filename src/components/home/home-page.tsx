@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import type { ReactNode } from 'react'
 
 import { Partners } from '@/components/partners/partners-section'
+import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero } from '@/components/shell/page-hero'
 import { routing, type AppLocale } from '@/i18n/routing'
 
@@ -49,9 +50,8 @@ export async function HomePage({ locale }: { locale: AppLocale }) {
 
 	return (
 		<main>
-			{/* PLACEHOLDER illustration: the Figma homepage doors line drawing is not in the repository (docs/figma-asset-needs.md). */}
 			<PageHero
-				illustration={{ kind: 'placeholder', name: 'hero-homepage-doors', label: tShell('placeholder.illustration', { name: 'hero-homepage-doors' }), aspectRatio: '1440 / 497' }}
+				illustration={HERO_ART.home}
 				title={<><span className="block text-[clamp(2rem,1.3rem+2.8vw,3.875rem)] leading-tight">{t('heroLead')}</span><span className="block text-[clamp(2.75rem,1.7rem+4.2vw,5.3125rem)] uppercase leading-none">{t('heroEmphasis')}</span></>}
 				titleVariant="display"
 			/>

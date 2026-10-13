@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import type { ReactNode } from 'react'
 
 import { Endorsements } from '@/components/endorsements/endorsements-section'
+import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero } from '@/components/shell/page-hero'
 import { routing, type AppLocale } from '@/i18n/routing'
 
@@ -37,10 +38,7 @@ const TOPICS = 'space-y-[clamp(2rem,1.6rem+1.5vw,3rem)]'
 // page. Everything is static except the endorsements, which stream from the
 // CMS and disappear when the locale has none.
 export async function WhyUsPage({ locale }: { locale: AppLocale }) {
-	const [t, tShell] = await Promise.all([
-		getTranslations({ locale, namespace: 'WhyUs' }),
-		getTranslations({ locale, namespace: 'Shell.placeholder' }),
-	])
+	const t = await getTranslations({ locale, namespace: 'WhyUs' })
 	const figureValues = { languageCount: FIGURES.languages, countryCount: FIGURES.countries, continentCount: FIGURES.continents }
 	const countUp = (value: number) => function CountUpChunk(chunks: ReactNode) {
 		return <CountUp locale={locale} value={value}>{String(chunks)}</CountUp>
@@ -48,9 +46,8 @@ export async function WhyUsPage({ locale }: { locale: AppLocale }) {
 
 	return (
 		<main>
-			{/* PLACEHOLDER illustration: the Figma laptop-and-coffee line drawing is not in the repository (docs/figma-asset-needs.md). */}
 			<PageHero
-				illustration={{ kind: 'placeholder', name: 'hero-why-us-laptop', label: tShell('illustration', { name: 'hero-why-us-laptop' }), aspectRatio: '1440 / 480' }}
+				illustration={HERO_ART.whyUs}
 				title={t('title')}
 			/>
 			<div className="bg-surface-soft px-gutter py-section text-tp-blue-muted">

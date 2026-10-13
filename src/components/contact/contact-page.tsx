@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 
+import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero } from '@/components/shell/page-hero'
 import { routing, type AppLocale } from '@/i18n/routing'
 
@@ -25,16 +26,12 @@ export async function generateContactMetadata(locale: AppLocale): Promise<Metada
 // by the proxy (src/proxy.ts), so it works without JavaScript (control tower
 // §15.10).
 export async function ContactPage({ locale }: { locale: AppLocale }) {
-	const [t, tShell] = await Promise.all([
-		getTranslations({ locale, namespace: 'Contact' }),
-		getTranslations({ locale, namespace: 'Shell.placeholder' }),
-	])
+	const t = await getTranslations({ locale, namespace: 'Contact' })
 
 	return (
 		<main>
-			{/* PLACEHOLDER illustration: the Figma telephone line drawing ("Hero - Contact") is not in the repository (docs/figma-asset-needs.md). */}
 			<PageHero
-				illustration={{ kind: 'placeholder', name: 'hero-contact-telephone', label: tShell('illustration', { name: 'hero-contact-telephone' }), aspectRatio: '1440 / 480' }}
+				illustration={HERO_ART.contact}
 				title={t('title')}
 			/>
 			<OfficeNetwork locale={locale} />

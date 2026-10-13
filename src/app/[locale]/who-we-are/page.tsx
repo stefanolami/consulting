@@ -6,6 +6,7 @@ import { connection } from 'next/server'
 import { Suspense } from 'react'
 
 import { LoadingRegion } from '@/components/loading/loading-region'
+import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero } from '@/components/shell/page-hero'
 import { SnapshotCta } from '@/components/shell/snapshot-cta'
 import { TeamCard, TeamGridSkeleton, teamGridClass, teamItemClass } from '@/components/team/team-card'
@@ -29,13 +30,12 @@ export default async function WhoWeArePage({ params }: WhoWeArePageProps) {
 	const { locale } = await params
 	if (!hasLocale(routing.locales, locale)) notFound()
 	setRequestLocale(locale)
-	const [t, tShell] = await Promise.all([getTranslations({ locale, namespace: 'Team' }), getTranslations({ locale, namespace: 'Shell.placeholder' })])
+	const t = await getTranslations({ locale, namespace: 'Team' })
 
 	return (
 		<main>
-			{/* PLACEHOLDER illustration: the Figma "Hero (The Team)" line drawing is not in the repository (docs/figma-asset-needs.md). */}
 			<PageHero
-				illustration={{ kind: 'placeholder', name: 'hero-who-we-are-team', label: tShell('illustration', { name: 'hero-who-we-are-team' }), aspectRatio: '1440 / 397' }}
+				illustration={HERO_ART.whoWeAre}
 				title={t('title')}
 			>
 				<p>{t('introduction')}</p>

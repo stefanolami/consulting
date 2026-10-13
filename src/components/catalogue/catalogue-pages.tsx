@@ -12,6 +12,7 @@ import { CATALOGUE_SEGMENT, catalogueGridClass, catalogueItemClass, CatalogueTil
 import { LoadingMessage } from '@/components/loading/loading-message'
 import { LoadingRegion } from '@/components/loading/loading-region'
 import { ArticleSummarySectionSkeleton } from '@/components/newsroom/article-summary-card'
+import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero, type HeroIllustration } from '@/components/shell/page-hero'
 import { routing, type AppLocale } from '@/i18n/routing'
 import { hasCatalogueContent } from '@/lib/catalogue-document'
@@ -76,16 +77,10 @@ export async function generateCatalogueDetailMetadata(
 	}
 }
 
-const SECTORS_HERO_PLACEHOLDER = 'hero-sectors-industry'
-
-// Index heroes (Figma 6393:6 services, 5408:187 sectors). The services gears
-// are the legacy line art recoloured white (hero-services-white.png, derived
-// from hero-services.png); the sectors skyline is not in the repository yet
-// (docs/figma-asset-needs.md).
-function listingIllustration(kind: PublicCatalogueKind, placeholderLabel: string): HeroIllustration {
-	return kind === 'service'
-		? { kind: 'image', src: '/hero/hero-services-white.png', width: 4000, height: 1111 }
-		: { kind: 'placeholder', name: SECTORS_HERO_PLACEHOLDER, label: placeholderLabel, aspectRatio: '1440 / 480' }
+// Index heroes (Figma 6393:6 services, 5408:187 sectors): the designer's gears
+// and industrial skyline line drawings.
+function listingIllustration(kind: PublicCatalogueKind): HeroIllustration {
+	return kind === 'service' ? HERO_ART.services : HERO_ART.sectors
 }
 
 // The hero and intro are static and render immediately; the tiles stream in.
@@ -98,13 +93,10 @@ export async function CatalogueListingPage({
 	kind: PublicCatalogueKind
 	locale: AppLocale
 }) {
-	const [t, tShell] = await Promise.all([
-		getTranslations({ locale, namespace: 'Catalogue' }),
-		getTranslations({ locale, namespace: 'Shell.placeholder' }),
-	])
+	const t = await getTranslations({ locale, namespace: 'Catalogue' })
 	return (
 		<main>
-			<PageHero illustration={listingIllustration(kind, tShell('illustration', { name: SECTORS_HERO_PLACEHOLDER }))} title={t(`${kind}.title`)}>
+			<PageHero illustration={listingIllustration(kind)} title={t(`${kind}.title`)}>
 				<div className="space-y-4">
 					{t(`${kind}.introduction`).split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}
 				</div>

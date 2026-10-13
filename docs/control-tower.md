@@ -1108,11 +1108,10 @@ and `5480:511`, and the mobile details `5695:437` and `5695:370`:
 - The Business / Government Institute / Academia audience selector on `6393:6`
   is omitted until open decision 23.10 is resolved; all tiles are shown at full
   strength.
-- Placeholders: the sectors hero skyline (`hero-sectors-industry`) and every
-  missing CMS icon (dashed outline in tiles, labelled emblem box on details;
-  none of the seeded services has an icon). The services hero uses
-  `public/hero/hero-services-white.png`, a white-on-transparent copy derived
-  from the legacy `hero-services.png`. See
+- Placeholders: every missing CMS icon (dashed outline in tiles, labelled
+  emblem box on details; none of the seeded services has an icon). The
+  services and sectors heroes use the designer's line drawings (2026-10-13,
+  `src/components/shell/hero-art.ts`). See
   [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
 - Deviations from Figma: body copy is left-aligned rather than justified;
   "WHAT DO WE DO" reads "What we do"; contacts show names; empty details
@@ -1253,8 +1252,7 @@ Implemented on 2026-09-28 against Figma `5408:334` (desktop Publications),
   cards show the author names and date on two lines rather than "Name, date";
   the listing's "NEWSLETTER" heading reads "Latest publications" (or the kind);
   no Subscribe button; pagination instead of "Load more".
-- Placeholders: the publications hero (`hero-publications-papers`), the
-  newsroom kind icons and the filter-bar icons (Lucide stand-ins). See
+- Placeholders: the newsroom kind icons and the filter-bar icons (Lucide stand-ins). See
   [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
 - New and changed `Newsroom` strings (including the title "Publications" and
   "Similar articles") are provisional in the non-English locales.
@@ -1335,8 +1333,8 @@ the link no longer marks nested paths as current.
   office list fixes the legacy typos "Dubin" and "São Paolo"; endorsement text
   is 16–18 px (the Figma and legacy cards use about 10–14 px); the
   endorsements get a Pause control that the design does not show.
-- Placeholder: the hero laptop-and-coffee line drawing (`hero-why-us-laptop`).
-  The legacy `hero-why-us.png` is a different drawing (a certificate). See
+- Hero: the designer's laptop-and-coffee line drawing (`hero-why-us-laptop`,
+  supplied 2026-10-13). See
   [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
 - The `WhyUs` and `Endorsements` namespaces are provisional in the non-English
   locales.
@@ -1406,8 +1404,8 @@ unchanged; the test harness that occupied it is gone.
   shows CMS logos in uniform cells instead of the flat image; no newsroom
   feature; the homepage does not show endorsements (Figma has none there,
   although section 15.8 anticipated reuse).
-- Placeholder: the hero doors line drawing (`hero-homepage-doors`, already
-  logged). Partner logos are CMS content and need authoring, not a
+- Hero: the designer's doors line drawing (`hero-homepage-doors`, supplied
+  2026-10-13). Partner logos are CMS content and need authoring, not a
   placeholder. See [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
 - The `HomePage` and new `Partners` namespaces are provisional in the
   non-English locales.
@@ -1545,8 +1543,7 @@ needed; the header already linked to it.
   badges show no name; the mobile map behind the country grid is omitted; the
   mobile and tablet form, which Figma does not show (design gap 4), stacks the
   form above the head office, with name and email side by side from 640 px.
-- Placeholders: the hero telephone drawing (`hero-contact-telephone`), the
-  country icon buttons (`contact-country-icon-<code>`), the world map
+- Placeholders: the country icon buttons (`contact-country-icon-<code>`), the world map
   (`contact-world-map`) and the head office icons (Lucide stand-ins). See
   [`docs/figma-asset-needs.md`](./figma-asset-needs.md).
 - The `Contact` namespace is provisional in the non-English locales.
@@ -2127,8 +2124,8 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
   labels, menu structure, and the language toggle from Figma.
 - Serve team pages at the legacy `/who-we-are` and `/who-we-are/[slug]` paths,
   because printed business-card QR codes link to them (section 15.4).
-- Omit the services audience selector until decision 23.10 is made; recolour
-  the legacy services hero white; show visible placeholders for missing
+- Omit the services audience selector until decision 23.10 is made; use the
+  designer's page-hero line drawings (supplied 2026-10-13); show visible placeholders for missing
   service and sector icons; read catalogue related articles through the
   newsroom listing; label them "Articles for {name}" for both services and
   sectors (section 15.5).
