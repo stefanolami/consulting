@@ -45,7 +45,8 @@
 			"WhyUs",
 			"Endorsements",
 			"Contact",
-			"Legal"
+			"Legal",
+			"Outreach.overview"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -165,18 +166,11 @@
 		}
 	},
 	"Outreach": {
-		"eyebrow": "Nossa presença global",
 		"title": "Nossa atuação",
 		"introduction": "Explore os países para os quais a Time&Place Consulting publica atualmente cobertura, serviços e relações locais.",
 		"metaDescription": "Explore a cobertura geográfica e a experiência local publicadas pela Time&Place Consulting.",
-		"mapLabel": "Mapa da cobertura geográfica publicada",
-		"mapInstructions": "Selecione um país destacado no mapa ou use a lista de países. Sua seleção fica salva na URL da página.",
-		"mapLoading": "Carregando a geografia local do mapa…",
 		"mapError": "Não foi possível carregar o mapa. Todos os países publicados continuam disponíveis na lista abaixo.",
-		"countryList": "Países atendidos",
-		"coveredCountry": "Resumo do país selecionado",
 		"closeSummary": "Fechar resumo do país",
-		"detailLink": "Ver detalhes do país",
 		"backToList": "Nossa atuação",
 		"region": "Região",
 		"services": "Serviços",
@@ -189,7 +183,25 @@
 		"emptyDescription": "Os países atendidos aparecerão aqui quando houver conteúdo publicado em português do Brasil.",
 		"loading": "Carregando nossa atuação…",
 		"errorTitle": "Não foi possível carregar nossa atuação",
-		"errorDescription": "Tente novamente em breve."
+		"errorDescription": "Tente novamente em breve.",
+		"overview": {
+			"instructions": "Escolha uma região e depois um país para ver nosso trabalho lá.",
+			"regionsLabel": "Regiões",
+			"otherRegion": "Outros países",
+			"regionAnnouncement": "{region}: {count, plural, one {# país} other {# países}}",
+			"worldAnnouncement": "Todas as regiões",
+			"countryAnnouncement": "Resumo de {country} exibido",
+			"closedAnnouncement": "Resumo fechado",
+			"readMore": "Saiba mais",
+			"readMoreLabel": "Saiba mais sobre {country}",
+			"serviceCoverage": "Nossa cobertura de serviços:",
+			"providedServices": "Serviços prestados",
+			"legendLabel": "Legenda",
+			"legendCovered": "Países onde atuamos",
+			"legendSelected": "País selecionado",
+			"mapHint": "Selecione para ver detalhes",
+			"recenterMap": "Recentralizar o mapa"
+		}
 	},
 	"Team": {
 		"title": "Quem somos",

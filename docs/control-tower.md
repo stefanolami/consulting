@@ -1210,9 +1210,9 @@ same pattern:
   per region in English and German, no pulse under reduced motion, measured
   CLS 0 on the team listing, profile and service and sector details, and
   skeleton heroes within about 15 px of the loaded heroes.
-- The Our Outreach loading state is still the pre-Figma placeholder; it gets
-  a template skeleton when that page receives the Figma design. The newsroom
-  received its skeletons in section 15.7.
+- Our Outreach: the overview has a template skeleton since 2026-10-16
+  (section 15.12.9); the country page keeps the pre-Figma placeholder until
+  slice (b). The newsroom received its skeletons in section 15.7.
 
 ### 15.7 Newsroom listing and article detail
 
@@ -1802,6 +1802,480 @@ the contact form notice already linked to them.
   published automatically (platform document section 9).
 - The legacy legal content points for the product owner are listed in
   section 10.6.
+
+### 15.12 Our Outreach (plan)
+
+Status: approved by the product owner on 2026-10-16, with Natural Earth
+instead of Mercator. Slice (a) is implemented (15.12.9); slices (b) and (c)
+are not. Questions 2–4 in 15.12.8 are still open. Figma: `5741:2` (world), `5741:51`
+(region), `5741:100` (country), `5741:156` (summary panel), `5741:293` (detail)
+(inventory section 3.2).
+
+What the frames show:
+
+- The four map frames have no header. A brand-blue column (about 270 px,
+  `#274882`) lists the regions in white Josefin Sans; the selected region is
+  larger and azure, and its countries appear under it as a bulleted list
+  (selected country azure) that scrolls inside the column. The map fills the
+  rest of the width and runs off the right edge.
+- Every country is the same grey (`#666`) with white borders; only the selected
+  country is darker. A hover chip reads "click for more details". The canvas
+  note "animated ripple gif for selected point" belongs to this map.
+- Panel (`5741:156`): a blue card over the right of the map with the uppercase
+  name, the country outline filled with its flag, the summary, a white "Read
+  more" pill, "Our service coverage: …", and "Provided Services" as round
+  white service icons.
+- Detail (`5741:293`): navy hero with a white line drawing of the country and
+  the uppercase name; the flag; icon statistics ("Population: 19.06 million
+  (2023)", "GDP: 351 billion USD (2023)", "World Bank"); a centred paragraph;
+  "Last update November 17th, 2024"; "Services Provided" circles; "Our
+  coverage" with a POE wordmark and an institution drawing; "Contact our
+  expert" with name, portrait, phone, email and address.
+- The region list ends with "Supranational", which is not one of the six
+  catalogue regions.
+
+#### 15.12.1 Desktop flow (from 1024 px)
+
+The page keeps the shell header and footer. Below the header there is one band,
+`--page-hero-height` tall with a 36rem minimum. On the left, inside the shell
+container, is the blue column (about 17rem, scrolling inside itself) with the
+page `h1` at its top: Figma has no `h1`, but the page needs one. The map fills
+the rest of the band out to the viewport edge. The panel floats over the right
+of the map (`clamp(18rem, 26vw, 24rem)`) and scrolls inside itself when its
+content is taller than the band.
+
+| State | Figma | URL | Map | Column | Panel |
+| --- | --- | --- | --- | --- | --- |
+| World | `5741:2` | `/our-outreach` | world fit | regions collapsed | none |
+| Region | `5741:51` | `?region=europe` | animates to the region frame | that region expanded with its countries | none |
+| Country | `5741:100` + `5741:156` | `?country=RO` | region frame, country selected with a ripple | region expanded, country current | open |
+| Detail | `5741:293` | `/our-outreach/romania` | — | — | — |
+
+`5741:100` and `5741:156` are one state, because selecting a country opens the
+panel. The hover chip is what `5741:100` shows.
+
+URL rules, in a pure, unit-tested module:
+
+- `region` is the region's canonical `stable_key`, like the ISO `country`
+  parameter, so a shared link survives a language switch. `country` is ISO
+  alpha-2, accepted in any case.
+- `country` implies its region. If both are given and disagree, `country` wins;
+  generated URLs never carry both.
+- Unknown, unpublished or malformed values are ignored and the page shows the
+  world view, with no redirect and no error.
+- Each selection adds one history entry: world → region → country, and closing
+  the panel goes back to the region. Choosing the open region again returns to
+  the world view. Back and forward restore the zoom and the panel and never
+  move focus.
+- Selection uses `window.history.pushState`, which Next.js keeps in sync with
+  `useSearchParams`, so it makes no server request. Regions and countries are
+  real `<a href="?country=RO">` links, so modifier-click, copying the link and
+  loading without JavaScript all work. A shared URL renders the selected state
+  in the server HTML, because the page is already request-time.
+- "Read more" opens the localized detail page, whose back link returns to
+  `?country=XX`.
+
+#### 15.12.2 Mobile proposal (open decision 23.5)
+
+There is one component tree, and the panel component is reused at every width,
+placed differently per breakpoint:
+
+- Below 768 px: the `h1` and a one-line intro; the map as a full-width card
+  (16:10 for the world, 4:3 for a region) with the legend under it; the summary
+  as a card in the page flow directly under the map when a country is selected;
+  then the regions as an accordion of full-width blue rows (at least 48 px)
+  that open into country rows (at least 44 px). Selecting a country moves focus
+  to the summary heading under the map, so the highlighted country and its
+  summary are on screen together. Close returns focus to the row.
+- 768–1023 px: the same order, with country rows in two columns, a larger map,
+  and a two-column summary card (outline on the left, text on the right).
+- From 1024 px: the desktop layout in 15.12.1.
+
+Below 1024 px the side panel becomes this in-flow card: there is no bottom
+sheet, modal or focus trap. Two options were rejected. A bottom sheet needs
+modal semantics and scroll locking, and it covers the map. A list-only phone
+view would drop the regional context that the map gives at little cost.
+
+#### 15.12.3 Map rendering
+
+- Projection: Natural Earth (`geoNaturalEarth1`, part of d3-geo and already
+  used by the harness), fitted to the topology (which has no Antarctica).
+  Mercator was rejected on 2026-10-16 by the product owner's colleague. Natural
+  Earth is a compromise projection for flat world maps: Greenland and Russia
+  are no longer inflated, the world view stays close to rectangular, and Europe
+  keeps more room than on an equal-area map. Figma's map is Mercator, so the
+  world view differs from the frames in proportions only (deviation); the
+  rounded outline of the projection is not drawn.
+- Drawing: one SVG. Each view (world, or a region) is its own projection state:
+  a rotation that puts the view's centre longitude on the central meridian,
+  then a fit to the map box. Paths are projected for that state and the
+  container size (through a `ResizeObserver`). Re-centring keeps every zoomed
+  region in the undistorted middle of the projection, so East Asia, Oceania
+  and the western Americas are not sheared, as they would be if the world view
+  were simply scaled. Borders stay 0.5–1 px because paths are re-projected
+  rather than scaled.
+- Fills. Figma colours every country grey, but section 14.1 requires covered
+  countries to be identifiable, so this is a deliberate deviation:
+  - Other countries (not covered, or not published in this locale): pale grey
+    `#E4E4E4` with white borders. They do not respond to the pointer.
+  - Covered: `tp-blue-muted` (`#354B83`), about 7:1 against the pale grey, so
+    the difference survives greyscale and colour-blindness; pointer cursor.
+    Hover lightens the fill and shows the Figma chip with the country name and
+    "Select for details". The chip shows only on devices with hover.
+  - Selected: `tp-navy`, plus two cues that are not colour: a 2 px white
+    outline and a ripple ring at the country's centre.
+  - A visible legend ("Countries we cover", "Selected country") and the list
+    give the same information as text.
+- Small and missing countries:
+  - A covered country whose projected box is under about 8 px at the current
+    zoom also gets a marker: an 8 px dot, with an invisible 24 px hit circle,
+    at the centre of its principal shape (below). The marker keeps the same size on
+    screen at every zoom.
+  - A covered country missing from the 110m topology (none today; Malta or
+    Singapore would be, if covered) gets that marker at
+    `countries.map_config.coordinates` when it is set. Otherwise it appears
+    only in the list. The list is the authoritative selection surface either
+    way.
+  - Feature ids (ISO numeric) map to alpha-2 through `i18n-iso-countries`.
+    Kosovo, Northern Cyprus and Somaliland have no reliable code, so they stay
+    unmatched and inert (section 14.5).
+- Region framing: computed, with `map_config` as an override.
+  - Each country is framed by its principal shape: its largest polygon plus
+    every polygon whose centre is within 12° of it.
+  - A region frame fits its continent context together with the principal
+    shapes of its covered countries published in the current locale (and the
+    `map_config` points of covered countries the topology lacks). The context
+    is a longitude/latitude box per region `stable_key` in code
+    (`REGION_CONTEXT` in `src/lib/outreach/outreach-geo.mjs`; Asia, for
+    example, runs from Turkey to Japan and down to Indonesia). Regions without
+    one (a new region, the "Other countries" group) are framed on their
+    countries alone. Fitting only the covered countries was too tight
+    (product owner, 2026-10-16: Asia showed only its east, and in Europe the
+    legend covered Spain and Portugal).
+  - The projection is rotated to the middle longitude of what is framed, then
+    `fitExtent` frames it into the map box minus 24 px of padding, a further
+    6% of the box's shorter side, 44 px at the bottom for the legend and, from
+    1024 px while a summary is open, the panel width. A country selected
+    there is never under the panel; opening the summary slides the map left,
+    and moving between countries of the open region does not move it. Scale
+    is clamped to 1–8 times the world fit.
+  - Principal shapes keep Corsica, Hokkaido and both New Zealand islands, and
+    keep French Guiana (part of France's feature), Svalbard (part of
+    Norway's), Alaska and Hawaii from stretching the frames. A first 25° radius
+    kept Svalbard and pulled the Europe frame far north.
+  - The existing `regions.map_config` (`coordinates` and `zoom`, already
+    editable in the admin) overrides the computed frame when set. The
+    coordinates are the centre (the longitude also sets the rotation), and the
+    zoom is the scale relative to the world fit.
+  - The frames are not seeded from `old-funding/src/data/regions.js`. Those are
+    react-simple-maps zoom values for another canvas and fit, so they would
+    need converting, and they would go stale whenever coverage changes.
+  - A region with no drawable country keeps the world frame. Selecting a
+    country does not zoom further, as in `5741:100`.
+- Animation: about 700 ms ease-in-out (the legacy map took 2,000 ms). A
+  `requestAnimationFrame` loop interpolates rotation, centre, scale and anchor
+  between the two frames and re-projects the paths on each frame. A new
+  selection during a transition starts from the current state. Under reduced
+  motion the view changes instantly and the ripple is a static ring.
+- Dragging (added on 2026-10-16 at the product owner's request): a mouse or
+  pen can drag the map. The drawing slides with a transform while the pointer
+  moves and is re-projected once on release; a press that moves less than
+  4 px stays a click, and a drag never selects. The drag is limited so at
+  least a quarter of the map box stays covered by the globe in each
+  direction. Once the map has been moved, a "Re-centre map" button (top left
+  of the map) animates back to the view's frame; choosing another region or
+  opening a summary also re-frames the map. A press released outside the
+  window before the pointer was captured is dropped on the next move without
+  a button, so it cannot turn a later hover into a drag.
+- Touch, scroll and pinch: touch does not drag. On phones the map takes most
+  of the screen, so a one-finger drag would compete with scrolling the page;
+  touch scrolls the page and a tap selects a covered country. Nothing zooms
+  on wheel or pinch, so page scrolling and browser zoom always work, and
+  `touch-action` stays at its default. `d3-zoom` is not needed, and **no new
+  dependency** is added.
+
+#### 15.12.4 Accessibility
+
+- The column is the selection surface for keyboard and screen-reader users. The
+  SVG is `aria-hidden` and its shapes are not focusable: tabbing through more
+  than 40 shapes would repeat the list with no spatial order. The list meets
+  WCAG 2.1.1.
+- Structure: a `nav` labelled "Regions". Each region link has `aria-expanded`
+  and `aria-controls` pointing at its country list. The selected country link
+  has `aria-current="true"`. Tab order follows the page and there is no roving
+  tabindex, because the lists are short.
+- Focus: when the user selects a country, focus moves to the panel heading
+  (`tabindex="-1"`). Close, or Escape while focus is in the panel, closes it and
+  returns focus to that country's link. Selecting a region leaves focus on the
+  region link. Back, forward and the initial load never move focus.
+- Announcements: one visually hidden polite status announces changes that do
+  not move focus, for example "Europe, 22 countries", "All regions" and "Summary
+  closed". It also announces a selection restored by back or forward.
+- The panel is a `section` labelled by its heading, not a dialog. "Read more"
+  carries the country in its accessible name ("Read more about Romania").
+- Contrast (deviation): Figma's azure for the selected region and country
+  measures about 2:1 on the blue column (`#1976D2` on `#274882`). The selected
+  item is white and bold with a left marker bar instead, and azure is kept for
+  that bar.
+
+#### 15.12.5 Data
+
+| View | `OutreachCountry` fields used |
+| --- | --- |
+| Column and map | `code`, `name`, `slug`, `region` |
+| Panel | `name`, `outline`, `flag`, `summary`, `coverageSummary`, `services` (name, slug) |
+| Detail | the panel fields plus `content`, `statistics`, `people`, `offices`, the per-country service copy, `alternates` and SEO |
+
+The client receives a slim projection of each country, made on the server.
+Today the harness serializes the rich text, people, offices and statistics of
+all 40 countries into the page. The loaders and every publication rule stay as
+they are.
+
+Fields added to the reads, all from existing columns, with the same anonymous
+client and the same filters:
+
+- `regions.stable_key`, `display_order` and `map_config`: the URL parameter,
+  the column order and the framing override.
+- `countries.map_config` (marker coordinates) and `last_reviewed_on` ("Last
+  update").
+- `services.icon_media_id`: the service icon, resolved through the existing
+  localized media rule (public asset with alt text in the locale).
+- `country_statistics.metric_key`: chooses the statistic icon.
+
+Gaps in the design, and how each is handled without a schema change:
+
+- Flag: `flag` (`flag_media_id`) exists, but no flags are uploaded. The panel
+  image is generated: the country's topology shape as an SVG clip path over the
+  flag. Without a flag the shape is filled navy, and without geometry the panel
+  shows the flag alone or a placeholder. `outline` media, when set, replaces
+  the generated shape. Placeholder: `outreach-country-flag-<code>`, CMS media.
+- Outline drawing (detail hero): the hero shows `outline` media when set.
+  Otherwise it generates white line art from the topology on the server. 110m
+  may look angular at hero size; if the slice (b) screenshots show it, add
+  Natural Earth 50m as a server-only file that is never sent to the browser.
+- Service icons: the existing `icon_media_id`, with the catalogue's dashed
+  placeholder when it is empty. The `service-icon-<slug>` row is already
+  logged; the new callsites are added to it.
+- "Our service coverage" text: this is `coverageSummary`
+  (`country_translations.coverage_summary`), a localized sentence per country.
+  It is not `country_services.coverage_level`, which stays unrendered; that
+  decision does not change.
+- "Our coverage" graphic on the detail page (POE wordmark and institution
+  drawing): there is no data behind it, and it looks like coverage tiers. It is
+  omitted, and the "Our coverage" heading shows the `coverageSummary` text
+  instead.
+- Statistics: the icon is chosen by `metric_key` (`population`, `gdp`), with a
+  placeholder for any other key. The contract has no source name ("World
+  Bank"), so a "Source" link shows the host name of `source_url`.
+- Expert address: not in the people contract, so it is omitted (as in 15.4).
+- Supranational: it can be created in the admin as a region with no geography;
+  it would then appear in the list only, with the world frame.
+- Offices and per-country service copy: the data exists but Figma does not
+  show it. On the detail page each renders below the services or the expert,
+  and only when present.
+
+Unavoidable schema changes: none.
+
+#### 15.12.6 Performance
+
+- The topology is 180 KB, 44 KB gzipped, with 176 features. It is fetched once
+  from `public/data/`, and a `<link rel="preload" as="fetch" crossorigin>` on
+  the overview starts the request with the HTML.
+- The map (d3-geo, topojson-client and the map logic) is loaded with
+  `next/dynamic` and `ssr: false`. The column, list and panel are
+  server-rendered, so the largest paint is the column, not the map. The map box
+  is sized in CSS and holds a skeleton until the geometry arrives, so there is
+  no layout shift.
+- Paths are projected once for each view and container size. Selecting a
+  country inside the current view only changes class names. Moving between
+  views re-projects the paths for about 700 ms; slice (a) measures frame times
+  with CPU throttling and, if a frame exceeds 16 ms, projects only the features
+  inside the target frame during the transition.
+- The detail page loads no map JavaScript: the outline is computed on the
+  server, and the topology is read once per server process.
+- Budget: at most about 35 KB gzipped of map JavaScript on top of the shared
+  chunks, checked against the build output.
+
+#### 15.12.7 Slices
+
+(a) **Overview, desktop.**
+- Delivers:
+  - the read additions and the slim projection;
+  - pure modules with `node --test` tests for URL state, feature matching,
+    largest polygon and framing, and small-country markers;
+  - the map, column, panel, legend and status announcements;
+  - `OutreachOverviewSkeleton` (section 15.6) and a restyled error state;
+  - `Outreach` messages in all five locales;
+  - logged placeholders.
+- Below 1024 px it is a working stacked layout, not yet polished.
+- Verified by:
+  - lint, typecheck, tests and build;
+  - screenshots at 1024, 1440 and 1920, plus 375 and 768 to confirm nothing
+    breaks, in English and German;
+  - a keyboard and screen-reader-name walk through the flow;
+  - back and forward;
+  - reduced motion;
+  - a temporary loader override, removed afterwards, that adds a covered
+    country missing from the topology (Malta, with and without `map_config`)
+    and a country without a published region.
+
+(b) **Country detail.**
+- Delivers:
+  - the `PageHero` outline variant;
+  - the flag, statistics, summary, last update, services, coverage text and
+    experts, plus offices and per-country service copy when present;
+  - the template skeleton.
+- Metadata is unchanged.
+- Verified by the same checks at all five widths, with Brazil (services,
+  statistics, offices and people) and a sparse country.
+
+(c) **Mobile and tablet**, as proposed in 15.12.2.
+- Delivers the in-flow summary card, the accordion sizing, the map aspect
+  ratios and the focus behaviour.
+- Verified at 375 and 768, on a landscape phone and at 200 % zoom, and with
+  touch emulation: tapping, scrolling over the map and pinching.
+
+Shared files the slices touch: `PageHero` (a new outline illustration kind, in
+slice b), the `Outreach` messages, `docs/figma-asset-needs.md`, and the note at
+the end of section 15.6. Nothing else outside `src/components/outreach/`,
+`src/lib/public-outreach.ts` and the two outreach routes changes.
+
+#### 15.12.8 Questions for the product owner
+
+1. Is coverage highlighting on the map (a deviation from Figma's all-grey map)
+   accepted?
+2. Is the mobile proposal (15.12.2) accepted?
+3. What does the detail page's "Our coverage" graphic (POE wordmark and
+   institution drawing) mean? It is omitted until that is known.
+4. Should "Supranational" be a region (shown in the list only), or be dropped?
+
+#### 15.12.9 Slice (a): overview, implemented
+
+Implemented on 2026-10-16 against `5741:2`, `5741:51`, `5741:100` and
+`5741:156`. No schema migration and no new dependency.
+
+- Data (`src/lib/public-outreach.ts`): the reads add `regions.stable_key`,
+  `display_order` and `map_config`; `countries.map_config`,
+  `last_reviewed_on` and `display_order`; the service icon
+  (`services.icon_media_id`, through the existing localized media rule); and
+  `country_statistics.metric_key`. Publication filters are unchanged. The
+  cache key parts now carry a contract version (`v2`): the hosted data cache
+  survives deployments, and the first local run served the harness's cached
+  shape (no region key), which put every country under "Other countries".
+- `src/lib/outreach/`: `outreach-state.mjs` (URL state), `outreach-geo.mjs`
+  (feature matching, principal shapes, framing, interpolation, culling,
+  markers, outlines), both plain JavaScript with `.d.mts` declarations and
+  `node --test` suites (`scripts/outreach-state.test.mjs`,
+  `scripts/outreach-geo.test.mjs`); `country-geometry.ts` (server-side
+  topology for outlines); `outreach-overview.ts` (the slim client projection,
+  regions sorted by display order and name, countries by display order and
+  name, and an "Other countries" group last for countries whose region is not
+  published in the locale).
+- `src/components/outreach/`: `outreach-overview.tsx` (page, topology
+  preload, `OutreachOverviewSkeleton`), `outreach-explorer.tsx` (URL state,
+  column, focus, announcements, legend), `outreach-map.tsx` (loaded with
+  `next/dynamic`, `ssr: false`), `outreach-map-skeleton.tsx`,
+  `outreach-panel.tsx`, `outreach-layout.ts`. The route's `loading.tsx` uses
+  the overview skeleton; `[slug]/loading.tsx` keeps the harness placeholder
+  for the country page until slice (b). `error.tsx` was restyled with the
+  site tokens. The harness overview code was removed; the detail page is
+  unchanged.
+- Map: during a move the paths are rewritten directly, with adaptive
+  resampling off and countries that cannot be on screen skipped; React draws
+  only the first and last frame, and the markers and ring return at the end.
+  Back and forward re-render through Next.js; a `popstate` listener
+  subscribed once (`useEffectEvent`) announces the restored view, because a
+  listener re-subscribed per render was detached by Next.js's synchronous
+  re-render before it ran.
+- `Outreach.overview` messages in all five locales (provisional outside
+  English); the harness-only overview keys were removed.
+
+Deviations from Figma:
+
+- Covered countries are blue and other countries pale grey (Figma colours
+  every country grey); the selected country has a white outline and an azure
+  ring; a legend explains the fills (15.12.3).
+- Natural Earth instead of Figma's Mercator (15.12.3).
+- The selected region and country are white with an azure bar or underline
+  instead of azure text, which measures about 2:1 on the column (15.12.4).
+- The column starts with a one-line instruction above the regions, which
+  Figma does not have. The page `h1` is visually hidden in the column (product
+  owner, 2026-10-16) and visible above the stacked map below 1024 px. The
+  selected region keeps the size of the others (Figma enlarges it to 32 px,
+  which made long names such as "Latin America & Caribbean" take three lines;
+  product owner, 2026-10-16). The column lines up with the header's 90rem
+  container instead of Figma's 162 px offset.
+- The panel shows "Our service coverage:" before the CMS coverage summary,
+  left-aligned body text instead of justified, and the service circles show
+  the service name over a faint icon at 14 px (Figma about 11 px). Long
+  summaries scroll inside the panel.
+- The hover chip reads "{country} · Select for details" (Figma "click for
+  more details") and appears only on devices with hover.
+
+Placeholders: `outreach-country-flag-<code>` (new row in
+[`docs/figma-asset-needs.md`](./figma-asset-needs.md)); the service circles
+reuse `service-icon-<slug>` (callsite added to its row).
+
+Checks:
+
+- `npm run lint`, `npm run typecheck`, `npm test` (93 tests after the
+  review changes below) and `npm run build` pass.
+- Playwright at 375, 768, 1024, 1440 and 1920 px for the world, Europe,
+  Brazil and German (nothing published) states: HTTP 200, one `h1`, no
+  horizontal overflow, no text under 14 px in `main`. German shows the
+  empty-state sentence in the column and an all-grey map.
+- Keyboard: region links expand and announce "Europe: 14 countries"; Tab
+  reaches the countries; Enter opens the summary and focuses its heading;
+  Escape closes it, returns focus to the country link and announces "Summary
+  closed". A map click opens the summary the same way. Accessible names:
+  "Regions" navigation, the panel labelled by the country heading, "Close
+  country summary", "Read more about Brazil", service links named by the
+  service. The map is hidden from assistive technology.
+- Back and forward through world, region and country restore the expanded
+  region, the panel and the frame, announce the view ("All regions", "Europe:
+  14 countries", "Romania summary shown") and never move focus.
+- Reduced motion: the frame changes in one step (no intermediate drawing over
+  12 frames) and the ring does not animate; skeletons do not pulse.
+- Skeleton: with a temporary 5 s loader delay (removed), one polite status in
+  English and German, and the skeleton band has exactly the loaded band's
+  box at 1440 px (0, 96, 1440 × 800).
+- Missing from the topology: with a temporary loader override (removed),
+  Malta with `map_config` coordinates appeared in Europe with a marker and a
+  placeholder summary image; Singapore without coordinates appeared in Asia,
+  list only, without changing the Asia frame; Iceland without a published
+  region appeared under "Other countries", framed on its own.
+- Without JavaScript, `?country=RO` returns the panel, the current country
+  and the topology preload in the server HTML; malformed parameters return
+  the world view.
+- Performance (production build, Playwright, 1440 px): the overview loads
+  18.8 KB of gzipped JavaScript beyond another page (5.8 KB explorer, 13.1 KB
+  map with d3-geo and topojson-client). Region transitions run at 60 fps
+  unthrottled; with the CPU slowed 4× the median frame is 17–33 ms and the
+  90th percentile 50–100 ms (before the culling and direct path updates the
+  median was 133–233 ms in development).
+
+Changes after the product owner's first review (2026-10-16): mouse and pen
+dragging with "Re-centre map" (`Outreach.overview.recenterMap`, provisional
+outside English); the `h1` hidden in the desktop column; the selected region
+at the normal size; continent framing, extra margin and the legend reserve
+(15.12.3). The panel reserve now applies only while a summary is open.
+Checked with Playwright at 1440 px: a drag moves the map, shows the button
+and selects nothing; a 5,000 px drag stops with 52 countries on screen;
+"Re-centre map" restores the exact frame and hides the button; a plain click
+selects a country before and after drags, including after a press released
+outside the window (which, before the fix, turned the next hover into a drag
+and swallowed the click). Europe at 1440 px shows the whole continent with
+Spain and Portugal clear of the legend, and Asia runs from Turkey to Japan.
+
+Notes for the next slices and for content:
+
+- Below 1024 px the layout is the stacked fallback: the legend overlaps the
+  bottom of the map on phones, and the skeleton differs from the loaded band
+  by about 20 px at 375 px. Both belong to slice (c).
+- The English country names are the bootstrap's ISO names ("People's Republic
+  of China", "Taiwan, Province of China", "United States of America"); editors
+  may want shorter names. Region `display_order` is 0 everywhere, so regions
+  are alphabetical.
 
 ## 16. Public routes and legacy parity
 

@@ -3,7 +3,8 @@ import { hasLocale } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
-import { generateOutreachListingMetadata, OutreachOverviewPage } from '@/components/outreach/outreach-pages'
+import { OutreachOverviewPage } from '@/components/outreach/outreach-overview'
+import { generateOutreachListingMetadata } from '@/components/outreach/outreach-pages'
 import { routing } from '@/i18n/routing'
 
 type OutreachPageProps = { params: Promise<{ locale: string }> }

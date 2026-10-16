@@ -45,7 +45,8 @@
 			"WhyUs",
 			"Endorsements",
 			"Contact",
-			"Legal"
+			"Legal",
+			"Outreach.overview"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -165,18 +166,11 @@
 		}
 	},
 	"Outreach": {
-		"eyebrow": "Unsere globale Präsenz",
 		"title": "Unsere Reichweite",
 		"introduction": "Entdecken Sie die Länder, für die Time&Place Consulting aktuell Präsenz, Leistungen und lokale Beziehungen veröffentlicht.",
 		"metaDescription": "Entdecken Sie die veröffentlichten Länderpräsenzen und lokalen Kompetenzen von Time&Place Consulting.",
-		"mapLabel": "Karte der veröffentlichten Länderpräsenzen",
-		"mapInstructions": "Wählen Sie ein hervorgehobenes Land auf der Karte oder in der Länderliste. Ihre Auswahl wird in der Seiten-URL gespeichert.",
-		"mapLoading": "Lokale Kartendaten werden geladen…",
 		"mapError": "Die Karte konnte nicht geladen werden. Alle veröffentlichten Länder sind weiterhin in der Liste verfügbar.",
-		"countryList": "Abgedeckte Länder",
-		"coveredCountry": "Zusammenfassung des ausgewählten Landes",
 		"closeSummary": "Länderzusammenfassung schließen",
-		"detailLink": "Länderdetails ansehen",
 		"backToList": "Unsere Reichweite",
 		"region": "Region",
 		"services": "Leistungen",
@@ -189,7 +183,25 @@
 		"emptyDescription": "Abgedeckte Länder erscheinen hier, sobald deutsche Inhalte veröffentlicht sind.",
 		"loading": "Unsere Reichweite wird geladen…",
 		"errorTitle": "Unsere Reichweite konnte nicht geladen werden",
-		"errorDescription": "Bitte versuchen Sie es in Kürze erneut."
+		"errorDescription": "Bitte versuchen Sie es in Kürze erneut.",
+		"overview": {
+			"instructions": "Wählen Sie eine Region und dann ein Land, um unsere Arbeit dort zu sehen.",
+			"regionsLabel": "Regionen",
+			"otherRegion": "Weitere Länder",
+			"regionAnnouncement": "{region}: {count, plural, one {# Land} other {# Länder}}",
+			"worldAnnouncement": "Alle Regionen",
+			"countryAnnouncement": "Zusammenfassung für {country} angezeigt",
+			"closedAnnouncement": "Zusammenfassung geschlossen",
+			"readMore": "Mehr erfahren",
+			"readMoreLabel": "Mehr erfahren: {country}",
+			"serviceCoverage": "Unser Leistungsumfang:",
+			"providedServices": "Angebotene Leistungen",
+			"legendLabel": "Legende",
+			"legendCovered": "Länder, in denen wir tätig sind",
+			"legendSelected": "Ausgewähltes Land",
+			"mapHint": "Für Details auswählen",
+			"recenterMap": "Karte zentrieren"
+		}
 	},
 	"Team": {
 		"title": "Wer wir sind",

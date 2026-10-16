@@ -13,13 +13,19 @@ export type OutreachMedia = {
 }
 
 export type OutreachRegion = {
+	displayOrder: number
 	id: string
+	/** Canonical `regions.stable_key`; the Our Outreach `?region=` parameter. */
+	key: string
+	/** Raw `regions.map_config`; parsed by `parseMapConfig` (src/lib/outreach/outreach-geo.mjs). */
+	mapConfig: Json
 	name: string
 }
 
 export type OutreachService = {
 	content: Json
 	coverageLevel: string | null
+	icon: OutreachMedia | null
 	id: string
 	name: string
 	slug: string
@@ -30,6 +36,7 @@ export type OutreachStatistic = {
 	displayValue: string | null
 	id: string
 	label: string
+	metricKey: string
 	numericValue: number | null
 	sourceUrl: string | null
 	unit: string | null
@@ -63,7 +70,11 @@ export type OutreachCountry = {
 	code: string
 	content: Json
 	coverageSummary: string | null
+	displayOrder: number
 	flag: OutreachMedia | null
+	lastReviewedOn: string | null
+	/** Raw `countries.map_config`; parsed by `parseMapConfig` (src/lib/outreach/outreach-geo.mjs). */
+	mapConfig: Json
 	name: string
 	offices: OutreachOffice[]
 	outline: OutreachMedia | null
@@ -90,10 +101,15 @@ type CountryTranslation = {
 
 type CanonicalCountry = {
 	code: string
+	displayOrder: number
 	flagMediaId: string | null
+	lastReviewedOn: string | null
+	mapConfig: Json
 	outlineMediaId: string | null
 	regionId: string | null
 }
+
+type LocalizedService = Omit<OutreachService, 'icon'> & { iconMediaId: string | null }
 
 const CACHE_REVALIDATE_SECONDS = 60 * 60
 
@@ -131,7 +147,7 @@ async function coveredCountries(countryCodes: string[]): Promise<CanonicalCountr
 	if (!countryCodes.length) return []
 	const { data, error } = await createPublicClient()
 		.from('countries')
-		.select('code, region_id, flag_media_id, outline_media_id, display_order')
+		.select('code, region_id, flag_media_id, outline_media_id, display_order, map_config, last_reviewed_on')
 		.in('code', countryCodes)
 		.eq('is_covered', true)
 		.order('display_order')
@@ -139,7 +155,10 @@ async function coveredCountries(countryCodes: string[]): Promise<CanonicalCountr
 	if (error) throw new Error(`Unable to load covered outreach countries: ${error.message}`)
 	return (data ?? []).map((row) => ({
 		code: row.code,
+		displayOrder: row.display_order,
 		flagMediaId: row.flag_media_id,
+		lastReviewedOn: row.last_reviewed_on,
+		mapConfig: row.map_config,
 		outlineMediaId: row.outline_media_id,
 		regionId: row.region_id,
 	}))
@@ -173,15 +192,19 @@ async function localizedRegions(countries: CanonicalCountry[], locale: AppLocale
 	const supabase = createPublicClient()
 	const now = publicationTime()
 	const [{ data: regions, error: regionsError }, { data: translations, error: translationsError }] = await Promise.all([
-		supabase.from('regions').select('id').in('id', regionIds).eq('is_active', true),
+		supabase.from('regions').select('id, stable_key, display_order, map_config').in('id', regionIds).eq('is_active', true),
 		supabase.from('region_translations').select('region_id, name').in('region_id', regionIds).eq('locale', locale).eq('status', 'published').lte('published_at', now),
 	])
 	if (regionsError || translationsError) throw new Error(`Unable to load localized outreach regions: ${regionsError?.message ?? translationsError?.message}`)
-	const active = new Set((regions ?? []).map((region) => region.id))
-	return new Map((translations ?? []).filter((translation) => active.has(translation.region_id)).map((translation) => [translation.region_id, { id: translation.region_id, name: translation.name }]))
+	const active = new Map((regions ?? []).map((region) => [region.id, region]))
+	return new Map((translations ?? []).flatMap((translation) => {
+		const region = active.get(translation.region_id)
+		if (!region) return []
+		return [[translation.region_id, { displayOrder: region.display_order, id: region.id, key: region.stable_key, mapConfig: region.map_config, name: translation.name }]]
+	}))
 }
 
-async function localizedServices(countryCodes: string[], locale: AppLocale): Promise<Map<string, OutreachService[]>> {
+async function localizedServices(countryCodes: string[], locale: AppLocale): Promise<Map<string, LocalizedService[]>> {
 	if (!countryCodes.length) return new Map()
 	const supabase = createPublicClient()
 	const { data: relations, error: relationsError } = await supabase.from('country_services').select('country_code, service_id, coverage_level, display_order').in('country_code', countryCodes).order('display_order').order('service_id')
@@ -190,15 +213,15 @@ async function localizedServices(countryCodes: string[], locale: AppLocale): Pro
 	if (!serviceIds.length) return new Map()
 	const now = publicationTime()
 	const [{ data: services, error: servicesError }, { data: translations, error: translationsError }, { data: countryTranslations, error: countryTranslationsError }] = await Promise.all([
-		supabase.from('services').select('id').in('id', serviceIds).eq('is_active', true),
+		supabase.from('services').select('id, icon_media_id').in('id', serviceIds).eq('is_active', true),
 		supabase.from('service_translations').select('service_id, slug, name').in('service_id', serviceIds).eq('locale', locale).eq('status', 'published').lte('published_at', now),
 		supabase.from('country_service_translations').select('country_code, service_id, summary, content').in('country_code', countryCodes).in('service_id', serviceIds).eq('locale', locale),
 	])
 	if (servicesError || translationsError || countryTranslationsError) throw new Error(`Unable to load localized outreach services: ${servicesError?.message ?? translationsError?.message ?? countryTranslationsError?.message}`)
-	const active = new Set((services ?? []).map((service) => service.id))
+	const active = new Map((services ?? []).map((service) => [service.id, service]))
 	const translationById = new Map((translations ?? []).filter((translation) => active.has(translation.service_id)).map((translation) => [translation.service_id, translation]))
 	const countryCopy = new Map((countryTranslations ?? []).map((translation) => [`${translation.country_code}:${translation.service_id}`, translation]))
-	const result = new Map<string, OutreachService[]>()
+	const result = new Map<string, LocalizedService[]>()
 	for (const relation of relations ?? []) {
 		const translation = translationById.get(relation.service_id)
 		if (!translation) continue
@@ -206,6 +229,7 @@ async function localizedServices(countryCodes: string[], locale: AppLocale): Pro
 		result.set(relation.country_code, [...(result.get(relation.country_code) ?? []), {
 			content: copy?.content ?? { type: 'doc', content: [] },
 			coverageLevel: relation.coverage_level,
+			iconMediaId: active.get(relation.service_id)?.icon_media_id ?? null,
 			id: relation.service_id,
 			name: translation.name,
 			slug: translation.slug,
@@ -218,7 +242,7 @@ async function localizedServices(countryCodes: string[], locale: AppLocale): Pro
 async function localizedStatistics(countryCodes: string[], locale: AppLocale): Promise<Map<string, OutreachStatistic[]>> {
 	if (!countryCodes.length) return new Map()
 	const supabase = createPublicClient()
-	const { data: statistics, error: statisticsError } = await supabase.from('country_statistics').select('id, country_code, numeric_value, unit, statistic_year, source_url, display_order').in('country_code', countryCodes).order('display_order').order('id')
+	const { data: statistics, error: statisticsError } = await supabase.from('country_statistics').select('id, country_code, metric_key, numeric_value, unit, statistic_year, source_url, display_order').in('country_code', countryCodes).order('display_order').order('id')
 	if (statisticsError) throw new Error(`Unable to load outreach statistics: ${statisticsError.message}`)
 	const statisticIds = unique((statistics ?? []).map((statistic) => statistic.id))
 	if (!statisticIds.length) return new Map()
@@ -233,6 +257,7 @@ async function localizedStatistics(countryCodes: string[], locale: AppLocale): P
 			displayValue: translation.display_value,
 			id: statistic.id,
 			label: translation.label,
+			metricKey: statistic.metric_key,
 			numericValue: statistic.numeric_value,
 			sourceUrl: statistic.source_url,
 			unit: statistic.unit,
@@ -333,6 +358,7 @@ async function loadOutreachCountries(locale: AppLocale, slug?: string): Promise<
 	])
 	const media = await localizedMedia(unique([
 		...countries.flatMap((country) => [country.flagMediaId, country.outlineMediaId]),
+		...[...services.values()].flatMap((items) => items.map((service) => service.iconMediaId)),
 		...peopleResult.mediaIds,
 	]), locale)
 	return Promise.all(countries.flatMap((country) => {
@@ -343,7 +369,10 @@ async function loadOutreachCountries(locale: AppLocale, slug?: string): Promise<
 			code: country.code,
 			content: translation.content,
 			coverageSummary: translation.coverageSummary,
+			displayOrder: country.displayOrder,
 			flag: country.flagMediaId ? media.get(country.flagMediaId) ?? null : null,
+			lastReviewedOn: country.lastReviewedOn,
+			mapConfig: country.mapConfig,
 			name: translation.name,
 			offices: offices.get(country.code) ?? [],
 			outline: country.outlineMediaId ? media.get(country.outlineMediaId) ?? null : null,
@@ -351,7 +380,7 @@ async function loadOutreachCountries(locale: AppLocale, slug?: string): Promise<
 			region: country.regionId ? regions.get(country.regionId) ?? null : null,
 			seoDescription: translation.seoDescription,
 			seoTitle: translation.seoTitle,
-			services: services.get(country.code) ?? [],
+			services: (services.get(country.code) ?? []).map(({ iconMediaId, ...service }) => ({ ...service, icon: iconMediaId ? media.get(iconMediaId) ?? null : null })),
 			slug: translation.slug,
 			statistics: statistics.get(country.code) ?? [],
 			summary: translation.summary,
@@ -367,14 +396,18 @@ async function loadOutreachDetail(locale: AppLocale, slug: string) {
 	return (await loadOutreachCountries(locale, slug))[0] ?? null
 }
 
+// The key parts carry a contract version: bump it when the cached shape
+// changes, so a deployment never reads entries written by older code.
+const CACHE_VERSION = 'v2'
+
 export const getPublishedOutreachOverview = unstable_cache(
 	loadOutreachOverview,
-	['published-outreach-overview'],
+	['published-outreach-overview', CACHE_VERSION],
 	{ revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_OUTREACH_CACHE_TAG] },
 )
 
 export const getPublishedOutreachDetail = unstable_cache(
 	loadOutreachDetail,
-	['published-outreach-detail'],
+	['published-outreach-detail', CACHE_VERSION],
 	{ revalidate: CACHE_REVALIDATE_SECONDS, tags: [PUBLIC_OUTREACH_CACHE_TAG] },
 )

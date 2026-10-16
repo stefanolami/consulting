@@ -7,10 +7,9 @@ import { connection } from 'next/server'
 import { Suspense } from 'react'
 
 import { CatalogueRichText } from '@/components/catalogue/catalogue-rich-text'
-import { OutreachExplorer } from '@/components/outreach/outreach-explorer'
 import { OutreachLoading } from '@/components/outreach/outreach-loading'
 import { type AppLocale, routing } from '@/i18n/routing'
-import { getPublishedOutreachDetail, getPublishedOutreachOverview, type OutreachStatistic } from '@/lib/public-outreach'
+import { getPublishedOutreachDetail, type OutreachStatistic } from '@/lib/public-outreach'
 import { teamPath } from '@/lib/team-paths'
 
 export function outreachPath(locale: AppLocale, slug?: string) {
@@ -39,19 +38,6 @@ export async function generateOutreachDetailMetadata(locale: AppLocale, slug: st
 	const title = country.seoTitle || country.name
 	const description = country.seoDescription || country.summary || undefined
 	return { alternates: { canonical, languages }, description, openGraph: { description, title, url: canonical }, title }
-}
-
-export function OutreachOverviewPage({ locale }: { locale: AppLocale }) {
-	return <Suspense fallback={<OutreachLoading />}><OutreachOverviewContent locale={locale} /></Suspense>
-}
-
-async function OutreachOverviewContent({ locale }: { locale: AppLocale }) {
-	await connection()
-	const [countries, t] = await Promise.all([getPublishedOutreachOverview(locale), getTranslations({ locale, namespace: 'Outreach' })])
-	const messages = {
-		backToList: t('backToList'), closeSummary: t('closeSummary'), coveredCountry: t('coveredCountry'), countryList: t('countryList'), detailLink: t('detailLink'), emptyDescription: t('emptyDescription'), emptyTitle: t('emptyTitle'), experts: t('experts'), mapError: t('mapError'), mapInstructions: t('mapInstructions'), mapLabel: t('mapLabel'), mapLoading: t('mapLoading'), offices: t('offices'), region: t('region'), services: t('services'), statistics: t('statistics'),
-	}
-	return <main className="min-h-screen bg-white px-6 py-12 text-slate-900 sm:px-10 sm:py-16 lg:px-16"><div className="mx-auto max-w-6xl"><header className="max-w-3xl"><p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-600">{t('eyebrow')}</p><h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">{t('title')}</h1><p className="mt-5 text-lg leading-8 text-slate-700">{t('introduction')}</p></header><div className="mt-10"><Suspense fallback={<div className="rounded-lg border border-slate-300 p-8" role="status">{t('loading')}</div>}><OutreachExplorer countries={countries} locale={locale} messages={messages} /></Suspense></div></div></main>
 }
 
 export function OutreachDetailPage({ locale, slug }: { locale: AppLocale; slug: string }) {

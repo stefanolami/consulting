@@ -1,5 +1,6 @@
-import { OutreachLoading } from '@/components/outreach/outreach-loading'
+import { LoadingMessage } from '@/components/loading/loading-message'
+import { OutreachOverviewSkeleton } from '@/components/outreach/outreach-overview'
 
 export default function OutreachRouteLoading() {
-	return <OutreachLoading />
+	return <main><OutreachOverviewSkeleton label={<LoadingMessage messageKey="Outreach.loading" />} /></main>
 }

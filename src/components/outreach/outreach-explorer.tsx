@@ -1,168 +1,194 @@
 'use client'
 
-import { geoNaturalEarth1, geoPath } from 'd3-geo'
-import { numericToAlpha2 } from 'i18n-iso-countries'
-import Image from 'next/image'
-import Link from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { feature } from 'topojson-client'
-import type { FeatureCollection, Geometry } from 'geojson'
-import type { GeometryCollection, Topology } from 'topojson-specification'
+import dynamic from 'next/dynamic'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useEffect, useEffectEvent, useMemo, useRef, useState, type MouseEvent } from 'react'
 
-import type { AppLocale } from '@/i18n/routing'
-import { routing } from '@/i18n/routing'
-import type { OutreachCountry, OutreachStatistic } from '@/lib/public-outreach'
+import type { OutreachOverview, OutreachOverviewRegion } from '@/lib/outreach/outreach-overview'
+import {
+	closeCountryView,
+	countryView,
+	outreachSearch,
+	parseOutreachParams,
+	regionToggleView,
+	resolveOutreachView,
+	sameView,
+	type OutreachView,
+} from '@/lib/outreach/outreach-state.mjs'
+import { cn } from '@/lib/utils'
 
-type ExplorerMessages = {
-	backToList: string
-	closeSummary: string
-	coveredCountry: string
-	countryList: string
-	detailLink: string
-	emptyDescription: string
-	emptyTitle: string
-	experts: string
-	mapError: string
-	mapInstructions: string
-	mapLabel: string
-	mapLoading: string
-	offices: string
-	region: string
-	services: string
-	statistics: string
-}
+import {
+	BAND_CLASS,
+	INSTRUCTIONS_CLASS,
+	MAP_AREA_CLASS,
+	NAV_AREA_CLASS,
+	REGION_LINK_CLASS,
+	TITLE_AREA_CLASS,
+	TITLE_CLASS,
+} from './outreach-layout'
+import { MapSkeleton } from './outreach-map-skeleton'
+import { OutreachPanel } from './outreach-panel'
 
-type CountryTopology = Topology<{ countries: GeometryCollection }>
+const OutreachMap = dynamic(() => import('./outreach-map'), { loading: () => <MapSkeleton />, ssr: false })
 
-export function OutreachExplorer({ countries, locale, messages }: { countries: OutreachCountry[]; locale: AppLocale; messages: ExplorerMessages }) {
+type FocusIntent = { target: 'country'; code: string } | { target: 'panel' } | { target: 'stay' }
+
+const focusRing = 'rounded-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark'
+const countryLinkId = (code: string) => `outreach-country-${code}`
+const countryListId = (key: string) => `outreach-region-${key}`
+
+// The Our Outreach overview (Figma 5741:2 world, 5741:51 region, 5741:100
+// country, 5741:156 summary; control tower §15.12). The URL is the state:
+// `?region=<key>` or `?country=<ISO>`, changed with history.pushState so
+// selection needs no server request and back/forward replay it. Regions and
+// countries are real links, so they also work without JavaScript and when
+// opened in a new tab. The region list is the selection surface for keyboard
+// and screen-reader users; the map mirrors it for pointers.
+export function OutreachExplorer({ overview }: { overview: OutreachOverview }) {
+	const t = useTranslations('Outreach')
 	const pathname = usePathname()
-	const router = useRouter()
 	const searchParams = useSearchParams()
-	const listHeadingRef = useRef<HTMLHeadingElement>(null)
+	const view = resolveOutreachView(parseOutreachParams(searchParams), overview.regions)
+	const countriesByCode = useMemo(() => new Map(overview.countries.map((country) => [country.code, country])), [overview.countries])
+	const selected = view.country ? countriesByCode.get(view.country) ?? null : null
+
 	const panelHeadingRef = useRef<HTMLHeadingElement>(null)
-	const selectedCode = normalizeCountryCode(searchParams.get('country'))
-	const selected = countries.find((country) => country.code === selectedCode) ?? null
-	const previousSelection = useRef(selected?.code ?? null)
+	const focusIntent = useRef<FocusIntent | null>(null)
+	const [announcement, setAnnouncement] = useState('')
 
-	useEffect(() => {
-		const nextSelection = selected?.code ?? null
-		if (previousSelection.current === nextSelection) return
-		if (nextSelection) panelHeadingRef.current?.focus()
-		else listHeadingRef.current?.focus()
-		previousSelection.current = nextSelection
-	}, [selected?.code])
-
-	function selectCountry(code: string | null) {
-		const next = code ? `${pathname}?country=${encodeURIComponent(code)}` : pathname
-		router.push(next, { scroll: false })
+	const regionName = (region: OutreachOverviewRegion) => region.name ?? t('overview.otherRegion')
+	const describe = (next: OutreachView, previous: OutreachView) => {
+		if (next.country) return t('overview.countryAnnouncement', { country: countriesByCode.get(next.country)?.name ?? next.country })
+		if (previous.country && next.region === previous.region) return t('overview.closedAnnouncement')
+		const region = overview.regions.find((entry) => entry.key === next.region)
+		return region ? t('overview.regionAnnouncement', { count: region.countryCodes.length, region: regionName(region) }) : t('overview.worldAnnouncement')
 	}
 
-	if (!countries.length) {
-		return <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8" role="status"><h2 className="text-xl font-semibold">{messages.emptyTitle}</h2><p className="mt-2 text-slate-700">{messages.emptyDescription}</p></div>
-	}
-
-	return (
-		<div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(18rem,0.7fr)]">
-		<div className="min-w-0 space-y-8">
-			<OutreachMap countries={countries} messages={messages} onSelect={selectCountry} selectedCode={selected?.code ?? null} />
-			<section aria-labelledby="outreach-country-list-heading">
-				<h2 className="text-2xl font-semibold outline-none" id="outreach-country-list-heading" ref={listHeadingRef} tabIndex={-1}>{messages.countryList}</h2>
-				<ul className="mt-4 grid gap-3 sm:grid-cols-2">
-					{countries.map((country) => <li key={country.code}><button aria-pressed={country.code === selected?.code} className="flex w-full items-center justify-between rounded-md border border-slate-300 px-4 py-3 text-left hover:border-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950 aria-pressed:border-slate-950 aria-pressed:bg-slate-100" onClick={() => selectCountry(country.code)} type="button"><span>{country.name}</span><span className="font-mono text-xs text-slate-600">{country.code}</span></button></li>)}
-				</ul>
-			</section>
-		</div>
-		<aside aria-label={selected?.name ?? messages.coveredCountry} className="rounded-lg border border-slate-300 bg-white p-6 lg:sticky lg:top-6 lg:self-start">
-			{selected ? <CountrySummary country={selected} headingRef={panelHeadingRef} locale={locale} messages={messages} onClose={() => selectCountry(null)} /> : <p className="leading-7 text-slate-700">{messages.mapInstructions}</p>}
-		</aside>
-		</div>
-	)
-}
-
-function OutreachMap({ countries, messages, onSelect, selectedCode }: { countries: OutreachCountry[]; messages: ExplorerMessages; onSelect: (code: string) => void; selectedCode: string | null }) {
-	const [geometry, setGeometry] = useState<FeatureCollection<Geometry> | null>(null)
-	const [failed, setFailed] = useState(false)
-	const countriesByCode = useMemo(() => new Map(countries.map((country) => [country.code, country])), [countries])
-
+	// Back and forward change the view without moving focus; announce it.
+	// Subscribed once: Next.js handles popstate first and may re-render
+	// synchronously, which would detach a listener re-subscribed per render.
+	const onPopState = useEffectEvent(() => {
+		const next = resolveOutreachView(parseOutreachParams(new URLSearchParams(window.location.search)), overview.regions)
+		setAnnouncement(describe(next, view))
+	})
 	useEffect(() => {
-		const controller = new AbortController()
-		async function loadGeometry() {
-			try {
-				const response = await fetch('/data/world-countries-110m.topo.json', { signal: controller.signal })
-				if (!response.ok) throw new Error(`Map request failed with ${response.status}`)
-				const topology = await response.json() as CountryTopology
-				setGeometry(feature(topology, topology.objects.countries))
-			} catch (error) {
-				if ((error as { name?: string }).name !== 'AbortError') setFailed(true)
-			}
-		}
-		void loadGeometry()
-		return () => controller.abort()
+		const listener = () => onPopState()
+		window.addEventListener('popstate', listener)
+		return () => window.removeEventListener('popstate', listener)
 	}, [])
 
-	const paths = useMemo(() => {
-		if (!geometry) return []
-		const projection = geoNaturalEarth1().fitExtent([[8, 8], [952, 492]], geometry)
-		const renderPath = geoPath(projection)
-		return geometry.features.map((item, index) => {
-			const id = item.id === undefined ? '' : String(item.id).padStart(3, '0')
-			const code = numericToAlpha2(id)
-			return { code, d: renderPath(item), key: `${id}:${index}` }
-		})
-	}, [geometry])
+	// Focus follows the user's own selections once the new view has rendered.
+	const viewKey = `${view.region}:${view.country}`
+	useEffect(() => {
+		const intent = focusIntent.current
+		focusIntent.current = null
+		if (intent?.target === 'panel') focusInView(panelHeadingRef.current)
+		if (intent?.target === 'country') focusInView(document.getElementById(countryLinkId(intent.code)))
+	}, [viewKey])
 
-	if (failed) return <div className="flex aspect-[1.9/1] items-center justify-center rounded-lg border border-slate-300 bg-slate-50 p-6 text-center text-slate-700" role="alert">{messages.mapError}</div>
-	if (!geometry) return <div className="flex aspect-[1.9/1] items-center justify-center rounded-lg border border-slate-300 bg-slate-50 p-6 text-slate-700" role="status">{messages.mapLoading}</div>
+	const href = (next: OutreachView) => `${pathname}${outreachSearch(next)}`
+
+	function navigate(next: OutreachView, intent: FocusIntent) {
+		if (sameView(next, view)) {
+			if (intent.target === 'panel') focusInView(panelHeadingRef.current)
+			return
+		}
+		focusIntent.current = intent
+		// The focused heading announces an opened summary; everything else is announced here.
+		setAnnouncement(intent.target === 'panel' ? '' : describe(next, view))
+		window.history.pushState(null, '', href(next))
+	}
+
+	// Plain clicks navigate in place; modified clicks keep the browser's behaviour.
+	const follow = (next: OutreachView, intent: FocusIntent) => (event: MouseEvent<HTMLAnchorElement>) => {
+		if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+		event.preventDefault()
+		navigate(next, intent)
+	}
+
+	const selectCountry = (code: string) => {
+		const country = countriesByCode.get(code)
+		if (country) navigate(countryView(country.regionKey, code), { target: 'panel' })
+	}
 
 	return (
-		<section aria-labelledby="outreach-map-heading">
-			<h2 className="sr-only" id="outreach-map-heading">{messages.mapLabel}</h2>
-			<p className="mb-3 text-sm text-slate-600">{messages.mapInstructions}</p>
-			<svg aria-labelledby="outreach-map-title outreach-map-description" className="h-auto w-full rounded-lg border border-slate-300 bg-slate-50" role="group" viewBox="0 0 960 500">
-				<title id="outreach-map-title">{messages.mapLabel}</title>
-				<desc id="outreach-map-description">{messages.mapInstructions}</desc>
-				{paths.map((path) => {
-					const country = path.code ? countriesByCode.get(path.code) : undefined
-					const selected = country?.code === selectedCode
-					return <path aria-hidden={country ? undefined : true} aria-label={country?.name} aria-pressed={country ? selected : undefined} className={country ? 'cursor-pointer stroke-white focus:outline-none focus-visible:stroke-slate-950 focus-visible:stroke-[2]' : 'pointer-events-none fill-slate-200 stroke-white'} d={path.d ?? undefined} fill={country ? selected ? '#0f172a' : '#64748b' : undefined} key={path.key} onClick={country ? () => onSelect(country.code) : undefined} onKeyDown={country ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(country.code) } } : undefined} role={country ? 'button' : undefined} strokeWidth={0.5} tabIndex={country ? 0 : undefined}>{country ? <title>{country.name} ({country.code})</title> : null}</path>
-				})}
-			</svg>
-		</section>
+		<div className={BAND_CLASS}>
+			<div className={TITLE_AREA_CLASS}>
+				<h1 className={TITLE_CLASS}>{t('title')}</h1>
+				<p className={INSTRUCTIONS_CLASS}>{overview.countries.length ? t('overview.instructions') : t('emptyDescription')}</p>
+			</div>
+			<div className={MAP_AREA_CLASS}>
+				<OutreachMap countries={overview.countries} errorMessage={t('mapError')} hint={t('overview.mapHint')} onSelect={selectCountry} recenterLabel={t('overview.recenterMap')} regions={overview.regions} view={view} />
+				{overview.countries.length ? <MapLegend /> : null}
+			</div>
+			{selected ? <OutreachPanel country={selected} headingRef={panelHeadingRef} key={selected.code} onClose={() => navigate(closeCountryView(view), { code: selected.code, target: 'country' })} /> : null}
+			<nav aria-label={t('overview.regionsLabel')} className={NAV_AREA_CLASS}>
+				<ul className="space-y-1">
+					{overview.regions.map((region) => {
+						const open = view.region === region.key
+						return (
+							<li key={region.key}>
+								<a
+									aria-controls={countryListId(region.key)}
+									aria-expanded={open}
+									className={cn(
+										REGION_LINK_CLASS,
+										focusRing,
+										'block py-1.5 text-tp-stone hover:underline hover:underline-offset-4',
+										open && '-ml-4 border-l-4 border-tp-azure pl-3 text-on-brand',
+									)}
+									href={href(regionToggleView(view, region.key))}
+									onClick={follow(regionToggleView(view, region.key), { target: 'stay' })}
+								>
+									{regionName(region)}
+								</a>
+								<ul className="mt-1 mb-3 ml-[1.7rem] list-disc space-y-0.5 marker:text-on-brand" hidden={!open} id={countryListId(region.key)}>
+									{region.countryCodes.map((code) => {
+										const country = countriesByCode.get(code)
+										if (!country) return null
+										const current = code === view.country
+										return (
+											<li className={cn(current && 'marker:text-tp-azure')} key={code}>
+												<a
+													aria-current={current ? 'true' : undefined}
+													className={cn(focusRing, 'block w-fit py-0.5 font-label text-[1.125rem] leading-[1.3] font-bold text-on-brand hover:underline hover:underline-offset-4', current && 'underline decoration-tp-azure decoration-[3px] underline-offset-4')}
+													href={href(countryView(region.key, code))}
+													id={countryLinkId(code)}
+													onClick={follow(countryView(region.key, code), { target: 'panel' })}
+												>
+													{country.name}
+												</a>
+											</li>
+										)
+									})}
+								</ul>
+							</li>
+						)
+					})}
+				</ul>
+			</nav>
+			<p aria-live="polite" className="sr-only" role="status">{announcement}</p>
+		</div>
 	)
 }
 
-function CountrySummary({ country, headingRef, locale, messages, onClose }: { country: OutreachCountry; headingRef: React.RefObject<HTMLHeadingElement | null>; locale: AppLocale; messages: ExplorerMessages; onClose: () => void }) {
-	return <div>
-		<div className="flex items-start justify-between gap-4"><div>{country.region ? <p className="text-sm text-slate-600">{messages.region}: {country.region.name}</p> : null}<h2 className="mt-1 text-3xl font-semibold outline-none" ref={headingRef} tabIndex={-1}>{country.name}</h2><p className="mt-1 font-mono text-xs text-slate-500">ISO 3166-1: {country.code}</p></div><button aria-label={messages.closeSummary} className="rounded-md border border-slate-300 px-3 py-1.5 text-sm" onClick={onClose} type="button">×</button></div>
-		{country.flag ? <Image alt={country.flag.alt} className="mt-5 h-auto max-h-24 w-auto border border-slate-200 object-contain" height={96} src={country.flag.url} unoptimized width={160} /> : null}
-		{country.summary ? <p className="mt-5 leading-7 text-slate-700">{country.summary}</p> : null}
-		{country.coverageSummary ? <p className="mt-3 leading-7 text-slate-700">{country.coverageSummary}</p> : null}
-		<SummaryList heading={messages.services} items={country.services.map((service) => service.name)} />
-		{country.statistics.length ? <section className="mt-6"><h3 className="font-semibold">{messages.statistics}</h3><dl className="mt-2 space-y-2">{country.statistics.map((statistic) => <div className="flex justify-between gap-4" key={statistic.id}><dt className="text-slate-600">{statistic.label}</dt><dd className="text-right font-medium">{formatStatistic(statistic, locale)}</dd></div>)}</dl></section> : null}
-		<SummaryList heading={messages.offices} items={country.offices.map((office) => [office.name, office.city].filter(Boolean).join(', '))} />
-		<SummaryList heading={messages.experts} items={country.people.map((person) => [person.name, person.role].filter(Boolean).join(' — '))} />
-		<Link className="mt-7 inline-flex rounded-md bg-slate-950 px-4 py-2.5 text-sm font-medium text-white" href={outreachPath(locale, country.slug)}>{messages.detailLink}</Link>
-	</div>
+// Moves focus without the browser's jump, scrolling only when the element is
+// out of view (the summary below the map on narrow screens).
+function focusInView(element: HTMLElement | null) {
+	if (!element) return
+	element.focus({ preventScroll: true })
+	element.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' })
 }
 
-function SummaryList({ heading, items }: { heading: string; items: string[] }) {
-	if (!items.length) return null
-	return <section className="mt-6"><h3 className="font-semibold">{heading}</h3><ul className="mt-2 list-disc space-y-1 pl-5 text-slate-700">{items.map((item, index) => <li key={`${item}:${index}`}>{item}</li>)}</ul></section>
-}
-
-function normalizeCountryCode(value: string | null) {
-	return value && /^[A-Za-z]{2}$/.test(value) ? value.toUpperCase() : null
-}
-
-function outreachPath(locale: AppLocale, slug?: string) {
-	const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
-	return `${prefix}/our-outreach${slug ? `/${slug}` : ''}`
-}
-
-function formatStatistic(statistic: OutreachStatistic, locale: AppLocale) {
-	if (statistic.displayValue) return statistic.displayValue
-	if (statistic.numericValue === null) return '—'
-	const value = new Intl.NumberFormat(locale).format(statistic.numericValue)
-	return statistic.unit ? `${value} ${statistic.unit}` : value
+// Explains the map's fills; the colours also differ in lightness and the
+// selected country has an outline and a ring (control tower §15.12.3).
+function MapLegend() {
+	const t = useTranslations('Outreach.overview')
+	return (
+		<ul aria-label={t('legendLabel')} className="absolute bottom-3 left-3 flex flex-wrap gap-x-4 gap-y-1 rounded-control bg-white/90 px-3 py-2 font-label text-label text-tp-navy">
+			<li className="flex items-center gap-2"><span aria-hidden="true" className="size-3.5 rounded-[2px] bg-tp-blue-muted" />{t('legendCovered')}</li>
+			<li className="flex items-center gap-2"><span aria-hidden="true" className="size-3.5 rounded-[2px] bg-tp-navy outline-2 outline-offset-[-3px] outline-white ring-2 ring-tp-azure" />{t('legendSelected')}</li>
+		</ul>
+	)
 }

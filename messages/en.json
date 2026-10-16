@@ -115,18 +115,11 @@
 		}
 	},
 	"Outreach": {
-		"eyebrow": "Our global presence",
 		"title": "Our Outreach",
 		"introduction": "Explore the countries where Time&Place Consulting currently publishes its coverage, services and local relationships.",
 		"metaDescription": "Explore Time&Place Consulting's published country coverage and local expertise.",
-		"mapLabel": "Published country coverage map",
-		"mapInstructions": "Select a highlighted country on the map or use the country list. Your selection is saved in the page URL.",
-		"mapLoading": "Loading local map geography…",
 		"mapError": "The map could not be loaded. All published countries remain available in the list below.",
-		"countryList": "Covered countries",
-		"coveredCountry": "Selected country summary",
 		"closeSummary": "Close country summary",
-		"detailLink": "View country details",
 		"backToList": "Our Outreach",
 		"region": "Region",
 		"services": "Services",
@@ -139,7 +132,25 @@
 		"emptyDescription": "Covered countries will appear here when English content is published.",
 		"loading": "Loading Our Outreach content…",
 		"errorTitle": "Unable to load Our Outreach content",
-		"errorDescription": "Please try again shortly."
+		"errorDescription": "Please try again shortly.",
+		"overview": {
+			"instructions": "Choose a region, then a country, to see our work there.",
+			"regionsLabel": "Regions",
+			"otherRegion": "Other countries",
+			"regionAnnouncement": "{region}: {count, plural, one {# country} other {# countries}}",
+			"worldAnnouncement": "All regions",
+			"countryAnnouncement": "{country} summary shown",
+			"closedAnnouncement": "Summary closed",
+			"readMore": "Read more",
+			"readMoreLabel": "Read more about {country}",
+			"serviceCoverage": "Our service coverage:",
+			"providedServices": "Provided services",
+			"legendLabel": "Map key",
+			"legendCovered": "Countries we cover",
+			"legendSelected": "Selected country",
+			"mapHint": "Select for details",
+			"recenterMap": "Re-centre map"
+		}
 	},
 	"Team": {
 		"title": "Who we are",
