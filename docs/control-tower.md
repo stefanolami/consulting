@@ -1836,8 +1836,11 @@ What the frames show:
 
 #### 15.12.1 Desktop flow (from 1024 px)
 
-The page keeps the shell header and footer. Below the header there is one band,
-`--page-hero-height` tall with a 36rem minimum. On the left, inside the shell
+The page keeps the shell header and footer. Below the header there is one band
+that fills the viewport below the header (`100svh - --header-height`, at least
+36rem). It is not capped like `--page-hero-height` (750px from 1536px), which
+left a white gap above the footer on tall screens (product owner,
+2026-10-19). On the left, inside the shell
 container, is the blue column (about 17rem, scrolling inside itself) with the
 page `h1` at its top: Figma has no `h1`, but the page needs one. The map fills
 the rest of the band out to the viewport edge. The panel floats over the right

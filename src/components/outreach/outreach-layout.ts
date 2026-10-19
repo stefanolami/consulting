@@ -11,9 +11,11 @@ export const DESKTOP_QUERY = '(min-width: 64rem)'
 // regions); from `lg` the blue column holds the title and regions, the map
 // fills the rest of the band to the viewport edge, and the summary floats over
 // the map's right side. The column lines up with the header's 90rem container.
+// From `lg` the band fills the viewport below the header (at least 36rem), with
+// no cap, unlike the page heroes' --page-hero-height.
 export const BAND_CLASS = [
 	'grid grid-cols-1 [grid-template-areas:"title"_"map"_"panel"_"nav"]',
-	'lg:h-[max(36rem,var(--page-hero-height))] lg:grid-cols-[17rem_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] lg:[grid-template-areas:"title_map"_"nav_map"]',
+	'lg:h-[max(36rem,calc(100svh-var(--header-height)))] lg:grid-cols-[17rem_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] lg:[grid-template-areas:"title_map"_"nav_map"]',
 	'lg:pl-[max(var(--spacing-gutter),calc((100%-90rem)/2+var(--spacing-gutter)))]',
 ].join(' ')
 
