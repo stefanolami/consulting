@@ -1979,7 +1979,12 @@ view would drop the regional context that the map gives at little cost.
   `requestAnimationFrame` loop interpolates rotation, centre, scale and anchor
   between the two frames and re-projects the paths on each frame. A new
   selection during a transition starts from the current state. Under reduced
-  motion the view changes instantly and the ripple is a static ring.
+  motion the view changes instantly and the ripple is a static ring. Because
+  the map also turns to each region's longitude, the move looks like a globe
+  rotating. A flat zoom (keeping the world view's central meridian) was
+  compared on 2026-10-19 and rejected by the product owner: it moves more
+  simply, but regions far from the centre come out squeezed and leaning
+  (South America, and more so Australia and New Zealand).
 - Dragging (added on 2026-10-16 at the product owner's request): a mouse or
   pen can drag the map. The drawing slides with a transform while the pointer
   moves and is re-projected once on release; a press that moves less than
