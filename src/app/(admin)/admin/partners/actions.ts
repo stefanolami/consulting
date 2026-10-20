@@ -6,6 +6,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
+import { optionalHttpUrl, optionalText, optionalUuid, requiredKey } from '@/lib/admin-schema.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
@@ -13,40 +14,32 @@ import { createClient } from '@/lib/supabase/server'
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
 const statuses = ['draft', 'scheduled', 'published', 'archived'] as const
 const entityKinds = ['partners', 'endorsements'] as const
-const stableKey = z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers and hyphens only.')
-const optionalText = (maximum: number) => z.string().trim().max(maximum).optional().transform((value) => value || null)
-const optionalUuid = z.string().uuid().optional().transform((value) => value || null)
-const httpUrl = z.string().trim().max(2_048).superRefine((value, context) => {
-	try {
-		const protocol = new URL(value).protocol
-		if (protocol !== 'http:' && protocol !== 'https:') context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' })
-	} catch { context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' }) }
-})
+const stableKey = requiredKey
 
 const partnerDetailsSchema = z.object({
-	partnerId: z.string().uuid().optional(),
+	partnerId: optionalUuid,
 	stableKey,
 	name: z.string().trim().min(2).max(200),
-	websiteUrl: optionalText(2_048).refine((value) => value === null || httpUrl.safeParse(value).success, 'Enter a complete http or https website URL.'),
+	websiteUrl: optionalHttpUrl('Enter a complete http or https website URL.'),
 	displayOrder: z.coerce.number().int().min(0).max(100_000),
 	logoMediaId: optionalUuid,
 	englishAltText: optionalText(320),
 })
 
 const partnerTranslationSchema = z.object({
-	partnerId: z.string().uuid().optional(), locale: z.enum(locales), altText: optionalText(320),
+	partnerId: optionalUuid, locale: z.enum(locales), altText: optionalText(320),
 	description: optionalText(2_000), status: z.enum(statuses), scheduledFor: optionalText(64),
 })
 
 const endorsementDetailsSchema = z.object({
-	endorsementId: z.string().uuid().optional(), stableKey,
+	endorsementId: optionalUuid, stableKey,
 	attributionName: z.string().trim().min(2).max(200), partnerId: optionalUuid,
 	portraitMediaId: optionalUuid, portraitAltText: optionalText(320),
 	displayOrder: z.coerce.number().int().min(0).max(100_000),
 })
 
 const endorsementTranslationSchema = z.object({
-	endorsementId: z.string().uuid().optional(), locale: z.enum(locales),
+	endorsementId: optionalUuid, locale: z.enum(locales),
 	quote: z.string().trim().min(3).max(5_000), attributionTitle: optionalText(320),
 	portraitAltText: optionalText(320), status: z.enum(statuses), scheduledFor: optionalText(64),
 })
@@ -67,37 +60,37 @@ function publication(status: (typeof statuses)[number], scheduledFor: string | n
 
 function partnerDetails(formData: FormData, includeId = true) {
 	return partnerDetailsSchema.parse({
-		partnerId: includeId ? formData.get('partnerId') || undefined : undefined,
-		stableKey: formData.get('stableKey'), name: formData.get('name'), websiteUrl: formData.get('websiteUrl') || undefined,
-		displayOrder: formData.get('displayOrder'), logoMediaId: formData.get('logoMediaId') || undefined,
-		englishAltText: formData.get('englishAltText') || undefined,
+		partnerId: includeId ? formData.get('partnerId') : undefined,
+		stableKey: formData.get('stableKey'), name: formData.get('name'), websiteUrl: formData.get('websiteUrl'),
+		displayOrder: formData.get('displayOrder'), logoMediaId: formData.get('logoMediaId'),
+		englishAltText: formData.get('englishAltText'),
 	})
 }
 
 function partnerTranslation(formData: FormData, includeId = true) {
 	const parsed = partnerTranslationSchema.parse({
-		partnerId: includeId ? formData.get('partnerId') || undefined : undefined, locale: formData.get('locale'),
-		altText: formData.get('altText') || undefined, description: formData.get('description') || undefined,
-		status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined,
+		partnerId: includeId ? formData.get('partnerId') : undefined, locale: formData.get('locale'),
+		altText: formData.get('altText'), description: formData.get('description'),
+		status: formData.get('status'), scheduledFor: formData.get('scheduledFor'),
 	})
 	return { ...parsed, ...publication(parsed.status, parsed.scheduledFor) }
 }
 
 function endorsementDetails(formData: FormData, includeId = true) {
 	return endorsementDetailsSchema.parse({
-		endorsementId: includeId ? formData.get('endorsementId') || undefined : undefined,
+		endorsementId: includeId ? formData.get('endorsementId') : undefined,
 		stableKey: formData.get('stableKey'), attributionName: formData.get('attributionName'),
-		partnerId: formData.get('partnerId') || undefined, portraitMediaId: formData.get('portraitMediaId') || undefined,
-		portraitAltText: formData.get('portraitAltText') || undefined, displayOrder: formData.get('displayOrder'),
+		partnerId: formData.get('partnerId'), portraitMediaId: formData.get('portraitMediaId'),
+		portraitAltText: formData.get('portraitAltText'), displayOrder: formData.get('displayOrder'),
 	})
 }
 
 function endorsementTranslation(formData: FormData, includeId = true) {
 	const parsed = endorsementTranslationSchema.parse({
-		endorsementId: includeId ? formData.get('endorsementId') || undefined : undefined, locale: formData.get('locale'),
-		quote: formData.get('quote'), attributionTitle: formData.get('attributionTitle') || undefined,
-		portraitAltText: formData.get('portraitAltText') || undefined, status: formData.get('status'),
-		scheduledFor: formData.get('scheduledFor') || undefined,
+		endorsementId: includeId ? formData.get('endorsementId') : undefined, locale: formData.get('locale'),
+		quote: formData.get('quote'), attributionTitle: formData.get('attributionTitle'),
+		portraitAltText: formData.get('portraitAltText'), status: formData.get('status'),
+		scheduledFor: formData.get('scheduledFor'),
 	})
 	return { ...parsed, ...publication(parsed.status, parsed.scheduledFor) }
 }

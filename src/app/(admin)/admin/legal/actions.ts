@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { routing } from '@/i18n/routing'
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
+import { optionalText } from '@/lib/admin-schema.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { PUBLIC_LEGAL_CACHE_TAG } from '@/lib/cache-tags'
 import { safeParseLegalDocument } from '@/lib/legal-document.mjs'
@@ -23,17 +24,17 @@ export type LegalSavedTranslation = {
 }
 
 const statuses = ['draft', 'scheduled', 'published', 'archived'] as const
-const optionalText = (maximum: number, label: string) => z.string().trim().max(maximum, `${label} must be ${maximum} characters or fewer.`).optional().transform((value) => value || null)
+const labelledText = (maximum: number, label: string) => optionalText(maximum, `${label} must be ${maximum} characters or fewer.`)
 
 const translationSchema = z.object({
 	stableKey: z.enum(LEGAL_PAGE_KEYS, 'Unknown legal page.'),
 	locale: z.enum(routing.locales),
 	title: z.string().trim().min(1, 'Enter a page title.').max(160, 'The title must be 160 characters or fewer.'),
-	lastUpdatedOn: z.string().trim().optional().transform((value) => value || null),
-	seoTitle: optionalText(160, 'The SEO title'),
-	seoDescription: optionalText(320, 'The SEO description'),
+	lastUpdatedOn: optionalText(64),
+	seoTitle: labelledText(160, 'The SEO title'),
+	seoDescription: labelledText(320, 'The SEO description'),
 	status: z.enum(statuses, 'Choose a publication status.'),
-	scheduledFor: z.string().trim().optional().transform((value) => value || null),
+	scheduledFor: optionalText(64),
 })
 
 // A calendar date (`YYYY-MM-DD`) that exists, on or after the column's lower
@@ -52,11 +53,11 @@ function translationFromForm(formData: FormData) {
 		stableKey: formData.get('stableKey'),
 		locale: formData.get('locale'),
 		title: formData.get('title'),
-		lastUpdatedOn: formData.get('lastUpdatedOn') || undefined,
-		seoTitle: formData.get('seoTitle') || undefined,
-		seoDescription: formData.get('seoDescription') || undefined,
+		lastUpdatedOn: formData.get('lastUpdatedOn'),
+		seoTitle: formData.get('seoTitle'),
+		seoDescription: formData.get('seoDescription'),
 		status: formData.get('status'),
-		scheduledFor: formData.get('scheduledFor') || undefined,
+		scheduledFor: formData.get('scheduledFor'),
 	})
 	const lastUpdatedOn = parseLastUpdated(data.lastUpdatedOn)
 	// The database requires the date to publish; a scheduled translation needs

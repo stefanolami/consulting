@@ -8,9 +8,14 @@ export declare function createRichTextRules(options: {
 	unsupportedBlockMessage: string
 	allowHardBreak?: boolean
 	linkIssue?: (href: string) => string | null
+	listDepthMessage?: string
 }): {
 	validateBlock: (value: unknown, depth?: number) => RichTextNode
 	validateInline: (value: unknown) => RichTextNode
 }
+
+export declare const BLOCK_LABELS: Record<string, string>
+
+export declare function validateBlocks<T>(blocks: readonly unknown[], validateBlock: (value: unknown) => T): T[]
 
 export declare function validationMessage(error: unknown): string

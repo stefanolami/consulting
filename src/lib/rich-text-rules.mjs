@@ -1,5 +1,5 @@
-// Controlled rich-text rules shared by the catalogue contract
-// (catalogue-document.ts) and the legal document contract
+// Controlled rich-text rules shared by the catalogue and article contracts
+// (rich-text-contracts.mjs) and the legal document contract
 // (legal-document.mjs). Plain JavaScript with a `.d.mts` declaration so the
 // node:test suites and the seed scripts can import it directly. The catalogue
 // options reproduce the original catalogue validator exactly; the legal
@@ -23,9 +23,9 @@ export function httpLinkIssue(href) {
  * Builds the inline and block validators. Each returns the normalized node or
  * throws (a ZodError, or an Error for depth and unsupported blocks).
  *
- * @param {{ unsupportedBlockMessage: string; allowHardBreak?: boolean; linkIssue?: (href: string) => string | null }} options
+ * @param {{ unsupportedBlockMessage: string; allowHardBreak?: boolean; linkIssue?: (href: string) => string | null; listDepthMessage?: string }} options
  */
-export function createRichTextRules({ unsupportedBlockMessage, allowHardBreak = false, linkIssue = httpLinkIssue }) {
+export function createRichTextRules({ unsupportedBlockMessage, allowHardBreak = false, linkIssue = httpLinkIssue, listDepthMessage = 'Rich-text lists may be nested only three levels deep.' }) {
 	const linkSchema = z
 		.object({ href: z.string().trim().max(2_048) })
 		.strict()
@@ -50,9 +50,10 @@ export function createRichTextRules({ unsupportedBlockMessage, allowHardBreak = 
 	}
 
 	function validateBlock(value, depth = 0) {
-		if (depth > MAX_LIST_DEPTH) throw new Error('Rich-text lists may be nested only three levels deep.')
+		if (depth > MAX_LIST_DEPTH) throw new Error(listDepthMessage)
 		const node = z.object({ type: z.string(), attrs: z.unknown().optional(), content: z.array(z.unknown()).optional() }).strict().parse(value)
 		if (node.type === 'paragraph' || node.type === 'heading' || node.type === 'blockquote') {
+			if (node.type === 'blockquote' && (node.content ?? []).some((child) => child && typeof child === 'object' && child.type !== 'text' && child.type !== 'hardBreak')) throw new Error(QUOTATION_MESSAGE)
 			const content = (node.content ?? []).map(validateInline)
 			if (node.type === 'heading') {
 				const level = z.object({ level: z.union([z.literal(2), z.literal(3)]) }).strict().parse(node.attrs).level
@@ -75,6 +76,27 @@ export function createRichTextRules({ unsupportedBlockMessage, allowHardBreak = 
 	}
 
 	return { validateBlock, validateInline }
+}
+
+const QUOTATION_MESSAGE = 'A quotation may contain only text. Move lists and headings out of the quotation.'
+
+/** How errors name each top-level block type. */
+export const BLOCK_LABELS = { articleImage: 'image', blockquote: 'quotation', bulletList: 'bulleted list', heading: 'heading', orderedList: 'numbered list', paragraph: 'paragraph' }
+
+/**
+ * Validates the top-level blocks of a document with `validateBlock`. A failure
+ * throws an Error that names the block, such as "Block 3 (numbered list):
+ * Links must use http or https URLs."
+ */
+export function validateBlocks(blocks, validateBlock) {
+	return blocks.map((block, index) => {
+		try {
+			return validateBlock(block)
+		} catch (error) {
+			const type = block && typeof block === 'object' ? BLOCK_LABELS[block.type] : undefined
+			throw new Error(`Block ${index + 1}${type ? ` (${type})` : ''}: ${validationMessage(error)}`)
+		}
+	})
 }
 
 /** The first readable message of a validation failure (ZodError or Error). */

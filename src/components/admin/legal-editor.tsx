@@ -7,7 +7,7 @@ import { deleteLegalTranslationAction, saveLegalTranslationAction } from '@/app/
 import { AdminForm, CommandButton, CommandNotice, Field, FieldGroup, FormActions, useAdminCommand, useAdminForm } from '@/components/admin/form/admin-form'
 import { StatusSelect } from '@/components/admin/form/controls'
 import { LOCALE_NAMES, LocaleTabs, useLocaleStatuses } from '@/components/admin/form/locale-tabs'
-import { LegalRichTextEditor } from '@/components/admin/legal-rich-text-editor'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import type { LegalStatus } from '@/components/admin/legal-status'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -122,14 +122,17 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 				<Field className="md:col-span-2" label="Page title" name="title" required>
 					<Input maxLength={160} name="title" onChange={(event) => setTitle(event.target.value)} value={title} />
 				</Field>
-				<FieldGroup className="md:col-span-2" hint={<>Section headings, paragraphs, bold, italic, lists, line breaks (Shift+Enter) and links. Link to other pages of this website with a path such as <code>/privacy-policy</code>; visitors stay in their language.</>} id={fieldId('content')} label="Page text" name="content">
-					<LegalRichTextEditor
+				<FieldGroup className="md:col-span-2" hint={<>Section headings, paragraphs, bold, italic, lists, quotations, line breaks (Shift+Enter) and links. Link to other pages of this website with a path such as <code>/privacy-policy</code>; visitors stay in their language.</>} id={fieldId('content')} label="Page text" name="content">
+					<RichTextEditor
 						describedBy={[`${fieldId('content')}-hint`, contentInvalid ? `${fieldId('content')}-error` : null].filter(Boolean).join(' ')}
 						id={`${fieldId('content')}-editor`}
 						initialValue={(exists ? translation?.content : undefined) ?? emptyLegalDocument()}
 						invalid={contentInvalid}
+						height="tall"
 						key={editorKey}
+						kind="legal"
 						label={`${LOCALE_NAMES[locale]} page text`}
+						name="content"
 					/>
 				</FieldGroup>
 				<Field label="Publication status" name="status">

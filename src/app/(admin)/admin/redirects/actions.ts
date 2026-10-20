@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
+import { optional, optionalUuid } from '@/lib/admin-schema.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { createClient } from '@/lib/supabase/server'
 
@@ -24,10 +25,10 @@ const destinationPath = z.string().trim().min(1).max(2_048).superRefine((value, 
 		if (url.username || url.password) context.addIssue({ code: 'custom', message: 'External destinations cannot contain credentials.' })
 	} catch { context.addIssue({ code: 'custom', message: 'Use an internal path or complete HTTPS URL.' }) }
 })
-const redirectSchema = z.object({ id: z.string().uuid().optional(), locale: z.union([z.enum(locales), z.literal('')]).transform((value) => value || null), sourcePath, destinationPath, statusCode: z.coerce.number().refine((value): value is 301 | 308 => value === 301 || value === 308, 'Use a permanent 301 or 308 redirect.') })
+const redirectSchema = z.object({ id: optionalUuid, locale: optional(z.enum(locales)), sourcePath, destinationPath, statusCode: z.coerce.number().refine((value): value is 301 | 308 => value === 301 || value === 308, 'Use a permanent 301 or 308 redirect.') })
 
 function fromForm(formData: FormData, includeId = true) {
-	const parsed = redirectSchema.parse({ id: includeId ? formData.get('id') || undefined : undefined, locale: formData.get('locale') || '', sourcePath: formData.get('sourcePath'), destinationPath: formData.get('destinationPath'), statusCode: formData.get('statusCode') })
+	const parsed = redirectSchema.parse({ id: includeId ? formData.get('id') : undefined, locale: formData.get('locale'), sourcePath: formData.get('sourcePath'), destinationPath: formData.get('destinationPath'), statusCode: formData.get('statusCode') })
 	if (parsed.destinationPath.startsWith('/') && parsed.sourcePath === parsed.destinationPath) throw new FieldError('destinationPath', 'The source and destination cannot be the same.')
 	return parsed
 }

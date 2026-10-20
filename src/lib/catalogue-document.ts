@@ -1,16 +1,11 @@
-import { z } from 'zod'
-
-import { createRichTextRules } from '@/lib/rich-text-rules.mjs'
+import { parseCatalogueRichText } from '@/lib/rich-text-contracts.mjs'
 import type { Json } from '@/types/database.generated'
 
-// The catalogue rules live in rich-text-rules.mjs so the legal document
-// contract reuses them (platform doc §11.4); these options reproduce the
-// catalogue contract unchanged.
-const { validateBlock } = createRichTextRules({ unsupportedBlockMessage: 'The catalogue body contains an unsupported rich-text block.' })
-
+// The catalogue contract lives in rich-text-contracts.mjs, on the rules it
+// shares with the article and legal contracts (rich-text-rules.mjs). Errors
+// name the failing block.
 export function parseCatalogueDocument(value: unknown): Json {
-	const document = z.object({ type: z.literal('doc'), content: z.array(z.unknown()).max(200) }).strict().parse(value)
-	return { type: 'doc', content: document.content.map((block) => validateBlock(block)) as Json[] }
+	return parseCatalogueRichText(value) as unknown as Json
 }
 
 /** Whether a stored body has any visible text, so empty bodies skip their section. */

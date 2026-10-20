@@ -604,6 +604,16 @@ strict validator rejects unknown attributes, nested image nodes, direct image
 URLs, HTML, CSS, classes, and dimensions. Links remain limited to complete
 `http` and `https` URLs.
 
+Every admin rich-text field uses one editor configured per contract
+(`src/components/admin/rich-text-editor.tsx`, audit slice 2 in
+[`docs/admin-audit.md`](./admin-audit.md) X-04). It stores
+`fromEditorDocument(editor.getJSON())` (`src/lib/editor-document.mjs`): links
+keep only `href`, ordered lists only `start`, and each paragraph of a TipTap
+quotation becomes a quotation of text, which is what the contracts store. The
+catalogue, article and profile contracts are in
+`src/lib/rich-text-contracts.mjs`; their errors name the failing block.
+`npm run rich-text:validate` checks every stored document read-only.
+
 The admin editor selects image assets from the managed media library. Server
 validation verifies that every referenced UUID exists, has an image MIME type,
 and is public before a translation can be published or scheduled. The public
@@ -1727,15 +1737,17 @@ the contact form notice already linked to them.
   pages, each with per-locale status and a warning when the page is switched
   off or English is not published; no create, delete or archive-page
   control. The editor has locale tabs (arrow keys, Home and End), title, the
-  TipTap editor (`legal-rich-text-editor.tsx`: bold, italic, section heading,
+  TipTap editor (since audit slice 2 the shared `rich-text-editor.tsx` with the
+  legal configuration: bold, italic, section heading,
   subheading, lists, line break with Shift+Enter, and a link dialog that
   accepts site paths such as `/cookie-use` and explains why it refuses
   language prefixes, `javascript:` and `mailto:`), status, the "Last
   updated" date (required to publish or schedule; today is suggested, with a
   Today button), schedule time, SEO title and description, and an admin-only
-  "Delete translation" with a confirmation. Quotations are not offered:
-  TipTap nests paragraphs in them, which the shared contract rejects, and the
-  legal texts use none. The editor removes TipTap's editor-only attributes
+  "Delete translation" with a confirmation. Quotations were not offered at
+  first, because TipTap nests paragraphs in them; since audit slice 2 the
+  shared admin editor stores each quoted paragraph as a quotation of text, so
+  Legal offers them too. The editor removes TipTap's editor-only attributes
   before saving. The Server Actions (`src/app/(admin)/admin/legal/actions.ts`)
   call `requireActiveStaff`, validate with the shared validator, return
   field-level errors that move focus to the field, never send `created_by`

@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
+import { optionalText } from '@/lib/admin-schema.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_GLOBAL_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG, PUBLIC_TEAM_CACHE_TAG } from '@/lib/cache-tags'
 import { MEDIA_BUCKET, mediaObjectPath, validateMediaFile } from '@/lib/media-library'
@@ -12,7 +13,6 @@ import { createClient } from '@/lib/supabase/server'
 
 const localeSchema = z.string().trim().regex(/^[a-z]{2}(?:-[A-Z]{2})?$/, 'Choose a valid locale.')
 const assetIdSchema = z.string().uuid('Choose a valid media asset.')
-const optionalText = (maximum: number) => z.string().trim().max(maximum).transform((value) => value || null)
 
 // The file checks in validateMediaFile describe the chosen file.
 async function fileField<T>(validate: () => Promise<T>) {
@@ -48,8 +48,8 @@ export async function uploadMediaAssetAction(formData: FormData): Promise<AdminA
 	return adminAction('Could not upload the media asset.', async () => {
 		const file = formData.get('file')
 		if (!(file instanceof File) || !file.size) throw new FieldError('file', 'Choose a file to upload.')
-		const altText = optionalText(320).parse(formData.get('altText') ?? '')
-		const caption = optionalText(2_000).parse(formData.get('caption') ?? '')
+		const altText = optionalText(320).parse(formData.get('altText'))
+		const caption = optionalText(2_000).parse(formData.get('caption'))
 		const { profile } = await requireActiveStaff()
 		const media = await fileField(() => validateMediaFile(file))
 		const path = mediaObjectPath(media.extension)
@@ -90,7 +90,7 @@ export async function saveMediaMetadataAction(formData: FormData): Promise<Admin
 
 export async function saveMediaTranslationAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not save localized media metadata.', async () => {
-		const parsed = z.object({ assetId: assetIdSchema, locale: localeSchema, altText: optionalText(320), caption: optionalText(2_000) }).parse({ assetId: formData.get('assetId'), locale: formData.get('locale'), altText: formData.get('altText') ?? '', caption: formData.get('caption') ?? '' })
+		const parsed = z.object({ assetId: assetIdSchema, locale: localeSchema, altText: optionalText(320), caption: optionalText(2_000) }).parse({ assetId: formData.get('assetId'), locale: formData.get('locale'), altText: formData.get('altText'), caption: formData.get('caption') })
 		await requireActiveStaff()
 		const supabase = await createClient()
 		const { data: locale, error: localeError } = await supabase.from('locales').select('code').eq('code', parsed.locale).eq('is_active', true).maybeSingle()

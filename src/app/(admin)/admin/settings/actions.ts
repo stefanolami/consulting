@@ -4,24 +4,17 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { adminAction, failed, FieldError, jsonField, succeeded, type AdminActionResult } from '@/lib/admin-action'
+import { callToActionSchema, httpUrl, optionalEmail, optionalText } from '@/lib/admin-schema.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 
-const optionalText = (maximum: number) => z.string().trim().max(maximum).optional().transform((value) => value || null)
-const webUrl = z.string().trim().max(2_048).superRefine((value, context) => {
-	try {
-		const url = new URL(value)
-		if (url.protocol !== 'http:' && url.protocol !== 'https:') context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' })
-	} catch { context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' }) }
-})
-const ctaHref = z.string().trim().max(2_048).refine((value) => value.startsWith('/') || webUrl.safeParse(value).success, 'Calls to action need an internal path or complete web URL.')
-const localeLabels = z.object({ en: z.string().trim().min(1).max(120), de: optionalText(120), it: optionalText(120), 'pt-BR': optionalText(120), 'pt-PT': optionalText(120) }).strict()
+const webUrl = httpUrl()
 const socialSchema = z.array(z.object({ platform: z.enum(['linkedin', 'instagram', 'facebook', 'youtube', 'x']), url: webUrl }).strict()).max(10)
-const ctaSchema = z.array(z.object({ key: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'CTA keys use lowercase letters, numbers and hyphens.'), href: ctaHref, labels: localeLabels }).strict()).max(30)
+const ctaSchema = z.array(callToActionSchema).max(30)
 // One schema, so every issue names the form field it belongs to.
 const settingsSchema = z.object({
-	email: optionalText(320).refine((value) => value === null || z.string().email().safeParse(value).success, 'Enter a valid contact email.'),
+	email: optionalEmail('Enter a valid contact email.'),
 	phone: optionalText(80), address: optionalText(2_000), footerNote: optionalText(500),
 	poeUrl: webUrl,
 	socialLinks: socialSchema,
@@ -31,7 +24,7 @@ const settingsSchema = z.object({
 export async function saveSiteSettingsAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not save site settings.', async () => {
 		const parsed = settingsSchema.parse({
-			email: formData.get('email') || undefined, phone: formData.get('phone') || undefined, address: formData.get('address') || undefined, footerNote: formData.get('footerNote') || undefined,
+			email: formData.get('email'), phone: formData.get('phone'), address: formData.get('address'), footerNote: formData.get('footerNote'),
 			poeUrl: formData.get('poeUrl'),
 			socialLinks: jsonField(formData, 'socialLinks', 'Social links'),
 			callsToAction: jsonField(formData, 'callsToAction', 'Calls to action'),

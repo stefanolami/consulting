@@ -1,0 +1,734 @@
+{
+	"_about": "editor.getJSON() output of the shared admin rich-text editor (TipTap 3.20), read in Chrome on 2026-10-20 after typing into each editor: a URL that TipTap linked while typing, a link added through the link dialog, a heading, a numbered list and a quotation where the contract allows them, and a line break in the profile. The catalogue document is the whole editor; the others keep only the blocks typed in that session (and the article's existing image block). Used by scripts/rich-text-contracts.test.mjs.",
+	"catalogue": {
+		"type": "doc",
+		"content": [
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "The EU Circular Economy Action Plan sets the frame for our work."
+					}
+				]
+			},
+			{
+				"type": "bulletList",
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Impacting regulatory market conditions"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Developing compliant business plans"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 check: read "
+					},
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://example.com/slice-2",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "https://example.com/slice-2"
+					},
+					{
+						"type": "text",
+						"text": " for details. "
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://www.timeandplace.example/about",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "Linked through the dialog"
+					}
+				]
+			},
+			{
+				"type": "heading",
+				"attrs": {
+					"level": 2
+				},
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 heading"
+					}
+				]
+			},
+			{
+				"type": "orderedList",
+				"attrs": {
+					"start": 1,
+					"type": null
+				},
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "First numbered item"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Second numbered item"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "blockquote",
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "A quotation for the slice 2 check."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Its second paragraph."
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "paragraph"
+			}
+		]
+	},
+	"article": {
+		"type": "doc",
+		"attrs": {
+			"schemaVersion": 2
+		},
+		"content": [
+			{
+				"type": "articleImage",
+				"attrs": {
+					"mediaId": "13d7ed0a-f265-4875-84ca-42bc89ba6624",
+					"alt": "Open office doors at Time&Place",
+					"caption": "Open office doors",
+					"layout": "content"
+				}
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 check: read "
+					},
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://example.com/slice-2",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "https://example.com/slice-2"
+					},
+					{
+						"type": "text",
+						"text": " for details. "
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://www.timeandplace.example/about",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "Linked through the dialog"
+					}
+				]
+			},
+			{
+				"type": "heading",
+				"attrs": {
+					"level": 2
+				},
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 heading"
+					}
+				]
+			},
+			{
+				"type": "orderedList",
+				"attrs": {
+					"start": 1,
+					"type": null
+				},
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "First numbered item"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Second numbered item"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "blockquote",
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "A quotation for the slice 2 check."
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "paragraph"
+			}
+		]
+	},
+	"profile": {
+		"type": "doc",
+		"content": [
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 check: read "
+					},
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://example.com/slice-2",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "https://example.com/slice-2"
+					},
+					{
+						"type": "text",
+						"text": " for details. "
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://www.timeandplace.example/about",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "Linked through the dialog"
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "hardBreak"
+					},
+					{
+						"type": "text",
+						"text": "after a line break"
+					}
+				]
+			},
+			{
+				"type": "orderedList",
+				"attrs": {
+					"start": 1,
+					"type": null
+				},
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "First numbered item"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Second numbered item"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "paragraph"
+			}
+		]
+	},
+	"country": {
+		"type": "doc",
+		"content": [
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 check: read "
+					},
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://example.com/slice-2",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "https://example.com/slice-2"
+					},
+					{
+						"type": "text",
+						"text": " for details. "
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://www.timeandplace.example/about",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "Linked through the dialog"
+					}
+				]
+			},
+			{
+				"type": "heading",
+				"attrs": {
+					"level": 2
+				},
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 heading"
+					}
+				]
+			},
+			{
+				"type": "orderedList",
+				"attrs": {
+					"start": 1,
+					"type": null
+				},
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "First numbered item"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Second numbered item"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "blockquote",
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "A quotation for the slice 2 check."
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "paragraph"
+			}
+		]
+	},
+	"countryServiceCopy": {
+		"type": "doc",
+		"content": [
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Service copy with "
+					},
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://example.com/research",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "https://example.com/research"
+					},
+					{
+						"type": "text",
+						"text": " linked. "
+					}
+				]
+			},
+			{
+				"type": "orderedList",
+				"attrs": {
+					"start": 1,
+					"type": null
+				},
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Step one"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Step two"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "paragraph"
+			}
+		]
+	},
+	"legal": {
+		"type": "doc",
+		"attrs": {
+			"schemaVersion": 1
+		},
+		"content": [
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 check: read "
+					},
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "https://example.com/slice-2",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "https://example.com/slice-2"
+					},
+					{
+						"type": "text",
+						"text": " for details. "
+					}
+				]
+			},
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"marks": [
+							{
+								"type": "link",
+								"attrs": {
+									"href": "/cookie-use",
+									"target": null,
+									"rel": null,
+									"class": null,
+									"title": null
+								}
+							}
+						],
+						"text": "See the cookie notice"
+					}
+				]
+			},
+			{
+				"type": "heading",
+				"attrs": {
+					"level": 2
+				},
+				"content": [
+					{
+						"type": "text",
+						"text": "Slice 2 heading"
+					}
+				]
+			},
+			{
+				"type": "orderedList",
+				"attrs": {
+					"start": 1,
+					"type": null
+				},
+				"content": [
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "First numbered item"
+									}
+								]
+							}
+						]
+					},
+					{
+						"type": "listItem",
+						"content": [
+							{
+								"type": "paragraph",
+								"content": [
+									{
+										"type": "text",
+										"text": "Second numbered item"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "blockquote",
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "A quotation for the slice 2 check."
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "paragraph"
+			}
+		]
+	}
+}

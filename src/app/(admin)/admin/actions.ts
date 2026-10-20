@@ -7,7 +7,9 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { adminAction, documentField, failed, FieldError, jsonField, succeeded, type AdminActionResult } from '@/lib/admin-action'
+import { countryServiceAssignmentSchema, countryServiceCopySchema, countryStatisticLabelSchema, countryStatisticSchema, httpUrl, optional, optionalEmail, optionalHttpUrl, optionalNumber, optionalText, optionalUuid, profileRoleSchema, requiredKey } from '@/lib/admin-schema.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
+import { validationMessage } from '@/lib/rich-text-rules.mjs'
 import { parseProfileDocument } from '@/lib/team-profile-document'
 import { parseCatalogueDocument } from '@/lib/catalogue-document'
 import { articleImageMediaIds, parseArticleDocument } from '@/lib/article-document'
@@ -17,25 +19,16 @@ import { teamPath } from '@/lib/team-paths'
 
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
 
-const optionalText = (maximum: number) => z.string().trim().max(maximum).optional().transform((value) => value || null)
-const requiredKey = z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers and hyphens only.')
-
 const sharedProfileFields = {
 	displayName: z.string().trim().min(2).max(160),
 	stableKey: requiredKey,
-	email: optionalText(320).refine((value) => value === null || z.string().email().safeParse(value).success, 'Enter a valid email address.'),
+	email: optionalEmail(),
 	phone: optionalText(80),
 	displayOrder: z.coerce.number().int().min(0).max(100_000),
 	teamGroup: z.enum(['managing_team', 'team']),
 }
 const sharedProfileSchema = z.object(sharedProfileFields)
 
-const profileRoleSchema = z.object({
-	id: z.string().uuid().optional(),
-	title: z.string().trim().min(1).max(160),
-	cardLabel: optionalText(100),
-	isCardRole: z.boolean(),
-})
 const profileRolesSchema = z.array(profileRoleSchema).min(1, 'Add at least one role.').max(10)
 
 const translationSchema = z.object({
@@ -118,12 +111,12 @@ export async function createPersonAction(formData: FormData): Promise<AdminActio
 	return adminAction('Could not create the profile.', async () => {
 		const parsed = newProfileSchema.parse({
 			displayName: formData.get('displayName'), stableKey: formData.get('stableKey'),
-			email: formData.get('email') || undefined, phone: formData.get('phone') || undefined,
+			email: formData.get('email'), phone: formData.get('phone'),
 			displayOrder: formData.get('displayOrder'), teamGroup: formData.get('teamGroup'),
-			slug: formData.get('slug'), cardName: formData.get('cardName') || undefined,
+			slug: formData.get('slug'), cardName: formData.get('cardName'),
 			roles: jsonField(formData, 'roles', 'Roles'), profileDocument: jsonField(formData, 'profileDocument', 'The profile document'),
-			portraitAltText: formData.get('portraitAltText') || undefined, seoTitle: formData.get('seoTitle') || undefined,
-			seoDescription: formData.get('seoDescription') || undefined, status: formData.get('status'),
+			portraitAltText: formData.get('portraitAltText'), seoTitle: formData.get('seoTitle'),
+			seoDescription: formData.get('seoDescription'), status: formData.get('status'),
 		})
 		const roles = cardRoles(parsed.roles)
 		const profileDocument = documentField('profileDocument', () => parseProfileDocument(parsed.profileDocument))
@@ -181,8 +174,8 @@ export async function createPersonAction(formData: FormData): Promise<AdminActio
 export async function updatePersonAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not save the profile.', async () => {
 		const parsed = sharedProfileSchema.parse({
-			displayName: formData.get('displayName'), stableKey: formData.get('stableKey'), email: formData.get('email') || undefined,
-			phone: formData.get('phone') || undefined, displayOrder: formData.get('displayOrder'), teamGroup: formData.get('teamGroup'),
+			displayName: formData.get('displayName'), stableKey: formData.get('stableKey'), email: formData.get('email'),
+			phone: formData.get('phone'), displayOrder: formData.get('displayOrder'), teamGroup: formData.get('teamGroup'),
 		})
 		const personId = z.string().uuid().parse(formData.get('personId'))
 		const { profile } = await requireActiveStaff()
@@ -201,10 +194,10 @@ export async function updatePersonAction(formData: FormData): Promise<AdminActio
 export async function savePersonTranslationAction(formData: FormData): Promise<AdminActionResult<{ status: 'draft' | 'published' | 'archived' }>> {
 	return adminAction('Could not save the translation.', async () => {
 		const parsed = translationSchema.parse({
-			personId: formData.get('personId'), locale: formData.get('locale'), slug: formData.get('slug'), cardName: formData.get('cardName') || undefined,
+			personId: formData.get('personId'), locale: formData.get('locale'), slug: formData.get('slug'), cardName: formData.get('cardName'),
 			roles: jsonField(formData, 'roles', 'Roles'), profileDocument: jsonField(formData, 'profileDocument', 'The profile document'),
-			portraitAltText: formData.get('portraitAltText') || undefined, seoTitle: formData.get('seoTitle') || undefined,
-			seoDescription: formData.get('seoDescription') || undefined, status: formData.get('status'),
+			portraitAltText: formData.get('portraitAltText'), seoTitle: formData.get('seoTitle'),
+			seoDescription: formData.get('seoDescription'), status: formData.get('status'),
 		})
 		const roles = cardRoles(parsed.roles)
 		const profileDocument = documentField('profileDocument', () => parseProfileDocument(parsed.profileDocument))
@@ -309,10 +302,9 @@ type PublicationStatus = 'draft' | 'scheduled' | 'published' | 'archived'
 
 const catalogueKinds = ['services', 'sectors'] as const
 const catalogueStatuses = ['draft', 'scheduled', 'published', 'archived'] as const
-const optionalUuid = z.string().uuid().optional().transform((value) => value || null)
 const catalogueDetailsSchema = z.object({
 	kind: z.enum(catalogueKinds),
-	entryId: z.string().uuid().optional(),
+	entryId: optionalUuid,
 	stableKey: requiredKey,
 	displayOrder: z.coerce.number().int().min(0).max(100_000),
 	iconMediaId: optionalUuid,
@@ -321,7 +313,7 @@ const catalogueDetailsSchema = z.object({
 })
 const catalogueTranslationSchema = z.object({
 	kind: z.enum(catalogueKinds),
-	entryId: z.string().uuid().optional(),
+	entryId: optionalUuid,
 	locale: z.enum(locales),
 	slug: requiredKey,
 	name: z.string().trim().min(1, 'Enter a localized name.').max(160),
@@ -330,7 +322,7 @@ const catalogueTranslationSchema = z.object({
 	seoTitle: optionalText(160),
 	seoDescription: optionalText(320),
 	status: z.enum(catalogueStatuses),
-	scheduledFor: z.string().optional().transform((value) => value?.trim() || null),
+	scheduledFor: optionalText(64),
 	iconAltText: optionalText(320),
 })
 const catalogueIconSchema = z.object({
@@ -351,7 +343,7 @@ function detailsFromForm(formData: FormData, includeEntryId = true) {
 		entryId: includeEntryId ? formData.get('entryId') : undefined,
 		stableKey: formData.get('stableKey'),
 		displayOrder: formData.get('displayOrder'),
-		iconMediaId: formData.get('iconMediaId') || undefined,
+		iconMediaId: formData.get('iconMediaId'),
 		contactIds: jsonField(formData, 'contactIds', 'Contacts'),
 		articleIds: jsonField(formData, 'articleIds', 'Related articles'),
 	})
@@ -359,10 +351,10 @@ function detailsFromForm(formData: FormData, includeEntryId = true) {
 
 function translationFromForm(formData: FormData) {
 	const parsed = catalogueTranslationSchema.parse({
-		kind: formData.get('kind'), entryId: formData.get('entryId') || undefined, locale: formData.get('locale'), slug: formData.get('slug'),
-		name: formData.get('name'), summary: formData.get('summary') || undefined, content: jsonField(formData, 'content', 'The content'),
-		seoTitle: formData.get('seoTitle') || undefined, seoDescription: formData.get('seoDescription') || undefined,
-		status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined, iconAltText: formData.get('iconAltText') || undefined,
+		kind: formData.get('kind'), entryId: formData.get('entryId'), locale: formData.get('locale'), slug: formData.get('slug'),
+		name: formData.get('name'), summary: formData.get('summary'), content: jsonField(formData, 'content', 'The content'),
+		seoTitle: formData.get('seoTitle'), seoDescription: formData.get('seoDescription'),
+		status: formData.get('status'), scheduledFor: formData.get('scheduledFor'), iconAltText: formData.get('iconAltText'),
 	})
 	const scheduledFor = parsed.scheduledFor ? new Date(parsed.scheduledFor) : null
 	if (parsed.status === 'scheduled' && (!scheduledFor || Number.isNaN(scheduledFor.getTime()) || scheduledFor <= new Date())) {
@@ -577,22 +569,15 @@ export async function moveCatalogueAction(formData: FormData): Promise<AdminActi
 
 const outreachStatuses = ['draft', 'scheduled', 'published', 'archived'] as const
 const isoCountryCode = z.string().trim().regex(/^[A-Za-z]{2}$/, 'Use a two-letter ISO 3166-1 alpha-2 country code.').transform((value) => value.toUpperCase())
-const optionalNumber = z.union([z.number(), z.string()]).optional().transform((value) => value === undefined || value === '' ? null : Number(value))
 const outreachMapConfig = z.object({
 	mapLongitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -180 && value <= 180), 'Map longitude must be between -180 and 180.'),
 	mapLatitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -90 && value <= 90), 'Map latitude must be between -90 and 90.'),
 	mapZoom: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value > 0 && value <= 10), 'Map zoom must be greater than 0 and no more than 10.'),
 })
-const outreachUrl = z.string().trim().max(2_048).superRefine((value, context) => {
-	try {
-		const protocol = new URL(value).protocol
-		if (protocol !== 'http:' && protocol !== 'https:') context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' })
-	} catch { context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' }) }
-})
 const outreachItemLabels = { serviceAssignments: 'Service', statistics: 'Statistic', serviceCopies: 'Service copy', statisticLabels: 'Statistic label', expertIds: 'Expert', officeIds: 'Office' }
 
 function mapConfigFromForm(formData: FormData) {
-	const parsed = outreachMapConfig.parse({ mapLongitude: formData.get('mapLongitude') || undefined, mapLatitude: formData.get('mapLatitude') || undefined, mapZoom: formData.get('mapZoom') || undefined })
+	const parsed = outreachMapConfig.parse({ mapLongitude: formData.get('mapLongitude'), mapLatitude: formData.get('mapLatitude'), mapZoom: formData.get('mapZoom') })
 	if ((parsed.mapLongitude === null) !== (parsed.mapLatitude === null)) throw new FieldError(parsed.mapLongitude === null ? 'mapLongitude' : 'mapLatitude', 'Provide both map longitude and latitude, or leave both empty.')
 	if (parsed.mapZoom !== null && parsed.mapLongitude === null) throw new FieldError('mapZoom', 'Map zoom requires a map longitude and latitude.')
 	return parsed.mapLongitude === null ? {} : { coordinates: [parsed.mapLongitude, parsed.mapLatitude], ...(parsed.mapZoom === null ? {} : { zoom: parsed.mapZoom }) }
@@ -622,14 +607,14 @@ async function refreshOutreachPaths(supabase: Awaited<ReturnType<typeof createCl
 	}
 }
 
-const regionDetailsSchema = z.object({ regionId: z.string().uuid().optional(), stableKey: requiredKey, displayOrder: z.coerce.number().int().min(0).max(100_000) })
-const regionTranslationSchema = z.object({ regionId: z.string().uuid().optional(), locale: z.enum(locales), slug: requiredKey, name: z.string().trim().min(1).max(160), status: z.enum(outreachStatuses), scheduledFor: optionalText(64) })
+const regionDetailsSchema = z.object({ regionId: optionalUuid, stableKey: requiredKey, displayOrder: z.coerce.number().int().min(0).max(100_000) })
+const regionTranslationSchema = z.object({ regionId: optionalUuid, locale: z.enum(locales), slug: requiredKey, name: z.string().trim().min(1).max(160), status: z.enum(outreachStatuses), scheduledFor: optionalText(64) })
 
 function regionDetailsFromForm(formData: FormData, includeId = true) {
-	return { ...regionDetailsSchema.parse({ regionId: includeId ? formData.get('regionId') || undefined : undefined, stableKey: formData.get('stableKey'), displayOrder: formData.get('displayOrder') }), mapConfig: mapConfigFromForm(formData) }
+	return { ...regionDetailsSchema.parse({ regionId: includeId ? formData.get('regionId') : undefined, stableKey: formData.get('stableKey'), displayOrder: formData.get('displayOrder') }), mapConfig: mapConfigFromForm(formData) }
 }
 function regionTranslationFromForm(formData: FormData, includeId = true) {
-	const parsed = regionTranslationSchema.parse({ regionId: includeId ? formData.get('regionId') || undefined : undefined, locale: formData.get('locale'), slug: formData.get('slug'), name: formData.get('name'), status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined })
+	const parsed = regionTranslationSchema.parse({ regionId: includeId ? formData.get('regionId') : undefined, locale: formData.get('locale'), slug: formData.get('slug'), name: formData.get('name'), status: formData.get('status'), scheduledFor: formData.get('scheduledFor') })
 	return { ...parsed, ...outreachPublication(parsed.status, parsed.scheduledFor) }
 }
 
@@ -674,19 +659,19 @@ export async function setRegionArchivedAction(formData: FormData): Promise<Admin
 
 const countryDetailsSchema = z.object({
 	countryCode: isoCountryCode, regionId: optionalUuid, isCovered: z.boolean(), displayOrder: z.coerce.number().int().min(0).max(100_000), lastReviewedOn: optionalText(10).refine((value) => value === null || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Use a valid review date.'), flagMediaId: optionalUuid, outlineMediaId: optionalUuid,
-	serviceAssignments: z.array(z.object({ serviceId: z.string().uuid(), coverageLevel: optionalText(120) }).strict()).max(100), expertIds: z.array(z.string().uuid()).max(50), officeIds: z.array(z.string().uuid()).max(100),
-	statistics: z.array(z.object({ id: z.string().uuid().optional(), metricKey: requiredKey, numericValue: optionalNumber.refine((value) => value === null || Number.isFinite(value), 'Statistic value must be a number.'), unit: optionalText(120), statisticYear: optionalNumber.refine((value) => value === null || (Number.isInteger(value) && value >= 1900 && value <= 2200), 'Statistic year must be between 1900 and 2200.'), sourceUrl: optionalText(2_048).refine((value) => value === null || outreachUrl.safeParse(value).success, 'Use a complete http or https source URL.'), displayOrder: z.coerce.number().int().min(0).max(100_000) }).strict()).max(100),
+	serviceAssignments: z.array(countryServiceAssignmentSchema).max(100), expertIds: z.array(z.string().uuid()).max(50), officeIds: z.array(z.string().uuid()).max(100),
+	statistics: z.array(countryStatisticSchema).max(100),
 })
-const countryTranslationSchema = z.object({ countryCode: isoCountryCode, locale: z.enum(locales), slug: requiredKey, name: z.string().trim().min(1).max(160), summary: optionalText(2_000), coverageSummary: optionalText(2_000), content: z.unknown(), seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(outreachStatuses), scheduledFor: optionalText(64), flagAltText: optionalText(320), outlineAltText: optionalText(320), serviceCopies: z.array(z.object({ serviceId: z.string().uuid(), summary: optionalText(2_000), content: z.unknown() }).strict()).max(100), statisticLabels: z.array(z.object({ statisticId: z.string().uuid(), label: z.string().trim().min(1).max(160), displayValue: optionalText(320) }).strict()).max(100) })
+const countryTranslationSchema = z.object({ countryCode: isoCountryCode, locale: z.enum(locales), slug: requiredKey, name: z.string().trim().min(1).max(160), summary: optionalText(2_000), coverageSummary: optionalText(2_000), content: z.unknown(), seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(outreachStatuses), scheduledFor: optionalText(64), flagAltText: optionalText(320), outlineAltText: optionalText(320), serviceCopies: z.array(countryServiceCopySchema).max(100), statisticLabels: z.array(countryStatisticLabelSchema).max(100) })
 
 function countryDetailsFromForm(formData: FormData) {
-	const parsed = countryDetailsSchema.parse({ countryCode: formData.get('countryCode'), regionId: formData.get('regionId') || undefined, isCovered: formData.get('isCovered') === 'on', displayOrder: formData.get('displayOrder'), lastReviewedOn: formData.get('lastReviewedOn') || undefined, flagMediaId: formData.get('flagMediaId') || undefined, outlineMediaId: formData.get('outlineMediaId') || undefined, serviceAssignments: jsonField(formData, 'serviceAssignments', 'Country services'), expertIds: jsonField(formData, 'expertIds', 'Country experts'), officeIds: jsonField(formData, 'officeIds', 'Country offices'), statistics: jsonField(formData, 'statistics', 'Statistics') })
+	const parsed = countryDetailsSchema.parse({ countryCode: formData.get('countryCode'), regionId: formData.get('regionId'), isCovered: formData.get('isCovered') === 'on', displayOrder: formData.get('displayOrder'), lastReviewedOn: formData.get('lastReviewedOn'), flagMediaId: formData.get('flagMediaId'), outlineMediaId: formData.get('outlineMediaId'), serviceAssignments: jsonField(formData, 'serviceAssignments', 'Country services'), expertIds: jsonField(formData, 'expertIds', 'Country experts'), officeIds: jsonField(formData, 'officeIds', 'Country offices'), statistics: jsonField(formData, 'statistics', 'Statistics') })
 	uniqueIds(parsed.serviceAssignments.map((item) => item.serviceId), 'Country services', 'serviceAssignments'); uniqueIds(parsed.expertIds, 'Country experts', 'expertIds'); uniqueIds(parsed.officeIds, 'Country offices', 'officeIds'); uniqueIds(parsed.statistics.map((item) => item.metricKey), 'Statistic metric keys', 'statistics')
 	return { ...parsed, mapConfig: mapConfigFromForm(formData) }
 }
 function countryTranslationFromForm(formData: FormData) {
-	const parsed = countryTranslationSchema.parse({ countryCode: formData.get('countryCode'), locale: formData.get('locale'), slug: formData.get('slug'), name: formData.get('name'), summary: formData.get('summary') || undefined, coverageSummary: formData.get('coverageSummary') || undefined, content: jsonField(formData, 'content', 'The country content'), seoTitle: formData.get('seoTitle') || undefined, seoDescription: formData.get('seoDescription') || undefined, status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined, flagAltText: formData.get('flagAltText') || undefined, outlineAltText: formData.get('outlineAltText') || undefined, serviceCopies: jsonField(formData, 'serviceCopies', 'Country service copy'), statisticLabels: jsonField(formData, 'statisticLabels', 'Statistic labels') })
-	return { ...parsed, content: documentField('content', () => parseCatalogueDocument(parsed.content)), serviceCopies: parsed.serviceCopies.map((copy) => ({ ...copy, content: documentField('serviceCopies', () => parseCatalogueDocument(copy.content)) })), ...outreachPublication(parsed.status, parsed.scheduledFor) }
+	const parsed = countryTranslationSchema.parse({ countryCode: formData.get('countryCode'), locale: formData.get('locale'), slug: formData.get('slug'), name: formData.get('name'), summary: formData.get('summary'), coverageSummary: formData.get('coverageSummary'), content: jsonField(formData, 'content', 'The country content'), seoTitle: formData.get('seoTitle'), seoDescription: formData.get('seoDescription'), status: formData.get('status'), scheduledFor: formData.get('scheduledFor'), flagAltText: formData.get('flagAltText'), outlineAltText: formData.get('outlineAltText'), serviceCopies: jsonField(formData, 'serviceCopies', 'Country service copy'), statisticLabels: jsonField(formData, 'statisticLabels', 'Statistic labels') })
+	return { ...parsed, content: documentField('content', () => parseCatalogueDocument(parsed.content)), serviceCopies: parsed.serviceCopies.map((copy, index) => ({ ...copy, content: documentField('serviceCopies', () => { try { return parseCatalogueDocument(copy.content) } catch (error) { throw new Error(`Service copy ${index + 1}: ${validationMessage(error)}`) } }) })), ...outreachPublication(parsed.status, parsed.scheduledFor) }
 }
 
 async function replaceCountryRelations(supabase: Awaited<ReturnType<typeof createClient>>, details: ReturnType<typeof countryDetailsFromForm>) {
@@ -748,10 +733,10 @@ export async function saveCountryTranslationAction(formData: FormData): Promise<
 	}, { itemLabels: outreachItemLabels })
 }
 
-const officeDetailsSchema = z.object({ officeId: z.string().uuid().optional(), stableKey: requiredKey, countryCode: z.union([isoCountryCode, z.literal('')]).transform((value) => value || null), email: optionalText(320).refine((value) => value === null || z.string().email().safeParse(value).success, 'Enter a valid email address.'), phone: optionalText(80), latitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -90 && value <= 90), 'Latitude must be between -90 and 90.'), longitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -180 && value <= 180), 'Longitude must be between -180 and 180.'), displayOrder: z.coerce.number().int().min(0).max(100_000) })
-const officeTranslationSchema = z.object({ officeId: z.string().uuid().optional(), locale: z.enum(locales), name: z.string().trim().min(1).max(160), city: optionalText(160), address: optionalText(2_000), status: z.enum(outreachStatuses), scheduledFor: optionalText(64) })
-function officeDetailsFromForm(formData: FormData, includeId = true) { return officeDetailsSchema.parse({ officeId: includeId ? formData.get('officeId') || undefined : undefined, stableKey: formData.get('stableKey'), countryCode: formData.get('countryCode') || '', email: formData.get('email') || undefined, phone: formData.get('phone') || undefined, latitude: formData.get('latitude') || undefined, longitude: formData.get('longitude') || undefined, displayOrder: formData.get('displayOrder') }) }
-function officeTranslationFromForm(formData: FormData, includeId = true) { const parsed = officeTranslationSchema.parse({ officeId: includeId ? formData.get('officeId') || undefined : undefined, locale: formData.get('locale'), name: formData.get('name'), city: formData.get('city') || undefined, address: formData.get('address') || undefined, status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined }); return { ...parsed, ...outreachPublication(parsed.status, parsed.scheduledFor) } }
+const officeDetailsSchema = z.object({ officeId: optionalUuid, stableKey: requiredKey, countryCode: optional(isoCountryCode), email: optionalEmail(), phone: optionalText(80), latitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -90 && value <= 90), 'Latitude must be between -90 and 90.'), longitude: optionalNumber.refine((value) => value === null || (Number.isFinite(value) && value >= -180 && value <= 180), 'Longitude must be between -180 and 180.'), displayOrder: z.coerce.number().int().min(0).max(100_000) })
+const officeTranslationSchema = z.object({ officeId: optionalUuid, locale: z.enum(locales), name: z.string().trim().min(1).max(160), city: optionalText(160), address: optionalText(2_000), status: z.enum(outreachStatuses), scheduledFor: optionalText(64) })
+function officeDetailsFromForm(formData: FormData, includeId = true) { return officeDetailsSchema.parse({ officeId: includeId ? formData.get('officeId') : undefined, stableKey: formData.get('stableKey'), countryCode: formData.get('countryCode'), email: formData.get('email'), phone: formData.get('phone'), latitude: formData.get('latitude'), longitude: formData.get('longitude'), displayOrder: formData.get('displayOrder') }) }
+function officeTranslationFromForm(formData: FormData, includeId = true) { const parsed = officeTranslationSchema.parse({ officeId: includeId ? formData.get('officeId') : undefined, locale: formData.get('locale'), name: formData.get('name'), city: formData.get('city'), address: formData.get('address'), status: formData.get('status'), scheduledFor: formData.get('scheduledFor') }); return { ...parsed, ...outreachPublication(parsed.status, parsed.scheduledFor) } }
 async function refreshOfficePaths(supabase: Awaited<ReturnType<typeof createClient>>, countryCode?: string) { await refreshOutreachPaths(supabase, countryCode) }
 export async function createOfficeAction(formData: FormData): Promise<AdminActionResult> { return adminAction('Could not create the office.', async () => { const details = officeDetailsFromForm(formData, false); const translation = officeTranslationFromForm(formData, false); if (translation.locale !== 'en') return failed('New offices must start with an English translation.'); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const id = randomUUID(); const { error: officeError } = await supabase.from('offices').insert({ id, stable_key: details.stableKey, country_code: details.countryCode, email: details.email, phone: details.phone, latitude: details.latitude, longitude: details.longitude, display_order: details.displayOrder, created_by: profile.id, updated_by: profile.id }); if (officeError) return failed(`Could not create the office: ${officeError.message}`); const { error: translationError } = await supabase.from('office_translations').insert({ office_id: id, locale: 'en', name: translation.name, city: translation.city, address: translation.address, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at }); if (translationError) return failed(`The office was created, but its English translation could not be saved: ${translationError.message}`); await refreshOfficePaths(supabase, details.countryCode ?? undefined); return succeeded('Office created.', undefined, { redirectTo: `/admin/outreach/offices/${id}` }) }) }
 export async function saveOfficeDetailsAction(formData: FormData): Promise<AdminActionResult> { return adminAction('Could not save office details.', async () => { const details = officeDetailsFromForm(formData); if (!details.officeId) return failed('Invalid office.'); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('offices').update({ stable_key: details.stableKey, country_code: details.countryCode, email: details.email, phone: details.phone, latitude: details.latitude, longitude: details.longitude, display_order: details.displayOrder, updated_by: profile.id }).eq('id', details.officeId); if (error) return failed(`Could not save office details: ${error.message}`); await refreshOfficePaths(supabase, details.countryCode ?? undefined); return succeeded('Office details saved.') }) }
@@ -759,18 +744,12 @@ export async function saveOfficeTranslationAction(formData: FormData): Promise<A
 export async function setOfficeArchivedAction(formData: FormData): Promise<AdminActionResult> { return adminAction('Could not update this office.', async () => { const officeId = z.string().uuid().parse(formData.get('officeId')); const archive = z.enum(['true', 'false']).parse(formData.get('archive')) === 'true'; const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('offices').update({ is_active: !archive, updated_by: profile.id }).eq('id', officeId); if (error) return failed(`Could not ${archive ? 'archive' : 'restore'} this office: ${error.message}`); await refreshOfficePaths(supabase); return succeeded(archive ? 'Office archived.' : 'Office restored.') }) }
 
 const articleStatuses = ['draft', 'scheduled', 'published', 'archived'] as const
-const httpUrl = z.string().trim().max(2_048).superRefine((value, context) => {
-	try {
-		const protocol = new URL(value).protocol
-		if (protocol !== 'http:' && protocol !== 'https:') context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' })
-	} catch { context.addIssue({ code: 'custom', message: 'Use a complete http or https URL.' }) }
-})
 const articleDetailsSchema = z.object({
-	articleId: z.string().uuid().optional(),
+	articleId: optionalUuid,
 	stableKey: requiredKey,
 	kind: z.string().trim().regex(/^[a-z][a-z0-9-]*$/, 'Article kind must use lowercase letters, numbers and hyphens.').max(80),
 	coverMediaId: optionalUuid,
-	externalMediaUrl: optionalText(2_048).refine((value) => value === null || httpUrl.safeParse(value).success, 'Enter a complete external media URL.'),
+	externalMediaUrl: optionalHttpUrl('Enter a complete external media URL.'),
 	isFeatured: z.boolean(),
 	featuredOrder: z.coerce.number().int().min(0).max(100_000),
 	authorIds: z.array(z.string().uuid()).max(30),
@@ -780,9 +759,9 @@ const articleDetailsSchema = z.object({
 	relatedArticleIds: z.array(z.string().uuid()).max(100),
 })
 const articleTranslationSchema = z.object({
-	articleId: z.string().uuid().optional(), locale: z.enum(locales), slug: requiredKey,
+	articleId: optionalUuid, locale: z.enum(locales), slug: requiredKey,
 	title: z.string().trim().min(2).max(300), excerpt: optionalText(2_000), content: z.unknown(),
-	sources: z.array(z.object({ label: z.string().trim().min(1).max(300), url: httpUrl }).strict()).max(50),
+	sources: z.array(z.object({ label: z.string().trim().min(1).max(300), url: httpUrl() }).strict()).max(50),
 	seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(articleStatuses),
 	scheduledFor: optionalText(64), coverAltText: optionalText(320),
 })
@@ -794,14 +773,14 @@ const articleCoverSchema = z.object({
 const articleItemLabels = { sources: 'Source', authorIds: 'Author', tagIds: 'Tag', serviceIds: 'Service', sectorIds: 'Sector', relatedArticleIds: 'Related article' }
 
 function articleDetailsFromForm(formData: FormData, requireId = true) {
-	const parsed = articleDetailsSchema.parse({ articleId: formData.get('articleId') || undefined, stableKey: formData.get('stableKey'), kind: formData.get('kind'), coverMediaId: formData.get('coverMediaId') || undefined, externalMediaUrl: formData.get('externalMediaUrl') || undefined, isFeatured: formData.get('isFeatured') === 'on', featuredOrder: formData.get('featuredOrder'), authorIds: jsonField(formData, 'authorIds', 'Authors'), tagIds: jsonField(formData, 'tagIds', 'Tags'), serviceIds: jsonField(formData, 'serviceIds', 'Services'), sectorIds: jsonField(formData, 'sectorIds', 'Sectors'), relatedArticleIds: jsonField(formData, 'relatedArticleIds', 'Related articles') })
+	const parsed = articleDetailsSchema.parse({ articleId: formData.get('articleId'), stableKey: formData.get('stableKey'), kind: formData.get('kind'), coverMediaId: formData.get('coverMediaId'), externalMediaUrl: formData.get('externalMediaUrl'), isFeatured: formData.get('isFeatured') === 'on', featuredOrder: formData.get('featuredOrder'), authorIds: jsonField(formData, 'authorIds', 'Authors'), tagIds: jsonField(formData, 'tagIds', 'Tags'), serviceIds: jsonField(formData, 'serviceIds', 'Services'), sectorIds: jsonField(formData, 'sectorIds', 'Sectors'), relatedArticleIds: jsonField(formData, 'relatedArticleIds', 'Related articles') })
 	if (requireId && !parsed.articleId) throw new Error('Enter valid article details.')
 	for (const [ids, label, field] of [[parsed.authorIds, 'Authors', 'authorIds'], [parsed.tagIds, 'Tags', 'tagIds'], [parsed.serviceIds, 'Services', 'serviceIds'], [parsed.sectorIds, 'Sectors', 'sectorIds'], [parsed.relatedArticleIds, 'Related articles', 'relatedArticleIds']] as const) uniqueIds(ids, label, field)
 	if (parsed.relatedArticleIds.includes(parsed.articleId ?? '')) throw new FieldError('relatedArticleIds', 'An article cannot be related to itself.')
 	return parsed
 }
 function articleTranslationFromForm(formData: FormData, requireId = true) {
-	const parsed = articleTranslationSchema.parse({ articleId: formData.get('articleId') || undefined, locale: formData.get('locale'), slug: formData.get('slug'), title: formData.get('title'), excerpt: formData.get('excerpt') || undefined, content: jsonField(formData, 'content', 'The article content'), sources: jsonField(formData, 'sources', 'Sources'), seoTitle: formData.get('seoTitle') || undefined, seoDescription: formData.get('seoDescription') || undefined, status: formData.get('status'), scheduledFor: formData.get('scheduledFor') || undefined, coverAltText: formData.get('coverAltText') || undefined })
+	const parsed = articleTranslationSchema.parse({ articleId: formData.get('articleId'), locale: formData.get('locale'), slug: formData.get('slug'), title: formData.get('title'), excerpt: formData.get('excerpt'), content: jsonField(formData, 'content', 'The article content'), sources: jsonField(formData, 'sources', 'Sources'), seoTitle: formData.get('seoTitle'), seoDescription: formData.get('seoDescription'), status: formData.get('status'), scheduledFor: formData.get('scheduledFor'), coverAltText: formData.get('coverAltText') })
 	if (requireId && !parsed.articleId) throw new Error('Enter valid localized article content.')
 	return { ...parsed, content: documentField('content', () => parseArticleDocument(parsed.content)) }
 }
@@ -900,7 +879,7 @@ export async function saveArticleDetailsAction(formData: FormData): Promise<Admi
 	return adminAction('Could not save article details.', async () => { const details = articleDetailsFromForm(formData); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('articles').update({ stable_key: details.stableKey, kind: details.kind, cover_media_id: details.coverMediaId, external_media_url: details.externalMediaUrl, is_featured: details.isFeatured, featured_order: details.featuredOrder, updated_by: profile.id }).eq('id', details.articleId!); if (error) return failed(`Could not save article details: ${error.message}`); await replaceArticleRelations(supabase, details.articleId!, details); await refreshNewsroomPaths(supabase, details.articleId!); return succeeded('Shared article details saved.') }, { itemLabels: articleItemLabels })
 }
 export async function saveArticleTranslationAction(formData: FormData): Promise<AdminActionResult<{ status: PublicationStatus }>> {
-	return adminAction('Could not save this translation.', async () => { const translation = articleTranslationFromForm(formData); await requireActiveStaff(); const supabase = await createClient(); await validateArticleInlineMedia(supabase, translation); await ensureArticleCanPublish(supabase, translation.articleId!, translation); const publication = articlePublication(translation.status, translation.scheduledFor); const { error } = await supabase.from('article_translations').upsert({ article_id: translation.articleId!, locale: translation.locale, slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'article_id,locale' }); if (error) return failed(`Could not save this translation: ${error.message}`); await saveArticleCoverAlt(supabase, translation.articleId!, translation.locale, translation.coverAltText); await refreshNewsroomPaths(supabase, translation.articleId); return succeeded(`${translation.locale} translation saved${translation.status === 'published' ? ' and published' : ''}.`, { status: translation.status }) }, { itemLabels: articleItemLabels })
+	return adminAction('Could not save this translation.', async () => { const translation = articleTranslationFromForm(formData); await requireActiveStaff(); const supabase = await createClient(); await validateArticleInlineMedia(supabase, translation); await ensureArticleCanPublish(supabase, translation.articleId!, translation); const publication = articlePublication(translation.status, translation.scheduledFor); const { error } = await supabase.from('article_translations').upsert({ article_id: translation.articleId!, locale: translation.locale, slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'article_id,locale' }); if (error) return failed(`Could not save this translation: ${error.message}`); await saveArticleCoverAlt(supabase, translation.articleId!, translation.locale, translation.coverAltText); await refreshNewsroomPaths(supabase, translation.articleId!); return succeeded(`${translation.locale} translation saved${translation.status === 'published' ? ' and published' : ''}.`, { status: translation.status }) }, { itemLabels: articleItemLabels })
 }
 export async function setArticleArchivedAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not update this article.', async () => { const articleId = z.string().uuid().parse(formData.get('articleId')); const archive = z.enum(['true', 'false']).parse(formData.get('archive')) === 'true'; const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('articles').update({ updated_by: profile.id }).eq('id', articleId); if (error) return failed(`Could not ${archive ? 'archive' : 'restore'} the article: ${error.message}`); const { error: translationError } = archive ? await supabase.from('article_translations').update({ status: 'archived', scheduled_for: null, published_at: null }).eq('article_id', articleId) : { error: null }; if (translationError) return failed(`Could not archive article translations: ${translationError.message}`); await refreshNewsroomPaths(supabase, articleId); return succeeded(archive ? 'Article and its translations archived.' : 'Article restored; save a translation to publish it again.') })

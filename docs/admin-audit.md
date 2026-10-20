@@ -24,10 +24,10 @@ Screenshots are in [`docs/admin-audit/`](./admin-audit/).
 
 | # | Problem | Severity | Where |
 | --- | --- | --- | --- |
-| 1 | Links, numbered lists and quotations are rejected on save in every rich-text editor except Legal. Each toolbar button produces JSON that the strict validator refuses, and the error appears as raw Zod JSON. | blocker | People, Catalogue, Newsroom, Our Outreach |
+| 1 | **Fixed in slice 2.** Links, numbered lists and quotations are rejected on save in every rich-text editor except Legal. Each toolbar button produces JSON that the strict validator refuses, and the error appears as raw Zod JSON. | blocker | People, Catalogue, Newsroom, Our Outreach |
 | 2 | **Fixed in slice 1.** React resets every `<form action>` after the action. Status selects revert to their first-rendered option (the next save silently unpublishes), media selects revert to "No media" (the next save silently detaches the icon, cover or flag), and a failed save wipes every uncontrolled field. | blocker | All editors except Legal and Media |
 | 3 | **Fixed in slice 1.** In People, any server-side validation error throws. The page is replaced by "This page couldn't load" and everything typed is lost. There is no admin error boundary. | blocker | People (create and every save) |
-| 4 | Fields labelled optional are effectively required, because the client sends `null` where the schemas expect a string or nothing. Seeded profiles that have a role without a card label (Glenn Cezanne) cannot be saved at all. A country translation cannot be saved once the country has an assigned service or a statistic. | blocker | People, Our Outreach, Site settings |
+| 4 | **Fixed in slice 2.** Fields labelled optional are effectively required, because the client sends `null` where the schemas expect a string or nothing. Seeded profiles that have a role without a card label (Glenn Cezanne) cannot be saved at all. A country translation cannot be saved once the country has an assigned service or a statistic. | blocker | People, Our Outreach, Site settings |
 | 5 | Media "Replace file" and "Delete" both fail with `42501 Direct deletion from storage tables is not allowed` because the database functions delete from `storage.objects` directly. | blocker | Media |
 | 6 | `published_at` is re-stamped with the current time on every save of a published translation. Article dates and newsroom order change whenever someone fixes a typo, and legacy articles cannot keep their original date. | major | All translation saves |
 | 7 | Scheduling does not work end to end. Nothing ever publishes a scheduled row. Every save shifts the time shown in `datetime-local` by the UTC offset (3 h in Bucharest) and the server parses the time in the server's time zone. Archiving an article wipes its schedule, and "Restore" does nothing. | major | Catalogue, Newsroom, Outreach, Partners |
@@ -96,7 +96,21 @@ section findings at once; the section IDs each one covers are listed.
   errors next to the fields, as Legal does. Add `app/(admin)/admin/error.tsx`
   as a safety net.
 
-### X-03 `null` versus `undefined` schema mismatches (blocker, bug)
+### X-03 `null` versus `undefined` schema mismatches (blocker, bug) — Fixed in slice 2
+
+**Slice 2:** every optional field of every admin schema now comes from one set
+of helpers in `src/lib/admin-schema.mjs` (`optionalText`, `optionalUuid`,
+`optionalNumber`, `optionalHttpUrl`, `optionalEmail`, `optional`), which accept
+a missing key, `undefined`, `null`, an empty string or whitespace and store
+`null`. The actions pass form values through unchanged. The JSON row schemas
+(roles, country services, statistics, service copy, statistic labels, calls to
+action) live in the same module with unit tests
+(`scripts/admin-schema.test.mjs`). The country form no longer sends `locale`
+inside its per-locale rows, and empty endorsement attributions are left out.
+Verified in the browser: Glenn Cezanne's profile, Sweden with a service
+without coverage level and a statistic without source URL, and a call to
+action with only its English label.
+
 
 `optionalText()` is `z.string().optional()`, so it accepts a string or nothing
 but rejects `null`. The JSON payloads built by the client send `null` for empty
@@ -114,7 +128,22 @@ fields.
 and stop sending `locale` inside per-locale arrays. Add a unit test that feeds
 each editor's empty-state payload to its schema.
 
-### X-04 The rich-text contract and its editors disagree (blocker, bug)
+### X-04 The rich-text contract and its editors disagree (blocker, bug) — Fixed in slice 2
+
+**Slice 2:** one editor, `src/components/admin/rich-text-editor.tsx`, is
+configured per content type (catalogue, country, article, profile, legal) and
+offers exactly what that contract stores. It saves
+`fromEditorDocument(editor.getJSON())` (`src/lib/editor-document.mjs`): link
+`href` only, ordered-list `start` only, and each paragraph of a quotation as a
+quotation of text; stored documents load through `toEditorDocument`. The
+contracts are unchanged and live in `src/lib/rich-text-contracts.mjs` (legal in
+`legal-document.mjs`); every error names the block ("Block 9 (quotation): …").
+The editor has the legal styles, whole-box editing, an in-page link dialog
+(the contract's link rule, script links refused, remove link), auto-links that
+follow the contract's link rule, and toolbar buttons that keep the focus in
+the text. All 308 stored documents still validate, with byte-identical output
+(`npm run rich-text:validate`).
+
 
 The strict validators (`rich-text-rules.mjs`, `article-document.ts`,
 `team-profile-document.ts`) reject what TipTap 3 emits:
@@ -317,7 +346,7 @@ actual and fix where it is not obvious from the title.
 
 ### People
 
-- **PPL-01: Numbered lists cannot be saved** (blocker, bug, verified).
+- **PPL-01: Numbered lists cannot be saved** **Fixed in slice 2.** (blocker, bug, verified).
   Reproduce: in "New team profile", add a numbered list to the introduction and
   click "Create profile". Actual: the page crashes with
   `Unrecognized key: "type"` ([screenshot](./admin-audit/people-numbered-list-error.jpg)).
@@ -330,7 +359,7 @@ actual and fix where it is not obvious from the title.
   For example a stable key "Alberto Cassia" or a role without a card label. See
   X-02 ([screenshot](./admin-audit/people-role-null-card-label.jpg)).
 - **PPL-04: Seeded profiles with roles without a card label cannot be saved**
-  (blocker, bug, verified). Glenn Cezanne's profile fails on any "Save en
+  **Fixed in slice 2.** (blocker, bug, verified). Glenn Cezanne's profile fails on any "Save en
   translation" (no data was written by the test). See X-03.
 - **PPL-05: No pending state and no success message** **Fixed in slice 1.** Create, saves, archive and reorder show a pending state and an inline notice; create opens the new profile. (major, UX, verified).
   "Create profile", "Save … translation", "Save profile details", archive and
@@ -376,12 +405,12 @@ actual and fix where it is not obvious from the title.
 
 ### Catalogue (services and sectors)
 
-- **CAT-01: Links, numbered lists and quotations are rejected** (blocker, bug,
+- **CAT-01: Links, numbered lists and quotations are rejected** **Fixed in slice 2.** (blocker, bug,
   verified and validator). Reproduce: in a new sector, type a sentence with a
   URL (autolinked), a numbered list and `> quote`, then create. Actual: raw
   JSON `Unrecognized keys: "target", "rel", "class", "title"` and the form
   wiped. See X-04.
-- **CAT-02: The brief's acceptance case cannot pass** (blocker, verified). An
+- **CAT-02: The brief's acceptance case cannot pass** **Fixed in slice 2.** Verified by editing Circular Economy (icon and contacts) with an auto-link, a dialog link, a heading, a numbered list and a quotation; a new entry uses the same editor and contract. (blocker, verified). An
   entry with an icon, a link, a numbered list, a quotation and contacts cannot
   be created. The test entries use only paragraphs, headings and bullets.
 - **CAT-03: The icon select is a filename dropdown** (major, UX, verified).
@@ -411,7 +440,7 @@ actual and fix where it is not obvious from the title.
 
 ### Newsroom
 
-- **NEWS-01: Links, numbered lists and quotations are rejected** (blocker, bug,
+- **NEWS-01: Links, numbered lists and quotations are rejected** **Fixed in slice 2.** (blocker, bug,
   verified for links, validator for the others;
   [screenshot](./admin-audit/newsroom-link-rejected-form-reset.jpg)). Article
   bodies are where links matter most.
@@ -450,19 +479,19 @@ actual and fix where it is not obvious from the title.
 ### Our Outreach
 
 - **OUT-01: A country translation cannot be saved once a service or statistic
-  exists** (blocker, bug, verified;
+  exists** **Fixed in slice 2.** (blocker, bug, verified;
   [screenshot](./admin-audit/outreach-country-translation-blocked.jpg)). See
   X-03. Romania's English text was saved only by submitting with the service
   copy and statistic label payloads emptied; Romania's statistic is therefore
   unlabelled and hidden publicly.
 - **OUT-02: Coverage level and statistic source URL are effectively required**
-  (major, bug, verified). See X-03.
+  **Fixed in slice 2.** (major, bug, verified). See X-03.
 - **OUT-03: Office (and region) language tabs show the previous locale** **Fixed in slice 1.** (major,
   bug, verified for offices, code for regions;
   [screenshot](./admin-audit/outreach-office-de-shows-en.jpg)). See X-06.
 - **OUT-04: Country rich text rejects links, numbered lists and quotations**
-  (blocker, bug, validator). It uses the catalogue validator. See X-04.
-- **OUT-05: Clicking the editor's empty area focuses the Bold button** (major,
+  **Fixed in slice 2.** (blocker, bug, validator). It uses the catalogue validator. See X-04.
+- **OUT-05: Clicking the editor's empty area focuses the Bold button** **Fixed in slice 2.** A click anywhere in the box focuses the text. (major,
   bug and a11y, verified). See X-04.
 - **OUT-06: A failed save resets the covered checkbox and dates and desyncs
   controlled inputs** **Fixed in slice 1.** (major, bug, verified). See X-01.
@@ -568,7 +597,7 @@ date, styled editing, and the status kept after save (all verified).
 
 ### Site settings
 
-- **SET-01: Optional CTA labels are rejected as `null`** (major, bug,
+- **SET-01: Optional CTA labels are rejected as `null`** **Fixed in slice 2.** (major, bug,
   verified). See X-03.
 - **SET-02: A failed save reverts edits; the social platform select desyncs** **Fixed in slice 1.**
   (major, bug, verified). See X-01.
@@ -658,6 +687,21 @@ lists pre-existing records that the tests had to alter.
 | Site settings `approved_calls_to_action` | added `contact-us` → `/contact` with labels in all five locales | empty list |
 | Site settings `social_links` | YouTube added and removed again; the value is the original three links | facebook, instagram, linkedin |
 
+### Slice 2 test content (2026-10-20)
+
+Written through the admin by the staff account `stefano` during the slice 2
+browser checks. The test texts can be removed by editing the records.
+
+| Record | Change | Before |
+| --- | --- | --- |
+| Sector Circular Economy, en (`aa0e911f-565b-439f-926d-8229314335ad`) | Appended: a paragraph with an auto-linked URL, a dialog link, the heading "Slice 2 heading", a two-item numbered list and two quotations; saved twice | 3 blocks; `published_at` 2026-10-19T11:01:52Z (re-stamped, X-05) |
+| Article "We are hiring…", en (`a83d2212-cfc0-4e02-a4e2-cc7e6054dd23`) | Appended the same blocks (one quotation); saved three times | `published_at` re-stamped (X-05) |
+| Flávia Guerra, en (`3a2f5a0b-91ad-43d0-b2ad-b6c47044efc1`) | Introduction: appended an auto-link, a dialog link, a line break and a numbered list; saved twice | `published_at` re-stamped (X-05) |
+| Glenn Cezanne, en (`402f4522-ad61-490d-a823-350c054d4be4`) | Saved once without changes (roles without card labels) | `published_at` 2025-09-01T00:00:00Z, now the save time (X-05); roles deleted and re-inserted with the same ids and values (as every People save does) |
+| Country SE | Added service Market Research (`e7e0e751-c852-4a0c-a40d-fa343c73854b`, no coverage level) and statistic `slice-2-check` (`08095e46-37b1-465b-97de-1fdda04ced95`, value 3, no source URL, en label "Slice 2 check value"); en content: the test blocks; en service copy rows created for Association Management (empty) and Market Research (an auto-link and a numbered list); saved twice | one service (Association Management), one statistic (`population`), empty en content; `published_at` re-stamped (X-05) |
+| Legal privacy policy, en | Appended an auto-link, a link to `/cookie-use`, a heading, a numbered list and a quotation; saved twice | `published_at` re-stamped (X-05) |
+| Site settings `approved_calls_to_action` | Added `slice-2-check` with only an English label, saved, removed, saved | same items as before; all four settings rows have a new `updated_at` |
+
 Not changed: the save attempt on Glenn Cezanne's profile failed validation
 before any write. "Test Testf" (`e06cf4ef-3642-483e-80b9-30b3f4afb6e6`), a
 pre-existing draft profile, was left as found apart from the reorder above.
@@ -690,7 +734,7 @@ NEWS-07, OUT-03, OUT-06, OUT-07, PAR-03, PAR-04, SET-02, RED-01, RED-03, NAV-03.
 Acceptance: the known People status case, the sector icon case and the office
 tab case all pass in a browser test.
 
-### Slice 2: Schemas and the rich-text contract (blockers X-03, X-04)
+### Slice 2: Schemas and the rich-text contract (blockers X-03, X-04) — done
 
 - `nullish` optional fields; no `locale` inside per-locale arrays; a unit test
   per editor that runs its empty payload through its schema.

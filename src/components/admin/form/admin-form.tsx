@@ -70,9 +70,10 @@ function snapshotOf(form: HTMLFormElement | null) {
 function focusInvalidField(form: HTMLFormElement | null) {
 	const field = form?.querySelector<HTMLElement>('[data-field-invalid]')
 	if (!field) return
-	// The marked control, else the first input, editor or other control inside.
+	// The marked control, else the first input, editor or other control inside
+	// (not one in a closed dialog, such as a rich-text editor's link dialog).
 	const target = field.querySelector<HTMLElement>('[aria-invalid="true"]')
-		?? field.querySelector<HTMLElement>('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]):not(:disabled), select:not(:disabled), textarea:not(:disabled)')
+		?? field.querySelector<HTMLElement>('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]):not(:disabled):not(dialog *), select:not(:disabled):not(dialog *), textarea:not(:disabled):not(dialog *)')
 		?? field.querySelector<HTMLElement>('[contenteditable="true"]')
 		?? field.querySelector<HTMLElement>(FOCUSABLE)
 	target?.focus()
