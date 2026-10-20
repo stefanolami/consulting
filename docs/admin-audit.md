@@ -28,12 +28,12 @@ Screenshots are in [`docs/admin-audit/`](./admin-audit/).
 | 2 | **Fixed in slice 1.** React resets every `<form action>` after the action. Status selects revert to their first-rendered option (the next save silently unpublishes), media selects revert to "No media" (the next save silently detaches the icon, cover or flag), and a failed save wipes every uncontrolled field. | blocker | All editors except Legal and Media |
 | 3 | **Fixed in slice 1.** In People, any server-side validation error throws. The page is replaced by "This page couldn't load" and everything typed is lost. There is no admin error boundary. | blocker | People (create and every save) |
 | 4 | **Fixed in slice 2.** Fields labelled optional are effectively required, because the client sends `null` where the schemas expect a string or nothing. Seeded profiles that have a role without a card label (Glenn Cezanne) cannot be saved at all. A country translation cannot be saved once the country has an assigned service or a statistic. | blocker | People, Our Outreach, Site settings |
-| 5 | Media "Replace file" and "Delete" both fail with `42501 Direct deletion from storage tables is not allowed` because the database functions delete from `storage.objects` directly. | blocker | Media |
+| 5 | **Fixed in slice 4 (takes effect when migration `20261020180000_media_storage_api_operations.sql` is applied).** Media "Replace file" and "Delete" both fail with `42501 Direct deletion from storage tables is not allowed` because the database functions delete from `storage.objects` directly. | blocker | Media |
 | 6 | **Fixed in slice 3.** `published_at` is re-stamped with the current time on every save of a published translation. Article dates and newsroom order change whenever someone fixes a typo, and legacy articles cannot keep their original date. | major | All translation saves |
 | 7 | **Fixed in slice 3.** Scheduling does not work end to end. Nothing ever publishes a scheduled row. Every save shifts the time shown in `datetime-local` by the UTC offset (3 h in Bucharest) and the server parses the time in the server's time zone. Archiving an article wipes its schedule, and "Restore" does nothing. | major | Catalogue, Newsroom, Outreach, Partners |
 | 8 | **Fixed in slice 1.** Language tabs leak state. Article sources from one locale are saved into another, and office, region, partner and endorsement tabs show the previous locale's values and status. Notices follow you to other tabs, and switching tabs silently discards unsaved edits. | major | Newsroom, Our Outreach, Partners, People |
 | 9 | **Fixed in slice 3.** Public pages are revalidated with `revalidateTag(tag, 'max')` (stale-while-revalidate), so the first public view after a save, archive or restore shows the old content. Editors think the save failed. | major | All sections |
-| 10 | Alt text is stored per media asset, not per use. Saving a catalogue entry, country, partner or endorsement overwrites the alt text of every other record that uses the same file. In this test, a new service's alt text overwrote the Energy sector icon's. | major | Catalogue, Outreach, Partners, Newsroom |
+| 10 | **Fixed in slice 4.** Alt text is stored per media asset, not per use. Saving a catalogue entry, country, partner or endorsement overwrites the alt text of every other record that uses the same file. In this test, a new service's alt text overwrote the Energy sector icon's. | major | Catalogue, Outreach, Partners, Newsroom |
 
 ---
 
@@ -262,7 +262,23 @@ editor warns about unsaved changes (§12.1). **Fix:** one `SubmitButton`
 (`useFormStatus`) and one inline `FormNotice` that clears on change and on tab
 switch; add a "Last saved" line.
 
-### X-09 Shared media alt text is overwritten per use (major, bug)
+### X-09 Shared media alt text is overwritten per use (major, bug) — Fixed in slice 4
+
+*Slice 4:* record forms no longer write `media_asset_translations`; the
+library alt text is edited only in the Media library. Partner logos keep
+their own alt text (`partner_translations.alt_text`, the only per-use alt
+column) and inline article images keep theirs (`attrs.alt`); public pages
+use it when set, otherwise the library alt text (`src/lib/media-alt.mjs`).
+Portraits, icons, covers, flags and outlines use the library alt text,
+shown read-only in their editors with a link to the Media library; no
+column was added (platform doc §3.2). Verified in the browser: changing
+Slice One Partner's logo alt text changed only that logo on Why Us, while
+the Slice One Tester profile and the Slice Tester endorsement, which show
+the same file, kept "Portrait of the slice tester"; saving Event
+Organisation left the Energy icon's alt text untouched. The content log
+shows one overwrite during testing (`environment-energy.png`), already
+restored; nothing else needed restoring.
+
 
 `saveCatalogueIconAlt`, `saveCountryMediaAlts`, `saveArticleCoverAlt` and
 partners `saveMediaAlt` all upsert `media_asset_translations` for the asset.
@@ -272,7 +288,19 @@ sector's icon alt text (restored afterwards). **Fix:** store per-use alt text
 on the usage (translation rows already have room), or make the media alt text
 read-only in these editors with a link to the Media library.
 
-### X-10 Media pickers (major, UX)
+### X-10 Media pickers (major, UX) — Fixed in slice 4
+
+*Slice 4:* one `MediaPicker` (`src/components/admin/form/media-picker.tsx`)
+in People, Catalogue, Newsroom (cover and inline image blocks), Our Outreach
+(flag and outline), Partners and Endorsements: the chosen image with a
+thumbnail; a dialog with every library asset (no 200 or 300 limit), search,
+a filter by kind (portrait, icon, cover, logo, flag; derived from current
+uses and the upload path), a "none" choice and "Upload new", which uploads
+through the Media library's checks and selects the file without leaving the
+form, also before the first save. A selected asset outside the filter stays
+visible. The per-editor upload buttons, which wrote to Storage from the
+browser without the server's content check, are gone.
+
 
 Icon, cover, flag, outline, logo and portrait pickers are plain `<select>`s of
 file names, mixing portraits, flags, icons and PDFs, with no thumbnail. Most
@@ -400,7 +428,7 @@ actual and fix where it is not obvious from the title.
   inside `flex justify-between` does not grow; long titles like "Corporate
   Venture & Open Innovation Leadership in Portugal (2021-2024)" are cut off. No
   up or down controls exist for sections. Removing a section has no undo.
-- **PPL-11: Portrait replacement leaves the old asset orphaned** (minor, bug,
+- **PPL-11: Portrait replacement leaves the old asset orphaned** **Fixed in slice 4.** The portrait is chosen or uploaded in the picker, with its alt text and the size limit shown up front, and saved with the profile details; a replaced portrait stays in the library as an unused asset (the "Unused" filter lists it) for reuse or deletion. (minor, bug,
   code). `attachPersonPortraitAction` inserts a new media asset each time. The
   alt text for a new portrait comes from a separate field above the button
   (pre-filled "Portrait of …"), and the size limit is stated only after an
@@ -427,7 +455,7 @@ actual and fix where it is not obvious from the title.
 - **CAT-02: The brief's acceptance case cannot pass** **Fixed in slice 2.** Verified by editing Circular Economy (icon and contacts) with an auto-link, a dialog link, a heading, a numbered list and a quotation; a new entry uses the same editor and contract. (blocker, verified). An
   entry with an icon, a link, a numbered list, a quotation and contacts cannot
   be created. The test entries use only paragraphs, headings and bullets.
-- **CAT-03: The icon select is a filename dropdown** (major, UX, verified).
+- **CAT-03: The icon select is a filename dropdown** **Fixed in slice 4.** (major, UX, verified).
   Icons cannot be uploaded until after the first save, and the list mixes
   portraits and flags. See X-10.
 - **CAT-04: The status select reverts after each save** **Fixed in slice 1.** (blocker, bug,
@@ -437,7 +465,7 @@ actual and fix where it is not obvious from the title.
   select still shows "No icon selected" and does not even list the new file;
   "Save shared details" then stored `icon_media_id = null` with a success
   message. After re-selecting and saving, the select reverted again.
-- **CAT-06: Alt text overwrites other entries' icons** (major, bug, verified).
+- **CAT-06: Alt text overwrites other entries' icons** **Fixed in slice 4.** (major, bug, verified).
   See X-09.
 - **CAT-07: Scheduling never publishes and the time drifts** **Fixed in slice 3.** (major, bug,
   verified). See X-05.
@@ -474,7 +502,7 @@ actual and fix where it is not obvious from the title.
 - **NEWS-07: The cover select shows empty after an upload** **Fixed in slice 1.** (major, bug,
   verified). The next "Save shared details" detaches the cover; a published
   article would then fail its own cover rule on the next translation save.
-- **NEWS-08: Publishing a new article takes too many steps** (minor, UX,
+- **NEWS-08: Publishing a new article takes too many steps** **Fixed in slice 4.** The cover can be uploaded from the picker in the create form. (minor, UX,
   verified). A cover must already exist in Media to publish on create; otherwise
   create a draft, upload the cover, then publish.
 - **NEWS-09: No search, filter or pagination; titles are not links** (minor,
@@ -484,7 +512,7 @@ actual and fix where it is not obvious from the title.
   pages therefore show no tag filter.
 - **NEWS-11: Article kind is free text** (minor, UX, verified). It says "a
   controlled key for the approved newsroom format" but accepts any slug.
-- **NEWS-12: The inline image block lacks guidance** (minor, UX, verified). No
+- **NEWS-12: The inline image block lacks guidance** **Fixed in slice 4, except the click target.** The block uses the picker (thumbnail, upload), plain layout names ("Text width", "Wide", "Full width") and one short help line, and can be added before the library has an image. Clicking into its fields inside the editable surface is unchanged (slice 5). (minor, UX, verified). No
   thumbnail; raw preset names ("fullBleed"); clicking into a block's fields is
   awkward because the block is inside the editable surface; the managed-image
   help sits inside every block.
@@ -535,17 +563,17 @@ actual and fix where it is not obvious from the title.
 
 ### Media
 
-- **MED-01: Replace file fails** (blocker, bug, verified). `replace_media_asset`
+- **MED-01: Replace file fails** **Fixed in slice 4; takes effect when migration `20261020180000_media_storage_api_operations.sql` is applied.** The function now only switches the row and returns the previous path; the server action uploads first and removes the old file through the Storage API afterwards (`src/lib/media-operations.mjs`). Until the migration is applied, a replace is refused with a sentence that names the migration, and the uploaded file is removed again (verified). (blocker, bug, verified). `replace_media_asset`
   runs `delete from storage.objects`
   (`20260818100000_media_library_safe_operations.sql:62`), which Supabase now
   refuses (`42501 … Use the Storage API instead`). The uploaded replacement is
   removed again, so no data is lost.
-- **MED-02: Delete fails** (blocker, bug, verified by calling
+- **MED-02: Delete fails** **Fixed in slice 4; takes effect when the migration is applied.** The function keeps every reference check, deletes the row and returns the file location; the server action then removes the file through the Storage API. An interruption leaves an orphaned file, never a row without its file; `npm run media:orphans` and "Check Storage" in the Media library list orphans. (blocker, bug, verified by calling
   `rpc/delete_media_asset` directly on a throwaway asset). Same cause
   (`…safe_operations.sql:160`, `…inline_media_guard.sql:110`). *Fix:* split
   into "check references and delete the row" in SQL and
   `storage.from(bucket).remove()` from the server action.
-- **MED-03: Delete uses `window.confirm`** (minor, UX and a11y, code;
+- **MED-03: Delete uses `window.confirm`** **Fixed in slice 4.** An in-page dialog (`confirm-dialog.tsx`, the slice 1 unsaved-changes dialog made shared): focus starts on Cancel, Escape cancels (verified). (minor, UX and a11y, code;
   `media-library.tsx:65`). Not clicked during the audit. *Fix:* an in-page
   confirmation dialog, as for the legal link dialog. Deleting an in-use asset
   is correctly blocked (the button is disabled and the references are listed,
@@ -559,19 +587,19 @@ actual and fix where it is not obvious from the title.
 - **MED-05: Notices appear at the top of the page** **Fixed in slice 1.** Each inspector form shows its own pending state and notice next to its button; there is no page-wide busy flag. (minor, UX, verified).
   They are out of view when saving alt text, replacing or deleting in the
   inspector. A single `busy` flag disables the whole page.
-- **MED-06: One file at a time; no type filter** (minor, UX, verified).
+- **MED-06: One file at a time; no type filter** **Fixed in slice 4.** Several files at once, each checked in the browser before sending (type and size, with a sentence that names the file) and shown with its own status; filters by kind, "Unused" and file type (verified). (minor, UX, verified).
 - **MED-07: The preview keeps the previous image until the next one loads**
-  (polish, UI, verified).
-- **MED-08: The reference scan does not scale** (minor, bug, code).
+  **Fixed in slice 4 (code only).** The preview image is keyed by its file URL, so another selection or a replaced file starts a new image; not re-checked visually. (polish, UI, verified).
+- **MED-08: The reference scan does not scale** **Fixed in slice 4.** Each table is read once for its rows that have a media id (no `in.(…)` list of every asset id), and only article translations that contain an inline image are loaded. (minor, bug, code).
   `mediaReferencesByAssetId` passes every asset id in one `in.(…)` filter and
   loads all `article_translations` on every Media page load; the URL will
   exceed PostgREST limits as the library grows.
 
 ### Partners and endorsements
 
-- **PAR-01: Logos must be uploaded in Media first** (major, UX, verified). There
+- **PAR-01: Logos must be uploaded in Media first** **Fixed in slice 4.** (major, UX, verified). There
   is no upload in the editor, and the pickers are filename dropdowns. See X-10.
-- **PAR-02: English logo alt text is edited in two places** (minor, UX, code).
+- **PAR-02: English logo alt text is edited in two places** **Fixed in slice 4.** Only the per-locale "Logo alt text for this partner" remains, and it no longer writes the library alt text. (minor, UX, code).
   "English logo alt text" in shared details and "Localized logo alt text" on
   the en tab write the same thing, and also overwrite the media asset's alt
   text (X-09).
@@ -598,7 +626,7 @@ date, styled editing, and the status kept after save (all verified).
 - **LEG-01: `published_at` is re-stamped on every save** **Fixed in slice 3.** (minor, bug, code;
   `legal/actions.ts:136`). Less visible here because "Last updated" is a
   separate field.
-- **LEG-02: Delete translation uses `window.confirm`** (minor, UX, code;
+- **LEG-02: Delete translation uses `window.confirm`** **Fixed in slice 4.** The shared in-page dialog (verified, cancelled). (minor, UX, code;
   `legal-editor.tsx:226`). Not clicked.
 - **LEG-03: SEO title help omits the site-name suffix** (minor, UX, verified).
   Entering "Privacy Policy | Time&Place Consulting" produced the page title
@@ -747,6 +775,35 @@ Every save also moved the row's `updated_at`. The repair script
 (`npm run publication:repair`) was run as a dry run only; nothing was
 restored.
 
+### Slice 4 test content (2026-10-20)
+
+Written through the admin by the staff account `stefano` during the slice 4
+browser checks, 20:44–20:53 UTC. Migration
+`20261020180000_media_storage_api_operations.sql` was not applied, so no
+replace or delete succeeded; both were refused before any change.
+
+| Record | Change | Before → after |
+| --- | --- | --- |
+| Media `slice4-logo.png` (`f6e6d87c-af85-4593-bb1f-67ce94123f7e`) | Uploaded in the Media library, kind Logo, en alt "Slice 4 test logo" | new; unused |
+| Media `slice4-flag-a.png` (`83470351-1f53-4f74-aac4-7774d4155d93`), `slice4-flag-b.png` (`6ba14db3-b704-4f0f-b5d0-92c3b0bd7316`) | Uploaded together, kind Flag, no alt text | new; unused |
+| Media `slice4-icon.png` (`7db0dc71-775a-435c-9d43-9d8d9cdccff8`) | Uploaded from the icon picker of Event Organisation, en alt "Slice 4 test icon"; not attached (the form was not saved with it) | new; unused |
+| Media `endorsements-linkage.png` (`1f04c1aa-…`) | Delete and replace attempted; both refused by the old database functions; the uploaded replacement was removed again | unchanged |
+| Service Event Organisation, en (`eb658b33-…`) | Saved without changes; a German translation was refused by the publish check (no German icon alt text) and not saved | unchanged apart from `updated_at` |
+| Endorsement Slice Tester (`7c6aa807-…`) | Associated partner set to Slice One Partner, then back to none | partner none → none |
+| Partner Slice One Partner, en (`46d815b2-…`) | Logo alt text set to "Slice One Partner logo (slice 4 per-use check)", then restored | "Slice one partner logo" → same |
+| Person Slice One Tester (`a09e910a-…`) | "Save profile details" without changes (portrait kept) | unchanged apart from `updated_at` |
+| Article "We are hiring…", en (`a83d2212-…`) | Saved without changes (inline image kept) | unchanged apart from `updated_at` |
+| Country RO, en | Saved without changes (flag alt text check passed) | unchanged apart from `updated_at` |
+
+No library alt text of an existing asset changed (checked by `updated_at`).
+Storage holds 36 files for 36 assets, with no orphan and no missing file
+(`npm run media:orphans`). Found but not in any content log, so left as it
+is: the German library alt text of `slice1-test-portrait.png`
+(`9609ac0c-…`) is "Slice-Eins-Partnerlogo", written by a slice 1 partner
+save (X-09), so the German Slice One Tester profile uses that text for its
+portrait (not checked in the browser). The original is not known (probably no German text); correct it
+in the Media library if the test content is kept.
+
 ---
 
 ## 5. Proposed fix plan
@@ -815,7 +872,15 @@ plain text.
 
 Closes: NEWS-03, NEWS-05, NEWS-06, CAT-07, CAT-11, PAR-07, LEG-01, PPL-13.
 
-### Slice 4: Media (MED-01, MED-02, X-09, X-10)
+### Slice 4: Media (MED-01, MED-02, X-09, X-10) — done
+
+Done on 2026-10-20. Replace and delete take effect once migration
+`20261020180000_media_storage_api_operations.sql` (not applied yet) is pushed. Differences from the plan below: no
+per-use alt columns were added (X-09 above, platform doc §3.2); the Storage
+check in the Media library and `npm run media:orphans` take the place of a
+cleanup job; PPL-12 (oversize production portraits) gets a clear size
+message only, and resizing stays in slice 5.
+
 
 - Replace and delete: SQL keeps the reference check and the row change; storage
   removal through the Storage API in the server action; migration via git
@@ -858,7 +923,8 @@ RED-04, X-11 to X-14.
   and the rich-text "Add link" buttons (People, Catalogue, Newsroom, Outreach)
   open `window.confirm`, `window.prompt` or `window.alert`, which block the
   browser automation. They are recorded as findings. Delete itself was tested
-  by calling the database function directly (MED-02).
+  by calling the database function directly (MED-02). *Slices 2 and 4:* all
+  three are in-page dialogs now and were tested in the browser.
 - **Server log:** the dev server was already running in a terminal outside this
   session, so its log could not be read. Browser console errors were captured
   (MED-04 and the dev overlays). The dev-only "Invariant: … cookies" failure

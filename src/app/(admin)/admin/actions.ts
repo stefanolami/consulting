@@ -15,6 +15,7 @@ import { parseProfileDocument } from '@/lib/team-profile-document'
 import { parseCatalogueDocument } from '@/lib/catalogue-document'
 import { articleImageMediaIds, parseArticleDocument } from '@/lib/article-document'
 import { PUBLIC_CATALOGUE_CACHE_TAG, PUBLIC_NEWSROOM_CACHE_TAG, PUBLIC_OUTREACH_CACHE_TAG, PUBLIC_TEAM_CACHE_TAG } from '@/lib/cache-tags'
+import { requireImageAsset, requireLibraryAlt } from '@/lib/media-choices'
 import { createClient } from '@/lib/supabase/server'
 import { editorialState, restoredStatus } from '@/lib/publication.mjs'
 import { teamPath } from '@/lib/team-paths'
@@ -28,6 +29,7 @@ const sharedProfileFields = {
 	phone: optionalText(80),
 	displayOrder: z.coerce.number().int().min(0).max(100_000),
 	teamGroup: z.enum(['managing_team', 'team']),
+	portraitMediaId: optionalUuid,
 }
 const sharedProfileSchema = z.object(sharedProfileFields)
 
@@ -40,7 +42,6 @@ const translationSchema = z.object({
 	cardName: optionalText(160),
 	roles: profileRolesSchema,
 	profileDocument: z.unknown(),
-	portraitAltText: optionalText(320),
 	seoTitle: optionalText(160),
 	seoDescription: optionalText(320),
 	status: z.enum(['draft', 'scheduled', 'published', 'archived']),
@@ -52,24 +53,12 @@ const newProfileSchema = z.object({
 	cardName: optionalText(160),
 	roles: profileRolesSchema,
 	profileDocument: z.unknown(),
-	portraitAltText: optionalText(320),
 	seoTitle: optionalText(160),
 	seoDescription: optionalText(320),
 	status: z.enum(['draft', 'published']),
 })
 
 const peopleItemLabels = { roles: 'Role' }
-
-const portraitSchema = z.object({
-	personId: z.string().uuid(),
-	objectPath: z.string().min(1).max(1024),
-	originalFilename: z.string().min(1).max(512),
-	mimeType: z.enum(['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']),
-	fileSizeBytes: z.number().int().positive().max(15 * 1024 * 1024),
-	width: z.number().int().positive().nullable(),
-	height: z.number().int().positive().nullable(),
-	altText: z.string().trim().min(3, 'Enter English alt text for the portrait (at least 3 characters).').max(320),
-})
 
 function cardRoles(roles: z.infer<typeof profileRolesSchema>) {
 	if (roles.filter((role) => role.isCardRole).length !== 1) throw new FieldError('roles', 'Select exactly one role for the team card.')
@@ -114,10 +103,10 @@ export async function createPersonAction(formData: FormData): Promise<AdminActio
 		const parsed = newProfileSchema.parse({
 			displayName: formData.get('displayName'), stableKey: formData.get('stableKey'),
 			email: formData.get('email'), phone: formData.get('phone'),
-			displayOrder: formData.get('displayOrder'), teamGroup: formData.get('teamGroup'),
+			displayOrder: formData.get('displayOrder'), teamGroup: formData.get('teamGroup'), portraitMediaId: formData.get('portraitMediaId'),
 			slug: formData.get('slug'), cardName: formData.get('cardName'),
 			roles: jsonField(formData, 'roles', 'Roles'), profileDocument: jsonField(formData, 'profileDocument', 'The profile document'),
-			portraitAltText: formData.get('portraitAltText'), seoTitle: formData.get('seoTitle'),
+			seoTitle: formData.get('seoTitle'),
 			seoDescription: formData.get('seoDescription'), status: formData.get('status'),
 		})
 		const roles = cardRoles(parsed.roles)
@@ -129,30 +118,13 @@ export async function createPersonAction(formData: FormData): Promise<AdminActio
 		if (slugError) return failed(`Could not validate the English URL slug: ${slugError.message}`)
 		if (existingSlug) throw new FieldError('slug', 'That English URL slug is already in use.')
 
+		await requireImageAsset(supabase, parsed.portraitMediaId, 'portraitMediaId', 'portrait')
 		const personId = randomUUID()
-		const portraitFile = formData.get('portraitFile')
-		let portraitMediaId: string | null = null
-		if (portraitFile instanceof File && portraitFile.size > 0) {
-			const mimeType = z.enum(['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']).safeParse(portraitFile.type)
-			if (!mimeType.success) throw new FieldError('portraitFile', 'Choose a GIF, JPEG, PNG, SVG, or WebP portrait.')
-			if (portraitFile.size > 15 * 1024 * 1024) throw new FieldError('portraitFile', 'Portraits must be 15 MiB or smaller.')
-			if (!parsed.portraitAltText || parsed.portraitAltText.length < 3) throw new FieldError('portraitAltText', 'Provide English alt text for the portrait.')
-			const extension = mimeType.data === 'image/jpeg' ? 'jpg' : mimeType.data.split('/')[1]
-			const objectPath = `people/${personId}/${randomUUID()}.${extension}`
-			const { error: uploadError } = await supabase.storage.from('public-media').upload(objectPath, await portraitFile.arrayBuffer(), { cacheControl: '31536000', contentType: mimeType.data, upsert: false })
-			if (uploadError) return failed(`Could not upload portrait: ${uploadError.message}`)
-			const { data: media, error: mediaError } = await supabase.from('media_assets').insert({ object_path: objectPath, original_filename: portraitFile.name, mime_type: mimeType.data, file_size_bytes: portraitFile.size, uploaded_by: profile.id }).select('id').single()
-			if (mediaError) return failed(`The portrait uploaded, but its media record could not be created: ${mediaError.message}`)
-			const { error: altError } = await supabase.from('media_asset_translations').insert({ media_asset_id: media.id, locale: 'en', alt_text: parsed.portraitAltText })
-			if (altError) return failed(`The portrait uploaded, but its alt text could not be saved: ${altError.message}`)
-			portraitMediaId = media.id
-		}
-
 		const { data: person, error: personError } = await supabase.from('people').insert({
 			id: personId,
 			display_name: parsed.displayName, stable_key: parsed.stableKey, email: parsed.email, phone: parsed.phone,
 			display_order: parsed.displayOrder, team_group: parsed.teamGroup,
-			portrait_media_id: portraitMediaId,
+			portrait_media_id: parsed.portraitMediaId,
 			is_team_member: formData.get('isTeamMember') === 'on', is_author: formData.get('isAuthor') === 'on',
 			created_by: profile.id, updated_by: profile.id,
 		}).select('id').single()
@@ -177,14 +149,15 @@ export async function updatePersonAction(formData: FormData): Promise<AdminActio
 	return adminAction('Could not save the profile.', async () => {
 		const parsed = sharedProfileSchema.parse({
 			displayName: formData.get('displayName'), stableKey: formData.get('stableKey'), email: formData.get('email'),
-			phone: formData.get('phone'), displayOrder: formData.get('displayOrder'), teamGroup: formData.get('teamGroup'),
+			phone: formData.get('phone'), displayOrder: formData.get('displayOrder'), teamGroup: formData.get('teamGroup'), portraitMediaId: formData.get('portraitMediaId'),
 		})
 		const personId = z.string().uuid().parse(formData.get('personId'))
 		const { profile } = await requireActiveStaff()
 		const supabase = await createClient()
+		await requireImageAsset(supabase, parsed.portraitMediaId, 'portraitMediaId', 'portrait')
 		const { error } = await supabase.from('people').update({
 			display_name: parsed.displayName, stable_key: parsed.stableKey, email: parsed.email, phone: parsed.phone,
-			display_order: parsed.displayOrder, team_group: parsed.teamGroup,
+			display_order: parsed.displayOrder, team_group: parsed.teamGroup, portrait_media_id: parsed.portraitMediaId,
 			is_team_member: formData.get('isTeamMember') === 'on', is_author: formData.get('isAuthor') === 'on', updated_by: profile.id,
 		}).eq('id', personId)
 		if (error) return failed(`Could not save the profile: ${error.message}`)
@@ -198,7 +171,7 @@ export async function savePersonTranslationAction(formData: FormData): Promise<A
 		const parsed = translationSchema.parse({
 			personId: formData.get('personId'), locale: formData.get('locale'), slug: formData.get('slug'), cardName: formData.get('cardName'),
 			roles: jsonField(formData, 'roles', 'Roles'), profileDocument: jsonField(formData, 'profileDocument', 'The profile document'),
-			portraitAltText: formData.get('portraitAltText'), seoTitle: formData.get('seoTitle'),
+			seoTitle: formData.get('seoTitle'),
 			seoDescription: formData.get('seoDescription'), status: formData.get('status'),
 		})
 		const roles = cardRoles(parsed.roles)
@@ -217,14 +190,6 @@ export async function savePersonTranslationAction(formData: FormData): Promise<A
 		if (error) return failed(`Could not save the translation: ${error.message}`)
 		await replaceRoles(supabase, parsed.personId, parsed.locale, roles)
 
-		if (parsed.portraitAltText) {
-			const { data: person, error: portraitError } = await supabase.from('people').select('portrait_media_id').eq('id', parsed.personId).maybeSingle()
-			if (portraitError) return failed(`The translation was saved, but the portrait details could not be loaded: ${portraitError.message}`)
-			if (person?.portrait_media_id) {
-				const { error: altError } = await supabase.from('media_asset_translations').upsert({ media_asset_id: person.portrait_media_id, locale: parsed.locale, alt_text: parsed.portraitAltText }, { onConflict: 'media_asset_id,locale' })
-				if (altError) return failed(`The translation was saved, but the portrait alt text was not: ${altError.message}`)
-			}
-		}
 		await refreshPersonPaths(supabase, parsed.personId)
 		return succeeded(`${parsed.locale} translation saved${publishedNotice(saved)}.`, saved)
 	}, { itemLabels: peopleItemLabels })
@@ -268,25 +233,6 @@ export async function movePersonAction(formData: FormData): Promise<AdminActionR
 	})
 }
 
-export async function attachPersonPortraitAction(input: unknown): Promise<AdminActionResult<{ objectPath: string }>> {
-	return adminAction('Could not attach the portrait.', async () => {
-		const parsed = portraitSchema.parse(input)
-		const { profile } = await requireActiveStaff()
-		const supabase = await createClient()
-		const { data: media, error: mediaError } = await supabase.from('media_assets').insert({
-			object_path: parsed.objectPath, original_filename: parsed.originalFilename, mime_type: parsed.mimeType,
-			file_size_bytes: parsed.fileSizeBytes, width: parsed.width, height: parsed.height, uploaded_by: profile.id,
-		}).select('id').single()
-		if (mediaError) return failed(`The file uploaded, but its media record could not be created: ${mediaError.message}`)
-		const { error: translationError } = await supabase.from('media_asset_translations').insert({ media_asset_id: media.id, locale: 'en', alt_text: parsed.altText })
-		if (translationError) return failed(`The file uploaded, but its alt text could not be saved: ${translationError.message}`)
-		const { error: personError } = await supabase.from('people').update({ portrait_media_id: media.id, updated_by: profile.id }).eq('id', parsed.personId)
-		if (personError) return failed(`The media was created, but could not be attached: ${personError.message}`)
-		await refreshPersonPaths(supabase, parsed.personId)
-		return succeeded('Portrait uploaded and attached to this profile.', { objectPath: parsed.objectPath })
-	})
-}
-
 async function refreshPersonPaths(supabase: Awaited<ReturnType<typeof createClient>>, personId: string) {
 	updateTag(PUBLIC_CATALOGUE_CACHE_TAG)
 	updateTag(PUBLIC_NEWSROOM_CACHE_TAG)
@@ -326,20 +272,7 @@ const catalogueTranslationSchema = z.object({
 	seoTitle: optionalText(160),
 	seoDescription: optionalText(320),
 	status: z.enum(catalogueStatuses),
-	iconAltText: optionalText(320),
 })
-const catalogueIconSchema = z.object({
-	kind: z.enum(catalogueKinds),
-	entryId: z.string().uuid(),
-	objectPath: z.string().min(1).max(1_024),
-	originalFilename: z.string().min(1).max(512),
-	mimeType: z.enum(['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']),
-	fileSizeBytes: z.number().int().positive().max(15 * 1024 * 1024),
-	width: z.number().int().positive().nullable(),
-	height: z.number().int().positive().nullable(),
-	altText: z.string().trim().min(3, 'Enter English alt text for the icon (at least 3 characters).').max(320),
-})
-
 function detailsFromForm(formData: FormData, includeEntryId = true) {
 	return catalogueDetailsSchema.parse({
 		kind: formData.get('kind'),
@@ -357,7 +290,7 @@ function translationFromForm(formData: FormData) {
 		kind: formData.get('kind'), entryId: formData.get('entryId'), locale: formData.get('locale'), slug: formData.get('slug'),
 		name: formData.get('name'), summary: formData.get('summary'), content: jsonField(formData, 'content', 'The content'),
 		seoTitle: formData.get('seoTitle'), seoDescription: formData.get('seoDescription'),
-		status: formData.get('status'), iconAltText: formData.get('iconAltText'),
+		status: formData.get('status'),
 	})
 	return { ...parsed, content: documentField('content', () => parseCatalogueDocument(parsed.content)), publishAt: formData.get('publishAt') }
 }
@@ -448,9 +381,10 @@ export async function createCatalogueAction(formData: FormData): Promise<AdminAc
 		const translation = translationFromForm(formData)
 		if (translation.locale !== 'en') return failed('New catalogue entries must start with an English translation.')
 		const { goesPublic, row: publication } = publicationColumns({ existing: null, publishAt: translation.publishAt, status: translation.status })
-		if (goesPublic && details.iconMediaId && !translation.iconAltText) throw new FieldError('iconAltText', 'Published English content needs localized alt text for its selected icon.')
 		const { profile } = await requireActiveStaff()
 		const supabase = await createClient()
+		await requireImageAsset(supabase, details.iconMediaId, 'iconMediaId', 'icon')
+		if (goesPublic && details.iconMediaId) await requireLibraryAlt(supabase, { field: 'iconAlt', label: 'icon', locale: 'en', mediaId: details.iconMediaId })
 		const entryId = randomUUID()
 		const table = details.kind
 		const { data: entry, error: createError } = await supabase.from(table).insert({ id: entryId, stable_key: details.stableKey, display_order: details.displayOrder, icon_media_id: details.iconMediaId, created_by: profile.id, updated_by: profile.id }).select('id').single()
@@ -460,7 +394,6 @@ export async function createCatalogueAction(formData: FormData): Promise<AdminAc
 			: await supabase.from('sector_translations').insert({ sector_id: entry.id, locale: 'en', slug: translation.slug, name: translation.name, summary: translation.summary, content: translation.content, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication })
 		if (translationError) return failed(`The catalogue entry was created, but its English translation could not be saved: ${translationError.message}`)
 		await replaceCatalogueRelations(supabase, details.kind, entry.id, details.contactIds, details.articleIds)
-		if (translation.iconAltText && details.iconMediaId) await saveCatalogueIconAlt(supabase, details.iconMediaId, 'en', translation.iconAltText)
 		await refreshCataloguePaths(supabase, details.kind, entry.id)
 		return succeeded('Catalogue entry created.', undefined, { redirectTo: `/admin/catalogue/${details.kind}/${entry.id}` })
 	})
@@ -472,6 +405,7 @@ export async function saveCatalogueDetailsAction(formData: FormData): Promise<Ad
 		if (!details.entryId) return failed('Invalid catalogue entry.')
 		const { profile } = await requireActiveStaff()
 		const supabase = await createClient()
+		await requireImageAsset(supabase, details.iconMediaId, 'iconMediaId', 'icon')
 		const { error } = await supabase.from(details.kind).update({ stable_key: details.stableKey, display_order: details.displayOrder, icon_media_id: details.iconMediaId, updated_by: profile.id }).eq('id', details.entryId)
 		if (error) return failed(`Could not save catalogue details: ${error.message}`)
 		await replaceCatalogueRelations(supabase, details.kind, details.entryId, details.contactIds, details.articleIds)
@@ -493,36 +427,13 @@ export async function saveCatalogueTranslationAction(formData: FormData): Promis
 			: await supabase.from('sector_translations').select(PUBLICATION_COLUMNS).eq('sector_id', translation.entryId).eq('locale', translation.locale).maybeSingle()
 		if (existingError) return failed(`Could not load this translation: ${existingError.message}`)
 		const { goesPublic, row: publication, saved } = publicationColumns({ existing, publishAt: translation.publishAt, status: translation.status })
-		if (goesPublic && catalogueEntry.icon_media_id && !translation.iconAltText) throw new FieldError('iconAltText', 'Published localized content needs localized alt text for its selected icon.')
+		if (goesPublic && catalogueEntry.icon_media_id) await requireLibraryAlt(supabase, { field: 'iconAlt', label: 'icon', locale: translation.locale, mediaId: catalogueEntry.icon_media_id })
 		const { error } = translation.kind === 'services'
 			? await supabase.from('service_translations').upsert({ service_id: translation.entryId, locale: translation.locale, slug: translation.slug, name: translation.name, summary: translation.summary, content: translation.content, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'service_id,locale' })
 			: await supabase.from('sector_translations').upsert({ sector_id: translation.entryId, locale: translation.locale, slug: translation.slug, name: translation.name, summary: translation.summary, content: translation.content, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'sector_id,locale' })
 		if (error) return failed(`Could not save this translation: ${error.message}`)
-		if (translation.iconAltText) {
-			if (catalogueEntry.icon_media_id) await saveCatalogueIconAlt(supabase, catalogueEntry.icon_media_id, translation.locale, translation.iconAltText)
-		}
 		await refreshCataloguePaths(supabase, translation.kind, translation.entryId)
 		return succeeded(`${translation.locale} translation saved${publishedNotice(saved)}.`, saved)
-	})
-}
-
-async function saveCatalogueIconAlt(supabase: Awaited<ReturnType<typeof createClient>>, mediaId: string, locale: (typeof locales)[number], altText: string) {
-	const { error } = await supabase.from('media_asset_translations').upsert({ media_asset_id: mediaId, locale, alt_text: altText }, { onConflict: 'media_asset_id,locale' })
-	if (error) throw new Error(`Could not save localized icon alt text: ${error.message}`)
-}
-
-export async function attachCatalogueIconAction(input: unknown): Promise<AdminActionResult<{ mediaId: string }>> {
-	return adminAction('Could not upload the icon.', async () => {
-		const parsed = catalogueIconSchema.parse(input)
-		const { profile } = await requireActiveStaff()
-		const supabase = await createClient()
-		const { data: media, error: mediaError } = await supabase.from('media_assets').insert({ object_path: parsed.objectPath, original_filename: parsed.originalFilename, mime_type: parsed.mimeType, file_size_bytes: parsed.fileSizeBytes, width: parsed.width, height: parsed.height, uploaded_by: profile.id }).select('id').single()
-		if (mediaError) return failed(`The file uploaded, but its media record could not be created: ${mediaError.message}`)
-		await saveCatalogueIconAlt(supabase, media.id, 'en', parsed.altText)
-		const { error: attachError } = await supabase.from(parsed.kind).update({ icon_media_id: media.id, updated_by: profile.id }).eq('id', parsed.entryId)
-		if (attachError) return failed(`The icon was saved, but could not be attached: ${attachError.message}`)
-		await refreshCataloguePaths(supabase, parsed.kind, parsed.entryId)
-		return succeeded('Icon uploaded and attached.', { mediaId: media.id })
 	})
 }
 
@@ -654,7 +565,7 @@ const countryDetailsSchema = z.object({
 	serviceAssignments: z.array(countryServiceAssignmentSchema).max(100), expertIds: z.array(z.string().uuid()).max(50), officeIds: z.array(z.string().uuid()).max(100),
 	statistics: z.array(countryStatisticSchema).max(100),
 })
-const countryTranslationSchema = z.object({ countryCode: isoCountryCode, locale: z.enum(locales), slug: requiredKey, name: z.string().trim().min(1).max(160), summary: optionalText(2_000), coverageSummary: optionalText(2_000), content: z.unknown(), seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(outreachStatuses), flagAltText: optionalText(320), outlineAltText: optionalText(320), serviceCopies: z.array(countryServiceCopySchema).max(100), statisticLabels: z.array(countryStatisticLabelSchema).max(100) })
+const countryTranslationSchema = z.object({ countryCode: isoCountryCode, locale: z.enum(locales), slug: requiredKey, name: z.string().trim().min(1).max(160), summary: optionalText(2_000), coverageSummary: optionalText(2_000), content: z.unknown(), seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(outreachStatuses), serviceCopies: z.array(countryServiceCopySchema).max(100), statisticLabels: z.array(countryStatisticLabelSchema).max(100) })
 
 function countryDetailsFromForm(formData: FormData) {
 	const parsed = countryDetailsSchema.parse({ countryCode: formData.get('countryCode'), regionId: formData.get('regionId'), isCovered: formData.get('isCovered') === 'on', displayOrder: formData.get('displayOrder'), lastReviewedOn: formData.get('lastReviewedOn'), flagMediaId: formData.get('flagMediaId'), outlineMediaId: formData.get('outlineMediaId'), serviceAssignments: jsonField(formData, 'serviceAssignments', 'Country services'), expertIds: jsonField(formData, 'expertIds', 'Country experts'), officeIds: jsonField(formData, 'officeIds', 'Country offices'), statistics: jsonField(formData, 'statistics', 'Statistics') })
@@ -662,7 +573,7 @@ function countryDetailsFromForm(formData: FormData) {
 	return { ...parsed, mapConfig: mapConfigFromForm(formData) }
 }
 function countryTranslationFromForm(formData: FormData) {
-	const parsed = countryTranslationSchema.parse({ countryCode: formData.get('countryCode'), locale: formData.get('locale'), slug: formData.get('slug'), name: formData.get('name'), summary: formData.get('summary'), coverageSummary: formData.get('coverageSummary'), content: jsonField(formData, 'content', 'The country content'), seoTitle: formData.get('seoTitle'), seoDescription: formData.get('seoDescription'), status: formData.get('status'), flagAltText: formData.get('flagAltText'), outlineAltText: formData.get('outlineAltText'), serviceCopies: jsonField(formData, 'serviceCopies', 'Country service copy'), statisticLabels: jsonField(formData, 'statisticLabels', 'Statistic labels') })
+	const parsed = countryTranslationSchema.parse({ countryCode: formData.get('countryCode'), locale: formData.get('locale'), slug: formData.get('slug'), name: formData.get('name'), summary: formData.get('summary'), coverageSummary: formData.get('coverageSummary'), content: jsonField(formData, 'content', 'The country content'), seoTitle: formData.get('seoTitle'), seoDescription: formData.get('seoDescription'), status: formData.get('status'), serviceCopies: jsonField(formData, 'serviceCopies', 'Country service copy'), statisticLabels: jsonField(formData, 'statisticLabels', 'Statistic labels') })
 	return { ...parsed, content: documentField('content', () => parseCatalogueDocument(parsed.content)), serviceCopies: parsed.serviceCopies.map((copy, index) => ({ ...copy, content: documentField('serviceCopies', () => { try { return parseCatalogueDocument(copy.content) } catch (error) { throw new Error(`Service copy ${index + 1}: ${validationMessage(error)}`) } }) })), publishAt: formData.get('publishAt') }
 }
 
@@ -682,11 +593,6 @@ async function replaceCountryRelations(supabase: Awaited<ReturnType<typeof creat
 	if (details.statistics.length) { const { error } = await supabase.from('country_statistics').upsert(details.statistics.map((item) => ({ country_code: details.countryCode, metric_key: item.metricKey, numeric_value: item.numericValue, unit: item.unit, statistic_year: item.statisticYear, source_url: item.sourceUrl, display_order: item.displayOrder })), { onConflict: 'country_code,metric_key' }); if (error) throw new Error(`Could not save country statistics: ${error.message}`) }
 }
 
-async function saveCountryMediaAlts(supabase: Awaited<ReturnType<typeof createClient>>, countryCode: string, locale: (typeof locales)[number], flagAltText: string | null, outlineAltText: string | null) {
-	const { data: country, error } = await supabase.from('countries').select('flag_media_id, outline_media_id').eq('code', countryCode).maybeSingle(); if (error || !country) throw new Error(`Could not load country media: ${error?.message ?? 'Country not found.'}`)
-	for (const [mediaId, altText] of [[country.flag_media_id, flagAltText], [country.outline_media_id, outlineAltText]] as const) { if (mediaId && altText) { const { error: altError } = await supabase.from('media_asset_translations').upsert({ media_asset_id: mediaId, locale, alt_text: altText }, { onConflict: 'media_asset_id,locale' }); if (altError) throw new Error(`Could not save localized media alt text: ${altError.message}`) } }
-}
-
 export async function createCountryAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not create the country.', async () => {
 		const details = countryDetailsFromForm(formData); const translation = countryTranslationFromForm(formData); if (translation.locale !== 'en') return failed('New countries must start with an English translation.')
@@ -696,7 +602,7 @@ export async function createCountryAction(formData: FormData): Promise<AdminActi
 		if (countryError) return failed(`Could not create the country: ${countryError.message}`)
 		const { error: translationError } = await supabase.from('country_translations').insert({ country_code: details.countryCode, locale: 'en', slug: translation.slug, name: translation.name, summary: translation.summary, coverage_summary: translation.coverageSummary, content: translation.content, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication })
 		if (translationError) return failed(`The country was created, but its English translation could not be saved: ${translationError.message}`)
-		await replaceCountryRelations(supabase, details); await saveCountryMediaAlts(supabase, details.countryCode, 'en', translation.flagAltText, translation.outlineAltText); await refreshOutreachPaths(supabase, details.countryCode)
+		await replaceCountryRelations(supabase, details); await refreshOutreachPaths(supabase, details.countryCode)
 		return succeeded('Country created.', undefined, { redirectTo: `/admin/outreach/${details.countryCode}` })
 	}, { itemLabels: outreachItemLabels })
 }
@@ -704,6 +610,7 @@ export async function createCountryAction(formData: FormData): Promise<AdminActi
 export async function saveCountryDetailsAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not save country details.', async () => {
 		const details = countryDetailsFromForm(formData); const { profile } = await requireActiveStaff(); const supabase = await createClient()
+		await requireImageAsset(supabase, details.flagMediaId, 'flagMediaId', 'flag'); await requireImageAsset(supabase, details.outlineMediaId, 'outlineMediaId', 'outline')
 		const { error } = await supabase.from('countries').update({ region_id: details.regionId, flag_media_id: details.flagMediaId, outline_media_id: details.outlineMediaId, is_covered: details.isCovered, map_config: details.mapConfig, display_order: details.displayOrder, last_reviewed_on: details.lastReviewedOn, updated_by: profile.id }).eq('code', details.countryCode)
 		if (error) return failed(`Could not save country details: ${error.message}`); await replaceCountryRelations(supabase, details); await refreshOutreachPaths(supabase, details.countryCode); return succeeded('Country identity, coverage, ordering, and relations saved.')
 	}, { itemLabels: outreachItemLabels })
@@ -715,8 +622,8 @@ export async function saveCountryTranslationAction(formData: FormData): Promise<
 		const { data: country, error: countryError } = await supabase.from('countries').select('flag_media_id, outline_media_id').eq('code', translation.countryCode).maybeSingle(); if (countryError || !country) return failed(`Could not load country details: ${countryError?.message ?? 'Country not found.'}`)
 		const { data: existing, error: existingError } = await supabase.from('country_translations').select(PUBLICATION_COLUMNS).eq('country_code', translation.countryCode).eq('locale', translation.locale).maybeSingle(); if (existingError) return failed(`Could not load this country translation: ${existingError.message}`)
 		const { goesPublic, row: publication, saved } = publicationColumns({ existing, publishAt: translation.publishAt, status: translation.status })
-		if (goesPublic && country.flag_media_id && !translation.flagAltText) throw new FieldError('flagAltText', 'Published localized country content needs alt text for each selected media asset.')
-		if (goesPublic && country.outline_media_id && !translation.outlineAltText) throw new FieldError('outlineAltText', 'Published localized country content needs alt text for each selected media asset.')
+		if (goesPublic && country.flag_media_id) await requireLibraryAlt(supabase, { field: 'flagAlt', label: 'flag', locale: translation.locale, mediaId: country.flag_media_id })
+		if (goesPublic && country.outline_media_id) await requireLibraryAlt(supabase, { field: 'outlineAlt', label: 'outline', locale: translation.locale, mediaId: country.outline_media_id })
 		const { error } = await supabase.from('country_translations').upsert({ country_code: translation.countryCode, locale: translation.locale, slug: translation.slug, name: translation.name, summary: translation.summary, coverage_summary: translation.coverageSummary, content: translation.content, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'country_code,locale' })
 		if (error) return failed(`Could not save this country translation: ${error.message}`)
 		const { data: assignments, error: assignmentError } = await supabase.from('country_services').select('service_id').eq('country_code', translation.countryCode); if (assignmentError) return failed(`Could not validate country services: ${assignmentError.message}`)
@@ -724,7 +631,7 @@ export async function saveCountryTranslationAction(formData: FormData): Promise<
 		const { error: deleteCopiesError } = await supabase.from('country_service_translations').delete().eq('country_code', translation.countryCode).eq('locale', translation.locale); if (deleteCopiesError) return failed(`Could not update country service copy: ${deleteCopiesError.message}`)
 		if (translation.serviceCopies.length) { const { error: copiesError } = await supabase.from('country_service_translations').insert(translation.serviceCopies.map((item) => ({ country_code: translation.countryCode, service_id: item.serviceId, locale: translation.locale, summary: item.summary, content: item.content }))); if (copiesError) return failed(`Could not save country service copy: ${copiesError.message}`) }
 		if (translation.statisticLabels.length) { const { data: statistics, error: statisticsError } = await supabase.from('country_statistics').select('id').eq('country_code', translation.countryCode); if (statisticsError) return failed(`Could not validate statistics: ${statisticsError.message}`); const statisticIds = new Set((statistics ?? []).map((item) => item.id)); if (translation.statisticLabels.some((item) => !statisticIds.has(item.statisticId))) throw new FieldError('statisticLabels', 'Statistic labels must belong to this country.'); const { error: labelsError } = await supabase.from('country_statistic_translations').upsert(translation.statisticLabels.map((item) => ({ statistic_id: item.statisticId, locale: translation.locale, label: item.label, display_value: item.displayValue })), { onConflict: 'statistic_id,locale' }); if (labelsError) return failed(`Could not save statistic labels: ${labelsError.message}`) }
-		await saveCountryMediaAlts(supabase, translation.countryCode, translation.locale, translation.flagAltText, translation.outlineAltText); await refreshOutreachPaths(supabase, translation.countryCode); return succeeded(`${translation.locale} country content saved${publishedNotice(saved)}.`, saved)
+		await refreshOutreachPaths(supabase, translation.countryCode); return succeeded(`${translation.locale} country content saved${publishedNotice(saved)}.`, saved)
 	}, { itemLabels: outreachItemLabels })
 }
 
@@ -758,12 +665,6 @@ const articleTranslationSchema = z.object({
 	title: z.string().trim().min(2).max(300), excerpt: optionalText(2_000), content: z.unknown(),
 	sources: z.array(z.object({ label: z.string().trim().min(1).max(300), url: httpUrl() }).strict()).max(50),
 	seoTitle: optionalText(160), seoDescription: optionalText(320), status: z.enum(articleStatuses),
-	coverAltText: optionalText(320),
-})
-const articleCoverSchema = z.object({
-	articleId: z.string().uuid(), objectPath: z.string().min(1).max(1024), originalFilename: z.string().min(1).max(512),
-	mimeType: z.enum(['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']), fileSizeBytes: z.number().int().positive().max(15 * 1024 * 1024),
-	width: z.number().int().positive().nullable(), height: z.number().int().positive().nullable(), altText: z.string().trim().min(3, 'Enter English alt text for the cover (at least 3 characters).').max(320),
 })
 const articleItemLabels = { sources: 'Source', authorIds: 'Author', tagIds: 'Tag', serviceIds: 'Service', sectorIds: 'Sector', relatedArticleIds: 'Related article' }
 
@@ -775,7 +676,7 @@ function articleDetailsFromForm(formData: FormData, requireId = true) {
 	return parsed
 }
 function articleTranslationFromForm(formData: FormData, requireId = true) {
-	const parsed = articleTranslationSchema.parse({ articleId: formData.get('articleId'), locale: formData.get('locale'), slug: formData.get('slug'), title: formData.get('title'), excerpt: formData.get('excerpt'), content: jsonField(formData, 'content', 'The article content'), sources: jsonField(formData, 'sources', 'Sources'), seoTitle: formData.get('seoTitle'), seoDescription: formData.get('seoDescription'), status: formData.get('status'), coverAltText: formData.get('coverAltText') })
+	const parsed = articleTranslationSchema.parse({ articleId: formData.get('articleId'), locale: formData.get('locale'), slug: formData.get('slug'), title: formData.get('title'), excerpt: formData.get('excerpt'), content: jsonField(formData, 'content', 'The article content'), sources: jsonField(formData, 'sources', 'Sources'), seoTitle: formData.get('seoTitle'), seoDescription: formData.get('seoDescription'), status: formData.get('status') })
 	if (requireId && !parsed.articleId) throw new Error('Enter valid localized article content.')
 	return { ...parsed, content: documentField('content', () => parseArticleDocument(parsed.content)), publishAt: formData.get('publishAt') }
 }
@@ -815,13 +716,13 @@ async function replaceArticleRelations(supabase: Awaited<ReturnType<typeof creat
 	if (failedInsert?.error) throw new Error(`Could not save article relations: ${failedInsert.error.message}`)
 }
 // Published and scheduled translations need a cover (or external media) and
-// its localized alt text.
-async function ensureArticleCanPublish(supabase: Awaited<ReturnType<typeof createClient>>, articleId: string, translation: ReturnType<typeof articleTranslationFromForm>, goesPublic: boolean) {
+// the cover's alt text in their locale, which lives in the Media library.
+async function ensureArticleCanPublish(supabase: Awaited<ReturnType<typeof createClient>>, articleId: string, locale: (typeof locales)[number], goesPublic: boolean) {
 	if (!goesPublic) return
 	const { data: article, error } = await supabase.from('articles').select('cover_media_id, external_media_url').eq('id', articleId).maybeSingle()
 	if (error || !article) throw new Error(`Could not load article media: ${error?.message ?? 'Article not found.'}`)
 	if (!article.cover_media_id && !article.external_media_url) throw new FieldError('status', 'Published articles need a cover image or external media URL. Save one in the shared details first.')
-	if (article.cover_media_id && !translation.coverAltText) throw new FieldError('coverAltText', 'Published localized content needs localized alt text for its cover image.')
+	if (article.cover_media_id) await requireLibraryAlt(supabase, { field: 'coverAlt', label: 'cover image', locale, mediaId: article.cover_media_id })
 }
 async function validateArticleInlineMedia(supabase: Awaited<ReturnType<typeof createClient>>, translation: ReturnType<typeof articleTranslationFromForm>) {
 	const mediaIds = articleImageMediaIds(translation.content)
@@ -831,13 +732,6 @@ async function validateArticleInlineMedia(supabase: Awaited<ReturnType<typeof cr
 	if ((data ?? []).length !== mediaIds.length) throw new FieldError('content', 'One or more inline article images no longer exist in the managed media library.')
 	if ((data ?? []).some((asset) => !asset.mime_type?.startsWith('image/'))) throw new FieldError('content', 'Inline article media must use managed image assets.')
 	if ((translation.status === 'published' || translation.status === 'scheduled') && (data ?? []).some((asset) => !asset.is_public)) throw new FieldError('content', 'Published or scheduled article images must be public managed media assets.')
-}
-async function saveArticleCoverAlt(supabase: Awaited<ReturnType<typeof createClient>>, articleId: string, locale: (typeof locales)[number], altText: string | null) {
-	if (!altText) return
-	const { data: article } = await supabase.from('articles').select('cover_media_id').eq('id', articleId).maybeSingle()
-	if (!article?.cover_media_id) return
-	const { error } = await supabase.from('media_asset_translations').upsert({ media_asset_id: article.cover_media_id, locale, alt_text: altText }, { onConflict: 'media_asset_id,locale' })
-	if (error) throw new Error(`Could not save localized cover alt text: ${error.message}`)
 }
 // Articles appear only in the newsroom readers (listing, detail, selections,
 // and the articles on a team profile), all tagged PUBLIC_NEWSROOM_CACHE_TAG.
@@ -857,20 +751,21 @@ export async function createArticleAction(formData: FormData): Promise<AdminActi
 		// Check the publication rules before anything is written.
 		const { goesPublic, row: publication } = publicationColumns({ datedByEditor: true, existing: null, publishAt: translation.publishAt, status: translation.status })
 		if (goesPublic && !details.coverMediaId && !details.externalMediaUrl) throw new FieldError('status', 'Published articles need a cover image or external media URL.')
-		if (goesPublic && details.coverMediaId && !translation.coverAltText) throw new FieldError('coverAltText', 'Published localized content needs localized alt text for its cover image.')
+		await requireImageAsset(supabase, details.coverMediaId, 'coverMediaId', 'cover image')
+		if (goesPublic && details.coverMediaId) await requireLibraryAlt(supabase, { field: 'coverAlt', label: 'cover image', locale: 'en', mediaId: details.coverMediaId })
 		const { data: article, error } = await supabase.from('articles').insert({ id: articleId, stable_key: details.stableKey, kind: details.kind, cover_media_id: details.coverMediaId, external_media_url: details.externalMediaUrl, is_featured: details.isFeatured, featured_order: details.featuredOrder, created_by: profile.id, updated_by: profile.id }).select('id').single()
 		if (error) return failed(`Could not create the article: ${error.message}`)
 		const { error: translationError } = await supabase.from('article_translations').insert({ article_id: article.id, locale: 'en', slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication })
 		if (translationError) return failed(`The article was created, but its English translation could not be saved: ${translationError.message}`)
-		await replaceArticleRelations(supabase, article.id, details); await saveArticleCoverAlt(supabase, article.id, 'en', translation.coverAltText); await refreshNewsroomPaths(supabase, article.id)
+		await replaceArticleRelations(supabase, article.id, details); await refreshNewsroomPaths(supabase, article.id)
 		return succeeded('Article created.', undefined, { redirectTo: `/admin/newsroom/${article.id}` })
 	}, { itemLabels: articleItemLabels })
 }
 export async function saveArticleDetailsAction(formData: FormData): Promise<AdminActionResult> {
-	return adminAction('Could not save article details.', async () => { const details = articleDetailsFromForm(formData); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('articles').update({ stable_key: details.stableKey, kind: details.kind, cover_media_id: details.coverMediaId, external_media_url: details.externalMediaUrl, is_featured: details.isFeatured, featured_order: details.featuredOrder, updated_by: profile.id }).eq('id', details.articleId!); if (error) return failed(`Could not save article details: ${error.message}`); await replaceArticleRelations(supabase, details.articleId!, details); await refreshNewsroomPaths(supabase, details.articleId!); return succeeded('Shared article details saved.') }, { itemLabels: articleItemLabels })
+	return adminAction('Could not save article details.', async () => { const details = articleDetailsFromForm(formData); const { profile } = await requireActiveStaff(); const supabase = await createClient(); await requireImageAsset(supabase, details.coverMediaId, 'coverMediaId', 'cover image'); const { error } = await supabase.from('articles').update({ stable_key: details.stableKey, kind: details.kind, cover_media_id: details.coverMediaId, external_media_url: details.externalMediaUrl, is_featured: details.isFeatured, featured_order: details.featuredOrder, updated_by: profile.id }).eq('id', details.articleId!); if (error) return failed(`Could not save article details: ${error.message}`); await replaceArticleRelations(supabase, details.articleId!, details); await refreshNewsroomPaths(supabase, details.articleId!); return succeeded('Shared article details saved.') }, { itemLabels: articleItemLabels })
 }
 export async function saveArticleTranslationAction(formData: FormData): Promise<AdminActionResult<SavedPublication>> {
-	return adminAction('Could not save this translation.', async () => { const translation = articleTranslationFromForm(formData); await requireActiveStaff(); const supabase = await createClient(); await validateArticleInlineMedia(supabase, translation); const { data: existing, error: existingError } = await supabase.from('article_translations').select(PUBLICATION_COLUMNS).eq('article_id', translation.articleId!).eq('locale', translation.locale).maybeSingle(); if (existingError) return failed(`Could not load this translation: ${existingError.message}`); const { goesPublic, row: publication, saved } = publicationColumns({ datedByEditor: true, existing, publishAt: translation.publishAt, status: translation.status }); await ensureArticleCanPublish(supabase, translation.articleId!, translation, goesPublic); const { error } = await supabase.from('article_translations').upsert({ article_id: translation.articleId!, locale: translation.locale, slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'article_id,locale' }); if (error) return failed(`Could not save this translation: ${error.message}`); await saveArticleCoverAlt(supabase, translation.articleId!, translation.locale, translation.coverAltText); await refreshNewsroomPaths(supabase, translation.articleId!); return succeeded(`${translation.locale} translation saved${publishedNotice(saved)}.`, saved) }, { itemLabels: articleItemLabels })
+	return adminAction('Could not save this translation.', async () => { const translation = articleTranslationFromForm(formData); await requireActiveStaff(); const supabase = await createClient(); await validateArticleInlineMedia(supabase, translation); const { data: existing, error: existingError } = await supabase.from('article_translations').select(PUBLICATION_COLUMNS).eq('article_id', translation.articleId!).eq('locale', translation.locale).maybeSingle(); if (existingError) return failed(`Could not load this translation: ${existingError.message}`); const { goesPublic, row: publication, saved } = publicationColumns({ datedByEditor: true, existing, publishAt: translation.publishAt, status: translation.status }); await ensureArticleCanPublish(supabase, translation.articleId!, translation.locale, goesPublic); const { error } = await supabase.from('article_translations').upsert({ article_id: translation.articleId!, locale: translation.locale, slug: translation.slug, title: translation.title, excerpt: translation.excerpt, content: translation.content, sources: translation.sources, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication }, { onConflict: 'article_id,locale' }); if (error) return failed(`Could not save this translation: ${error.message}`); await refreshNewsroomPaths(supabase, translation.articleId!); return succeeded(`${translation.locale} translation saved${publishedNotice(saved)}.`, saved) }, { itemLabels: articleItemLabels })
 }
 // Articles have no is_active flag: archiving sets every published or
 // scheduled translation to archived and keeps its published_at, so the date
@@ -900,10 +795,6 @@ export async function setArticleArchivedAction(formData: FormData): Promise<Admi
 		return succeeded(changes.length ? `Article restored: ${summary}.` : 'Nothing to restore: no translation is archived.')
 	})
 }
-export async function attachArticleCoverAction(input: unknown): Promise<AdminActionResult<{ mediaId: string }>> {
-	return adminAction('Could not upload the cover image.', async () => { const parsed = articleCoverSchema.parse(input); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { data: media, error: mediaError } = await supabase.from('media_assets').insert({ object_path: parsed.objectPath, original_filename: parsed.originalFilename, mime_type: parsed.mimeType, file_size_bytes: parsed.fileSizeBytes, width: parsed.width, height: parsed.height, uploaded_by: profile.id }).select('id').single(); if (mediaError) return failed(`The file uploaded, but its media record could not be created: ${mediaError.message}`); const { error: altError } = await supabase.from('media_asset_translations').upsert({ media_asset_id: media.id, locale: 'en', alt_text: parsed.altText }, { onConflict: 'media_asset_id,locale' }); if (altError) return failed(`The cover uploaded, but its English alt text could not be saved: ${altError.message}`); const { error } = await supabase.from('articles').update({ cover_media_id: media.id, updated_by: profile.id }).eq('id', parsed.articleId); if (error) return failed(`The cover was saved, but could not be attached: ${error.message}`); await refreshNewsroomPaths(supabase, parsed.articleId); return succeeded('Cover image uploaded and attached.', { mediaId: media.id }) })
-}
-
 export async function createNewsroomTagAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not create newsroom tag.', async () => { const parsed = z.object({ stableKey: requiredKey, name: z.string().trim().min(1).max(160), slug: requiredKey, status: z.enum(['draft', 'published']) }).parse({ stableKey: formData.get('stableKey'), name: formData.get('name'), slug: formData.get('slug'), status: formData.get('status') }); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const id = randomUUID(); const { data: tag, error } = await supabase.from('tags').insert({ id, stable_key: parsed.stableKey, created_by: profile.id, updated_by: profile.id }).select('id').single(); if (error) return failed(`Could not create tag: ${error.message}`); const { error: translationError } = await supabase.from('tag_translations').insert({ tag_id: tag.id, locale: 'en', slug: parsed.slug, name: parsed.name, status: parsed.status, published_at: parsed.status === 'published' ? new Date().toISOString() : null }); if (translationError) return failed(`The tag was created, but its English label could not be saved: ${translationError.message}`); updateTag(PUBLIC_NEWSROOM_CACHE_TAG); revalidatePath('/admin/newsroom'); return succeeded('Newsroom tag created.') })
 }

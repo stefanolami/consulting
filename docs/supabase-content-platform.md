@@ -1,10 +1,11 @@
 # Supabase Content Platform
 
-Last updated: 2026-10-05
+Last updated: 2026-10-20
 
 Status: Schema and security design. All listed migrations are applied to the
-hosted project except `20261005120000_legal_pages.sql`, which is written and
-awaiting review (section 11)
+hosted project except `20261020120000_retire_scheduled_status.sql` and
+`20261020180000_media_storage_api_operations.sql`, which are written and
+awaiting review (section 8)
 
 Related migrations:
 
@@ -14,7 +15,10 @@ Related migrations:
 - `supabase/migrations/20260812110000_team_profile_model.sql`
 - `supabase/migrations/20260818100000_media_library_safe_operations.sql`
 - `supabase/migrations/20260903120000_article_inline_media_guard.sql`
-- `supabase/migrations/20261005120000_legal_pages.sql` (not applied yet)
+- `supabase/migrations/20261005120000_legal_pages.sql`
+- `supabase/migrations/20261008120000_legal_pages_policy_recursion_fix.sql`
+- `supabase/migrations/20261020120000_retire_scheduled_status.sql` (not applied yet)
+- `supabase/migrations/20261020180000_media_storage_api_operations.sql` (not applied yet)
 
 ## 1. Purpose
 
@@ -79,6 +83,67 @@ content records and staff-role management are admin-only.
 Static brand assets, icons, and decorative page artwork remain in the
 repository. The bucket is for media colleagues need to manage through the admin
 panel.
+
+**Alt text (admin audit X-09, slice 4).** The alt text of a file lives in
+`media_asset_translations`, once per locale ("library alt text"), and is
+edited only in the Media library. Record forms never write it, so saving one
+record cannot change what another record shows for the same file. A use can
+carry its own alt text where the schema already has a place for it:
+
+| Use | Alt text shown | Edited in |
+| --- | --- | --- |
+| Partner logo (also on endorsements of that partner) | `partner_translations.alt_text` when set, else the library alt text | the partner's locale tab |
+| Inline article image | the node's `attrs.alt` (required by the article contract) | the image block |
+| Person and endorsement portraits, service and sector icons, article covers, country flags and outlines | the library alt text | the Media library (the editor shows it read-only, with a link) |
+
+`resolveAlt` in `src/lib/media-alt.mjs` implements the rule. An image without
+any alt text is still left out publicly, as before; a person portrait falls
+back to English and then to "Portrait of …". Publishing content whose
+icon, cover, flag, outline or endorsement portrait has no library alt text
+in that locale is refused with a link to the Media library; a partner needs
+its own alt text or the library's.
+
+No per-use columns were added for the uses in the last row: these images
+describe the same subject wherever they appear (a person, a flag, a cover
+photo), public pages render catalogue icons as decorative (`alt=""`), and
+seven new nullable columns in six translation tables would have doubled the
+places where the same description is translated. If a use ever needs its
+own text, add a nullable `*_alt_text` column to its translation table and
+pass it as `useAlt`.
+
+**Kinds.** The image picker filters by portrait, icon, cover, logo and flag.
+There is no kind column: an asset's kinds are its current uses
+(`src/lib/media-rules.mjs`) plus the kind chosen at upload, kept in the
+Storage path `library/<kind>/YYYY/MM/<uuid>.<ext>` (older uploads:
+`library/YYYY/MM/…`, `people/…`, `catalogue/…`, `newsroom/…`).
+
+**Uploads.** Every upload goes through the server action
+`uploadMediaAssetAction` (the Media library and the picker's "Upload new"):
+type and size are checked in the browser with the same rules
+(`mediaFileProblem`), then again on the server with the file contents. The
+earlier per-editor buttons that wrote to Storage straight from the browser
+are gone.
+
+**Replace and delete (MED-01, MED-02).** Supabase refuses SQL that deletes
+from `storage.objects`, so files are removed through the Storage API by the
+server action, with the staff session (the bucket's staff delete policy
+allows it; no secret key is needed), after the database function has
+changed the row (`src/lib/media-operations.mjs`):
+
+- *Replace:* upload the new file to a new path → `replace_media_asset`
+  switches the row to it (refused: the new file is removed again) → remove
+  the old file.
+- *Delete:* `delete_media_asset` checks every reference, including inline
+  article images, and deletes the row → remove the file.
+
+A failure or crash between the steps leaves an orphaned file, never a row
+that points to a missing file. To find orphans:
+
+- In the Media library, **Check Storage** lists orphaned files and assets
+  whose file is missing (read-only, staff session).
+- `npm run media:orphans` prints the same report with the secret key;
+  `npm run media:orphans -- --remove` also removes orphans older than one day
+  (younger files may belong to an upload in progress).
 
 ### 3.3 People
 
@@ -259,7 +324,9 @@ data boundary.
 
 `SUPABASE_SECRET_KEY` is server-only and is not required by the public website.
 It will be used by a separate trusted Supabase client for Auth Admin operations
-such as inviting colleagues.
+such as inviting colleagues. The command-line scripts (`npm run
+media:orphans`, the bootstrap and repair scripts) read it from `.env.local`;
+the admin's media actions do not need it.
 
 The key bypasses RLS. It must never:
 
@@ -455,6 +522,9 @@ edited manually.
 - Adds the `replace_media_asset` and `delete_media_asset` staff-only
   `SECURITY DEFINER` functions so media metadata and Storage objects change
   together, and deletion is refused while any direct CMS reference remains.
+- Their `delete from storage.objects` is now refused by Supabase, so both
+  functions always failed (admin audit MED-01, MED-02);
+  `20261020180000_media_storage_api_operations.sql` replaces their bodies.
 
 ### `20260903120000_article_inline_media_guard.sql`
 
@@ -496,6 +566,27 @@ edited manually.
   `scheduled` (the two test rows were saved in the new form during the slice
   3 checks), so it changes nothing there.
 
+### `20261020180000_media_storage_api_operations.sql`
+
+- Replaces the bodies of `replace_media_asset` and `delete_media_asset`
+  (admin audit slice 4, section 3.2). Both keep their names, arguments,
+  `jsonb` return type, `SECURITY DEFINER`, the active-staff check, the row
+  lock, every reference check (delete still refuses an asset used by any
+  direct CMS column or inline article image), their error codes and
+  messages, and their grants (restated: `authenticated` and `service_role`
+  may execute, `public` and `anon` may not).
+- Neither deletes from `storage.objects` any more. `replace_media_asset`
+  switches the row to the uploaded file and also returns `bucket_id` and
+  `previous_object_path`; `delete_media_asset` deletes the row and also
+  returns `bucket_id` and `object_path`. The server action removes those
+  files through the Storage API afterwards. `delete_media_asset` no longer
+  reads the storage schema, so its `search_path` drops `storage`.
+- No table, policy, bucket, data or other function changes.
+- Not applied yet; the Supabase GitHub integration applies it on push. Until
+  then replace and delete are refused with a message that names this
+  migration, and nothing changes (verified on 2026-10-20). Rollback: re-run
+  the function bodies from the two earlier media migrations.
+
 ## 9. Deliberately deferred work
 
 - Legacy-data migration beyond the dry-run-first bootstrap and representative
@@ -505,7 +596,10 @@ edited manually.
 - ~~Automatic scheduled-publishing job.~~ Not needed: scheduling is a future
   `published_at` (section 4).
 - Content revision history.
-- Orphaned-media cleanup automation.
+- Orphaned-media cleanup automation. Orphaned files can be listed (Media
+  library "Check Storage", `npm run media:orphans`) and removed by hand with
+  `npm run media:orphans -- --remove` (section 3.2); unused assets stay in
+  the library until someone deletes them.
 - Private media bucket, unless future requirements include non-public files.
 - Database tests that require authenticated test users; these will run against
   the hosted development database after the first admin bootstrap.

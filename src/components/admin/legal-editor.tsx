@@ -5,6 +5,7 @@ import { useId, useState } from 'react'
 
 import { deleteLegalTranslationAction, saveLegalTranslationAction } from '@/app/(admin)/admin/legal/actions'
 import { AdminForm, CommandButton, CommandNotice, Field, FieldGroup, FormActions, useAdminCommand, useAdminForm } from '@/components/admin/form/admin-form'
+import { useConfirm } from '@/components/admin/form/confirm-dialog'
 import { LOCALE_NAMES, LocaleTabs, useLocaleStatuses } from '@/components/admin/form/locale-tabs'
 import { PublicationFields, type PublicationState } from '@/components/admin/form/publication-fields'
 import { RichTextEditor } from '@/components/admin/rich-text-editor'
@@ -90,9 +91,19 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 			onDeleted()
 		},
 	})
+	const { confirm, dialog } = useConfirm()
 	const id = useId()
 	const fieldId = (field: string) => `${id}-${field}`
 	const contentInvalid = Boolean(form.outcome.fieldErrors.content)
+
+	async function deleteTranslation() {
+		const confirmed = await confirm({
+			title: `Delete the ${LOCALE_NAMES[locale]} translation?`,
+			body: <><p>The {LOCALE_NAMES[locale]} text of this page is deleted permanently. This cannot be undone; archiving is the usual way to withdraw a translation.</p>{locale === routing.defaultLocale ? <p className="font-medium text-red-800">Without English, the page returns “not found” in every language.</p> : null}</>,
+			confirmLabel: `Delete ${LOCALE_NAMES[locale]}`,
+		})
+		if (confirmed) remove.run({ locale, stableKey })
+	}
 
 	function changeStatus(next: LegalStatus) {
 		setStatus(next)
@@ -157,10 +168,7 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 							<p className="mt-1 text-sm text-red-900">Administrators only. Archiving is the usual way to withdraw a translation.</p>
 						</div>
 						<CommandButton
-							onClick={() => {
-								if (!window.confirm(`Delete the ${LOCALE_NAMES[locale]} translation of this page permanently? This cannot be undone.${locale === routing.defaultLocale ? ' Without English, the page returns “not found” in every language.' : ''}`)) return
-								remove.run({ locale, stableKey })
-							}}
+							onClick={() => void deleteTranslation()}
 							pending={remove.pending}
 							pendingLabel="Deleting…"
 							variant="destructive"
@@ -171,6 +179,7 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 					<CommandNotice command={remove} />
 				</div>
 			) : <CommandNotice command={remove} />}
+			{dialog}
 		</div>
 	)
 }

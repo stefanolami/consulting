@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 
 import type { AppLocale } from '@/i18n/routing'
 import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
+import { resolveAlt } from '@/lib/media-alt.mjs'
 import { createPublicClient } from '@/lib/supabase/public'
 import type { Json } from '@/types/database.generated'
 
@@ -70,14 +71,20 @@ async function loadPublishedGlobalContent(locale: AppLocale): Promise<PublicGlob
 	]) : [{ data: [], error: null }, { data: [], error: null }]
 	if (mediaError || mediaTranslationsError) throw new Error(`Unable to load public global media: ${mediaError?.message ?? mediaTranslationsError?.message}`)
 	const mediaAlt = new Map((mediaTranslations ?? []).filter((item) => item.alt_text.trim()).map((item) => [item.media_asset_id, item.alt_text]))
-	const mediaById = new Map((media ?? []).flatMap((item) => {
-		const alt = mediaAlt.get(item.id)
-		return alt ? [[item.id, { alt, url: supabase.storage.from(item.bucket_id).getPublicUrl(item.object_path).data.publicUrl }]] : []
-	}))
+	const mediaUrl = new Map((media ?? []).map((item) => [item.id, supabase.storage.from(item.bucket_id).getPublicUrl(item.object_path).data.publicUrl]))
+	// An image is shown only with alt text. A partner logo uses the partner's
+	// own alt text for this locale when it has one, else the library's
+	// (audit X-09); an endorsement portrait uses the library's.
+	const libraryImage = (id: string | null): PublicMediaImage | null => {
+		const url = id ? mediaUrl.get(id) : undefined
+		const alt = id ? mediaAlt.get(id) : undefined
+		return url && alt ? { alt, url } : null
+	}
 	const publicPartners = visiblePartners.flatMap((partner) => {
-		const logo = partner.logo_media_id ? mediaById.get(partner.logo_media_id) : null
-		if (!logo) return []
-		return [{ alt: logo.alt, id: partner.id, logoUrl: logo.url, name: partner.name, websiteUrl: safeWebUrl(partner.website_url) }]
+		const url = partner.logo_media_id ? mediaUrl.get(partner.logo_media_id) : undefined
+		const { alt } = resolveAlt({ useAlt: partnerTranslation.get(partner.id)?.alt_text, libraryAlt: partner.logo_media_id ? mediaAlt.get(partner.logo_media_id) : null })
+		if (!url || !alt) return []
+		return [{ alt, id: partner.id, logoUrl: url, name: partner.name, websiteUrl: safeWebUrl(partner.website_url) }]
 	})
 
 	const partnersById = new Map(publicPartners.map((partner) => [partner.id, partner]))
@@ -91,7 +98,7 @@ async function loadPublishedGlobalContent(locale: AppLocale): Promise<PublicGlob
 			id: endorsement.id,
 			logo: partner ? { alt: partner.alt, url: partner.logoUrl } : null,
 			partnerName: partner?.name ?? null,
-			portrait: endorsement.portrait_media_id ? mediaById.get(endorsement.portrait_media_id) ?? null : null,
+			portrait: libraryImage(endorsement.portrait_media_id),
 			quote: translation.quote,
 		}]
 	})

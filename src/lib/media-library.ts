@@ -1,27 +1,10 @@
 import 'server-only'
 
-export const MEDIA_BUCKET = 'public-media'
-export const MAX_MEDIA_FILE_SIZE = 15 * 1024 * 1024
+import { IMAGE_MEDIA_TYPES, mediaExtension, mediaFileProblem, MEDIA_TYPES, type MediaType } from '@/lib/media-rules.mjs'
 
-export const allowedMediaTypes = [
-	'image/gif',
-	'image/jpeg',
-	'image/png',
-	'image/svg+xml',
-	'image/webp',
-	'application/pdf',
-] as const
+export { MEDIA_BUCKET, mediaObjectPath } from '@/lib/media-rules.mjs'
 
-export type AllowedMediaType = (typeof allowedMediaTypes)[number]
-
-const extensionByMimeType: Record<AllowedMediaType, string> = {
-	'image/gif': 'gif',
-	'image/jpeg': 'jpg',
-	'image/png': 'png',
-	'image/svg+xml': 'svg',
-	'image/webp': 'webp',
-	'application/pdf': 'pdf',
-}
+export type AllowedMediaType = MediaType
 
 export type ValidatedMediaFile = {
 	bytes: Uint8Array
@@ -100,21 +83,21 @@ function validateContent(mimeType: AllowedMediaType, bytes: Uint8Array) {
 	throw new Error('The file contents do not match the selected file type.')
 }
 
-export async function validateMediaFile(file: File): Promise<ValidatedMediaFile> {
-	if (!allowedMediaTypes.includes(file.type as AllowedMediaType)) throw new Error('Choose a GIF, JPEG, PNG, SVG, WebP, or PDF file.')
-	if (file.size <= 0) throw new Error('Choose a non-empty file.')
-	if (file.size > MAX_MEDIA_FILE_SIZE) throw new Error('Files must be 15 MiB or smaller.')
+/**
+ * Checks a file before it is stored: name, declared type and size with the
+ * shared rules (the same sentences the browser shows), then the contents
+ * against the declared type. `imagesOnly` refuses PDFs (image fields).
+ */
+export async function validateMediaFile(file: File, { imagesOnly = false }: { imagesOnly?: boolean } = {}): Promise<ValidatedMediaFile> {
+	const problem = mediaFileProblem({ name: file.name, type: file.type, size: file.size }, { imagesOnly })
+	if (problem) throw new Error(problem)
 	const originalFilename = file.name.replace(/[\\/\u0000-\u001f]/g, '_').trim().slice(0, 512)
 	if (!originalFilename) throw new Error('The file needs a valid filename.')
 	const bytes = new Uint8Array(await file.arrayBuffer())
 	const mimeType = file.type as AllowedMediaType
+	if (!(imagesOnly ? IMAGE_MEDIA_TYPES : MEDIA_TYPES).includes(mimeType)) throw new Error('Unsupported file type.')
 	validateContent(mimeType, bytes)
 	const dimensions = dimensionsFor(mimeType, bytes)
 	if ((dimensions.width !== null && dimensions.width <= 0) || (dimensions.height !== null && dimensions.height <= 0)) throw new Error('The image dimensions are invalid.')
-	return { bytes, mimeType, originalFilename, fileSizeBytes: file.size, ...dimensions, extension: extensionByMimeType[mimeType] }
-}
-
-export function mediaObjectPath(extension: string) {
-	const date = new Date()
-	return `library/${date.getUTCFullYear()}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${crypto.randomUUID()}.${extension}`
+	return { bytes, mimeType, originalFilename, fileSizeBytes: file.size, ...dimensions, extension: mediaExtension(mimeType) ?? 'bin' }
 }

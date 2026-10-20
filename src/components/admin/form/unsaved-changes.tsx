@@ -1,9 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
 
-import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/admin/form/confirm-dialog'
 
 type Entry = { isDirty: () => boolean; label: string; scope?: string }
 type Reason = 'close' | 'leave' | 'switch'
@@ -33,9 +33,7 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
 	const router = useRouter()
 	const entries = useRef(new Set<Entry>())
 	const resolver = useRef<((discard: boolean) => void) | null>(null)
-	const dialogRef = useRef<HTMLDialogElement>(null)
 	const [request, setRequest] = useState<{ labels: string[]; reason: Reason } | null>(null)
-	const id = useId()
 
 	const dirtyLabels = useCallback((scope?: string) => [...entries.current].filter((entry) => (scope === undefined || entry.scope === scope) && entry.isDirty()).map((entry) => entry.label), [])
 	const register = useCallback((entry: Entry) => {
@@ -52,15 +50,10 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
 		})
 	}, [dirtyLabels])
 
-	useEffect(() => {
-		if (request && !dialogRef.current?.open) dialogRef.current?.showModal()
-	}, [request])
-
 	function settle(discard: boolean) {
 		const resolve = resolver.current
 		resolver.current = null
 		setRequest(null)
-		if (dialogRef.current?.open) dialogRef.current.close()
 		resolve?.(discard)
 	}
 
@@ -99,23 +92,12 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
 	return (
 		<UnsavedChangesContext.Provider value={value}>
 			{children}
-			<dialog
-				aria-describedby={`${id}-description`}
-				aria-labelledby={`${id}-title`}
-				className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-slate-200 p-5 shadow-xl backdrop:bg-slate-950/40"
-				onClose={() => { if (resolver.current) settle(false) }}
-				ref={dialogRef}
-			>
-				<h2 className="font-robo text-xl text-slate-950" id={`${id}-title`}>Discard unsaved changes?</h2>
-				<p className="mt-2 text-sm leading-6 text-slate-600" id={`${id}-description`}>
+			<ConfirmDialog cancelLabel="Keep editing" confirmLabel="Discard changes" onResolve={settle} open={Boolean(request)} title="Discard unsaved changes?">
+				<p>
 					{where ? <>You have unsaved changes in {where}. </> : null}
 					{request?.reason === 'switch' ? 'Switching language discards them.' : request?.reason === 'close' ? 'Continuing discards them.' : 'Leaving this page discards them.'}
 				</p>
-				<div className="mt-5 flex flex-wrap justify-end gap-2">
-					<Button autoFocus onClick={() => settle(false)} type="button" variant="outline">Keep editing</Button>
-					<Button onClick={() => settle(true)} type="button" variant="destructive">Discard changes</Button>
-				</div>
-			</dialog>
+			</ConfirmDialog>
 		</UnsavedChangesContext.Provider>
 	)
 }

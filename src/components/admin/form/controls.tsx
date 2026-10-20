@@ -25,22 +25,3 @@ export function StatusSelect({ className, defaultValue = 'draft', name = 'status
 		</select>
 	)
 }
-
-export type MediaChoice = { id: string; label: string }
-
-/**
- * A media asset select, controlled by the editor so that an upload or a save
- * can set it (audit X-01). A selected asset that is not in the list (newer
- * than the list's limit, or just uploaded) stays selected instead of falling
- * back to "none".
- */
-export function MediaSelect({ className, emptyLabel = 'No media selected', media, onValueChange, value, ...props }: SelectProps & { emptyLabel?: string; media: readonly MediaChoice[]; onValueChange: (id: string | null) => void; value: string | null }) {
-	const missing = value && !media.some((item) => item.id === value)
-	return (
-		<select {...props} className={cn('input-select', className)} onChange={(event) => onValueChange(event.target.value || null)} value={value ?? ''}>
-			<option value="">{emptyLabel}</option>
-			{missing ? <option value={value}>Selected file (not in this list)</option> : null}
-			{media.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-		</select>
-	)
-}

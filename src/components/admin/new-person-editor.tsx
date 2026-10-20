@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { createPersonAction } from '@/app/(admin)/admin/actions'
 import { AdminForm, Field, FieldSlot, FormActions, useAdminForm } from '@/components/admin/form/admin-form'
 import { StatusSelect } from '@/components/admin/form/controls'
+import { MediaPicker, useMediaUploads, type MediaPickerAsset } from '@/components/admin/form/media-picker'
 import { ProfileDocumentEditor } from '@/components/admin/profile-document-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,8 +16,10 @@ import { emptyProfileDocument } from '@/lib/team-profile-document'
 
 type Role = { title: string; cardLabel: string | null; isCardRole: boolean }
 
-export function NewPersonEditor() {
+export function NewPersonEditor({ media }: { media: MediaPickerAsset[] }) {
 	const router = useRouter()
+	const [portraitId, setPortraitId] = useState<string | null>(null)
+	const uploads = useMediaUploads()
 	const [roles, setRoles] = useState<Role[]>([{ title: '', cardLabel: null, isCardRole: true }])
 	const form = useAdminForm({ action: createPersonAction, label: 'the new profile', onSuccess: ({ redirectTo }) => { if (redirectTo) router.push(redirectTo) } })
 	function moveRole(index: number, direction: -1 | 1) {
@@ -42,8 +45,7 @@ export function NewPersonEditor() {
 				<Field label="Order within group" name="displayOrder"><Input defaultValue="0" min="0" name="displayOrder" type="number" /></Field>
 				<label className="flex items-center gap-3 text-sm font-medium text-slate-700"><input defaultChecked name="isTeamMember" type="checkbox" />Show as a team member</label>
 				<label className="flex items-center gap-3 text-sm font-medium text-slate-700"><input name="isAuthor" type="checkbox" />Available as an article author</label>
-				<Field label="Portrait" name="portraitFile"><Input accept="image/gif,image/jpeg,image/png,image/svg+xml,image/webp" name="portraitFile" type="file" /></Field>
-				<Field label="English portrait alt text" name="portraitAltText"><Input name="portraitAltText" placeholder="Portrait of Jane Doe" /></Field>
+				<div className="md:col-span-2"><MediaPicker hint="Choose a portrait from the library or upload one (with its English alt text) from the picker." kind="portrait" label="Portrait" media={media} name="portraitMediaId" noneLabel="No portrait (initials are shown)" onValueChange={setPortraitId} value={portraitId} {...uploads} /></div>
 			</div>
 		</section>
 
