@@ -2,7 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 
 import { routing, type AppLocale } from '@/i18n/routing'
-import { PUBLIC_LEGAL_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_LEGAL_CACHE_TAG } from '@/lib/cache-tags'
 import { parseLegalDocument, type LegalDocument } from '@/lib/legal-document.mjs'
 import type { LegalPageKey } from '@/lib/legal-pages'
 import { createPublicClient } from '@/lib/supabase/public'
@@ -31,7 +31,7 @@ export type LegalPageResult =
 	| { kind: 'english-only'; english: PublishedLegalTranslation; publishedLocales: AppLocale[] }
 	| { kind: 'missing' }
 
-const CACHE_REVALIDATE_SECONDS = 60 * 60
+const CACHE_REVALIDATE_SECONDS = PUBLIC_CACHE_REVALIDATE_SECONDS
 
 // Every published translation of one page, read anonymously so the public RLS
 // contract applies: the page is active, and each translation is published

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { createRichTextRules, httpLinkIssue, validationMessage } from '../src/lib/rich-text-rules.mjs'
+import { allowedHref, createRichTextRules, httpLinkIssue, validationMessage } from '../src/lib/rich-text-rules.mjs'
 
 // The catalogue contract (src/lib/catalogue-document.ts) is these options.
 // These cases pin its behaviour, which the legal contract must not change.
@@ -19,6 +19,14 @@ test('catalogue keeps bold, italic and http(s) links and normalizes marks', () =
 	})
 	assert.deepEqual(catalogue.validateBlock({ type: 'paragraph', attrs: { textAlign: 'left' } }), { type: 'paragraph' })
 	assert.deepEqual(catalogue.validateBlock({ type: 'blockquote', content: [text('q')] }), { type: 'blockquote', content: [text('q')] })
+})
+
+test('renderers link only to hrefs their contract accepts', () => {
+	assert.equal(allowedHref('https://example.com'), 'https://example.com')
+	for (const href of ['javascript:alert(1)', 'data:text/html,x', 'mailto:a@b.c', '/cookie-use', '', null, undefined, 42]) assert.equal(allowedHref(href), null, String(href))
+	const mailtoToo = (href) => (/^(https?|mailto):/.test(href) ? null : 'refused')
+	assert.equal(allowedHref('mailto:a@b.c', mailtoToo), 'mailto:a@b.c')
+	assert.equal(allowedHref('javascript:alert(1)', mailtoToo), null)
 })
 
 test('catalogue link rule accepts only complete http(s) URLs', () => {

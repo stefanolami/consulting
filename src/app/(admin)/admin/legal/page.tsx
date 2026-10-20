@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { LEGAL_PAGE_NAMES, LegalStatusBadge } from '@/components/admin/legal-status'
 import { routing } from '@/i18n/routing'
 import { LEGAL_PAGE_KEYS, legalPath } from '@/lib/legal-pages'
+import { editorialState } from '@/lib/publication.mjs'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = { title: 'Legal pages' }
@@ -14,7 +15,7 @@ export default async function LegalPagesAdminPage() {
 	const supabase = await createClient()
 	const [{ data: pages, error: pagesError }, { data: translations, error: translationsError }] = await Promise.all([
 		supabase.from('legal_pages').select('id, stable_key, is_active'),
-		supabase.from('legal_page_translations').select('legal_page_id, locale, title, status, last_updated_on'),
+		supabase.from('legal_page_translations').select('legal_page_id, locale, title, status, published_at, scheduled_for, last_updated_on'),
 	])
 	if (pagesError || translationsError) throw new Error(`Unable to load the legal pages: ${pagesError?.message ?? translationsError?.message}`)
 
@@ -29,7 +30,7 @@ export default async function LegalPagesAdminPage() {
 				{LEGAL_PAGE_KEYS.map((key) => {
 					const page = (pages ?? []).find((item) => item.stable_key === key)
 					const pageTranslations = page ? (translations ?? []).filter((item) => item.legal_page_id === page.id) : []
-					const englishPublished = pageTranslations.some((item) => item.locale === routing.defaultLocale && item.status === 'published')
+					const englishPublished = pageTranslations.some((item) => item.locale === routing.defaultLocale && editorialState(item).status === 'published')
 					return (
 						<li className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" key={key}>
 							<div className="flex flex-wrap items-start justify-between gap-4">
@@ -53,7 +54,7 @@ export default async function LegalPagesAdminPage() {
 											return (
 												<div className="rounded-lg bg-slate-50 px-3 py-2" key={locale}>
 													<dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">{locale}</dt>
-													<dd className="mt-1"><LegalStatusBadge status={translation?.status ?? null} /></dd>
+													<dd className="mt-1"><LegalStatusBadge status={translation ? editorialState(translation).status : null} /></dd>
 												</div>
 											)
 										})}

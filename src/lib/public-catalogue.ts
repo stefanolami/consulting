@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 
-import { PUBLIC_CATALOGUE_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_CATALOGUE_CACHE_TAG } from '@/lib/cache-tags'
 import type { AppLocale } from '@/i18n/routing'
 import { createPublicClient } from '@/lib/supabase/public'
 import type { Json } from '@/types/database.generated'
@@ -50,7 +50,7 @@ type LocalizedTranslation = {
 	summary: string | null
 }
 
-const CACHE_REVALIDATE_SECONDS = 60 * 60
+const CACHE_REVALIDATE_SECONDS = PUBLIC_CACHE_REVALIDATE_SECONDS
 
 function tableNames(kind: PublicCatalogueKind) {
 	return kind === 'service'

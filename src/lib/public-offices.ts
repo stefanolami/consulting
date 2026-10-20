@@ -2,7 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { z } from 'zod'
 
 import type { AppLocale } from '@/i18n/routing'
-import { PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
 import { createPublicClient } from '@/lib/supabase/public'
 
 // One country of the Contact "Our global network" section: its localized
@@ -16,7 +16,7 @@ export type PublicOfficeCountry = {
 	name: string
 }
 
-const CACHE_REVALIDATE_SECONDS = 60 * 60
+const CACHE_REVALIDATE_SECONDS = PUBLIC_CACHE_REVALIDATE_SECONDS
 
 // Offices are grouped through `country_offices`, the relation the admin
 // country editor orders. Every level must be public in the exact locale: an

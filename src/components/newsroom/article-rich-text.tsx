@@ -3,6 +3,8 @@ import type { ReactNode } from 'react'
 
 import { parseArticleDocument, type ArticleImageBlock } from '@/lib/article-document'
 import type { PublicArticleImage } from '@/lib/public-newsroom'
+import { articleLinkIssue } from '@/lib/rich-text-contracts.mjs'
+import { allowedHref } from '@/lib/rich-text-rules.mjs'
 import type { Json } from '@/types/database.generated'
 
 export function ArticleRichText({ content, media }: { content: Json; media: Record<string, PublicArticleImage> }) {
@@ -76,7 +78,9 @@ function renderInline(content: unknown): ReactNode {
 			const typedMark = mark as { attrs?: { href?: unknown }; type?: unknown }
 			if (typedMark.type === 'bold') child = <strong>{child}</strong>
 			if (typedMark.type === 'italic') child = <em>{child}</em>
-			if (typedMark.type === 'link' && typeof typedMark.attrs?.href === 'string') child = <a className="rounded-control font-bold text-brand underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" href={typedMark.attrs.href}>{child}</a>
+			// Only http and https links; anything else stays plain text.
+			const href = typedMark.type === 'link' ? allowedHref(typedMark.attrs?.href, articleLinkIssue) : null
+			if (href) child = <a className="rounded-control font-bold text-brand underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" href={href}>{child}</a>
 		}
 		return <span key={index}>{child}</span>
 	})

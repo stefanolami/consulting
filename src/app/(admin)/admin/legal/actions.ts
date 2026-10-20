@@ -1,24 +1,29 @@
 'use server'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { routing } from '@/i18n/routing'
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
+import { PUBLICATION_COLUMNS, publicationColumns, publishedNotice } from '@/lib/admin-publication'
 import { optionalText } from '@/lib/admin-schema.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { PUBLIC_LEGAL_CACHE_TAG } from '@/lib/cache-tags'
 import { safeParseLegalDocument } from '@/lib/legal-document.mjs'
 import { LEGAL_PAGE_KEYS, legalPath, type LegalPageKey } from '@/lib/legal-pages'
+import { editorialState, type EditorStatus } from '@/lib/publication.mjs'
 import { createClient } from '@/lib/supabase/server'
 
 /** The stored values after a save, so the form shows what the database holds. */
 export type LegalSavedTranslation = {
+	future: boolean
 	lastUpdatedOn: string | null
-	scheduledFor: string | null
+	/** The kept publication time (the schedule while it is ahead). */
+	publishAt: string | null
 	seoDescription: string | null
 	seoTitle: string | null
-	status: (typeof statuses)[number]
+	/** The editor status: 'scheduled' while a published translation's time is ahead. */
+	status: EditorStatus
 	title: string
 	updatedAt: string
 }
@@ -34,7 +39,6 @@ const translationSchema = z.object({
 	seoTitle: labelledText(160, 'The SEO title'),
 	seoDescription: labelledText(320, 'The SEO description'),
 	status: z.enum(statuses, 'Choose a publication status.'),
-	scheduledFor: optionalText(64),
 })
 
 // A calendar date (`YYYY-MM-DD`) that exists, on or after the column's lower
@@ -57,17 +61,12 @@ function translationFromForm(formData: FormData) {
 		seoTitle: formData.get('seoTitle'),
 		seoDescription: formData.get('seoDescription'),
 		status: formData.get('status'),
-		scheduledFor: formData.get('scheduledFor'),
 	})
 	const lastUpdatedOn = parseLastUpdated(data.lastUpdatedOn)
 	// The database requires the date to publish; a scheduled translation needs
 	// it too, because it is meant to become published unchanged.
 	if ((data.status === 'published' || data.status === 'scheduled') && !lastUpdatedOn) {
 		throw new FieldError('lastUpdatedOn', `Set the "Last updated" date before ${data.status === 'published' ? 'publishing' : 'scheduling'}. It is shown to visitors.`)
-	}
-	const scheduledFor = data.scheduledFor ? new Date(data.scheduledFor) : null
-	if (data.status === 'scheduled' && (!scheduledFor || Number.isNaN(scheduledFor.getTime()) || scheduledFor <= new Date())) {
-		throw new FieldError('scheduledFor', 'Choose a future scheduled publication time.')
 	}
 	let content: unknown
 	try {
@@ -78,18 +77,13 @@ function translationFromForm(formData: FormData) {
 	const document = safeParseLegalDocument(content)
 	if (!document.success) throw new FieldError('content', `The page content is not valid. ${document.error}`)
 	if (data.status === 'published' && !document.data.content.length) throw new FieldError('content', 'Add the page text before publishing.')
-	return {
-		...data,
-		content: document.data,
-		lastUpdatedOn,
-		scheduledFor: data.status === 'scheduled' && scheduledFor ? scheduledFor.toISOString() : null,
-	}
+	return { ...data, content: document.data, lastUpdatedOn, publishAt: formData.get('publishAt') }
 }
 
 // Every legal change invalidates the public reader (platform doc §11.8) and
 // refreshes the admin and public paths of the page.
 function refreshLegalPaths(stableKey: LegalPageKey) {
-	revalidateTag(PUBLIC_LEGAL_CACHE_TAG, 'max')
+	updateTag(PUBLIC_LEGAL_CACHE_TAG)
 	revalidatePath('/admin/legal')
 	revalidatePath(`/admin/legal/${stableKey}`)
 	for (const locale of routing.locales) revalidatePath(legalPath(stableKey, locale))
@@ -108,6 +102,9 @@ export async function saveLegalTranslationAction(formData: FormData): Promise<Ad
 		await requireActiveStaff()
 		const supabase = await createClient()
 		const pageId = await legalPageId(supabase, translation.stableKey)
+		const { data: existing, error: existingError } = await supabase.from('legal_page_translations').select(PUBLICATION_COLUMNS).eq('legal_page_id', pageId).eq('locale', translation.locale).maybeSingle()
+		if (existingError) return failed(`Could not load this translation: ${existingError.message}`)
+		const { row: publication } = publicationColumns({ existing, publishAt: translation.publishAt, status: translation.status })
 		// No created_by or updated_by: the audit trigger stamps both from the
 		// signed-in user and keeps created_by on update (platform doc §11.6).
 		const { data: saved, error } = await supabase.from('legal_page_translations').upsert({
@@ -118,17 +115,17 @@ export async function saveLegalTranslationAction(formData: FormData): Promise<Ad
 			last_updated_on: translation.lastUpdatedOn,
 			seo_title: translation.seoTitle,
 			seo_description: translation.seoDescription,
-			status: translation.status,
-			scheduled_for: translation.scheduledFor,
-			published_at: translation.status === 'published' ? new Date().toISOString() : null,
-		}, { onConflict: 'legal_page_id,locale' }).select('title, status, last_updated_on, scheduled_for, seo_title, seo_description, updated_at').single()
+			...publication,
+		}, { onConflict: 'legal_page_id,locale' }).select('title, status, last_updated_on, published_at, scheduled_for, seo_title, seo_description, updated_at').single()
 		if (error) return failed(`Could not save this translation: ${error.message}`)
+		const state = editorialState(saved)
 		const stored: LegalSavedTranslation = {
+			future: state.future,
 			lastUpdatedOn: saved.last_updated_on,
-			scheduledFor: saved.scheduled_for,
+			publishAt: state.publishAt,
 			seoDescription: saved.seo_description,
 			seoTitle: saved.seo_title,
-			status: saved.status,
+			status: state.status,
 			title: saved.title,
 			updatedAt: saved.updated_at,
 		}
@@ -137,7 +134,7 @@ export async function saveLegalTranslationAction(formData: FormData): Promise<Ad
 		const { error: touchError } = await supabase.from('legal_pages').update({ updated_by: null }).eq('id', pageId)
 		refreshLegalPaths(translation.stableKey)
 		if (touchError) return succeeded(`${translation.locale} translation saved, but the page's last editor could not be recorded: ${touchError.message}`, stored)
-		return succeeded(`${translation.locale} translation saved${stored.status === 'published' ? ' and published' : ''}.`, stored)
+		return succeeded(`${translation.locale} translation saved${publishedNotice(state)}.`, stored)
 	})
 }
 

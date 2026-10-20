@@ -8,6 +8,7 @@ import { routing } from '@/i18n/routing'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { emptyLegalDocument, safeParseLegalDocument } from '@/lib/legal-document.mjs'
 import { isLegalPageKey, legalPath } from '@/lib/legal-pages'
+import { editorialState } from '@/lib/publication.mjs'
 import { createClient } from '@/lib/supabase/server'
 
 type LegalPageEditorProps = { params: Promise<{ key: string }> }
@@ -27,7 +28,7 @@ export default async function LegalPageEditor({ params }: LegalPageEditorProps) 
 	if (!page) notFound()
 	const { data: translations, error } = await supabase
 		.from('legal_page_translations')
-		.select('locale, title, content, last_updated_on, seo_title, seo_description, status, scheduled_for, updated_at, updated_by')
+		.select('locale, title, content, last_updated_on, seo_title, seo_description, status, published_at, scheduled_for, updated_at, updated_by')
 		.eq('legal_page_id', page.id)
 	if (error) throw new Error(`Unable to load the legal translations: ${error.message}`)
 	// Editors may read only their own profile and admins every profile, so a
@@ -49,10 +50,10 @@ export default async function LegalPageEditor({ params }: LegalPageEditorProps) 
 			content: content.success ? content.data : emptyLegalDocument(),
 			lastUpdatedOn: item.last_updated_on,
 			locale,
-			scheduledFor: item.scheduled_for,
+			publication: editorialState(item),
 			seoDescription: item.seo_description,
 			seoTitle: item.seo_title,
-			status: item.status,
+			status: editorialState(item).status,
 			title: item.title,
 			updatedAt: item.updated_at,
 			updatedByName: nameOf(item.updated_by),

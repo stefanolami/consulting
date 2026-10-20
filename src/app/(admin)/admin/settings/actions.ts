@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { adminAction, failed, FieldError, jsonField, succeeded, type AdminActionResult } from '@/lib/admin-action'
@@ -44,6 +44,6 @@ export async function saveSiteSettingsAction(formData: FormData): Promise<AdminA
 		]
 		const { error } = await supabase.from('site_settings').upsert(rows, { onConflict: 'key' })
 		if (error) return failed(`Could not save site settings: ${error.message}`)
-		revalidateTag(PUBLIC_GLOBAL_CACHE_TAG, 'max'); revalidatePath('/[locale]', 'page'); revalidatePath('/admin/settings'); revalidatePath('/admin'); return succeeded('Global site settings saved.')
+		updateTag(PUBLIC_GLOBAL_CACHE_TAG); revalidatePath('/[locale]', 'page'); revalidatePath('/admin/settings'); revalidatePath('/admin'); return succeeded('Global site settings saved.')
 	}, { itemLabels: { callsToAction: 'Call to action', socialLinks: 'Social link' } })
 }

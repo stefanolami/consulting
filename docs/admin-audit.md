@@ -29,10 +29,10 @@ Screenshots are in [`docs/admin-audit/`](./admin-audit/).
 | 3 | **Fixed in slice 1.** In People, any server-side validation error throws. The page is replaced by "This page couldn't load" and everything typed is lost. There is no admin error boundary. | blocker | People (create and every save) |
 | 4 | **Fixed in slice 2.** Fields labelled optional are effectively required, because the client sends `null` where the schemas expect a string or nothing. Seeded profiles that have a role without a card label (Glenn Cezanne) cannot be saved at all. A country translation cannot be saved once the country has an assigned service or a statistic. | blocker | People, Our Outreach, Site settings |
 | 5 | Media "Replace file" and "Delete" both fail with `42501 Direct deletion from storage tables is not allowed` because the database functions delete from `storage.objects` directly. | blocker | Media |
-| 6 | `published_at` is re-stamped with the current time on every save of a published translation. Article dates and newsroom order change whenever someone fixes a typo, and legacy articles cannot keep their original date. | major | All translation saves |
-| 7 | Scheduling does not work end to end. Nothing ever publishes a scheduled row. Every save shifts the time shown in `datetime-local` by the UTC offset (3 h in Bucharest) and the server parses the time in the server's time zone. Archiving an article wipes its schedule, and "Restore" does nothing. | major | Catalogue, Newsroom, Outreach, Partners |
+| 6 | **Fixed in slice 3.** `published_at` is re-stamped with the current time on every save of a published translation. Article dates and newsroom order change whenever someone fixes a typo, and legacy articles cannot keep their original date. | major | All translation saves |
+| 7 | **Fixed in slice 3.** Scheduling does not work end to end. Nothing ever publishes a scheduled row. Every save shifts the time shown in `datetime-local` by the UTC offset (3 h in Bucharest) and the server parses the time in the server's time zone. Archiving an article wipes its schedule, and "Restore" does nothing. | major | Catalogue, Newsroom, Outreach, Partners |
 | 8 | **Fixed in slice 1.** Language tabs leak state. Article sources from one locale are saved into another, and office, region, partner and endorsement tabs show the previous locale's values and status. Notices follow you to other tabs, and switching tabs silently discards unsaved edits. | major | Newsroom, Our Outreach, Partners, People |
-| 9 | Public pages are revalidated with `revalidateTag(tag, 'max')` (stale-while-revalidate), so the first public view after a save, archive or restore shows the old content. Editors think the save failed. | major | All sections |
+| 9 | **Fixed in slice 3.** Public pages are revalidated with `revalidateTag(tag, 'max')` (stale-while-revalidate), so the first public view after a save, archive or restore shows the old content. Editors think the save failed. | major | All sections |
 | 10 | Alt text is stored per media asset, not per use. Saving a catalogue entry, country, partner or endorsement overwrites the alt text of every other record that uses the same file. In this test, a new service's alt text overwrote the Energy sector icon's. | major | Catalogue, Outreach, Partners, Newsroom |
 
 ---
@@ -179,7 +179,16 @@ Other editor problems, everywhere except Legal:
 accept the normalised shape. Move the legal editor's styles, focus behaviour
 and in-page link dialog into one shared `ControlledRichTextEditor`.
 
-### X-05 Publication timestamps and scheduling (major, bug)
+### X-05 Publication timestamps and scheduling (major, bug) — Fixed in slice 3
+
+*Slice 3:* `published_at` is kept by every save, unpublish, archive and
+restore; articles have an editable "Publication date" (it is `published_at`);
+"Scheduled" is a published row with a future `published_at`, hidden by RLS
+until then and shown as Scheduled in the admin; times are entered in the
+editor's time zone and sent as UTC ISO strings (unit tests in
+`scripts/publication.test.mjs`); every schedule needs a future time. See the
+platform doc §4 and control tower §17.1.
+
 
 - `published_at` is set to `new Date()` on every save with status Published
   (actions.ts:170, 215, 516, 603, 813, 906; partners/actions.ts:63;
@@ -225,7 +234,12 @@ and in-page link dialog into one shared `ControlledRichTextEditor`.
   leaving with unsaved changes. Reuse the legal tab strip (status badge,
   roving tabindex, `aria-controls`).
 
-### X-07 Cache invalidation is stale-while-revalidate (major, bug)
+### X-07 Cache invalidation is stale-while-revalidate (major, bug) — Fixed in slice 3
+
+*Slice 3:* every admin action calls `updateTag(tag)`; the tag-to-action table
+is in control tower §17.1. Creating a profile and creating a tag now expire
+their tags too.
+
 
 All admin actions call `revalidateTag(tag, 'max')` (19 calls). In Next 16 that
 marks the tag stale: the next request is served the old page while it
@@ -395,7 +409,7 @@ actual and fix where it is not obvious from the title.
   `main:public/team/*` includes 19–25 MB PNGs (alberto, christoph, cristiane,
   liga, sebastiano, at 6055×8910) against a 15 MiB client limit and a 16 MB
   Server Action body limit. *Fix:* resize on upload, or document an export size.
-- **PPL-13: "Scheduled" maps to Draft** (minor, bug, code). The translation
+- **PPL-13: "Scheduled" maps to Draft** **Fixed in slice 3.** People offer Scheduled like every other translation. (minor, bug, code). The translation
   status select offers no Scheduled, and a scheduled row is rendered as Draft.
 - **PPL-14: Archive has no confirmation and no message** (minor, UX, verified).
   The restore copy is accurate; feedback is only the panel changing at the
@@ -425,9 +439,9 @@ actual and fix where it is not obvious from the title.
   message. After re-selecting and saving, the select reverted again.
 - **CAT-06: Alt text overwrites other entries' icons** (major, bug, verified).
   See X-09.
-- **CAT-07: Scheduling never publishes and the time drifts** (major, bug,
+- **CAT-07: Scheduling never publishes and the time drifts** **Fixed in slice 3.** (major, bug,
   verified). See X-05.
-- **CAT-08: "Archived" is offered as an initial status on create** (polish, UX,
+- **CAT-08: "Archived" is offered as an initial status on create** **Fixed in slice 3.** A translation that does not exist yet offers Draft, Scheduled and Published only, in every editor. (polish, UX,
   verified).
 - **CAT-09: The Services/Sectors tab is not in the URL** (polish, UX, verified).
   Returning from an editor always lands on Services.
@@ -435,7 +449,7 @@ actual and fix where it is not obvious from the title.
   catalogue "Related articles" and the article "Related services/sectors" both
   replace rows in `article_services` and `article_sectors`, with no
   concurrency check; the last save wins.
-- **CAT-11: Archive and restore work but appear late** (minor, verified). See
+- **CAT-11: Archive and restore work but appear late** **Fixed in slice 3.** Verified: the first public load after archive and after restore. (minor, verified). See
   X-07.
 
 ### Newsroom
@@ -446,17 +460,17 @@ actual and fix where it is not obvious from the title.
   bodies are where links matter most.
 - **NEWS-02: Sources leak between locales** **Fixed in slice 1.** (major, bug, verified). Saving
   German stored the English sources. See X-06.
-- **NEWS-03: Restore does nothing** (major, bug, verified).
+- **NEWS-03: Restore does nothing** **Fixed in slice 3.** Archive keeps each translation's date and schedule; Restore returns each archived translation to published (or scheduled) at its kept date. (major, bug, verified).
   `setArticleArchivedAction` (actions.ts:900) only stamps `updated_by` on
   restore. Translations stay `archived`, the panel keeps saying "Restore this
   article", and the message claims "Article restored". Archive also clears
   `scheduled_for`, so a scheduled article loses its time.
 - **NEWS-04: The status select reverts after each save** **Fixed in slice 1.** (blocker, bug,
   verified). See X-01.
-- **NEWS-05: There is no publication date, and dates change on every save**
+- **NEWS-05: There is no publication date, and dates change on every save** **Fixed in slice 3.**
   (major, bug, verified). See X-05.
 - **NEWS-06: Scheduled articles never publish; the time drifts; no future
-  check** (major, bug, verified and code). See X-05.
+  check** **Fixed in slice 3.** (major, bug, verified and code). See X-05.
 - **NEWS-07: The cover select shows empty after an upload** **Fixed in slice 1.** (major, bug,
   verified). The next "Save shared details" detaches the cover; a published
   article would then fail its own cover rule on the next translation save.
@@ -571,7 +585,7 @@ actual and fix where it is not obvious from the title.
   appears.
 - **PAR-06: Several partners can share order 0** (polish, verified). ADV and
   the seeded EFFA are both 0 until someone reorders.
-- **PAR-07: Scheduling has no future check and the time drifts** (minor, bug,
+- **PAR-07: Scheduling has no future check and the time drifts** **Fixed in slice 3.** (minor, bug,
   code). See X-05.
 
 ### Legal pages
@@ -581,7 +595,7 @@ keys, field errors with focus, an in-page link dialog with clear refusals
 (`/de/cookie-use` was refused with an explanation), a suggested "Last updated"
 date, styled editing, and the status kept after save (all verified).
 
-- **LEG-01: `published_at` is re-stamped on every save** (minor, bug, code;
+- **LEG-01: `published_at` is re-stamped on every save** **Fixed in slice 3.** (minor, bug, code;
   `legal/actions.ts:136`). Less visible here because "Last updated" is a
   separate field.
 - **LEG-02: Delete translation uses `window.confirm`** (minor, UX, code;
@@ -706,6 +720,33 @@ Not changed: the save attempt on Glenn Cezanne's profile failed validation
 before any write. "Test Testf" (`e06cf4ef-3642-483e-80b9-30b3f4afb6e6`), a
 pre-existing draft profile, was left as found apart from the reorder above.
 
+### Slice 3 test content (2026-10-20)
+
+Written through the admin by the staff account `stefano` during the slice 3
+browser checks, 18:03–18:18 UTC. Scheduling a translation sets its
+`published_at` to the scheduled time by design, so the scheduled records keep
+that time. No canonical row, relation or text was changed.
+
+| Record | Change | Before → after (`published_at`, status) |
+| --- | --- | --- |
+| Article "We are hiring…", en (`a83d2212-…`) | Saved twice; date set to 10 Sep 2025 09:00 (Bucharest); archived and restored (en and de); date set back to 20 Oct 2026 14:16 (Bucharest) | 2026-10-20T11:16:49.842Z → 2026-10-20T11:16:00Z, published (minute precision of the date field) |
+| Article "We are hiring…", de | Archived and restored with the article | 2026-10-19T11:11:36.154Z, published (unchanged) |
+| Article "Regulating Artificial Intelligence", en (`50d7da11-…`) | Legacy `scheduled` row: scheduled for 18:10Z, archived and restored before that time (stayed scheduled), went live at 18:10Z, then set to Draft | `scheduled` (scheduled_for 2026-10-20T06:00Z) → draft, 2026-10-20T18:10:00Z |
+| Service Event Organisation, en (`eb658b33-…`) | Legacy `scheduled` row: scheduled for 18:10Z, went live, then set to Draft | `scheduled` (scheduled_for 2026-10-19T11:08Z) → draft, 2026-10-20T18:10:00Z |
+| Georgios Chatziadam, en (`35e2d0bb-…`) | Scheduled for 18:10Z; profile archived and restored | 2026-10-19T10:54:07.227Z → 2026-10-20T18:10:00Z, published |
+| Country SE, en | Scheduled for 18:10Z | 2026-10-20T14:34:31.658Z → 2026-10-20T18:10:00Z, published |
+| Office Time&Place Bucharest, en (`7e545f2b-…`) | Scheduled for 18:10Z, then again for 18:15Z | 2026-10-19T11:14:52.206Z → 2026-10-20T18:15:00Z, published |
+| Region "Slice One Region", en (`da2f9043-…`) | Scheduled for 18:10Z | 2026-10-20T09:34:56.182Z → 2026-10-20T18:10:00Z, published |
+| Partner CharIN, en (`8ac70fe9-…`) | Scheduled for 18:10Z | 2026-10-19T11:24:23.031Z → 2026-10-20T18:10:00Z, published |
+| Endorsement Pieter Allers, en (`b4f55c96-…`) | Scheduled for 18:10Z; record archived and restored | 2026-10-19T11:25:12.277Z → 2026-10-20T18:10:00Z, published |
+| Legal privacy policy, en | Scheduled for 18:10Z; saved twice; archived, then published again | 2026-10-20T14:35:56.633Z → 2026-10-20T18:10:00Z, published |
+| Sector Circular Economy (`aa0e911f-…`) | Archived and restored; en saved twice | unchanged (2026-10-20T11:15:11.986Z) |
+| Glenn Cezanne, en; Country RO, en; Region Africa, en; Partner AIJN, en; Endorsement Wouter Lox, en | Saved twice without changes | unchanged |
+
+Every save also moved the row's `updated_at`. The repair script
+(`npm run publication:repair`) was run as a dry run only; nothing was
+restored.
+
 ---
 
 ## 5. Proposed fix plan
@@ -749,7 +790,18 @@ SET-01. Acceptance: the brief's sector (icon, link, numbered list, quotation,
 contacts) and a country with services, statistics and labels save in every
 locale.
 
-### Slice 3: Publication model and caching (X-05, X-07)
+### Slice 3: Publication model and caching (X-05, X-07) — done
+
+Done on 2026-10-20. Differences from the plan below: no job is needed
+(scheduling is a future `published_at` on a published row); the date of an
+article is `published_at` itself; migration
+`20261020120000_retire_scheduled_status.sql` (data only, not applied yet)
+converts the rows still stored as `scheduled`; `scripts/repair-published-at.mjs`
+(dry run by default) restores the three re-stamped dates the content log
+records. Also in this slice: team-profile links accept only http, https and
+mailto, and every public rich-text renderer shows a link it would refuse as
+plain text.
+
 
 - Preserve `published_at` unless the status changes to Published; add an
   editable publication date for articles (needed for the legacy migration).
@@ -824,6 +876,9 @@ RED-04, X-11 to X-14.
 - **Concurrency (two editors on the same record):** not tested; CAT-10 and
   X-13 come from the code.
 - **Scheduled publishing after the job exists:** there is no job to test
-  against.
+  against. *Slice 3:* no job is needed; scheduling was tested end to end in
+  the browser (§4, slice 3 test content).
 - **Production build:** everything ran against `next dev`. Stale-while-
   revalidate (X-07) should be re-checked against `next build && next start`.
+  *Slice 3:* also checked against `next dev` only (`next build` passes);
+  `updateTag` is the documented immediate-expiry path in both modes.

@@ -21,6 +21,7 @@
 		"visual-test:bootstrap": "node --env-file=.env.local scripts/bootstrap-visual-test.mjs",
 		"visual-test:verify": "node --env-file=.env.local scripts/verify-content-contracts.mjs",
 		"rich-text:validate": "node --env-file=.env.local scripts/validate-stored-rich-text.mjs",
+		"publication:repair": "node --env-file=.env.local scripts/repair-published-at.mjs",
 		"visual:screenshots": "node scripts/visual-screenshots.mjs",
 		"check": "npm run lint && npm run typecheck && npm run test && npm run build"
 	},

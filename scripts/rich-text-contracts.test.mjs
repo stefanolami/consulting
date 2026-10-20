@@ -120,6 +120,20 @@ test('profile: links, a line break and a numbered list; no headings or quotation
 	assert.ok(profileLinkIssue('example.com'))
 })
 
+test('profile links: only http, https and mailto', () => {
+	for (const href of ['https://example.com', 'http://example.com/path?q=1', 'mailto:name@example.com', 'mailto:first.last@time-place.eu?subject=Hello']) {
+		assert.equal(profileLinkIssue(href), null, href)
+	}
+	for (const href of ['javascript:alert(1)', 'JavaScript:alert(1)', 'data:text/html,<script>alert(1)</script>', 'vbscript:msgbox', 'tel:+40123', 'ftp://example.com', 'mailto:', 'mailto:not-an-address', 'https://', '/who-we-are', '//evil.example']) {
+		assert.ok(profileLinkIssue(href), href)
+	}
+	assert.equal(profileLinkIssue('javascript:alert(1)'), 'Links must use https, http or mailto.')
+	const withLink = (href) => ({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Contact', marks: [{ type: 'link', attrs: { href } }] }] }] })
+	assert.deepEqual(parseProfileRichText(withLink('mailto:name@example.com')).content[0].content[0].marks, [{ type: 'link', attrs: { href: 'mailto:name@example.com' } }])
+	assert.throws(() => parseProfileRichText(withLink('javascript:alert(1)')), /https, http or mailto/)
+	assert.throws(() => parseProfileRichText(withLink('data:text/html,x')), /https, http or mailto/)
+})
+
 test('legal: site-path links, a heading, a numbered list and a quotation', () => {
 	const document = parseLegalDocument(fromEditorDocument(editorOutput.legal))
 	assert.deepEqual(document.content, [autoLinked, paragraph(text('See the cookie notice', [link('/cookie-use')])), heading, listItems, quote('A quotation for the slice 2 check.'), paragraph()])

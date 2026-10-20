@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 
 import { parseCatalogueDocument } from '@/lib/catalogue-document'
+import { catalogueLinkIssue } from '@/lib/rich-text-contracts.mjs'
+import { allowedHref } from '@/lib/rich-text-rules.mjs'
 import { cn } from '@/lib/utils'
 import type { Json } from '@/types/database.generated'
 
@@ -70,8 +72,10 @@ function renderInline(content: unknown): ReactNode {
 				const typedMark = mark as { attrs?: { href?: unknown }; type?: unknown }
 				if (typedMark.type === 'bold') child = <strong>{child}</strong>
 				if (typedMark.type === 'italic') child = <em>{child}</em>
-				if (typedMark.type === 'link' && typeof typedMark.attrs?.href === 'string') {
-					child = <a className="rounded-control underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current" href={typedMark.attrs.href}>{child}</a>
+				// Only http and https links; anything else stays plain text.
+				const href = typedMark.type === 'link' ? allowedHref(typedMark.attrs?.href, catalogueLinkIssue) : null
+				if (href) {
+					child = <a className="rounded-control underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current" href={href}>{child}</a>
 				}
 			}
 		}

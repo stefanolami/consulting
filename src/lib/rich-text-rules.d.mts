@@ -4,6 +4,8 @@ export declare const MAX_LIST_DEPTH: 3
 
 export declare function httpLinkIssue(href: string): string | null
 
+export declare function allowedHref(href: unknown, linkIssue?: (href: string) => string | null): string | null
+
 export declare function createRichTextRules(options: {
 	unsupportedBlockMessage: string
 	allowHardBreak?: boolean

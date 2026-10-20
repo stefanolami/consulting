@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
 import { Link } from '@/i18n/navigation'
-import { isInternalLegalHref, type LegalDocument } from '@/lib/legal-document.mjs'
-import type { RichTextNode } from '@/lib/rich-text-rules.mjs'
+import { isInternalLegalHref, legalLinkIssue, type LegalDocument } from '@/lib/legal-document.mjs'
+import { allowedHref, type RichTextNode } from '@/lib/rich-text-rules.mjs'
 import { cn } from '@/lib/utils'
 
 const linkClass = 'rounded-control font-medium text-tp-blue underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
@@ -54,7 +54,8 @@ function renderInline(content: RichTextNode[] | undefined): ReactNode {
 		for (const mark of node.marks ?? []) {
 			if (mark.type === 'bold') child = <strong className="font-bold">{child}</strong>
 			if (mark.type === 'italic') child = <em>{child}</em>
-			if (mark.type === 'link' && typeof mark.attrs?.href === 'string') href = mark.attrs.href
+			// Only site paths and http or https links; anything else stays plain text.
+			if (mark.type === 'link') href = allowedHref(mark.attrs?.href, legalLinkIssue)
 		}
 		if (href) {
 			return isInternalLegalHref(href)

@@ -2,10 +2,11 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
+import { PUBLICATION_COLUMNS, publicationColumns, publishedNotice, type SavedPublication } from '@/lib/admin-publication'
 import { optionalHttpUrl, optionalText, optionalUuid, requiredKey } from '@/lib/admin-schema.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
@@ -28,7 +29,7 @@ const partnerDetailsSchema = z.object({
 
 const partnerTranslationSchema = z.object({
 	partnerId: optionalUuid, locale: z.enum(locales), altText: optionalText(320),
-	description: optionalText(2_000), status: z.enum(statuses), scheduledFor: optionalText(64),
+	description: optionalText(2_000), status: z.enum(statuses),
 })
 
 const endorsementDetailsSchema = z.object({
@@ -41,22 +42,10 @@ const endorsementDetailsSchema = z.object({
 const endorsementTranslationSchema = z.object({
 	endorsementId: optionalUuid, locale: z.enum(locales),
 	quote: z.string().trim().min(3).max(5_000), attributionTitle: optionalText(320),
-	portraitAltText: optionalText(320), status: z.enum(statuses), scheduledFor: optionalText(64),
+	portraitAltText: optionalText(320), status: z.enum(statuses),
 })
 
-type PublicationStatus = (typeof statuses)[number]
 export type PartnerEntityKind = (typeof entityKinds)[number]
-
-function publication(status: (typeof statuses)[number], scheduledFor: string | null) {
-	if (status === 'scheduled' && !scheduledFor) throw new FieldError('scheduledFor', 'Choose a scheduled publication time.')
-	const scheduled = scheduledFor ? new Date(scheduledFor) : null
-	if (scheduled && Number.isNaN(scheduled.getTime())) throw new FieldError('scheduledFor', 'Choose a valid scheduled publication time.')
-	return {
-		status,
-		scheduled_for: status === 'scheduled' ? scheduled!.toISOString() : null,
-		published_at: status === 'published' ? new Date().toISOString() : null,
-	}
-}
 
 function partnerDetails(formData: FormData, includeId = true) {
 	return partnerDetailsSchema.parse({
@@ -71,9 +60,9 @@ function partnerTranslation(formData: FormData, includeId = true) {
 	const parsed = partnerTranslationSchema.parse({
 		partnerId: includeId ? formData.get('partnerId') : undefined, locale: formData.get('locale'),
 		altText: formData.get('altText'), description: formData.get('description'),
-		status: formData.get('status'), scheduledFor: formData.get('scheduledFor'),
+		status: formData.get('status'),
 	})
-	return { ...parsed, ...publication(parsed.status, parsed.scheduledFor) }
+	return { ...parsed, publishAt: formData.get('publishAt') }
 }
 
 function endorsementDetails(formData: FormData, includeId = true) {
@@ -90,9 +79,8 @@ function endorsementTranslation(formData: FormData, includeId = true) {
 		endorsementId: includeId ? formData.get('endorsementId') : undefined, locale: formData.get('locale'),
 		quote: formData.get('quote'), attributionTitle: formData.get('attributionTitle'),
 		portraitAltText: formData.get('portraitAltText'), status: formData.get('status'),
-		scheduledFor: formData.get('scheduledFor'),
 	})
-	return { ...parsed, ...publication(parsed.status, parsed.scheduledFor) }
+	return { ...parsed, publishAt: formData.get('publishAt') }
 }
 
 async function validateImage(supabase: Awaited<ReturnType<typeof createClient>>, mediaId: string | null, label: string) {
@@ -108,7 +96,7 @@ async function saveMediaAlt(supabase: Awaited<ReturnType<typeof createClient>>, 
 }
 
 function refreshPartners() {
-	revalidateTag(PUBLIC_GLOBAL_CACHE_TAG, 'max')
+	updateTag(PUBLIC_GLOBAL_CACHE_TAG)
 	revalidatePath('/admin')
 	revalidatePath('/admin/partners')
 	revalidatePath('/[locale]', 'page')
@@ -119,12 +107,13 @@ export async function createPartnerAction(formData: FormData): Promise<AdminActi
 		const details = partnerDetails(formData, false); const translation = partnerTranslation(formData, false)
 		if (translation.locale !== 'en') return failed('New partner records must start with English content.')
 		if (details.logoMediaId && !translation.altText) throw new FieldError('altText', 'A selected logo needs English alt text.')
-		if (translation.status === 'published' && !details.logoMediaId) throw new FieldError('logoMediaId', 'Published partner content needs a logo.')
+		const { goesPublic, row: publication } = publicationColumns({ existing: null, publishAt: translation.publishAt, status: translation.status })
+		if (goesPublic && !details.logoMediaId) throw new FieldError('logoMediaId', 'Published partner content needs a logo.')
 		const { profile } = await requireActiveStaff(); const supabase = await createClient(); await validateImage(supabase, details.logoMediaId, 'logo')
 		const id = randomUUID()
 		const { error: recordError } = await supabase.from('partners').insert({ id, stable_key: details.stableKey, name: details.name, website_url: details.websiteUrl, display_order: details.displayOrder, logo_media_id: details.logoMediaId, created_by: profile.id, updated_by: profile.id })
 		if (recordError) return failed(`Could not create the partner: ${recordError.message}`)
-		const { error: translationError } = await supabase.from('partner_translations').insert({ partner_id: id, locale: 'en', alt_text: translation.altText ?? '', description: translation.description, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at })
+		const { error: translationError } = await supabase.from('partner_translations').insert({ partner_id: id, locale: 'en', alt_text: translation.altText ?? '', description: translation.description, ...publication })
 		if (translationError) return failed(`The partner was created, but its English content could not be saved: ${translationError.message}`)
 		if (details.logoMediaId && translation.altText) await saveMediaAlt(supabase, details.logoMediaId, 'en', translation.altText)
 		refreshPartners(); return succeeded('Partner created.', undefined, { redirectTo: `/admin/partners/partners/${id}` })
@@ -147,18 +136,21 @@ export async function savePartnerDetailsAction(formData: FormData): Promise<Admi
 	})
 }
 
-export async function savePartnerTranslationAction(formData: FormData): Promise<AdminActionResult<{ status: PublicationStatus }>> {
+export async function savePartnerTranslationAction(formData: FormData): Promise<AdminActionResult<SavedPublication>> {
 	return adminAction('Could not save partner content.', async () => {
 		const translation = partnerTranslation(formData); if (!translation.partnerId) return failed('Invalid partner.')
 		await requireActiveStaff(); const supabase = await createClient()
 		const { data: partner, error: partnerError } = await supabase.from('partners').select('logo_media_id').eq('id', translation.partnerId).maybeSingle()
 		if (partnerError || !partner) return failed(`Could not load the partner: ${partnerError?.message ?? 'Partner not found.'}`)
 		if (partner.logo_media_id && !translation.altText) throw new FieldError('altText', 'The selected logo needs localized alt text.')
-		if (translation.status === 'published' && !partner.logo_media_id) throw new FieldError('status', 'Published partner content needs a logo. Select one in the shared details first.')
-		const { error } = await supabase.from('partner_translations').upsert({ partner_id: translation.partnerId, locale: translation.locale, alt_text: translation.altText ?? '', description: translation.description, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at }, { onConflict: 'partner_id,locale' })
+		const { data: existing, error: existingError } = await supabase.from('partner_translations').select(PUBLICATION_COLUMNS).eq('partner_id', translation.partnerId).eq('locale', translation.locale).maybeSingle()
+		if (existingError) return failed(`Could not load the partner content: ${existingError.message}`)
+		const { goesPublic, row: publication, saved } = publicationColumns({ existing, publishAt: translation.publishAt, status: translation.status })
+		if (goesPublic && !partner.logo_media_id) throw new FieldError('status', 'Published partner content needs a logo. Select one in the shared details first.')
+		const { error } = await supabase.from('partner_translations').upsert({ partner_id: translation.partnerId, locale: translation.locale, alt_text: translation.altText ?? '', description: translation.description, ...publication }, { onConflict: 'partner_id,locale' })
 		if (error) return failed(`Could not save partner content: ${error.message}`)
 		if (partner.logo_media_id && translation.altText) await saveMediaAlt(supabase, partner.logo_media_id, translation.locale, translation.altText)
-		refreshPartners(); revalidatePath(`/admin/partners/partners/${translation.partnerId}`); return succeeded(`${translation.locale} partner content saved.`, { status: translation.status })
+		refreshPartners(); revalidatePath(`/admin/partners/partners/${translation.partnerId}`); return succeeded(`${translation.locale} partner content saved${publishedNotice(saved)}.`, saved)
 	})
 }
 
@@ -167,11 +159,12 @@ export async function createEndorsementAction(formData: FormData): Promise<Admin
 		const details = endorsementDetails(formData, false); const translation = endorsementTranslation(formData, false)
 		if (translation.locale !== 'en') return failed('New endorsements must start with English content.')
 		if (details.portraitMediaId && !translation.portraitAltText) throw new FieldError('portraitAltText', 'A selected portrait needs English alt text.')
+		const { row: publication } = publicationColumns({ existing: null, publishAt: translation.publishAt, status: translation.status })
 		const { profile } = await requireActiveStaff(); const supabase = await createClient(); await validateImage(supabase, details.portraitMediaId, 'portrait')
 		const id = randomUUID()
 		const { error: recordError } = await supabase.from('endorsements').insert({ id, stable_key: details.stableKey, partner_id: details.partnerId, portrait_media_id: details.portraitMediaId, attribution_name: details.attributionName, display_order: details.displayOrder, created_by: profile.id, updated_by: profile.id })
 		if (recordError) return failed(`Could not create the endorsement: ${recordError.message}`)
-		const { error: translationError } = await supabase.from('endorsement_translations').insert({ endorsement_id: id, locale: 'en', quote: translation.quote, attribution_title: translation.attributionTitle, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at })
+		const { error: translationError } = await supabase.from('endorsement_translations').insert({ endorsement_id: id, locale: 'en', quote: translation.quote, attribution_title: translation.attributionTitle, ...publication })
 		if (translationError) return failed(`The endorsement was created, but its English content could not be saved: ${translationError.message}`)
 		if (details.portraitMediaId && translation.portraitAltText) await saveMediaAlt(supabase, details.portraitMediaId, 'en', translation.portraitAltText)
 		refreshPartners(); return succeeded('Endorsement created.', undefined, { redirectTo: `/admin/partners/endorsements/${id}` })
@@ -190,17 +183,20 @@ export async function saveEndorsementDetailsAction(formData: FormData): Promise<
 	})
 }
 
-export async function saveEndorsementTranslationAction(formData: FormData): Promise<AdminActionResult<{ status: PublicationStatus }>> {
+export async function saveEndorsementTranslationAction(formData: FormData): Promise<AdminActionResult<SavedPublication>> {
 	return adminAction('Could not save endorsement content.', async () => {
 		const translation = endorsementTranslation(formData); if (!translation.endorsementId) return failed('Invalid endorsement.')
 		await requireActiveStaff(); const supabase = await createClient()
 		const { data: endorsement, error: endorsementError } = await supabase.from('endorsements').select('portrait_media_id').eq('id', translation.endorsementId).maybeSingle()
 		if (endorsementError || !endorsement) return failed(`Could not load the endorsement: ${endorsementError?.message ?? 'Endorsement not found.'}`)
 		if (endorsement.portrait_media_id && !translation.portraitAltText) throw new FieldError('portraitAltText', 'The selected portrait needs localized alt text.')
-		const { error } = await supabase.from('endorsement_translations').upsert({ endorsement_id: translation.endorsementId, locale: translation.locale, quote: translation.quote, attribution_title: translation.attributionTitle, status: translation.status, scheduled_for: translation.scheduled_for, published_at: translation.published_at }, { onConflict: 'endorsement_id,locale' })
+		const { data: existing, error: existingError } = await supabase.from('endorsement_translations').select(PUBLICATION_COLUMNS).eq('endorsement_id', translation.endorsementId).eq('locale', translation.locale).maybeSingle()
+		if (existingError) return failed(`Could not load the endorsement content: ${existingError.message}`)
+		const { row: publication, saved } = publicationColumns({ existing, publishAt: translation.publishAt, status: translation.status })
+		const { error } = await supabase.from('endorsement_translations').upsert({ endorsement_id: translation.endorsementId, locale: translation.locale, quote: translation.quote, attribution_title: translation.attributionTitle, ...publication }, { onConflict: 'endorsement_id,locale' })
 		if (error) return failed(`Could not save endorsement content: ${error.message}`)
 		if (endorsement.portrait_media_id && translation.portraitAltText) await saveMediaAlt(supabase, endorsement.portrait_media_id, translation.locale, translation.portraitAltText)
-		refreshPartners(); revalidatePath(`/admin/partners/endorsements/${translation.endorsementId}`); return succeeded(`${translation.locale} endorsement content saved.`, { status: translation.status })
+		refreshPartners(); revalidatePath(`/admin/partners/endorsements/${translation.endorsementId}`); return succeeded(`${translation.locale} endorsement content saved${publishedNotice(saved)}.`, saved)
 	})
 }
 

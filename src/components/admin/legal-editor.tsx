@@ -5,8 +5,8 @@ import { useId, useState } from 'react'
 
 import { deleteLegalTranslationAction, saveLegalTranslationAction } from '@/app/(admin)/admin/legal/actions'
 import { AdminForm, CommandButton, CommandNotice, Field, FieldGroup, FormActions, useAdminCommand, useAdminForm } from '@/components/admin/form/admin-form'
-import { StatusSelect } from '@/components/admin/form/controls'
 import { LOCALE_NAMES, LocaleTabs, useLocaleStatuses } from '@/components/admin/form/locale-tabs'
+import { PublicationFields, type PublicationState } from '@/components/admin/form/publication-fields'
 import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import type { LegalStatus } from '@/components/admin/legal-status'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,7 @@ export type LegalEditorTranslation = {
 	content: LegalDocument
 	lastUpdatedOn: string | null
 	locale: AppLocale
-	scheduledFor: string | null
+	publication: PublicationState
 	seoDescription: string | null
 	seoTitle: string | null
 	status: LegalStatus
@@ -61,7 +61,8 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 	const [title, setTitle] = useState(translation?.title ?? '')
 	const [lastUpdatedOn, setLastUpdatedOn] = useState(translation?.lastUpdatedOn ?? '')
 	const [status, setStatus] = useState<LegalStatus>(translation?.status ?? 'draft')
-	const [scheduledFor, setScheduledFor] = useState(toDateTimeLocal(translation?.scheduledFor))
+	// The stored publication after a save; the publication fields follow it.
+	const [savedPublication, setSavedPublication] = useState<PublicationState | null>(null)
 	const [seoTitle, setSeoTitle] = useState(translation?.seoTitle ?? '')
 	const [seoDescription, setSeoDescription] = useState(translation?.seoDescription ?? '')
 	const [editorKey, setEditorKey] = useState(0)
@@ -71,7 +72,7 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 		label: `the ${LOCALE_NAMES[locale]} translation`,
 		onSuccess: ({ values: saved }) => {
 			if (!saved) return
-			setTitle(saved.title); setLastUpdatedOn(saved.lastUpdatedOn ?? ''); setStatus(saved.status); setScheduledFor(toDateTimeLocal(saved.scheduledFor))
+			setTitle(saved.title); setLastUpdatedOn(saved.lastUpdatedOn ?? ''); setStatus(saved.status); setSavedPublication({ future: saved.future, publishAt: saved.publishAt, status: saved.status })
 			setSeoTitle(saved.seoTitle ?? ''); setSeoDescription(saved.seoDescription ?? '')
 			setRecord({ status: saved.status, updatedAt: saved.updatedAt })
 			onSaved(saved.status)
@@ -82,7 +83,7 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 	// empty draft.
 	const remove = useAdminCommand(deleteLegalTranslationAction, {
 		onSuccess: () => {
-			setTitle(''); setLastUpdatedOn(''); setStatus('draft'); setScheduledFor(''); setSeoTitle(''); setSeoDescription('')
+			setTitle(''); setLastUpdatedOn(''); setStatus('draft'); setSavedPublication({ future: false, publishAt: null, status: 'draft' }); setSeoTitle(''); setSeoDescription('')
 			setEditorKey((key) => key + 1)
 			setRecord(null)
 			form.resetBaseline()
@@ -135,17 +136,10 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 						name="content"
 					/>
 				</FieldGroup>
-				<Field label="Publication status" name="status">
-					<StatusSelect onValueChange={changeStatus} value={status} />
-				</Field>
+				<PublicationFields initial={exists ? translation?.publication : null} onStatusChange={changeStatus} saved={savedPublication} />
 				<Field addon={<Button onClick={() => setLastUpdatedOn(localToday())} type="button" variant="outline">Today</Button>} hint="Shown to visitors. Required to publish; today is suggested when you choose Published." label="“Last updated” date" name="lastUpdatedOn" required={status === 'published' || status === 'scheduled'}>
 					<Input className="flex-1" name="lastUpdatedOn" onChange={(event) => setLastUpdatedOn(event.target.value)} type="date" value={lastUpdatedOn} />
 				</Field>
-				{status === 'scheduled' ? (
-					<Field hint="Scheduled translations are not published automatically yet; publish them at this time." label="Scheduled publication time" name="scheduledFor" required>
-						<Input name="scheduledFor" onChange={(event) => setScheduledFor(event.target.value)} type="datetime-local" value={scheduledFor} />
-					</Field>
-				) : <div aria-hidden="true" className="hidden md:block" />}
 				<div aria-hidden="true" className="hidden md:block" />
 				<Field hint="Optional. The page title is used when empty." label="SEO title" name="seoTitle">
 					<Input maxLength={160} name="seoTitle" onChange={(event) => setSeoTitle(event.target.value)} value={seoTitle} />
@@ -184,12 +178,6 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 function localToday() {
 	const now = new Date()
 	return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-}
-
-function toDateTimeLocal(value: string | null | undefined) {
-	if (!value) return ''
-	const date = new Date(value)
-	return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
 }
 
 // UTC, so the server and the browser render the same text.

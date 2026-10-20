@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 
+import { profileLinkIssue } from '@/lib/rich-text-contracts.mjs'
+import { allowedHref } from '@/lib/rich-text-rules.mjs'
 import type { ProfileDocument, ProfileEndorsement as ProfileEndorsementData } from '@/lib/team-profile-document'
 import { cn } from '@/lib/utils'
 import type { Json } from '@/types/database.generated'
@@ -87,8 +89,9 @@ function renderInline(content: unknown): ReactNode {
 			if (type === 'bold') child = <strong>{child}</strong>
 			if (type === 'italic') child = <em>{child}</em>
 			if (type === 'link') {
-				const href = (mark as { attrs?: { href?: unknown } }).attrs?.href
-				if (typeof href === 'string') child = <a className="rounded-control underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current" href={href} rel="noreferrer" target="_blank">{child}</a>
+				// Only http, https and mailto links; anything else stays plain text.
+				const href = allowedHref((mark as { attrs?: { href?: unknown } }).attrs?.href, profileLinkIssue)
+				if (href) child = <a className="rounded-control underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current" href={href} rel="noreferrer" target="_blank">{child}</a>
 			}
 		}
 		return <span key={index}>{child}</span>

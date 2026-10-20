@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
@@ -24,11 +24,11 @@ async function fileField<T>(validate: () => Promise<T>) {
 }
 
 function refreshMediaLibrary() {
-	revalidateTag(PUBLIC_CATALOGUE_CACHE_TAG, 'max')
-	revalidateTag(PUBLIC_GLOBAL_CACHE_TAG, 'max')
-	revalidateTag(PUBLIC_NEWSROOM_CACHE_TAG, 'max')
-	revalidateTag(PUBLIC_OUTREACH_CACHE_TAG, 'max')
-	revalidateTag(PUBLIC_TEAM_CACHE_TAG, 'max')
+	updateTag(PUBLIC_CATALOGUE_CACHE_TAG)
+	updateTag(PUBLIC_GLOBAL_CACHE_TAG)
+	updateTag(PUBLIC_NEWSROOM_CACHE_TAG)
+	updateTag(PUBLIC_OUTREACH_CACHE_TAG)
+	updateTag(PUBLIC_TEAM_CACHE_TAG)
 	revalidatePath('/admin/media')
 	revalidatePath('/[locale]', 'page')
 	// Revalidate public media consumers when a shared asset changes.

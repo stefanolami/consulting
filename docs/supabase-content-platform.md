@@ -172,17 +172,48 @@ Canonical rows contain identity, relationships, media, and non-language
 metadata. Their translation rows contain localized display content and
 publication state.
 
-Each editorial translation can be:
+Each editorial translation is stored as:
 
 - `draft`
-- `scheduled`
 - `published`
 - `archived`
 
-Published rows require `published_at`. Scheduled rows require `scheduled_for`.
-The initial admin implementation will set both status and timestamp explicitly.
-Automatic scheduled publishing will require a trusted scheduled job; merely
-reaching `scheduled_for` does not change a row's status.
+Published rows require `published_at`. The model (admin audit slice 3,
+`src/lib/publication.mjs`, applied by every admin translation action):
+
+- **The publication date is kept.** `published_at` is set once, on the first
+  publish, and kept by every later save, unpublish (draft), archive, restore
+  and republish. Draft and archived rows may therefore hold a `published_at`;
+  only `status = 'published'` makes a row public.
+- **Articles have an editable date.** The article editor's "Publication date"
+  is `published_at` itself: the date shown on the article and the newsroom
+  order. A legacy article keeps its original date by setting it there. A date
+  that has passed can be set with Published; a future date requires
+  Scheduled. There is no separate display date, because a second date would
+  let the shown date, the order and the moment the article goes public
+  disagree.
+- **Scheduling needs no job.** "Scheduled" is derived, not stored: a
+  scheduled translation is `status = 'published'` with a future
+  `published_at`. The RLS policies (section 5.2: `status = 'published'` and
+  `published_at <= now()`) and the public readers, which filter the same way,
+  hide it until that moment. The admin shows such rows as "Scheduled". Public
+  caches refresh every 60 seconds, so a scheduled item appears within about a
+  minute of its time (control tower §17.1). The other content types have no
+  visible date field; their "Publish at" field appears only with Scheduled.
+- **Time zones.** Editors enter and see times in their own time zone. The
+  browser sends UTC ISO strings with an offset; naive strings are refused.
+- **Archive and restore.** Canonical rows with `is_active` (people, services,
+  sectors, regions, offices, partners, endorsements) archive without touching
+  their translations. Articles have no `is_active`: archiving sets their
+  published and scheduled translations to `archived` and keeps
+  `published_at`; restoring returns each to published at its kept date
+  (scheduled again when that date is ahead), or to draft when it was never
+  published.
+
+The enum value `scheduled` and the column `scheduled_for` remain, unused.
+Migration `20261020120000_retire_scheduled_status.sql` converts the rows that
+still had the old status. Until it is applied, the admin reads such a row as
+scheduled at `scheduled_for`, and saving it writes the new form.
 
 This model permits an English article or country page to be published while a
 German or Portuguese translation remains a draft. Public queries must always
@@ -449,13 +480,30 @@ edited manually.
 - Applied to the hosted project on 2026-10-08 by the Supabase GitHub
   integration.
 
+### `20261020120000_retire_scheduled_status.sql`
+
+- Data and comments only (admin audit slice 3, section 4). In each of the 11
+  translation tables, a row with status `scheduled` whose `scheduled_for` is
+  still ahead becomes `published` with `published_at = scheduled_for`; any
+  other `scheduled` row (its time passed unpublished) becomes a `draft` that
+  keeps the intended time in `published_at`. A legal row also needs
+  `last_updated_on` to be published. `scheduled_for` is cleared on every
+  converted row. Updates the comments on `content_status`,
+  `article_translations.published_at` and
+  `legal_page_translations.last_updated_on`.
+- Not applied yet; the Supabase GitHub integration applies it on push. On
+  2026-10-20 the development database had no row left with status
+  `scheduled` (the two test rows were saved in the new form during the slice
+  3 checks), so it changes nothing there.
+
 ## 9. Deliberately deferred work
 
 - Legacy-data migration beyond the dry-run-first bootstrap and representative
   visual-test seeds (control tower sections 13.4, 13.5, and 14.5).
 - Final service catalogue and ordering.
 - Final country coverage and country statistics.
-- Automatic scheduled-publishing job.
+- ~~Automatic scheduled-publishing job.~~ Not needed: scheduling is a future
+  `published_at` (section 4).
 - Content revision history.
 - Orphaned-media cleanup automation.
 - Private media bucket, unless future requirements include non-public files.
@@ -757,8 +805,12 @@ control tower section 10.6.
 - New tag `public-legal` (`PUBLIC_LEGAL_CACHE_TAG` in `src/lib/cache-tags.ts`),
   used by the public legal reader and by legal sitemap entries. Hourly
   `cacheLife`, like the other public readers, so a future `published_at`
-  appears within the hour.
-- Invalidated with `revalidateTag(PUBLIC_LEGAL_CACHE_TAG, 'max')` by each
+  appears within the hour. *Slice 3:* the lifetime is now 60 seconds for
+  every public reader (`PUBLIC_CACHE_REVALIDATE_SECONDS`), so a scheduled
+  translation appears within about a minute.
+- Invalidated with `updateTag(PUBLIC_LEGAL_CACHE_TAG)` (until slice 3,
+  `revalidateTag(PUBLIC_LEGAL_CACHE_TAG, 'max')`, which served the old page
+  once) by each
   admin action that changes legal content: saving a translation with any
   status (draft, publish, unpublish, archive), deleting a translation (admin),
   and updating the canonical row. The admin paths are refreshed with
@@ -785,8 +837,9 @@ These are not changed by this slice:
   `authenticated` and rely on RLS, which already matches Supabase's default
   privileges. Only the legal tables need the explicit revoke, because only
   they use a column-level grant.
-- Every save of a published translation re-stamps `published_at`, so it means
-  "last saved while published" rather than "first published".
+- ~~Every save of a published translation re-stamps `published_at`, so it
+  means "last saved while published" rather than "first published".~~ Fixed in
+  slice 3: `published_at` is kept (section 4).
 - The catalogue document has no schema version, although control tower 13.1
   asks for one. The catalogue and article validators duplicate their inline
   and link rules.

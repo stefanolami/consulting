@@ -2,12 +2,12 @@ import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 
 import { routing, type AppLocale } from '@/i18n/routing'
-import { PUBLIC_TEAM_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_TEAM_CACHE_TAG } from '@/lib/cache-tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import { parseProfileDocument, profileDocumentFromLegacy, type ProfileDocument } from '@/lib/team-profile-document'
 import type { Database } from '@/types/database.generated'
 
-const CACHE_REVALIDATE_SECONDS = 60 * 60
+const CACHE_REVALIDATE_SECONDS = PUBLIC_CACHE_REVALIDATE_SECONDS
 
 export type TeamGroup = Database['public']['Enums']['team_group']
 

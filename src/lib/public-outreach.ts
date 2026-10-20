@@ -2,7 +2,7 @@ import { unstable_cache } from 'next/cache'
 
 import type { AppLocale } from '@/i18n/routing'
 import { routing } from '@/i18n/routing'
-import { PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_OUTREACH_CACHE_TAG } from '@/lib/cache-tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import type { Json } from '@/types/database.generated'
 
@@ -111,7 +111,7 @@ type CanonicalCountry = {
 
 type LocalizedService = Omit<OutreachService, 'icon'> & { iconMediaId: string | null }
 
-const CACHE_REVALIDATE_SECONDS = 60 * 60
+const CACHE_REVALIDATE_SECONDS = PUBLIC_CACHE_REVALIDATE_SECONDS
 
 function publicationTime() {
 	return new Date().toISOString()

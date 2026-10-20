@@ -49,7 +49,7 @@ export const RICH_TEXT_CONFIGS: Record<RichTextKind, Config> = {
 	catalogue: CATALOGUE,
 	country: CATALOGUE,
 	article: { headings: true, quotations: true, lineBreaks: false, schemaVersion: ARTICLE_DOCUMENT_VERSION, linkIssue: articleLinkIssue, ...WEB_LINK },
-	profile: { headings: false, quotations: false, lineBreaks: true, linkIssue: profileLinkIssue, ...WEB_LINK },
+	profile: { headings: false, quotations: false, lineBreaks: true, linkIssue: profileLinkIssue, linkPlaceholder: 'https://… or mailto:…', linkHint: <>A full web address, starting with <code>https://</code> or <code>http://</code>, or an e-mail link such as <code>mailto:name@example.com</code>.</> },
 	legal: {
 		headings: true,
 		quotations: true,

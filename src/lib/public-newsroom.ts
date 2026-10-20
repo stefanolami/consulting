@@ -4,11 +4,11 @@ import { z } from 'zod'
 
 import { type AppLocale, routing } from '@/i18n/routing'
 import { articleImageMediaIds } from '@/lib/article-document'
-import { PUBLIC_NEWSROOM_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_NEWSROOM_CACHE_TAG } from '@/lib/cache-tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import type { Json } from '@/types/database.generated'
 
-const CACHE_REVALIDATE_SECONDS = 60 * 60
+const CACHE_REVALIDATE_SECONDS = PUBLIC_CACHE_REVALIDATE_SECONDS
 
 export const NEWSROOM_PAGE_SIZE = 12
 

@@ -20,6 +20,16 @@ export function httpLinkIssue(href) {
 }
 
 /**
+ * The href a public renderer may link to: `href` when the contract's link
+ * rule accepts it, else null, so the renderer shows the text without a link.
+ * Stored documents are validated on save; this keeps a row written any other
+ * way (an import, an old contract) from rendering a javascript: or data: link.
+ */
+export function allowedHref(href, linkIssue = httpLinkIssue) {
+	return typeof href === 'string' && linkIssue(href) === null ? href : null
+}
+
+/**
  * Builds the inline and block validators. Each returns the normalized node or
  * throws (a ZodError, or an Error for depth and unsupported blocks).
  *

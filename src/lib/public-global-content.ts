@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache'
 
 import type { AppLocale } from '@/i18n/routing'
-import { PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
+import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
 import { createPublicClient } from '@/lib/supabase/public'
 import type { Json } from '@/types/database.generated'
 
@@ -29,7 +29,7 @@ export type PublicEndorsement = {
 	quote: string
 }
 
-const CACHE_REVALIDATE_SECONDS = 60 * 60
+const CACHE_REVALIDATE_SECONDS = PUBLIC_CACHE_REVALIDATE_SECONDS
 const SOCIAL_PLATFORMS = new Set(['linkedin', 'instagram', 'facebook', 'youtube', 'x'])
 
 function record(value: Json | undefined): Record<string, Json | undefined> {

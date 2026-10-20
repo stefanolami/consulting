@@ -89,12 +89,31 @@ export function parseArticleRichText(value) {
 // A profile document is an introduction and up to 20 titled sections, each
 // with rich text and an optional endorsement (team-profile-document.ts).
 
-const profileHrefSchema = z.string().url().max(2_048)
+const PROFILE_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:'])
 
-/** The profile link rule (a URL as Zod reads it). Returns an error message or null. */
+/**
+ * The profile link rule: a complete http or https web address, or a mailto
+ * e-mail link. Other protocols (javascript:, data:, tel:, …) are refused.
+ * Returns an error message or null.
+ */
 export function profileLinkIssue(href) {
-	return profileHrefSchema.safeParse(href).success ? null : 'Links must be complete web addresses, such as https://example.com.'
+	const refusal = 'Links must be complete web addresses, such as https://example.com, or e-mail links, such as mailto:name@example.com.'
+	if (typeof href !== 'string' || href.length > 2_048) return refusal
+	let url
+	try {
+		url = new URL(href)
+	} catch {
+		return refusal
+	}
+	if (!PROFILE_LINK_PROTOCOLS.has(url.protocol)) return 'Links must use https, http or mailto.'
+	if (url.protocol === 'mailto:' ? !/^[^@\s]+@[^@\s]+$/.test(url.pathname) : !url.hostname) return refusal
+	return null
 }
+
+const profileHrefSchema = z.string().superRefine((href, context) => {
+	const message = profileLinkIssue(href)
+	if (message) context.addIssue({ code: 'custom', message })
+})
 
 const profileTextSchema = z.object({
 	type: z.literal('text'),

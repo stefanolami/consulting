@@ -6,13 +6,14 @@ import { useId, useRef, useState } from 'react'
 
 import { attachPersonPortraitAction, savePersonTranslationAction, setPersonArchivedAction, updatePersonAction } from '@/app/(admin)/admin/actions'
 import { AdminForm, CommandButton, CommandNotice, Field, FieldSlot, FormActions, useAdminCommand, useAdminForm } from '@/components/admin/form/admin-form'
-import { StatusSelect } from '@/components/admin/form/controls'
 import { LOCALE_NAMES, LocaleTabs, useLocaleStatuses } from '@/components/admin/form/locale-tabs'
+import { PublicationFields, type PublicationState } from '@/components/admin/form/publication-fields'
 import { ProfileDocumentEditor } from '@/components/admin/profile-document-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { emptyProfileDocument } from '@/lib/team-profile-document'
 import type { ProfileDocument } from '@/lib/team-profile-document'
+import type { EditorStatus } from '@/lib/publication.mjs'
 import { createClient } from '@/lib/supabase/client'
 
 type Locale = 'en' | 'de' | 'it' | 'pt-BR' | 'pt-PT'
@@ -21,7 +22,8 @@ type Role = { id?: string; title: string; cardLabel: string | null; isCardRole: 
 type Translation = {
 	locale: Locale; slug: string; cardName: string | null; roles: Role[]; profileDocument: ProfileDocument
 	portraitAltText: string | null; seoTitle: string | null; seoDescription: string | null
-	status: 'draft' | 'scheduled' | 'published' | 'archived'
+	status: EditorStatus
+	publication: PublicationState
 }
 type Person = {
 	id: string; displayName: string; stableKey: string; email: string | null; phone: string | null
@@ -87,7 +89,7 @@ export function PersonEditor({ person, translations }: { person: Person; transla
 	</div>
 }
 
-function LocalizedProfileForm({ locale, onSaved, person, scope, translation }: { locale: Locale; onSaved: (status: 'draft' | 'published' | 'archived') => void; person: Person; scope: string; translation?: Translation }) {
+function LocalizedProfileForm({ locale, onSaved, person, scope, translation }: { locale: Locale; onSaved: (status: EditorStatus) => void; person: Person; scope: string; translation?: Translation }) {
 	const [roles, setRoles] = useState<Role[]>(translation?.roles.length ? translation.roles : [{ title: '', cardLabel: null, isCardRole: true }])
 	const form = useAdminForm({ action: savePersonTranslationAction, label: `the ${LOCALE_NAMES[locale]} translation`, onSuccess: ({ values }) => { if (values) onSaved(values.status) }, scope })
 	const suggestedSlug = locale === 'en' ? person.stableKey : translation?.slug ?? person.stableKey
@@ -102,7 +104,8 @@ function LocalizedProfileForm({ locale, onSaved, person, scope, translation }: {
 		</FieldSlot>
 		<FieldSlot className="md:col-span-2" name="profileDocument"><ProfileDocumentEditor initialValue={translation?.profileDocument ?? emptyProfileDocument()} /></FieldSlot>
 		<Field label="Portrait alt text" name="portraitAltText"><Input defaultValue={translation?.portraitAltText ?? ''} name="portraitAltText" placeholder={portraitAltPlaceholder(person.displayName, locale)} /></Field>
-		<Field label="Publication status" name="status"><StatusSelect defaultValue={translation?.status === 'scheduled' ? 'draft' : translation?.status ?? 'draft'} options={['draft', 'published', 'archived']} /></Field>
+		<PublicationFields initial={translation?.publication} options={translation ? undefined : ['draft', 'scheduled', 'published']} />
+		<div aria-hidden="true" className="hidden md:block" />
 		<Field label="SEO title" name="seoTitle"><Input defaultValue={translation?.seoTitle ?? ''} name="seoTitle" /></Field>
 		<Field label="SEO description" name="seoDescription"><textarea className="min-h-20 w-full rounded-md border border-input px-3 py-2 text-sm shadow-xs" defaultValue={translation?.seoDescription ?? ''} name="seoDescription" /></Field>
 		<FormActions className="md:col-span-2" form={form} label={`Save ${locale} translation`} />

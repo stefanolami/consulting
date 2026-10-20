@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Languages } from 'lucide-react'
 
 import { PeoplePreview } from '@/components/admin/people-preview'
+import { editorialState } from '@/lib/publication.mjs'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default async function PeoplePage() {
 				.order('display_name'),
 			supabase
 				.from('people_translations')
-				.select('person_id, locale, card_name, status')
+				.select('person_id, locale, card_name, status, published_at, scheduled_for')
 				.order('locale'),
 			supabase.from('people_profile_roles').select('person_id, locale, title, card_label').eq('is_card_role', true),
 		])
@@ -47,7 +48,7 @@ export default async function PeoplePage() {
 			cardName: english?.card_name ?? null,
 			role: englishRole?.card_label ?? englishRole?.title ?? 'No English card role yet',
 			locales: personTranslations.map((translation) => translation.locale),
-			status: english?.status ?? 'draft',
+			status: english ? editorialState(english).status : 'draft',
 			isActive: person.is_active,
 			displayOrder: person.display_order,
 			teamGroup: person.team_group,

@@ -2343,8 +2343,51 @@ High-level approach:
   access.
 - Published changes should appear promptly and predictably.
 
-Exact Next.js caching APIs should be selected against the version pinned at
-implementation time.
+### 17.1 Implementation (admin audit slice 3, Next.js 16.2)
+
+**Publication model** (platform doc §4, `src/lib/publication.mjs`):
+
+- `published_at` is set once, on the first publish, and kept by every later
+  save, unpublish, archive, restore and republish. Article editors set it
+  directly ("Publication date"), so legacy articles keep their original date;
+  it is the date shown and the newsroom order.
+- "Scheduled" is derived, not stored: status `published` with a future
+  `published_at`. The existing RLS (`published_at <= now()`) and the public
+  readers hide it until then, so no job publishes anything. The admin shows
+  such rows as "Scheduled" in tabs, lists and badges.
+- Dates are entered and shown in the editor's time zone (`datetime-local`,
+  filled in only after hydration) and sent as UTC ISO strings; the server
+  refuses naive strings. An untouched date field sends nothing and the stored
+  time is kept.
+
+**Cache lifetimes.** Every public reader uses `unstable_cache` with a tag and
+`revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS` (60 s, `src/lib/cache-tags.ts`).
+Saves do not depend on it. It bounds how long a scheduled item stays hidden
+after its time: the first visit after the lifetime refreshes the entry in the
+background, and the next visit shows the item, so it appears within about a
+minute of its time.
+
+**Invalidation.** Admin Server Actions call `updateTag(tag)` (read-your-own-
+writes: the next request waits for fresh data), never `revalidateTag(tag,
+'max')`, which serves the stale page once. Admin paths are still refreshed with
+`revalidatePath`. Which tags each action expires:
+
+| Action (file) | Tags |
+| --- | --- |
+| People: create, details, translation, archive/restore, portrait (`refreshPersonPaths`) | `public-team`, `public-catalogue`, `public-newsroom`, `public-outreach` (profiles appear as contacts, authors and experts) |
+| People: reorder (`movePersonAction`) | `public-team` |
+| Catalogue: create, details, translation, icon, archive/restore, reorder (`refreshCataloguePaths`) | `public-catalogue`, `public-newsroom` (taxonomy names, article relations); services also `public-outreach` (country services) |
+| Newsroom: create, details, translation, archive/restore, cover (`refreshNewsroomPaths`) | `public-newsroom` (listing, detail, selections, articles on profiles) |
+| Newsroom: create tag (`createNewsroomTagAction`) | `public-newsroom` (filter options) |
+| Our Outreach: regions, countries, offices, all actions (`refreshOutreachPaths`) | `public-outreach` (overview, country pages, contact office network) |
+| Partners and endorsements, all actions (`refreshPartners`) | `public-global-content` |
+| Site settings (`saveSiteSettingsAction`) | `public-global-content` |
+| Media library, all actions (`refreshMediaLibrary`) | `public-catalogue`, `public-global-content`, `public-newsroom`, `public-outreach`, `public-team` |
+| Legal: save, delete translation (`refreshLegalPaths`) | `public-legal` |
+| Redirects | none (the registry is not read by public pages) |
+
+Before slice 3, creating a profile (which may be published at once) and
+creating a newsroom tag expired no public tag; both now do.
 
 ## 18. Quality requirements
 
