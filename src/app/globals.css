@@ -238,6 +238,10 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+	/* Tailwind 4's preflight dropped the pointer cursor on buttons (admin audit X-11). */
+	button:not(:disabled), [role='button']:not([aria-disabled='true']), [role='tab'], select:not(:disabled), summary, input[type='checkbox']:not(:disabled), input[type='radio']:not(:disabled), input[type='file']:not(:disabled) {
+		cursor: pointer;
+	}
 	/*
 	  Shell sizing, the one source of truth for the sticky header's height.
 	  Below xl the header row is py-3 around the taller of the menu button's

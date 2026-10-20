@@ -25,13 +25,13 @@ Screenshots are in [`docs/admin-audit/`](./admin-audit/).
 | # | Problem | Severity | Where |
 | --- | --- | --- | --- |
 | 1 | Links, numbered lists and quotations are rejected on save in every rich-text editor except Legal. Each toolbar button produces JSON that the strict validator refuses, and the error appears as raw Zod JSON. | blocker | People, Catalogue, Newsroom, Our Outreach |
-| 2 | React resets every `<form action>` after the action. Status selects revert to their first-rendered option (the next save silently unpublishes), media selects revert to "No media" (the next save silently detaches the icon, cover or flag), and a failed save wipes every uncontrolled field. | blocker | All editors except Legal and Media |
-| 3 | In People, any server-side validation error throws. The page is replaced by "This page couldn't load" and everything typed is lost. There is no admin error boundary. | blocker | People (create and every save) |
+| 2 | **Fixed in slice 1.** React resets every `<form action>` after the action. Status selects revert to their first-rendered option (the next save silently unpublishes), media selects revert to "No media" (the next save silently detaches the icon, cover or flag), and a failed save wipes every uncontrolled field. | blocker | All editors except Legal and Media |
+| 3 | **Fixed in slice 1.** In People, any server-side validation error throws. The page is replaced by "This page couldn't load" and everything typed is lost. There is no admin error boundary. | blocker | People (create and every save) |
 | 4 | Fields labelled optional are effectively required, because the client sends `null` where the schemas expect a string or nothing. Seeded profiles that have a role without a card label (Glenn Cezanne) cannot be saved at all. A country translation cannot be saved once the country has an assigned service or a statistic. | blocker | People, Our Outreach, Site settings |
 | 5 | Media "Replace file" and "Delete" both fail with `42501 Direct deletion from storage tables is not allowed` because the database functions delete from `storage.objects` directly. | blocker | Media |
 | 6 | `published_at` is re-stamped with the current time on every save of a published translation. Article dates and newsroom order change whenever someone fixes a typo, and legacy articles cannot keep their original date. | major | All translation saves |
 | 7 | Scheduling does not work end to end. Nothing ever publishes a scheduled row. Every save shifts the time shown in `datetime-local` by the UTC offset (3 h in Bucharest) and the server parses the time in the server's time zone. Archiving an article wipes its schedule, and "Restore" does nothing. | major | Catalogue, Newsroom, Outreach, Partners |
-| 8 | Language tabs leak state. Article sources from one locale are saved into another, and office, region, partner and endorsement tabs show the previous locale's values and status. Notices follow you to other tabs, and switching tabs silently discards unsaved edits. | major | Newsroom, Our Outreach, Partners, People |
+| 8 | **Fixed in slice 1.** Language tabs leak state. Article sources from one locale are saved into another, and office, region, partner and endorsement tabs show the previous locale's values and status. Notices follow you to other tabs, and switching tabs silently discards unsaved edits. | major | Newsroom, Our Outreach, Partners, People |
 | 9 | Public pages are revalidated with `revalidateTag(tag, 'max')` (stale-while-revalidate), so the first public view after a save, archive or restore shows the old content. Editors think the save failed. | major | All sections |
 | 10 | Alt text is stored per media asset, not per use. Saving a catalogue entry, country, partner or endorsement overwrites the alt text of every other record that uses the same file. In this test, a new service's alt text overwrote the Energy sector icon's. | major | Catalogue, Outreach, Partners, Newsroom |
 
@@ -42,7 +42,7 @@ Screenshots are in [`docs/admin-audit/`](./admin-audit/).
 These patterns repeat across editors. Fixing the shared piece fixes many
 section findings at once; the section IDs each one covers are listed.
 
-### X-01 React form reset desynchronises the form from the database (blocker, bug)
+### X-01 React form reset desynchronises the form from the database (blocker, bug) — Fixed in slice 1
 
 - **Cause:** every editor except Legal and Media uses `<form action={…}>`, with
   or without `useActionState`. React resets the form after the action, so
@@ -79,7 +79,7 @@ section findings at once; the section IDs each one covers are listed.
 - **Covers:** PPL-02, CAT-04, CAT-05, NEWS-04, NEWS-07, OUT-06, OUT-07, PAR-04,
   SET-02, RED-01.
 
-### X-02 Validation feedback: crashes, raw JSON, no field association (blocker, UX)
+### X-02 Validation feedback: crashes, raw JSON, no field association (blocker, UX) — Fixed in slice 1
 
 - People actions `throw` (actions.ts:126, 205 and others), which in dev shows
   the overlay and otherwise "This page couldn't load", so all input is lost
@@ -177,7 +177,7 @@ and in-page link dialog into one shared `ControlledRichTextEditor`.
   job or hide "Scheduled". Reuse the legal date helper and send ISO strings with
   an offset.
 
-### X-06 Language-tab state (major, bug)
+### X-06 Language-tab state (major, bug) — Fixed in slice 1
 
 - Forms not keyed by locale: the article `TranslationForm`
   (article-editor.tsx:36) keeps `sources` and notice state across tabs, and the
@@ -205,7 +205,7 @@ profiles, the restored sector and the published article appeared only on the
 second or third public load. **Fix:** use `updateTag(tag)` in Server Actions
 (read-your-own-writes), or `revalidateTag(tag, { expire: 0 })`.
 
-### X-08 Feedback, pending states and placement (major, UX)
+### X-08 Feedback, pending states and placement (major, UX) — Fixed in slice 1
 
 | Editor | Pending state | Success message | Where messages appear |
 | --- | --- | --- | --- |
@@ -238,7 +238,7 @@ countries cannot upload in place, so a new logo means Media first, then the
 editor. Catalogue and Newsroom can upload only after the first save. **Fix:**
 one `MediaPicker` dialog (thumbnail grid, type filter, search, "Upload new").
 
-### X-11 Pointer cursor and focus (minor, UI and a11y)
+### X-11 Pointer cursor and focus (minor, UI and a11y) — Pointer cursor fixed in slice 1; the stronger focus ring remains
 
 All 28 `<button>`s, the 5 `role="tab"` buttons and all `<select>`s on the
 article page compute to `cursor: default` (Tailwind 4 removed the button
@@ -247,7 +247,7 @@ Focus rings exist on buttons but are faint (0.8 px). **Fix:** a base rule
 `button:not(:disabled), [role=tab], select, summary { cursor: pointer }` and a
 stronger shared focus ring.
 
-### X-12 Locale tabs and lists lack semantics (minor, a11y)
+### X-12 Locale tabs and lists lack semantics (minor, a11y) — Language tabs fixed in slice 1; list tabs and placeholder-only labels remain
 
 `role="tab"` buttons have no `aria-controls`, no tabpanel, no roving tabindex
 and no arrow keys (People, Catalogue, Newsroom, Media, Partners). Region and
@@ -308,7 +308,7 @@ actual and fix where it is not obvious from the title.
   The fixed sidebar has no `overflow-y`: at a 639 px viewport "Sign out" sits
   44 px below the bottom edge. *Fix:* `overflow-y-auto` on the nav, or a sticky
   footer.
-- **NAV-03: Hidden previous routes keep duplicate `id`s** (minor, bug,
+- **NAV-03: Hidden previous routes keep duplicate `id`s** **Fixed in slice 1.** The upload alt-text fields are read through refs and every shared field gets a `useId` id; hidden previous routes still stay in the DOM. (minor, bug,
   verified). With `cacheComponents`, the previous page stays in the DOM, hidden.
   Upload handlers read `document.getElementById('portrait-alt' | 'new-icon-alt'
   | 'new-cover-alt')`, so two editors in the DOM mean duplicate ids; the first
@@ -322,20 +322,20 @@ actual and fix where it is not obvious from the title.
   click "Create profile". Actual: the page crashes with
   `Unrecognized key: "type"` ([screenshot](./admin-audit/people-numbered-list-error.jpg)).
   See X-04.
-- **PPL-02: Publication status resets to Draft after each save** (blocker, bug,
+- **PPL-02: Publication status resets to Draft after each save** **Fixed in slice 1.** (blocker, bug,
   verified). This is the known issue, and it is still present. Reproduce: on
   the de tab, choose Published, save; the select shows Draft; save again and the
   German profile is unpublished. See X-01.
-- **PPL-03: Every validation error crashes the page** (blocker, bug, verified).
+- **PPL-03: Every validation error crashes the page** **Fixed in slice 1.** (blocker, bug, verified).
   For example a stable key "Alberto Cassia" or a role without a card label. See
   X-02 ([screenshot](./admin-audit/people-role-null-card-label.jpg)).
 - **PPL-04: Seeded profiles with roles without a card label cannot be saved**
   (blocker, bug, verified). Glenn Cezanne's profile fails on any "Save en
   translation" (no data was written by the test). See X-03.
-- **PPL-05: No pending state and no success message** (major, UX, verified).
+- **PPL-05: No pending state and no success message** **Fixed in slice 1.** Create, saves, archive and reorder show a pending state and an inline notice; create opens the new profile. (major, UX, verified).
   "Create profile", "Save … translation", "Save profile details", archive and
   reorder all give no feedback; create redirects without a message.
-- **PPL-06: Switching language tabs discards unsaved edits** (major, UX,
+- **PPL-06: Switching language tabs discards unsaved edits** **Fixed in slice 1.** (major, UX,
   verified). See X-06.
 - **PPL-07: New profiles default to order 0 and jump to the top of their
   group** (minor, UX, verified). The three new members appeared above Omar and
@@ -387,10 +387,10 @@ actual and fix where it is not obvious from the title.
 - **CAT-03: The icon select is a filename dropdown** (major, UX, verified).
   Icons cannot be uploaded until after the first save, and the list mixes
   portraits and flags. See X-10.
-- **CAT-04: The status select reverts after each save** (blocker, bug,
+- **CAT-04: The status select reverts after each save** **Fixed in slice 1.** (blocker, bug,
   verified: de "translation saved." while showing Draft). See X-01.
 - **CAT-05: Uploading or selecting an icon, then saving shared details,
-  detaches it** (blocker, bug, verified). After "Upload replacement" the icon
+  detaches it** **Fixed in slice 1.** (blocker, bug, verified). After "Upload replacement" the icon
   select still shows "No icon selected" and does not even list the new file;
   "Save shared details" then stored `icon_media_id = null` with a success
   message. After re-selecting and saving, the select reverted again.
@@ -415,20 +415,20 @@ actual and fix where it is not obvious from the title.
   verified for links, validator for the others;
   [screenshot](./admin-audit/newsroom-link-rejected-form-reset.jpg)). Article
   bodies are where links matter most.
-- **NEWS-02: Sources leak between locales** (major, bug, verified). Saving
+- **NEWS-02: Sources leak between locales** **Fixed in slice 1.** (major, bug, verified). Saving
   German stored the English sources. See X-06.
 - **NEWS-03: Restore does nothing** (major, bug, verified).
   `setArticleArchivedAction` (actions.ts:900) only stamps `updated_by` on
   restore. Translations stay `archived`, the panel keeps saying "Restore this
   article", and the message claims "Article restored". Archive also clears
   `scheduled_for`, so a scheduled article loses its time.
-- **NEWS-04: The status select reverts after each save** (blocker, bug,
+- **NEWS-04: The status select reverts after each save** **Fixed in slice 1.** (blocker, bug,
   verified). See X-01.
 - **NEWS-05: There is no publication date, and dates change on every save**
   (major, bug, verified). See X-05.
 - **NEWS-06: Scheduled articles never publish; the time drifts; no future
   check** (major, bug, verified and code). See X-05.
-- **NEWS-07: The cover select shows empty after an upload** (major, bug,
+- **NEWS-07: The cover select shows empty after an upload** **Fixed in slice 1.** (major, bug,
   verified). The next "Save shared details" detaches the cover; a published
   article would then fail its own cover rule on the next translation save.
 - **NEWS-08: Publishing a new article takes too many steps** (minor, UX,
@@ -457,7 +457,7 @@ actual and fix where it is not obvious from the title.
   unlabelled and hidden publicly.
 - **OUT-02: Coverage level and statistic source URL are effectively required**
   (major, bug, verified). See X-03.
-- **OUT-03: Office (and region) language tabs show the previous locale** (major,
+- **OUT-03: Office (and region) language tabs show the previous locale** **Fixed in slice 1.** (major,
   bug, verified for offices, code for regions;
   [screenshot](./admin-audit/outreach-office-de-shows-en.jpg)). See X-06.
 - **OUT-04: Country rich text rejects links, numbered lists and quotations**
@@ -465,8 +465,8 @@ actual and fix where it is not obvious from the title.
 - **OUT-05: Clicking the editor's empty area focuses the Bold button** (major,
   bug and a11y, verified). See X-04.
 - **OUT-06: A failed save resets the covered checkbox and dates and desyncs
-  controlled inputs** (major, bug, verified). See X-01.
-- **OUT-07: The flag select shows "No media" after a save** (major, bug,
+  controlled inputs** **Fixed in slice 1.** (major, bug, verified). See X-01.
+- **OUT-07: The flag select shows "No media" after a save** **Fixed in slice 1.** (major, bug,
   verified). The next save detaches the flag.
 - **OUT-08: About 250 countries in one list** (major, UX, verified). No search,
   no filter by covered, region or status, no pagination; the order column is 0
@@ -507,13 +507,13 @@ actual and fix where it is not obvious from the title.
   confirmation dialog, as for the legal link dialog. Deleting an in-use asset
   is correctly blocked (the button is disabled and the references are listed,
   verified).
-- **MED-04: After a successful upload the page throws** (major, bug, verified).
+- **MED-04: After a successful upload the page throws** **Fixed in slice 1.** The upload form now goes through the shared form layer, which empties it after a successful upload and selects the new asset. (major, bug, verified).
   `event.currentTarget.reset()` runs after `await`, when `currentTarget` is
   `null` (`media-library.tsx:40, 61`), producing
   `TypeError: Cannot read properties of null (reading 'reset')`. The form stays
   filled (inviting a duplicate upload), `router.refresh()` is skipped, and the
   inspector stays on the previous asset.
-- **MED-05: Notices appear at the top of the page** (minor, UX, verified).
+- **MED-05: Notices appear at the top of the page** **Fixed in slice 1.** Each inspector form shows its own pending state and notice next to its button; there is no page-wide busy flag. (minor, UX, verified).
   They are out of view when saving alt text, replacing or deleting in the
   inspector. A single `busy` flag disables the whole page.
 - **MED-06: One file at a time; no type filter** (minor, UX, verified).
@@ -532,9 +532,9 @@ actual and fix where it is not obvious from the title.
   "English logo alt text" in shared details and "Localized logo alt text" on
   the en tab write the same thing, and also overwrite the media asset's alt
   text (X-09).
-- **PAR-03: Translation tabs are not keyed by locale** (major, bug, code). Same
+- **PAR-03: Translation tabs are not keyed by locale** **Fixed in slice 1.** (major, bug, code). Same
   pattern as OUT-03. See X-06.
-- **PAR-04: Status and media selects revert after save** (blocker, bug, code,
+- **PAR-04: Status and media selects revert after save** **Fixed in slice 1.** (blocker, bug, code,
   same mechanism as X-01).
 - **PAR-05: Partners have no public consumer** (minor, UX, verified). The
   partners band was removed from Home, so published partners appear nowhere;
@@ -562,7 +562,7 @@ date, styled editing, and the status kept after save (all verified).
   "Privacy Policy | Time&Place Consulting | Time&Place Consulting". The same
   applies to every SEO title field. *Fix:* "The site name is added
   automatically."
-- **LEG-04: The legal editor's patterns are not shared** (major, UX, code). Its
+- **LEG-04: The legal editor's patterns are not shared** **Fixed in slice 1.** (major, UX, code). Its
   submit flow, rich-text editor, tabs and field errors should become the shared
   admin components (fix plan slice 1).
 
@@ -570,7 +570,7 @@ date, styled editing, and the status kept after save (all verified).
 
 - **SET-01: Optional CTA labels are rejected as `null`** (major, bug,
   verified). See X-03.
-- **SET-02: A failed save reverts edits; the social platform select desyncs**
+- **SET-02: A failed save reverts edits; the social platform select desyncs** **Fixed in slice 1.**
   (major, bug, verified). See X-01.
 - **SET-03: "Footer note" and calls to action have no public effect** (major,
   UX, verified and code). The footer prints code-owned copy
@@ -590,12 +590,12 @@ date, styled editing, and the status kept after save (all verified).
 
 ### Redirects
 
-- **RED-01: Raw JSON errors and a reset form** (major, UX, verified). For
+- **RED-01: Raw JSON errors and a reset form** **Fixed in slice 1.** (major, UX, verified). For
   example "The source must be a single-leading-slash site path." arrives inside
   a JSON array. See X-01 and X-02.
 - **RED-02: Empty registry says "No redirects match this view"** (polish, UX,
   verified). It should be an empty state that explains what redirects are for.
-- **RED-03: The search input has no label; notices stack** (minor, a11y and UX,
+- **RED-03: The search input has no label; notices stack** **Fixed in slice 1.** The search input has a label, each row shows one notice (the last action), the edit form closes after a save, and the create notice clears on the next edit. (minor, a11y and UX,
   verified). The create notice stays after later edits; the edit form stays
   open after "Save redirect".
 - **RED-04: Dates use US format** (polish, UI, verified). "10/19/2026,

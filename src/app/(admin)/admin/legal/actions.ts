@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { routing } from '@/i18n/routing'
+import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { PUBLIC_LEGAL_CACHE_TAG } from '@/lib/cache-tags'
 import { safeParseLegalDocument } from '@/lib/legal-document.mjs'
@@ -20,8 +21,6 @@ export type LegalSavedTranslation = {
 	title: string
 	updatedAt: string
 }
-export type LegalActionState = { error?: string; field?: LegalField; saved?: LegalSavedTranslation; success?: string }
-type LegalField = 'content' | 'lastUpdatedOn' | 'scheduledFor' | 'seoDescription' | 'seoTitle' | 'status' | 'title'
 
 const statuses = ['draft', 'scheduled', 'published', 'archived'] as const
 const optionalText = (maximum: number, label: string) => z.string().trim().max(maximum, `${label} must be ${maximum} characters or fewer.`).optional().transform((value) => value || null)
@@ -37,8 +36,6 @@ const translationSchema = z.object({
 	scheduledFor: z.string().trim().optional().transform((value) => value || null),
 })
 
-const FIELD_BY_PATH: Partial<Record<string, LegalField>> = { title: 'title', seoTitle: 'seoTitle', seoDescription: 'seoDescription', status: 'status' }
-
 // A calendar date (`YYYY-MM-DD`) that exists, on or after the column's lower
 // bound.
 function parseLastUpdated(value: string | null) {
@@ -50,14 +47,8 @@ function parseLastUpdated(value: string | null) {
 	return value
 }
 
-class FieldError extends Error {
-	constructor(readonly field: LegalField, message: string) {
-		super(message)
-	}
-}
-
 function translationFromForm(formData: FormData) {
-	const parsed = translationSchema.safeParse({
+	const data = translationSchema.parse({
 		stableKey: formData.get('stableKey'),
 		locale: formData.get('locale'),
 		title: formData.get('title'),
@@ -67,11 +58,6 @@ function translationFromForm(formData: FormData) {
 		status: formData.get('status'),
 		scheduledFor: formData.get('scheduledFor') || undefined,
 	})
-	if (!parsed.success) {
-		const issue = parsed.error.issues[0]
-		throw new FieldError(FIELD_BY_PATH[String(issue?.path[0])] ?? 'title', issue?.message ?? 'Check the translation fields.')
-	}
-	const data = parsed.data
 	const lastUpdatedOn = parseLastUpdated(data.lastUpdatedOn)
 	// The database requires the date to publish; a scheduled translation needs
 	// it too, because it is meant to become published unchanged.
@@ -115,8 +101,8 @@ async function legalPageId(supabase: Awaited<ReturnType<typeof createClient>>, s
 	return data.id
 }
 
-export async function saveLegalTranslationAction(_: LegalActionState, formData: FormData): Promise<LegalActionState> {
-	try {
+export async function saveLegalTranslationAction(formData: FormData): Promise<AdminActionResult<LegalSavedTranslation>> {
+	return adminAction('Could not save this translation.', async () => {
 		const translation = translationFromForm(formData)
 		await requireActiveStaff()
 		const supabase = await createClient()
@@ -135,7 +121,7 @@ export async function saveLegalTranslationAction(_: LegalActionState, formData: 
 			scheduled_for: translation.scheduledFor,
 			published_at: translation.status === 'published' ? new Date().toISOString() : null,
 		}, { onConflict: 'legal_page_id,locale' }).select('title, status, last_updated_on, scheduled_for, seo_title, seo_description, updated_at').single()
-		if (error) return { error: `Could not save this translation: ${error.message}` }
+		if (error) return failed(`Could not save this translation: ${error.message}`)
 		const stored: LegalSavedTranslation = {
 			lastUpdatedOn: saved.last_updated_on,
 			scheduledFor: saved.scheduled_for,
@@ -149,31 +135,26 @@ export async function saveLegalTranslationAction(_: LegalActionState, formData: 
 		// updated_by there, and the trigger replaces the value with the actor.
 		const { error: touchError } = await supabase.from('legal_pages').update({ updated_by: null }).eq('id', pageId)
 		refreshLegalPaths(translation.stableKey)
-		if (touchError) return { saved: stored, success: `${translation.locale} translation saved, but the page's last editor could not be recorded: ${touchError.message}` }
-		return { saved: stored, success: `${translation.locale} translation saved${stored.status === 'published' ? ' and published' : ''}.` }
-	} catch (error) {
-		if (error instanceof FieldError) return { error: error.message, field: error.field }
-		return { error: error instanceof Error ? error.message : 'Could not save this translation.' }
-	}
+		if (touchError) return succeeded(`${translation.locale} translation saved, but the page's last editor could not be recorded: ${touchError.message}`, stored)
+		return succeeded(`${translation.locale} translation saved${stored.status === 'published' ? ' and published' : ''}.`, stored)
+	})
 }
 
-export async function deleteLegalTranslationAction(_: LegalActionState, formData: FormData): Promise<LegalActionState> {
-	try {
+export async function deleteLegalTranslationAction(formData: FormData): Promise<AdminActionResult> {
+	return adminAction('Could not delete this translation.', async () => {
 		const stableKey = z.enum(LEGAL_PAGE_KEYS).parse(formData.get('stableKey'))
 		const locale = z.enum(routing.locales).parse(formData.get('locale'))
 		const { profile } = await requireActiveStaff()
 		// RLS allows only active admins to delete; checking here gives editors a
 		// clear message instead of a silent no-op.
-		if (profile.role !== 'admin') return { error: 'Only administrators can delete a translation. Archive it instead.' }
+		if (profile.role !== 'admin') return failed('Only administrators can delete a translation. Archive it instead.')
 		const supabase = await createClient()
 		const pageId = await legalPageId(supabase, stableKey)
 		const { data, error } = await supabase.from('legal_page_translations').delete().eq('legal_page_id', pageId).eq('locale', locale).select('locale')
-		if (error) return { error: `Could not delete this translation: ${error.message}` }
-		if (!data?.length) return { error: 'Nothing was deleted: the translation no longer exists or your account may not delete it.' }
+		if (error) return failed(`Could not delete this translation: ${error.message}`)
+		if (!data?.length) return failed('Nothing was deleted: the translation no longer exists or your account may not delete it.')
 		await supabase.from('legal_pages').update({ updated_by: null }).eq('id', pageId)
 		refreshLegalPaths(stableKey)
-		return { success: `${locale} translation deleted.` }
-	} catch (error) {
-		return { error: error instanceof Error ? error.message : 'Could not delete this translation.' }
-	}
+		return succeeded(`${locale} translation deleted.`)
+	})
 }

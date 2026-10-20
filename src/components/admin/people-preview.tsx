@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowDown, ArrowUp, Pencil, Plus, Search } from 'lucide-react'
+import { ArrowDown, ArrowUp, LoaderCircle, Pencil, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { movePersonAction } from '@/app/(admin)/admin/actions'
+import { CommandNotice, useAdminCommand } from '@/components/admin/form/admin-form'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,6 +24,7 @@ type TeamMember = {
 
 export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[] }) {
 	const [query, setQuery] = useState('')
+	const move = useAdminCommand(movePersonAction)
 
 	const visibleMembers = useMemo(() => {
 		const normalizedQuery = query.trim().toLowerCase()
@@ -104,20 +106,17 @@ export function PeoplePreview({ initialMembers }: { initialMembers: TeamMember[]
 									{member.isActive ? member.status : 'archived'}
 								</Badge>
 								<div className="flex items-center gap-1">
-									<form action={movePersonAction}>
-										<input name="personId" type="hidden" value={member.id} />
-										<input name="direction" type="hidden" value="up" />
-										<Button aria-label={`Move ${member.name} up`} size="icon" title="Move up" type="submit" variant="ghost"><ArrowUp /></Button>
-									</form>
-									<form action={movePersonAction}>
-										<input name="personId" type="hidden" value={member.id} />
-										<input name="direction" type="hidden" value="down" />
-										<Button aria-label={`Move ${member.name} down`} size="icon" title="Move down" type="submit" variant="ghost"><ArrowDown /></Button>
-									</form>
+									{(['up', 'down'] as const).map((direction) => (
+										<Button aria-label={`Move ${member.name} ${direction}`} disabled={move.pending} key={direction} onClick={() => move.run({ direction, personId: member.id }, `${member.id}:${direction}`)} size="icon" title={`Move ${direction}`} type="button" variant="ghost">
+											{move.pending && move.key === `${member.id}:${direction}` ? <LoaderCircle aria-hidden="true" className="animate-spin" /> : direction === 'up' ? <ArrowUp /> : <ArrowDown />}
+										</Button>
+									))}
 									<Button asChild aria-label={`Edit ${member.name}`} size="icon" title="Edit" variant="ghost"><Link href={`/admin/people/${member.id}`}><Pencil /></Link></Button>
 								</div>
 							</div>
-						</div></div>
+						</div>
+						{move.key?.startsWith(`${member.id}:`) ? <CommandNotice className="mx-5 mb-4" command={move} /> : null}
+						</div>
 					))
 				) : (
 					<div className="px-5 py-14 text-center text-sm text-slate-500">

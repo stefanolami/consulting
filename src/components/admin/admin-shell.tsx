@@ -16,6 +16,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 import { signOutAction } from '@/app/(admin)/admin/actions'
+import { SignOutForm, UnsavedChangesProvider } from '@/components/admin/form/unsaved-changes'
 import { Button } from '@/components/ui/button'
 import type { StaffProfile } from '@/lib/auth/authorization'
 import { cn } from '@/lib/utils'
@@ -107,87 +108,89 @@ export function AdminShell({
 		profile.displayName || profile.email?.split('@')[0] || 'Staff member'
 
 	return (
-		<div className="min-h-screen bg-[#f4f6fa] text-slate-950">
-			<aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#27335a] px-5 py-6 text-white lg:flex">
-				<Link className="px-2" href="/admin">
-					<Image
-						alt="Time&Place Consulting"
-						className="h-auto w-52 object-contain"
-						height={182}
-						priority
-						src="/logos/consulting-white.png"
-						width={694}
-					/>
-				</Link>
-				<div className="mt-8" />
-				<Navigation />
-				<div className="mt-6 border-t border-white/10 pt-5">
-					<div className="mb-4 flex items-center gap-3 px-2">
-						<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-semibold uppercase">
-							{displayName.slice(0, 2)}
-						</div>
-						<div className="min-w-0">
-							<p className="truncate text-sm font-medium">
-								{displayName}
-							</p>
-							<p className="truncate text-xs capitalize text-blue-100/60">
-								{profile.role}
-							</p>
-						</div>
-					</div>
-					<form action={signOutAction}>
-						<Button
-							className="w-full justify-start text-blue-100 hover:bg-white/10 hover:text-white"
-							type="submit"
-							variant="ghost"
-						>
-							<LogOut aria-hidden="true" />
-							Sign out
-						</Button>
-					</form>
-				</div>
-			</aside>
-
-			<div className="lg:pl-72">
-				<header className="border-b border-slate-200 bg-white lg:hidden">
-					<div className="flex h-20 items-center justify-between px-5">
+		<UnsavedChangesProvider>
+			<div className="min-h-screen bg-[#f4f6fa] text-slate-950">
+				<aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#27335a] px-5 py-6 text-white lg:flex">
+					<Link className="px-2" href="/admin">
 						<Image
 							alt="Time&Place Consulting"
-							className="h-auto w-44 object-contain"
-							height={160}
+							className="h-auto w-52 object-contain"
+							height={182}
 							priority
-							src="/logos/consulting-logo-home.png"
-							width={550}
+							src="/logos/consulting-white.png"
+							width={694}
 						/>
-						<form action={signOutAction}>
+					</Link>
+					<div className="mt-8" />
+					<Navigation />
+					<div className="mt-6 border-t border-white/10 pt-5">
+						<div className="mb-4 flex items-center gap-3 px-2">
+							<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-semibold uppercase">
+								{displayName.slice(0, 2)}
+							</div>
+							<div className="min-w-0">
+								<p className="truncate text-sm font-medium">
+									{displayName}
+								</p>
+								<p className="truncate text-xs capitalize text-blue-100/60">
+									{profile.role}
+								</p>
+							</div>
+						</div>
+						<SignOutForm action={signOutAction}>
 							<Button
-								aria-label="Sign out"
-								size="icon"
+								className="w-full justify-start text-blue-100 hover:bg-white/10 hover:text-white"
 								type="submit"
 								variant="ghost"
 							>
 								<LogOut aria-hidden="true" />
+								Sign out
 							</Button>
-						</form>
+						</SignOutForm>
 					</div>
-					<div className="overflow-x-auto px-5 pb-4">
-						<Navigation compact />
-					</div>
-				</header>
+				</aside>
 
-				<header className="hidden h-20 items-center border-b border-slate-200 bg-white px-8 lg:flex">
-					<div>
-						<p className="text-sm text-slate-500">Admin portal</p>
-						<p className="font-medium text-slate-900">
-							Welcome, {displayName}
-						</p>
-					</div>
-				</header>
+				<div className="lg:pl-72">
+					<header className="border-b border-slate-200 bg-white lg:hidden">
+						<div className="flex h-20 items-center justify-between px-5">
+							<Image
+								alt="Time&Place Consulting"
+								className="h-auto w-44 object-contain"
+								height={160}
+								priority
+								src="/logos/consulting-logo-home.png"
+								width={550}
+							/>
+							<SignOutForm action={signOutAction}>
+								<Button
+									aria-label="Sign out"
+									size="icon"
+									type="submit"
+									variant="ghost"
+								>
+									<LogOut aria-hidden="true" />
+								</Button>
+							</SignOutForm>
+						</div>
+						<div className="overflow-x-auto px-5 pb-4">
+							<Navigation compact />
+						</div>
+					</header>
 
-				<main className="px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-					{children}
-				</main>
+					<header className="hidden h-20 items-center border-b border-slate-200 bg-white px-8 lg:flex">
+						<div>
+							<p className="text-sm text-slate-500">Admin portal</p>
+							<p className="font-medium text-slate-900">
+								Welcome, {displayName}
+							</p>
+						</div>
+					</header>
+
+					<main className="px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+						{children}
+					</main>
+				</div>
 			</div>
-		</div>
+		</UnsavedChangesProvider>
 	)
 }
