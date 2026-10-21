@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
 import { PUBLICATION_COLUMNS, publicationColumns, publishedNotice, type SavedPublication } from '@/lib/admin-publication'
 import { optionalHttpUrl, optionalText, optionalUuid, requiredKey } from '@/lib/admin-schema.mjs'
+import { endOfListOrder, moveRecord } from '@/lib/admin-order'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { libraryAltText, requireImageAsset, requireLibraryAlt } from '@/lib/media-choices'
 import { PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
@@ -107,7 +108,7 @@ export async function createPartnerAction(formData: FormData): Promise<AdminActi
 		const { profile } = await requireActiveStaff(); const supabase = await createClient(); await requireImageAsset(supabase, details.logoMediaId, 'logoMediaId', 'logo')
 		if (goesPublic && details.logoMediaId) await requireLogoAlt(supabase, details.logoMediaId, 'en', translation.altText)
 		const id = randomUUID()
-		const { error: recordError } = await supabase.from('partners').insert({ id, stable_key: details.stableKey, name: details.name, website_url: details.websiteUrl, display_order: details.displayOrder, logo_media_id: details.logoMediaId, created_by: profile.id, updated_by: profile.id })
+		const { error: recordError } = await supabase.from('partners').insert({ id, stable_key: details.stableKey, name: details.name, website_url: details.websiteUrl, display_order: await endOfListOrder({ table: 'partners' }), logo_media_id: details.logoMediaId, created_by: profile.id, updated_by: profile.id })
 		if (recordError) return failed(`Could not create the partner: ${recordError.message}`)
 		const { error: translationError } = await supabase.from('partner_translations').insert({ partner_id: id, locale: 'en', alt_text: translation.altText ?? '', description: translation.description, ...publication })
 		if (translationError) return failed(`The partner was created, but its English content could not be saved: ${translationError.message}`)
@@ -150,7 +151,7 @@ export async function createEndorsementAction(formData: FormData): Promise<Admin
 		const { profile } = await requireActiveStaff(); const supabase = await createClient(); await requireImageAsset(supabase, details.portraitMediaId, 'portraitMediaId', 'portrait')
 		if (goesPublic && details.portraitMediaId) await requireLibraryAlt(supabase, { field: 'portraitAlt', label: 'portrait', locale: 'en', mediaId: details.portraitMediaId })
 		const id = randomUUID()
-		const { error: recordError } = await supabase.from('endorsements').insert({ id, stable_key: details.stableKey, partner_id: details.partnerId, portrait_media_id: details.portraitMediaId, attribution_name: details.attributionName, display_order: details.displayOrder, created_by: profile.id, updated_by: profile.id })
+		const { error: recordError } = await supabase.from('endorsements').insert({ id, stable_key: details.stableKey, partner_id: details.partnerId, portrait_media_id: details.portraitMediaId, attribution_name: details.attributionName, display_order: await endOfListOrder({ table: 'endorsements' }), created_by: profile.id, updated_by: profile.id })
 		if (recordError) return failed(`Could not create the endorsement: ${recordError.message}`)
 		const { error: translationError } = await supabase.from('endorsement_translations').insert({ endorsement_id: id, locale: 'en', quote: translation.quote, attribution_title: translation.attributionTitle, ...publication })
 		if (translationError) return failed(`The endorsement was created, but its English content could not be saved: ${translationError.message}`)
@@ -199,16 +200,8 @@ export async function movePartnerEntityAction(formData: FormData): Promise<Admin
 	return adminAction('Could not update the ordering.', async () => {
 		const kind = z.enum(entityKinds).parse(formData.get('kind')); const entryId = z.string().uuid().parse(formData.get('entryId'))
 		const direction = z.enum(['up', 'down']).parse(formData.get('direction'))
-		const { profile } = await requireActiveStaff(); const supabase = await createClient()
-		const orderField = kind === 'partners' ? 'name' : 'attribution_name'
-		const { data, error } = await supabase.from(kind).select('id').eq('is_active', true).order('display_order').order(orderField)
-		if (error) return failed(`Could not load the ordering: ${error.message}`)
-		const ids = (data ?? []).map((item) => item.id); const current = ids.indexOf(entryId); const destination = current + (direction === 'up' ? -1 : 1)
-		if (current < 0 || destination < 0 || destination >= ids.length) return succeeded('Order is unchanged.')
-		;[ids[current], ids[destination]] = [ids[destination], ids[current]]
-		const updates = await Promise.all(ids.map((id, displayOrder) => supabase.from(kind).update({ display_order: displayOrder, updated_by: profile.id }).eq('id', id)))
-		const failedUpdate = updates.find((result) => result.error)
-		if (failedUpdate?.error) return failed(`Could not save the ordering: ${failedUpdate.error.message}`)
+		const { profile } = await requireActiveStaff()
+		if (!await moveRecord({ direction, id: entryId, profileId: profile.id, table: kind, tieBreak: kind === 'partners' ? 'name' : 'attribution_name' })) return succeeded('Order is unchanged.')
 		refreshPartners(); return succeeded('Order saved.')
 	})
 }

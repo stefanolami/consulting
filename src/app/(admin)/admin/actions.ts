@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { adminAction, documentField, failed, FieldError, jsonField, succeeded, type AdminActionResult } from '@/lib/admin-action'
 import { PUBLICATION_COLUMNS, publicationColumns, publishedNotice, type SavedPublication } from '@/lib/admin-publication'
 import { countryServiceAssignmentSchema, countryServiceCopySchema, countryStatisticLabelSchema, countryStatisticSchema, httpUrl, optional, optionalEmail, optionalHttpUrl, optionalNumber, optionalText, optionalUuid, profileRoleSchema, requiredKey } from '@/lib/admin-schema.mjs'
+import { endOfListOrder, moveRecord } from '@/lib/admin-order'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { validationMessage } from '@/lib/rich-text-rules.mjs'
 import { parseProfileDocument } from '@/lib/team-profile-document'
@@ -123,7 +124,8 @@ export async function createPersonAction(formData: FormData): Promise<AdminActio
 		const { data: person, error: personError } = await supabase.from('people').insert({
 			id: personId,
 			display_name: parsed.displayName, stable_key: parsed.stableKey, email: parsed.email, phone: parsed.phone,
-			display_order: parsed.displayOrder, team_group: parsed.teamGroup,
+			// A new profile goes to the end of its group (audit PPL-07).
+			display_order: await endOfListOrder({ table: 'people', scope: { is_team_member: true, team_group: parsed.teamGroup } }), team_group: parsed.teamGroup,
 			portrait_media_id: parsed.portraitMediaId,
 			is_team_member: formData.get('isTeamMember') === 'on', is_author: formData.get('isAuthor') === 'on',
 			created_by: profile.id, updated_by: profile.id,
@@ -216,16 +218,8 @@ export async function movePersonAction(formData: FormData): Promise<AdminActionR
 		const supabase = await createClient()
 		const { data: current, error: currentError } = await supabase.from('people').select('team_group').eq('id', personId).maybeSingle()
 		if (currentError || !current) return failed(`Could not load team group: ${currentError?.message ?? 'Profile not found.'}`)
-		const { data: people, error: peopleError } = await supabase.from('people').select('id').eq('is_team_member', true).eq('team_group', current.team_group).order('display_order').order('display_name')
-		if (peopleError) return failed(`Could not load team order: ${peopleError.message}`)
-		const currentIndex = (people ?? []).findIndex((person) => person.id === personId)
-		const destinationIndex = currentIndex + (direction === 'up' ? -1 : 1)
-		if (currentIndex < 0 || destinationIndex < 0 || destinationIndex >= (people?.length ?? 0)) return succeeded('Team order is unchanged.')
-		const orderedIds = (people ?? []).map((person) => person.id)
-		;[orderedIds[currentIndex], orderedIds[destinationIndex]] = [orderedIds[destinationIndex], orderedIds[currentIndex]]
-		const updates = await Promise.all(orderedIds.map((id, displayOrder) => supabase.from('people').update({ display_order: displayOrder, updated_by: profile.id }).eq('id', id)))
-		const failedUpdate = updates.find((result) => result.error)
-		if (failedUpdate?.error) return failed(`Could not save team order: ${failedUpdate.error.message}`)
+		// Active team members of the group only; archived profiles keep their place (audit PPL-09).
+		if (!await moveRecord({ direction, id: personId, profileId: profile.id, scope: { is_team_member: true, team_group: current.team_group }, table: 'people', tieBreak: 'display_name' })) return succeeded('Team order is unchanged.')
 		revalidatePath('/admin/people')
 		updateTag(PUBLIC_TEAM_CACHE_TAG)
 		revalidatePath(teamPath('en'))
@@ -387,7 +381,7 @@ export async function createCatalogueAction(formData: FormData): Promise<AdminAc
 		if (goesPublic && details.iconMediaId) await requireLibraryAlt(supabase, { field: 'iconAlt', label: 'icon', locale: 'en', mediaId: details.iconMediaId })
 		const entryId = randomUUID()
 		const table = details.kind
-		const { data: entry, error: createError } = await supabase.from(table).insert({ id: entryId, stable_key: details.stableKey, display_order: details.displayOrder, icon_media_id: details.iconMediaId, created_by: profile.id, updated_by: profile.id }).select('id').single()
+		const { data: entry, error: createError } = await supabase.from(table).insert({ id: entryId, stable_key: details.stableKey, display_order: await endOfListOrder({ table }), icon_media_id: details.iconMediaId, created_by: profile.id, updated_by: profile.id }).select('id').single()
 		if (createError) return failed(`Could not create the ${details.kind.slice(0, -1)}: ${createError.message}`)
 		const { error: translationError } = details.kind === 'services'
 			? await supabase.from('service_translations').insert({ service_id: entry.id, locale: 'en', slug: translation.slug, name: translation.name, summary: translation.summary, content: translation.content, seo_title: translation.seoTitle, seo_description: translation.seoDescription, ...publication })
@@ -458,16 +452,7 @@ export async function moveCatalogueAction(formData: FormData): Promise<AdminActi
 		const direction = z.enum(['up', 'down']).parse(formData.get('direction'))
 		const { profile } = await requireActiveStaff()
 		const supabase = await createClient()
-		const { data: entries, error } = await supabase.from(kind).select('id').eq('is_active', true).order('display_order').order('stable_key')
-		if (error) return failed(`Could not load catalogue order: ${error.message}`)
-		const current = (entries ?? []).findIndex((entry) => entry.id === entryId)
-		const destination = current + (direction === 'up' ? -1 : 1)
-		if (current < 0 || destination < 0 || destination >= (entries?.length ?? 0)) return succeeded('Catalogue order is unchanged.')
-		const ids = (entries ?? []).map((entry) => entry.id)
-		;[ids[current], ids[destination]] = [ids[destination], ids[current]]
-		const results = await Promise.all(ids.map((id, displayOrder) => supabase.from(kind).update({ display_order: displayOrder, updated_by: profile.id }).eq('id', id)))
-		const failedResult = results.find((result) => result.error)
-		if (failedResult?.error) return failed(`Could not save catalogue order: ${failedResult.error.message}`)
+		if (!await moveRecord({ direction, id: entryId, profileId: profile.id, table: kind, tieBreak: 'stable_key' })) return succeeded('Catalogue order is unchanged.')
 		await refreshCataloguePaths(supabase, kind)
 		return succeeded('Catalogue order saved.')
 	})
@@ -524,7 +509,7 @@ export async function createRegionAction(formData: FormData): Promise<AdminActio
 		if (translation.locale !== 'en') return failed('New regions must start with an English translation.')
 		const { row: publication } = publicationColumns({ existing: null, publishAt: translation.publishAt, status: translation.status })
 		const { profile } = await requireActiveStaff(); const supabase = await createClient(); const id = randomUUID()
-		const { error: regionError } = await supabase.from('regions').insert({ id, stable_key: details.stableKey, display_order: details.displayOrder, map_config: details.mapConfig, created_by: profile.id, updated_by: profile.id })
+		const { error: regionError } = await supabase.from('regions').insert({ id, stable_key: details.stableKey, display_order: await endOfListOrder({ table: 'regions' }), map_config: details.mapConfig, created_by: profile.id, updated_by: profile.id })
 		if (regionError) return failed(`Could not create the region: ${regionError.message}`)
 		const { error: translationError } = await supabase.from('region_translations').insert({ region_id: id, locale: 'en', slug: translation.slug, name: translation.name, ...publication })
 		if (translationError) return failed(`The region was created, but its English translation could not be saved: ${translationError.message}`)
@@ -640,7 +625,7 @@ const officeTranslationSchema = z.object({ officeId: optionalUuid, locale: z.enu
 function officeDetailsFromForm(formData: FormData, includeId = true) { return officeDetailsSchema.parse({ officeId: includeId ? formData.get('officeId') : undefined, stableKey: formData.get('stableKey'), countryCode: formData.get('countryCode'), email: formData.get('email'), phone: formData.get('phone'), latitude: formData.get('latitude'), longitude: formData.get('longitude'), displayOrder: formData.get('displayOrder') }) }
 function officeTranslationFromForm(formData: FormData, includeId = true) { const parsed = officeTranslationSchema.parse({ officeId: includeId ? formData.get('officeId') : undefined, locale: formData.get('locale'), name: formData.get('name'), city: formData.get('city'), address: formData.get('address'), status: formData.get('status') }); return { ...parsed, publishAt: formData.get('publishAt') } }
 async function refreshOfficePaths(supabase: Awaited<ReturnType<typeof createClient>>, countryCode?: string) { await refreshOutreachPaths(supabase, countryCode) }
-export async function createOfficeAction(formData: FormData): Promise<AdminActionResult> { return adminAction('Could not create the office.', async () => { const details = officeDetailsFromForm(formData, false); const translation = officeTranslationFromForm(formData, false); if (translation.locale !== 'en') return failed('New offices must start with an English translation.'); const { row: publication } = publicationColumns({ existing: null, publishAt: translation.publishAt, status: translation.status }); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const id = randomUUID(); const { error: officeError } = await supabase.from('offices').insert({ id, stable_key: details.stableKey, country_code: details.countryCode, email: details.email, phone: details.phone, latitude: details.latitude, longitude: details.longitude, display_order: details.displayOrder, created_by: profile.id, updated_by: profile.id }); if (officeError) return failed(`Could not create the office: ${officeError.message}`); const { error: translationError } = await supabase.from('office_translations').insert({ office_id: id, locale: 'en', name: translation.name, city: translation.city, address: translation.address, ...publication }); if (translationError) return failed(`The office was created, but its English translation could not be saved: ${translationError.message}`); await refreshOfficePaths(supabase, details.countryCode ?? undefined); return succeeded('Office created.', undefined, { redirectTo: `/admin/outreach/offices/${id}` }) }) }
+export async function createOfficeAction(formData: FormData): Promise<AdminActionResult> { return adminAction('Could not create the office.', async () => { const details = officeDetailsFromForm(formData, false); const translation = officeTranslationFromForm(formData, false); if (translation.locale !== 'en') return failed('New offices must start with an English translation.'); const { row: publication } = publicationColumns({ existing: null, publishAt: translation.publishAt, status: translation.status }); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const id = randomUUID(); const { error: officeError } = await supabase.from('offices').insert({ id, stable_key: details.stableKey, country_code: details.countryCode, email: details.email, phone: details.phone, latitude: details.latitude, longitude: details.longitude, display_order: await endOfListOrder({ table: 'offices' }), created_by: profile.id, updated_by: profile.id }); if (officeError) return failed(`Could not create the office: ${officeError.message}`); const { error: translationError } = await supabase.from('office_translations').insert({ office_id: id, locale: 'en', name: translation.name, city: translation.city, address: translation.address, ...publication }); if (translationError) return failed(`The office was created, but its English translation could not be saved: ${translationError.message}`); await refreshOfficePaths(supabase, details.countryCode ?? undefined); return succeeded('Office created.', undefined, { redirectTo: `/admin/outreach/offices/${id}` }) }) }
 export async function saveOfficeDetailsAction(formData: FormData): Promise<AdminActionResult> { return adminAction('Could not save office details.', async () => { const details = officeDetailsFromForm(formData); if (!details.officeId) return failed('Invalid office.'); const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('offices').update({ stable_key: details.stableKey, country_code: details.countryCode, email: details.email, phone: details.phone, latitude: details.latitude, longitude: details.longitude, display_order: details.displayOrder, updated_by: profile.id }).eq('id', details.officeId); if (error) return failed(`Could not save office details: ${error.message}`); await refreshOfficePaths(supabase, details.countryCode ?? undefined); return succeeded('Office details saved.') }) }
 export async function saveOfficeTranslationAction(formData: FormData): Promise<AdminActionResult<SavedPublication>> { return adminAction('Could not save this office translation.', async () => { const translation = officeTranslationFromForm(formData); if (!translation.officeId) return failed('Invalid office.'); await requireActiveStaff(); const supabase = await createClient(); const { data: existing, error: existingError } = await supabase.from('office_translations').select(PUBLICATION_COLUMNS).eq('office_id', translation.officeId).eq('locale', translation.locale).maybeSingle(); if (existingError) return failed(`Could not load this office translation: ${existingError.message}`); const { row: publication, saved } = publicationColumns({ existing, publishAt: translation.publishAt, status: translation.status }); const { error } = await supabase.from('office_translations').upsert({ office_id: translation.officeId, locale: translation.locale, name: translation.name, city: translation.city, address: translation.address, ...publication }, { onConflict: 'office_id,locale' }); if (error) return failed(`Could not save this office translation: ${error.message}`); await refreshOfficePaths(supabase); return succeeded(`${translation.locale} office content saved${publishedNotice(saved)}.`, saved) }) }
 export async function setOfficeArchivedAction(formData: FormData): Promise<AdminActionResult> { return adminAction('Could not update this office.', async () => { const officeId = z.string().uuid().parse(formData.get('officeId')); const archive = z.enum(['true', 'false']).parse(formData.get('archive')) === 'true'; const { profile } = await requireActiveStaff(); const supabase = await createClient(); const { error } = await supabase.from('offices').update({ is_active: !archive, updated_by: profile.id }).eq('id', officeId); if (error) return failed(`Could not ${archive ? 'archive' : 'restore'} this office: ${error.message}`); await refreshOfficePaths(supabase); return succeeded(archive ? 'Office archived.' : 'Office restored.') }) }

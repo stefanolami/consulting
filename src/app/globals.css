@@ -243,6 +243,18 @@
 		cursor: pointer;
 	}
 	/*
+	  One focus ring for the whole admin (audit X-11): a 2px outline, offset
+	  2px, navy on light surfaces; the sidebar sets --admin-focus to white.
+	  Buttons and inputs use the same values through their own classes.
+	*/
+	.admin-ui {
+		--admin-focus: #27335a;
+	}
+	.admin-ui :focus-visible {
+		outline: 2px solid var(--admin-focus);
+		outline-offset: 2px;
+	}
+	/*
 	  Shell sizing, the one source of truth for the sticky header's height.
 	  Below xl the header row is py-3 around the taller of the menu button's
 	  wrapper (3.1875rem: the 44px inline button sits on a text line, which

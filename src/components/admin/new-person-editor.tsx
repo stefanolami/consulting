@@ -42,7 +42,7 @@ export function NewPersonEditor({ media }: { media: MediaPickerAsset[] }) {
 				<Field label="Public email" name="email"><Input name="email" type="email" /></Field>
 				<Field label="Public phone" name="phone"><Input name="phone" /></Field>
 				<Field label="Team group" name="teamGroup"><select className="input-select" defaultValue="team" name="teamGroup"><option value="managing_team">Managing team</option><option value="team">Team</option></select></Field>
-				<Field label="Order within group" name="displayOrder"><Input defaultValue="0" min="0" name="displayOrder" type="number" /></Field>
+				<p className="self-end text-sm text-slate-500">New profiles go to the end of their group. Change the order in the team directory.</p>
 				<label className="flex items-center gap-3 text-sm font-medium text-slate-700"><input defaultChecked name="isTeamMember" type="checkbox" />Show as a team member</label>
 				<label className="flex items-center gap-3 text-sm font-medium text-slate-700"><input name="isAuthor" type="checkbox" />Available as an article author</label>
 				<div className="md:col-span-2"><MediaPicker hint="Choose a portrait from the library or upload one (with its English alt text) from the picker." kind="portrait" label="Portrait" media={media} name="portraitMediaId" noneLabel="No portrait (initials are shown)" onValueChange={setPortraitId} value={portraitId} {...uploads} /></div>

@@ -18,15 +18,10 @@
 // Storage policies apply). Plain JavaScript so node:test can run it with a
 // mock client.
 
-/** The migration that moves the file removal out of SQL. */
-export const MEDIA_FUNCTIONS_MIGRATION = '20261020180000_media_storage_api_operations.sql'
-
-function databaseMessage(error) {
-	const message = error?.message ?? 'Unknown database error.'
-	if (/storage tables|storage api/i.test(message)) {
-		return `The database still runs the old media functions, which delete the file in SQL, and Supabase refuses that. Nothing was changed. The fix is migration ${MEDIA_FUNCTIONS_MIGRATION}, applied when it is pushed.`
-	}
-	return message
+// The functions return jsonb, which the generated types leave untyped
+// (Json): the file location is read from it here and checked to be a path.
+function text(value) {
+	return typeof value === 'string' && value ? value : null
 }
 
 async function removeFile(supabase, bucket, path) {
@@ -47,9 +42,9 @@ async function removeFile(supabase, bucket, path) {
  */
 export async function deleteMediaAsset(supabase, assetId) {
 	const { data, error } = await supabase.rpc('delete_media_asset', { p_media_asset_id: assetId })
-	if (error) return { ok: false, message: databaseMessage(error) }
-	const bucket = data?.bucket_id
-	const path = data?.object_path
+	if (error) return { ok: false, message: error.message }
+	const bucket = text(data?.bucket_id)
+	const path = text(data?.object_path)
 	if (!bucket || !path) return { ok: true, orphan: { bucket: bucket ?? null, path: path ?? null, reason: 'The database did not return the file location.' } }
 	const removeError = await removeFile(supabase, bucket, path)
 	return { ok: true, orphan: removeError ? { bucket, path, reason: removeError } : null }
@@ -73,10 +68,10 @@ export async function replaceMediaAsset(supabase, { assetId, bucket, path, file,
 	})
 	if (error) {
 		const cleanupError = await removeFile(supabase, bucket, path)
-		return { ok: false, message: databaseMessage(error), orphan: cleanupError ? { bucket, path, reason: cleanupError } : null }
+		return { ok: false, message: error.message, orphan: cleanupError ? { bucket, path, reason: cleanupError } : null }
 	}
-	const previousPath = data?.previous_object_path
-	const previousBucket = data?.bucket_id ?? bucket
+	const previousPath = text(data?.previous_object_path)
+	const previousBucket = text(data?.bucket_id) ?? bucket
 	if (!previousPath) return { ok: true, orphan: { bucket: previousBucket, path: null, reason: 'The database did not return the previous file location.' } }
 	if (previousPath === path) return { ok: true, orphan: null }
 	const removeError = await removeFile(supabase, previousBucket, previousPath)

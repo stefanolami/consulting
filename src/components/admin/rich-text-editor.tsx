@@ -249,7 +249,7 @@ export function RichTextEditor<T>({
 	const run = (command: (current: Editor) => void) => () => { if (editor) command(editor) }
 
 	return (
-		<div className={`overflow-hidden rounded-md border bg-white shadow-xs focus-within:ring-2 focus-within:ring-[#27335a]/50 ${invalid ? 'border-red-500 ring-1 ring-red-500' : 'border-input'}`}>
+		<div className={`overflow-hidden rounded-md border bg-white shadow-xs focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#27335a] ${invalid ? 'border-red-500 ring-1 ring-red-500' : 'border-input'}`}>
 			{name ? <input name={name} type="hidden" value={JSON.stringify(value)} /> : null}
 			<div aria-label={`${label} formatting`} className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-1.5" role="toolbar">
 				<ToolButton active={active?.bold ?? false} disabled={!editor} label="Bold" onClick={run((current) => current.chain().focus().toggleBold().run())}><Bold /></ToolButton>

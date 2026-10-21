@@ -28,7 +28,7 @@ Screenshots are in [`docs/admin-audit/`](./admin-audit/).
 | 2 | **Fixed in slice 1.** React resets every `<form action>` after the action. Status selects revert to their first-rendered option (the next save silently unpublishes), media selects revert to "No media" (the next save silently detaches the icon, cover or flag), and a failed save wipes every uncontrolled field. | blocker | All editors except Legal and Media |
 | 3 | **Fixed in slice 1.** In People, any server-side validation error throws. The page is replaced by "This page couldn't load" and everything typed is lost. There is no admin error boundary. | blocker | People (create and every save) |
 | 4 | **Fixed in slice 2.** Fields labelled optional are effectively required, because the client sends `null` where the schemas expect a string or nothing. Seeded profiles that have a role without a card label (Glenn Cezanne) cannot be saved at all. A country translation cannot be saved once the country has an assigned service or a statistic. | blocker | People, Our Outreach, Site settings |
-| 5 | **Fixed in slice 4 (takes effect when migration `20261020180000_media_storage_api_operations.sql` is applied).** Media "Replace file" and "Delete" both fail with `42501 Direct deletion from storage tables is not allowed` because the database functions delete from `storage.objects` directly. | blocker | Media |
+| 5 | **Fixed in slice 4 (migration `20261020180000_media_storage_api_operations.sql`, applied and verified on 2026-10-21).** Media "Replace file" and "Delete" both fail with `42501 Direct deletion from storage tables is not allowed` because the database functions delete from `storage.objects` directly. | blocker | Media |
 | 6 | **Fixed in slice 3.** `published_at` is re-stamped with the current time on every save of a published translation. Article dates and newsroom order change whenever someone fixes a typo, and legacy articles cannot keep their original date. | major | All translation saves |
 | 7 | **Fixed in slice 3.** Scheduling does not work end to end. Nothing ever publishes a scheduled row. Every save shifts the time shown in `datetime-local` by the UTC offset (3 h in Bucharest) and the server parses the time in the server's time zone. Archiving an article wipes its schedule, and "Restore" does nothing. | major | Catalogue, Newsroom, Outreach, Partners |
 | 8 | **Fixed in slice 1.** Language tabs leak state. Article sources from one locale are saved into another, and office, region, partner and endorsement tabs show the previous locale's values and status. Notices follow you to other tabs, and switching tabs silently discards unsaved edits. | major | Newsroom, Our Outreach, Partners, People |
@@ -309,7 +309,13 @@ countries cannot upload in place, so a new logo means Media first, then the
 editor. Catalogue and Newsroom can upload only after the first save. **Fix:**
 one `MediaPicker` dialog (thumbnail grid, type filter, search, "Upload new").
 
-### X-11 Pointer cursor and focus (minor, UI and a11y) — Pointer cursor fixed in slice 1; the stronger focus ring remains
+### X-11 Pointer cursor and focus (minor, UI and a11y) — Pointer cursor fixed in slice 1; focus ring fixed in slice 5a
+
+*Slice 5a:* one focus ring across the admin: a 2 px outline offset 2 px,
+navy on light surfaces and white in the sidebar (`.admin-ui :focus-visible`
+in `globals.css`, and the same values in `Button`, `Input` and the
+rich-text editor box).
+
 
 All 28 `<button>`s, the 5 `role="tab"` buttons and all `<select>`s on the
 article page compute to `cursor: default` (Tailwind 4 removed the button
@@ -318,7 +324,14 @@ Focus rings exist on buttons but are faint (0.8 px). **Fix:** a base rule
 `button:not(:disabled), [role=tab], select, summary { cursor: pointer }` and a
 stronger shared focus ring.
 
-### X-12 Locale tabs and lists lack semantics (minor, a11y) — Language tabs fixed in slice 1; list tabs and placeholder-only labels remain
+### X-12 Locale tabs and lists lack semantics (minor, a11y) — Language tabs fixed in slice 1; the rest fixed in slice 5a
+
+*Slice 5a:* the Services/Sectors and Partners/Endorsements switches were
+`role="tab"` buttons without panels; they are now links in a labelled `nav`
+with `aria-current`, since each view has its own URL. Every search and
+filter has a label; each country "Coverage level" input is named after its
+service. The tag creator and redirect search were already labelled.
+
 
 `role="tab"` buttons have no `aria-controls`, no tabpanel, no roving tabindex
 and no arrow keys (People, Catalogue, Newsroom, Media, Partners). Region and
@@ -356,26 +369,26 @@ actual and fix where it is not obvious from the title.
 
 ### Dashboard
 
-- **DASH-01: The summary numbers are hard-coded** (major, bug, verified).
+- **DASH-01: The summary numbers are hard-coded** **Fixed in slice 5a.** Counts come from count queries on each table (`src/lib/admin-dashboard.ts`); every number was checked against a direct count. (major, bug, verified).
   `page.tsx:98-100` renders "3 / 2 / 5". With 10 profiles and 9 published, the
   dashboard still says 3 and 2. *Fix:* query real counts.
-- **DASH-02: The dashboard has none of the §12.1 content** (major, UX, code):
+- **DASH-02: The dashboard has none of the §12.1 content** **Fixed in slice 5a.** "Needs attention" lists drafts (countries only when covered, since every country has a seeded draft row), translations going live in the next 14 days, content live in English but not in each other launch language (active `locales` rows; one count per type and language, linked to the filtered newsroom and country lists), and images on live content without alt text in a live language (the public page leaves those out). "Recently updated" lists the ten latest changes with links. (major, UX, code):
   no drafts, no recently updated content, no translation status, no scheduled
   items. *Fix:* "Needs attention" (drafts, scheduled with no job, English not
   published, missing alt text) and "Recently updated" lists.
-- **DASH-03: The area cards are not links and four of ten areas are missing**
+- **DASH-03: The area cards are not links and four of ten areas are missing** **Fixed in slice 5a.** One linked card per admin area, nine in all, each with its live counts.
   (minor, UX, verified). The cards have `href` values that are never rendered,
   Our Outreach has none, and Media, Partners, Legal, Settings and Redirects are
   absent. The only button is "Manage team".
-- **DASH-04: "Good morning" at any time of day** (polish, UI, code).
+- **DASH-04: "Good morning" at any time of day** **Fixed in slice 5a.** No greeting; the page is titled "Dashboard". (polish, UI, code).
 
 ### Navigation and shell
 
 - **NAV-01: Every navigation link has `aria-current="page"`, and none looks
-  active** (minor, a11y and UI, verified; `admin-shell.tsx:85`). All ten links
+  active** **Fixed in slice 5a.** `AdminNavigation` (`usePathname`, nested routes match their section) marks one link with `aria-current="page"`, drawn white on the navy sidebar. The narrow-screen bar has its own copy, hidden at desktop widths, so one marked link is ever visible. (minor, a11y and UI, verified; `admin-shell.tsx:85`). All ten links
   have the same `bg-white/10`. *Fix:* use `usePathname()` with a prefix match,
   `aria-current` only on the active link, and a distinct active style.
-- **NAV-02: Sign out is unreachable on short viewports** (minor, UI, verified).
+- **NAV-02: Sign out is unreachable on short viewports** **Fixed in slice 5a.** The links scroll inside the sidebar and the account block with Sign out stays at the bottom (verified at 1440 × 700 and 1536 × 639). (minor, UI, verified).
   The fixed sidebar has no `overflow-y`: at a 639 px viewport "Sign out" sits
   44 px below the bottom edge. *Fix:* `overflow-y-auto` on the nav, or a sticky
   footer.
@@ -409,9 +422,9 @@ actual and fix where it is not obvious from the title.
 - **PPL-06: Switching language tabs discards unsaved edits** **Fixed in slice 1.** (major, UX,
   verified). See X-06.
 - **PPL-07: New profiles default to order 0 and jump to the top of their
-  group** (minor, UX, verified). The three new members appeared above Omar and
+  group** **Fixed in slice 5a.** New profiles, catalogue entries, partners, endorsements, regions and offices go to the end of their list (`endOfListOrder`); the create forms no longer ask for an order. (minor, UX, verified). The three new members appeared above Omar and
   Stefano publicly. *Fix:* default to the end of the group.
-- **PPL-08: The directory row controls overflow** (minor, UI, verified). In the
+- **PPL-08: The directory row controls overflow** **Fixed in slice 5a.** Columns are profile, languages, English status and a fixed actions column; the role appears once. No control is clipped at 1280, 1440 or 1536 px and the Edit buttons line up. (minor, UI, verified). In the
   directory grid the status column is 7 rem but holds the badge and three icon
   buttons, so at 1536 px and below the move-down and Edit buttons are clipped by
   `overflow-hidden`, and the controls shift with the badge width ("draft" versus
@@ -419,11 +432,11 @@ actual and fix where it is not obvious from the title.
   ([1280 px](./admin-audit/people-list-1280-clipped.jpg),
   [row alignment](./admin-audit/people-list-row-controls.png)). The role is
   shown twice per row (under the name and in "English title").
-- **PPL-09: Reorder ignores search and archive state** (minor, bug, code). Move
+- **PPL-09: Reorder ignores search and archive state** **Fixed in slice 5a.** Moves skip archived profiles, the first and last active profiles cannot move further, and reordering is off while a search is active, with a note saying why (`src/lib/display-order.mjs`, unit tests). Catalogue and Partners follow the same rules. (minor, bug, code). Move
   buttons stay enabled on the first and last rows and for archived profiles;
   `movePersonAction` includes inactive members in the sequence.
 - **PPL-10: Profile section titles are about 200 px wide and sections cannot be
-  reordered** (minor, UI, verified;
+  reordered** **Fixed in slice 5a.** Section titles take the full width; sections move up and down; removing one asks first (in-page dialog). (minor, UI, verified;
   [screenshot](./admin-audit/people-section-title-narrow.png)). The `Field`
   inside `flex justify-between` does not grow; long titles like "Corporate
   Venture & Open Innovation Leadership in Portugal (2021-2024)" are cut off. No
@@ -442,7 +455,7 @@ actual and fix where it is not obvious from the title.
 - **PPL-14: Archive has no confirmation and no message** (minor, UX, verified).
   The restore copy is accurate; feedback is only the panel changing at the
   bottom of the page.
-- **PPL-15: Dashboard-style counters only count locales** (polish, UX, code).
+- **PPL-15: Dashboard-style counters only count locales** **Fixed in slice 5a.** The counters are active profiles, live in English, and live in every language (published translations). (polish, UX, code).
   "Fully translated 0/10" counts rows, not published translations.
 
 ### Catalogue (services and sectors)
@@ -471,7 +484,7 @@ actual and fix where it is not obvious from the title.
   verified). See X-05.
 - **CAT-08: "Archived" is offered as an initial status on create** **Fixed in slice 3.** A translation that does not exist yet offers Draft, Scheduled and Published only, in every editor. (polish, UX,
   verified).
-- **CAT-09: The Services/Sectors tab is not in the URL** (polish, UX, verified).
+- **CAT-09: The Services/Sectors tab is not in the URL** **Fixed in slice 5a.** `?kind=sectors` selects Sectors; the switch is a pair of links with `aria-current`, and the search is in the URL too. (polish, UX, verified).
   Returning from an editor always lands on Services.
 - **CAT-10: Two editors write the same relation** (minor, bug, code). The
   catalogue "Related articles" and the article "Related services/sectors" both
@@ -505,7 +518,7 @@ actual and fix where it is not obvious from the title.
 - **NEWS-08: Publishing a new article takes too many steps** **Fixed in slice 4.** The cover can be uploaded from the picker in the create form. (minor, UX,
   verified). A cover must already exist in Media to publish on create; otherwise
   create a draft, upload the cover, then publish.
-- **NEWS-09: No search, filter or pagination; titles are not links** (minor,
+- **NEWS-09: No search, filter or pagination; titles are not links** **Fixed in slice 5a.** Search (titles and slugs in any language), filters for state, language and kind, 20 per page; the state is in the URL; titles are links. (minor,
   UX, verified). 18 articles in one table; only an "Edit" button opens a row.
 - **NEWS-10: Tags are English-only and cannot be edited or archived** (minor,
   UX, code). The tag form uses placeholders as labels. Non-English newsroom
@@ -516,7 +529,7 @@ actual and fix where it is not obvious from the title.
   thumbnail; raw preset names ("fullBleed"); clicking into a block's fields is
   awkward because the block is inside the editable surface; the managed-image
   help sits inside every block.
-- **NEWS-13: The newsroom list shows only English state** (polish, UX, code).
+- **NEWS-13: The newsroom list shows only English state** **Fixed in slice 5a.** Each row shows every language’s state as a chip (published, scheduled, draft, archived, not started). (polish, UX, code).
 
 ### Our Outreach
 
@@ -539,7 +552,7 @@ actual and fix where it is not obvious from the title.
   controlled inputs** **Fixed in slice 1.** (major, bug, verified). See X-01.
 - **OUT-07: The flag select shows "No media" after a save** **Fixed in slice 1.** (major, bug,
   verified). The next save detaches the flag.
-- **OUT-08: About 250 countries in one list** (major, UX, verified). No search,
+- **OUT-08: About 250 countries in one list** **Fixed in slice 5a.** Search (names and slugs in any language), filters for coverage, region, language and state, 50 per page, all in the URL, with per-language chips. (major, UX, verified). No search,
   no filter by covered, region or status, no pagination; the order column is 0
   everywhere.
 - **OUT-09: Statistic labels need a reload; the display override is ignored
@@ -550,7 +563,7 @@ actual and fix where it is not obvious from the title.
 - **OUT-10: Renaming a metric key deletes the statistic and its labels**
   (minor, bug, code). `replaceCountryRelations` deletes by missing
   `metric_key`.
-- **OUT-11: Offices are listed by stable key** (minor, UX, verified). The
+- **OUT-11: Offices are listed by stable key** **Fixed in slice 5a.** The country editor lists offices by their English name. (minor, UX, verified). The
   country editor shows `romania-bucharest`, not "Time&Place Bucharest".
 - **OUT-12: The new-office form mixes shared and English fields** (minor, UX,
   verified). One grid with no grouping. "Archive office" and "Archive region"
@@ -563,12 +576,12 @@ actual and fix where it is not obvious from the title.
 
 ### Media
 
-- **MED-01: Replace file fails** **Fixed in slice 4; takes effect when migration `20261020180000_media_storage_api_operations.sql` is applied.** The function now only switches the row and returns the previous path; the server action uploads first and removes the old file through the Storage API afterwards (`src/lib/media-operations.mjs`). Until the migration is applied, a replace is refused with a sentence that names the migration, and the uploaded file is removed again (verified). (blocker, bug, verified). `replace_media_asset`
+- **MED-01: Replace file fails** **Fixed in slice 4 (migration `20261020180000_media_storage_api_operations.sql`, applied; verified on 2026-10-21: the row switched and the old file was removed).** The function now only switches the row and returns the previous path; the server action uploads first and removes the old file through the Storage API afterwards (`src/lib/media-operations.mjs`). Before the migration was applied, a replace was refused and the uploaded file was removed again (verified on 2026-10-20). (blocker, bug, verified). `replace_media_asset`
   runs `delete from storage.objects`
   (`20260818100000_media_library_safe_operations.sql:62`), which Supabase now
   refuses (`42501 … Use the Storage API instead`). The uploaded replacement is
   removed again, so no data is lost.
-- **MED-02: Delete fails** **Fixed in slice 4; takes effect when the migration is applied.** The function keeps every reference check, deletes the row and returns the file location; the server action then removes the file through the Storage API. An interruption leaves an orphaned file, never a row without its file; `npm run media:orphans` and "Check Storage" in the Media library list orphans. (blocker, bug, verified by calling
+- **MED-02: Delete fails** **Fixed in slice 4 (migration applied; verified on 2026-10-21: the throwaway asset, its alt text rows and its file are gone, and an asset used only by an inline article image is refused).** The function keeps every reference check, deletes the row and returns the file location; the server action then removes the file through the Storage API. An interruption leaves an orphaned file, never a row without its file; `npm run media:orphans` and "Check Storage" in the Media library list orphans. (blocker, bug, verified by calling
   `rpc/delete_media_asset` directly on a throwaway asset). Same cause
   (`…safe_operations.sql:160`, `…inline_media_guard.sql:110`). *Fix:* split
   into "check references and delete the row" in SQL and
@@ -611,7 +624,7 @@ actual and fix where it is not obvious from the title.
   partners band was removed from Home, so published partners appear nowhere;
   only endorsements show (Why Us). The editor should say where the content
   appears.
-- **PAR-06: Several partners can share order 0** (polish, verified). ADV and
+- **PAR-06: Several partners can share order 0** **Fixed in slice 5a.** New records go to the end, and equal orders are listed by name and renumbered by the first move. (polish, verified). ADV and
   the seeded EFFA are both 0 until someone reorders.
 - **PAR-07: Scheduling has no future check and the time drifts** **Fixed in slice 3.** (minor, bug,
   code). See X-05.
@@ -787,7 +800,7 @@ replace or delete succeeded; both were refused before any change.
 | Media `slice4-logo.png` (`f6e6d87c-af85-4593-bb1f-67ce94123f7e`) | Uploaded in the Media library, kind Logo, en alt "Slice 4 test logo" | new; unused |
 | Media `slice4-flag-a.png` (`83470351-1f53-4f74-aac4-7774d4155d93`), `slice4-flag-b.png` (`6ba14db3-b704-4f0f-b5d0-92c3b0bd7316`) | Uploaded together, kind Flag, no alt text | new; unused |
 | Media `slice4-icon.png` (`7db0dc71-775a-435c-9d43-9d8d9cdccff8`) | Uploaded from the icon picker of Event Organisation, en alt "Slice 4 test icon"; not attached (the form was not saved with it) | new; unused |
-| Media `endorsements-linkage.png` (`1f04c1aa-…`) | Delete and replace attempted; both refused by the old database functions; the uploaded replacement was removed again | unchanged |
+| Media `endorsements-linkage.png` (`1f04c1aa-…`) | Delete and replace attempted; both refused by the old database functions; the uploaded replacement was removed again | unchanged (deleted on 2026-10-21, below) |
 | Service Event Organisation, en (`eb658b33-…`) | Saved without changes; a German translation was refused by the publish check (no German icon alt text) and not saved | unchanged apart from `updated_at` |
 | Endorsement Slice Tester (`7c6aa807-…`) | Associated partner set to Slice One Partner, then back to none | partner none → none |
 | Partner Slice One Partner, en (`46d815b2-…`) | Logo alt text set to "Slice One Partner logo (slice 4 per-use check)", then restored | "Slice one partner logo" → same |
@@ -803,6 +816,32 @@ is: the German library alt text of `slice1-test-portrait.png`
 save (X-09), so the German Slice One Tester profile uses that text for its
 portrait (not checked in the browser). The original is not known (probably no German text); correct it
 in the Media library if the test content is kept.
+
+### Slice 4 checks after the migration (2026-10-21)
+
+Run by the staff account `stefano` at 09:07–09:10 UTC, after
+`20261020180000_media_storage_api_operations.sql` was applied.
+
+| Record | Change | Before → after |
+| --- | --- | --- |
+| Media `endorsements-linkage.png` (`1f04c1aa-48f5-4838-82fd-e3497a464474`) | Replaced with `endorsements-linkage-v2.png` (320 × 180), then deleted | path `library/2026/10/b287c0dd-….png` → `library/other/2026/10/2961f55c-….png` (old file removed) → row, its en and de alt text rows and the file removed |
+| Article "Regulating Artificial Intelligence", en (`50d7da11-…`, draft) | An image block with `slice4-flag-a.png` added and saved, then removed and saved | same blocks; still draft; `published_at` unchanged; `updated_at` moved |
+
+Storage and the library hold 35 files for 35 assets, with no orphan and no
+missing file. The read-only SQL checks wrote nothing.
+
+### Slice 5a test content (2026-10-21)
+
+Written through the admin by the staff account `stefano` at about 10:06
+UTC (13:06 in the browser), during the slice 5a browser checks. Every other check only read
+data.
+
+| Record | Change | Before → after (`display_order`) |
+| --- | --- | --- |
+| Partners (all five) | EFFA moved down, then up again: the visible order is unchanged, and the three shared orders are resolved (PAR-06) | ADV 0, EFFA 0, Slice One Partner 0, AIJN 1, CharIN 2 → ADV 0, EFFA 1, Slice One Partner 2, AIJN 3, CharIN 4 |
+
+ADV was not written (its order did not change); the other four rows have a
+new `updated_at` and `updated_by`. Partners have no public page (PAR-05).
 
 ---
 
@@ -874,8 +913,8 @@ Closes: NEWS-03, NEWS-05, NEWS-06, CAT-07, CAT-11, PAR-07, LEG-01, PPL-13.
 
 ### Slice 4: Media (MED-01, MED-02, X-09, X-10) — done
 
-Done on 2026-10-20. Replace and delete take effect once migration
-`20261020180000_media_storage_api_operations.sql` (not applied yet) is pushed. Differences from the plan below: no
+Done on 2026-10-20. Migration `20261020180000_media_storage_api_operations.sql` was applied and replace and delete
+verified on 2026-10-21. Differences from the plan below: no
 per-use alt columns were added (X-09 above, platform doc §3.2); the Storage
 check in the Media library and `npm run media:orphans` take the place of a
 cleanup job; PPL-12 (oversize production portraits) gets a clear size
@@ -897,6 +936,17 @@ Closes: MED-01 to MED-08, CAT-03, CAT-06, PAR-01, PAR-02, PPL-11, NEWS-08,
 NEWS-12, LEG-02.
 
 ### Slice 5: Navigation, dashboard, lists and accessibility polish
+
+*Slice 5a (navigation, dashboard and list tooling) done on 2026-10-21; no
+migration.* Closed: NAV-01, NAV-02, X-11, X-12, DASH-01 to DASH-04, PPL-07
+to PPL-10, PPL-15, CAT-09, NEWS-09, NEWS-13, OUT-08, OUT-11, PAR-06. The
+pure rules have unit tests: list URLs (`scripts/admin-list-query.test.mjs`),
+ordering (`scripts/display-order.test.mjs`) and the dashboard
+(`scripts/admin-dashboard-rules.test.mjs`). Slice 5b keeps copy and
+consistency (X-13, X-14, LEG-03, SET-03 to SET-05, RED-02, RED-04), NEWS-10,
+OUT-09, OUT-10, OUT-12 to OUT-14, CAT-10, PPL-12, PPL-14 and MED-07. Open
+decisions, not implemented: NEWS-11 (article kinds), PAR-05 (partners have
+no public page) and RED-05 (the registry is not applied).
 
 - Active navigation with a single `aria-current`; scrollable sidebar; pointer
   cursor and stronger focus rings; tab semantics from Legal everywhere; labels
@@ -933,7 +983,9 @@ RED-04, X-11 to X-14.
 - **Exact 1280 and 1440 px windows:** the Chrome window is maximised at
   1536 CSS px (DPR 1.25) and could not be resized. 1280 px was approximated by
   zooming the page root, so breakpoint-dependent layout below `lg` was not
-  covered.
+  covered. *Slice 5a:* every admin area was loaded in a same-origin iframe of
+  exactly 1280 × 900, 1440 × 900, 1536 × 864 and 1440 × 700 px, so media
+  queries saw those widths; widths below `lg` were still not checked.
 - **Keyboard-only use of every form:** checked on the article editor (focus
   order and rings), the legal tabs (arrow keys) and the rich-text editors;
   screen-reader announcement was not tested.

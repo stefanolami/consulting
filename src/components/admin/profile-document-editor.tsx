@@ -1,8 +1,9 @@
 'use client'
 
-import { Plus, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { ConfirmDialog } from '@/components/admin/form/confirm-dialog'
 import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +13,7 @@ import type { Json } from '@/types/database.generated'
 
 export function ProfileDocumentEditor({ initialValue }: { initialValue: ProfileDocument }) {
 	const [document, setDocument] = useState<ProfileDocument>(initialValue)
+	const [removing, setRemoving] = useState<{ id: string; name: string } | null>(null)
 
 	const serializedDocument = useMemo(() => JSON.stringify(document), [document])
 
@@ -23,6 +25,16 @@ export function ProfileDocumentEditor({ initialValue }: { initialValue: ProfileD
 			...current,
 			sections: current.sections.map((section) => section.id === id ? { ...section, ...patch } : section),
 		}))
+	}
+	// Sections are ordered (audit PPL-10): move one place up or down.
+	function moveSection(index: number, step: -1 | 1) {
+		setDocument((current) => {
+			const target = index + step
+			if (target < 0 || target >= current.sections.length) return current
+			const sections = [...current.sections]
+			;[sections[index], sections[target]] = [sections[target], sections[index]]
+			return { ...current, sections }
+		})
 	}
 
 	return (
@@ -43,13 +55,22 @@ export function ProfileDocumentEditor({ initialValue }: { initialValue: ProfileD
 				<div className="mt-5 space-y-6">
 					{document.sections.map((section, index) => (
 						<div className="rounded-lg border border-slate-200 bg-slate-50 p-4" key={section.id}>
-							<div className="flex items-start justify-between gap-4"><Field label={`Section ${index + 1} title`}><Input value={section.title} onChange={(event) => updateSection(section.id, { title: event.target.value })} /></Field><Button aria-label={`Remove section ${index + 1}`} onClick={() => setDocument((current) => ({ ...current, sections: current.sections.filter((item) => item.id !== section.id) }))} size="icon" type="button" variant="ghost"><Trash2 /></Button></div>
+							<div className="flex items-end gap-2">
+								{/* The title takes the full width, so long titles stay readable (audit PPL-10). */}
+								<Field className="min-w-0 flex-1" label={`Section ${index + 1} title`}><Input value={section.title} onChange={(event) => updateSection(section.id, { title: event.target.value })} /></Field>
+								<Button aria-label={`Move section ${index + 1} up`} disabled={index === 0} onClick={() => moveSection(index, -1)} size="icon" title="Move up" type="button" variant="ghost"><ArrowUp aria-hidden="true" /></Button>
+								<Button aria-label={`Move section ${index + 1} down`} disabled={index === document.sections.length - 1} onClick={() => moveSection(index, 1)} size="icon" title="Move down" type="button" variant="ghost"><ArrowDown aria-hidden="true" /></Button>
+								<Button aria-label={`Remove section ${index + 1}`} onClick={() => setRemoving({ id: section.id, name: section.title.trim() || `Section ${index + 1}` })} size="icon" title="Remove" type="button" variant="ghost"><Trash2 aria-hidden="true" /></Button>
+							</div>
 							<ProfileRichText label={`Section ${index + 1} text`} value={section.content} onChange={(content) => updateSection(section.id, { content })} />
 							<EndorsementFields label={`Section ${index + 1} endorsement`} value={section.endorsement} onChange={(endorsement) => updateSection(section.id, { endorsement })} />
 						</div>
 					))}
 				</div>
 			</div>
+			<ConfirmDialog confirmLabel="Remove section" onResolve={(remove) => { if (remove && removing) setDocument((current) => ({ ...current, sections: current.sections.filter((item) => item.id !== removing.id) })); setRemoving(null) }} open={Boolean(removing)} title="Remove this section?">
+				<p>“{removing?.name}” and its text and endorsement are removed from this form. The saved profile changes only when you save the translation.</p>
+			</ConfirmDialog>
 		</div>
 	)
 }

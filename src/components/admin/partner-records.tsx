@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowDown, ArrowUp, LoaderCircle, Pencil, Plus, Search } from 'lucide-react'
+import { Pencil, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useId, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -20,23 +20,59 @@ import { AdminForm, CommandButton, CommandNotice, Field, FormActions, useAdminCo
 import { LibraryAltNote, MediaPicker, useMediaUploads, type MediaPickerAsset } from '@/components/admin/form/media-picker'
 import { PublicationFields, type PublicationState } from '@/components/admin/form/publication-fields'
 import { LOCALE_NAMES, LocaleTabs, useLocaleStatuses, type PublicationStatus } from '@/components/admin/form/locale-tabs'
+import { SearchField, useListQuery, ViewSwitch } from '@/components/admin/list-controls'
+import { LocaleStates, LocaleStatesLegend } from '@/components/admin/locale-states'
+import { ReorderControls, ReorderNote } from '@/components/admin/reorder-controls'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PARTNER_LIST } from '@/lib/admin-list-query.mjs'
+import { moveAvailability, sortByDisplayOrder } from '@/lib/display-order.mjs'
 
 type Locale = 'en' | 'de' | 'it' | 'pt-BR' | 'pt-PT'
 type PartnerOption = { id: string; label: string }
-type ListItem = { id: string; kind: PartnerEntityKind; stableKey: string; title: string; displayOrder: number; isActive: boolean; locales: string[]; status: string | null }
+type ListItem = { id: string; kind: PartnerEntityKind; stableKey: string; title: string; displayOrder: number; isActive: boolean; states: Record<string, PublicationStatus | null>; status: string | null }
 type PartnerTranslation = { locale: Locale; altText: string; description: string | null; status: PublicationStatus; publication: PublicationState }
 type EndorsementTranslation = { locale: Locale; quote: string; attributionTitle: string | null; status: PublicationStatus; publication: PublicationState }
 type PartnerEntry = { id: string; stableKey: string; name: string; websiteUrl: string | null; displayOrder: number; logoMediaId: string | null; isActive: boolean }
 type EndorsementEntry = { id: string; stableKey: string; attributionName: string; partnerId: string | null; portraitMediaId: string | null; displayOrder: number; isActive: boolean }
 
+const LIST_COLUMNS = 'md:grid-cols-[minmax(0,1fr)_14rem_7rem_9rem]'
+
 export function PartnerRecordsList({ items }: { items: ListItem[] }) {
-	const [kind, setKind] = useState<PartnerEntityKind>('partners'); const [query, setQuery] = useState('')
+	const { hrefFor, state, update } = useListQuery(PARTNER_LIST, 'history')
+	const kind = state.kind as PartnerEntityKind
 	const move = useAdminCommand(movePartnerEntityAction)
-	const visible = useMemo(() => items.filter((item) => item.kind === kind && `${item.title} ${item.stableKey} ${item.locales.join(' ')}`.toLowerCase().includes(query.trim().toLowerCase())), [items, kind, query])
-	return <div className="space-y-6"><div className="flex flex-wrap gap-2" role="tablist"><Button aria-selected={kind === 'partners'} onClick={() => setKind('partners')} role="tab" type="button" variant={kind === 'partners' ? 'default' : 'outline'}>Partners and clients</Button><Button aria-selected={kind === 'endorsements'} onClick={() => setKind('endorsements')} role="tab" type="button" variant={kind === 'endorsements' ? 'default' : 'outline'}>Endorsements</Button></div><div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950">Ordering applies only to active records. Archiving preserves translations and media links while removing the record from public eligibility.</div><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><label className="relative block max-w-md flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" /><span className="sr-only">Search records</span><Input className="h-10 bg-white pl-9" onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${kind}`} value={query} /></label><Button asChild><Link href={`/admin/partners/${kind}/new`}><Plus />New {kind === 'partners' ? 'partner/client' : 'endorsement'}</Link></Button></div><div className="overflow-hidden rounded-xl border border-slate-200 bg-white"><div className="hidden grid-cols-[minmax(15rem,1.5fr)_7rem_10rem_9rem] gap-5 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 md:grid"><span>Record</span><span>Locales</span><span>Publication</span><span>Order</span></div>{visible.length ? visible.map((item) => <div className="grid gap-4 border-b border-slate-100 px-5 py-4 last:border-0 md:grid-cols-[minmax(15rem,1.5fr)_7rem_10rem_9rem] md:items-center md:gap-5" key={item.id}><div><Link className="font-semibold underline-offset-4 hover:underline" href={`/admin/partners/${item.kind}/${item.id}`}>{item.title}</Link><p className="mt-0.5 text-sm text-slate-500">{item.stableKey}</p></div><div className="flex flex-wrap gap-1">{item.locales.map((locale) => <Badge className="bg-slate-100 text-slate-600" key={locale}>{locale}</Badge>)}</div><Badge className={item.isActive && item.status === 'published' ? 'w-fit border-emerald-200 bg-emerald-50 text-emerald-700' : 'w-fit border-amber-200 bg-amber-50 text-amber-800'} variant="outline">{item.isActive ? item.status ?? 'draft' : 'archived'}</Badge><div className="flex items-center gap-1"><span className="mr-1 text-sm text-slate-500">{item.displayOrder}</span>{(['up', 'down'] as const).map((direction) => <Button aria-label={`Move ${item.title} ${direction}`} disabled={move.pending || !item.isActive} key={direction} onClick={() => move.run({ direction, entryId: item.id, kind: item.kind }, `${item.id}:${direction}`)} size="icon" type="button" variant="ghost">{move.pending && move.key === `${item.id}:${direction}` ? <LoaderCircle aria-hidden="true" className="animate-spin" /> : direction === 'up' ? <ArrowUp /> : <ArrowDown />}</Button>)}<Button asChild aria-label={`Edit ${item.title}`} size="icon" variant="ghost"><Link href={`/admin/partners/${item.kind}/${item.id}`}><Pencil /></Link></Button></div>{move.key?.startsWith(`${item.id}:`) ? <CommandNotice className="md:col-span-4" command={move} /> : null}</div>) : <p className="px-5 py-14 text-center text-sm text-slate-500">No records match this view.</p>}</div></div>
+	const searching = state.q !== ''
+	const { availability, visible } = useMemo(() => {
+		const ofKind = sortByDisplayOrder(items.filter((item) => item.kind === kind).map((item) => ({ ...item, order: item.displayOrder, tieBreak: item.title })))
+		const query = state.q.toLowerCase()
+		return {
+			availability: moveAvailability(ofKind, (item) => item.isActive),
+			visible: query ? ofKind.filter((item) => `${item.title} ${item.stableKey}`.toLowerCase().includes(query)) : ofKind,
+		}
+	}, [items, kind, state.q])
+	return <div className="space-y-6">
+		<ViewSwitch current={kind} items={(['partners', 'endorsements'] as const).map((value) => ({ value, label: value === 'partners' ? 'Partners and clients' : 'Endorsements', href: hrefFor({ kind: value }), count: items.filter((item) => item.kind === value).length }))} label="Relationship lists" onSelect={(value) => update({ kind: value as PartnerEntityKind })} />
+		<ReorderNote searching={searching}>Ordering applies only to active records; archived ones keep their place and are skipped. Archiving preserves translations and media links while removing the record from public eligibility.</ReorderNote>
+		<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><SearchField label={`Search ${kind} by name or stable key`} onSearch={(q, options) => update({ q }, options)} placeholder={`Search ${kind}`} value={state.q} /><Button asChild><Link href={`/admin/partners/${kind}/new`}><Plus aria-hidden="true" />New {kind === 'partners' ? 'partner/client' : 'endorsement'}</Link></Button></div>
+		<LocaleStatesLegend />
+		<div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+			<div aria-hidden="true" className={`hidden gap-5 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 md:grid ${LIST_COLUMNS}`}><span>Record</span><span>Languages</span><span>English</span><span className="text-right">Order and edit</span></div>
+			{visible.length ? <ul>{visible.map((item) => {
+				const moves = availability.get(item.id) ?? { up: false, down: false }
+				return <li className="border-b border-slate-100 last:border-0" key={item.id}>
+					<div className={`grid gap-3 px-5 py-4 md:items-center md:gap-5 ${LIST_COLUMNS}`}>
+						<div className="min-w-0"><Link className="font-semibold underline-offset-4 hover:underline" href={`/admin/partners/${item.kind}/${item.id}`}>{item.title}</Link><p className="mt-0.5 truncate text-sm text-slate-500">{item.stableKey}</p></div>
+						<LocaleStates states={item.states} />
+						<Badge className={item.isActive && item.status === 'published' ? 'w-fit border-emerald-200 bg-emerald-50 text-emerald-700' : 'w-fit border-amber-200 bg-amber-50 text-amber-800'} variant="outline">{item.isActive ? item.status ?? 'draft' : 'archived'}</Badge>
+						<div className="flex items-center gap-1 md:justify-end"><span className="mr-1 text-sm tabular-nums text-slate-500" title="Display order">{item.displayOrder}</span><ReorderControls busy={move.pending} canDown={!searching && moves.down} canUp={!searching && moves.up} name={item.title} onMove={(direction) => move.run({ direction, entryId: item.id, kind: item.kind }, `${item.id}:${direction}`)} pendingDirection={move.pending && move.key?.startsWith(`${item.id}:`) ? move.key.endsWith(':up') ? 'up' : 'down' : null} /><Button asChild aria-label={`Edit ${item.title}`} size="icon" title="Edit" variant="ghost"><Link href={`/admin/partners/${item.kind}/${item.id}`}><Pencil aria-hidden="true" /></Link></Button></div>
+					</div>
+					{move.key?.startsWith(`${item.id}:`) ? <CommandNotice className="mx-5 mb-4" command={move} /> : null}
+				</li>
+			})}</ul> : <p className="px-5 py-14 text-center text-sm text-slate-500">No records match this view.</p>}
+		</div>
+	</div>
 }
 
 export function PartnerEditor({ entry, translations = [], media }: { entry?: PartnerEntry; translations?: PartnerTranslation[]; media: MediaPickerAsset[] }) {
@@ -53,7 +89,7 @@ export function PartnerEditor({ entry, translations = [], media }: { entry?: Par
 }
 
 function PartnerFields({ entry, logo }: { entry?: PartnerEntry; logo: React.ReactNode }) {
-	return <><Field label="Stable key" name="stableKey" required><Input defaultValue={entry?.stableKey ?? ''} name="stableKey" placeholder="e.g. european-client" required /></Field><Field label="Canonical display name" name="name" required><Input defaultValue={entry?.name ?? ''} name="name" required /></Field><Field label="Website URL" name="websiteUrl"><Input defaultValue={entry?.websiteUrl ?? ''} name="websiteUrl" placeholder="https://…" type="url" /></Field><Field label="Display order" name="displayOrder" required><Input defaultValue={entry?.displayOrder ?? 0} min="0" name="displayOrder" type="number" required /></Field>{logo}</>
+	return <><Field label="Stable key" name="stableKey" required><Input defaultValue={entry?.stableKey ?? ''} name="stableKey" placeholder="e.g. european-client" required /></Field><Field label="Canonical display name" name="name" required><Input defaultValue={entry?.name ?? ''} name="name" required /></Field><Field label="Website URL" name="websiteUrl"><Input defaultValue={entry?.websiteUrl ?? ''} name="websiteUrl" placeholder="https://…" type="url" /></Field>{entry ? <Field label="Display order" name="displayOrder" required><Input defaultValue={entry.displayOrder} min="0" name="displayOrder" type="number" required /></Field> : null}{logo}</>
 }
 
 function PartnerTranslationForm({ entryId, locale, logo, onSaved, scope, translation }: { entryId: string; locale: Locale; logo?: MediaPickerAsset; onSaved: (status: PublicationStatus) => void; scope: string; translation?: PartnerTranslation }) { const form = useAdminForm({ action: savePartnerTranslationAction, label: `the ${LOCALE_NAMES[locale]} content`, onSuccess: ({ values }) => { if (values) onSaved(values.status) }, scope }); return <AdminForm className="mt-6 grid gap-5 md:grid-cols-2" form={form}><input name="partnerId" type="hidden" value={entryId} /><PartnerTranslationFields locale={locale} logo={logo} translation={translation} /><FormActions className="md:col-span-2" form={form} label={`Save ${locale} content`} /></AdminForm> }
@@ -72,7 +108,7 @@ export function EndorsementEditor({ entry, translations = [], media, partners }:
 	return <div className="mt-8 space-y-7"><Panel title="Shared endorsement details"><AdminForm className="grid gap-5 md:grid-cols-2" form={details}><input name="endorsementId" type="hidden" value={entry.id} /><EndorsementFields entry={entry} partners={partners} portrait={portrait} /><FormActions className="md:col-span-2" form={details} label="Save shared details" /></AdminForm></Panel><TranslationPanel locale={locale} scope={scope} setLocale={setLocale} statuses={statuses}><EndorsementTranslationForm entryId={entry.id} key={locale} locale={locale} portrait={portraitAsset} portraitId={portraitId} onSaved={(status) => setStatus(locale, status)} scope={scope} translation={translations.find((item) => item.locale === locale)} /></TranslationPanel><ArchivePanel archive={archive} entryId={entry.id} isActive={entry.isActive} kind="endorsements" /></div>
 }
 
-function EndorsementFields({ entry, partners, portrait }: { entry?: EndorsementEntry; partners: PartnerOption[]; portrait: React.ReactNode }) { return <><Field label="Stable key" name="stableKey" required><Input defaultValue={entry?.stableKey ?? ''} name="stableKey" required /></Field><Field label="Attribution name" name="attributionName" required><Input defaultValue={entry?.attributionName ?? ''} name="attributionName" required /></Field><Field label="Associated partner/client" name="partnerId"><select className="input-select" defaultValue={entry?.partnerId ?? ''} name="partnerId"><option value="">No associated partner</option>{partners.map((partner) => <option key={partner.id} value={partner.id}>{partner.label}</option>)}</select></Field><Field label="Display order" name="displayOrder" required><Input defaultValue={entry?.displayOrder ?? 0} min="0" name="displayOrder" type="number" required /></Field>{portrait}</> }
+function EndorsementFields({ entry, partners, portrait }: { entry?: EndorsementEntry; partners: PartnerOption[]; portrait: React.ReactNode }) { return <><Field label="Stable key" name="stableKey" required><Input defaultValue={entry?.stableKey ?? ''} name="stableKey" required /></Field><Field label="Attribution name" name="attributionName" required><Input defaultValue={entry?.attributionName ?? ''} name="attributionName" required /></Field><Field label="Associated partner/client" name="partnerId"><select className="input-select" defaultValue={entry?.partnerId ?? ''} name="partnerId"><option value="">No associated partner</option>{partners.map((partner) => <option key={partner.id} value={partner.id}>{partner.label}</option>)}</select></Field>{entry ? <Field label="Display order" name="displayOrder" required><Input defaultValue={entry.displayOrder} min="0" name="displayOrder" type="number" required /></Field> : null}{portrait}</> }
 function EndorsementTranslationForm({ entryId, locale, onSaved, portrait, portraitId, scope, translation }: { entryId: string; locale: Locale; portrait?: MediaPickerAsset; portraitId: string | null; onSaved: (status: PublicationStatus) => void; scope: string; translation?: EndorsementTranslation }) { const form = useAdminForm({ action: saveEndorsementTranslationAction, label: `the ${LOCALE_NAMES[locale]} content`, onSuccess: ({ values }) => { if (values) onSaved(values.status) }, scope }); return <AdminForm className="mt-6 grid gap-5 md:grid-cols-2" form={form}><input name="endorsementId" type="hidden" value={entryId} /><EndorsementTranslationFields locale={locale} portrait={portrait} portraitId={portraitId} translation={translation} /><FormActions className="md:col-span-2" form={form} label={`Save ${locale} content`} /></AdminForm> }
 function EndorsementTranslationFields({ locale, portrait, portraitId, translation }: { locale: Locale; portrait?: MediaPickerAsset; portraitId: string | null; translation?: EndorsementTranslation }) { return <><input name="locale" type="hidden" value={locale} /><Field className="md:col-span-2" label="Localized quote" name="quote" required><textarea className="input-textarea" defaultValue={translation?.quote ?? ''} maxLength={5000} name="quote" required rows={6} /></Field><Field label="Localized attribution title" name="attributionTitle"><Input defaultValue={translation?.attributionTitle ?? ''} name="attributionTitle" /></Field>{portraitId ? <LibraryAltNote asset={portrait} assetId={portraitId} field="portraitAlt" label="Portrait alt text" locale={locale} whenMissing="Published content needs it to show the portrait." /> : <div aria-hidden="true" className="hidden md:block" />}<PublicationFields initial={translation?.publication} options={translation ? undefined : ['draft', 'scheduled', 'published']} /></> }
 

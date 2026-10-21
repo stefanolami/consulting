@@ -11,7 +11,7 @@ export default async function NewCataloguePage({ params }: NewPageProps) {
 	const { kind } = await params
 	if (kind !== 'services' && kind !== 'sectors') notFound()
 	const options = await loadOptions()
-	return <div className="mx-auto max-w-5xl"><Link className="text-sm font-semibold text-[#53617f] underline-offset-4 hover:underline" href="/admin/catalogue">← Services and sectors</Link><div className="mt-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#53617f]">Catalogue administration</p><h1 className="mt-2 font-robo text-4xl tracking-tight text-slate-950">New {kind === 'services' ? 'service' : 'sector'}</h1><p className="mt-2 text-slate-600">Create the canonical record and the first English translation. Add other locales independently after saving.</p></div><CatalogueEditor articles={options.articles} contacts={options.contacts} kind={kind} media={options.media} /></div>
+	return <div className="mx-auto max-w-5xl"><Link className="text-sm font-semibold text-[#53617f] underline-offset-4 hover:underline" href={kind === 'sectors' ? '/admin/catalogue?kind=sectors' : '/admin/catalogue'}>← Services and sectors</Link><div className="mt-5"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#53617f]">Catalogue administration</p><h1 className="mt-2 font-robo text-4xl tracking-tight text-slate-950">New {kind === 'services' ? 'service' : 'sector'}</h1><p className="mt-2 text-slate-600">Create the canonical record and the first English translation. Add other locales independently after saving.</p></div><CatalogueEditor articles={options.articles} contacts={options.contacts} kind={kind} media={options.media} /></div>
 }
 
 async function loadOptions() {

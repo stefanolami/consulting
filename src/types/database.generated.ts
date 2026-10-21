@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
@@ -2208,12 +2208,12 @@ export type Database = {
       replace_media_asset: {
         Args: {
           p_file_size_bytes: number
-          p_height: number | null
+          p_height: number
           p_media_asset_id: string
           p_mime_type: string
           p_object_path: string
           p_original_filename: string
-          p_width: number | null
+          p_width: number
         }
         Returns: Json
       }

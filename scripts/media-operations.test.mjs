@@ -64,7 +64,7 @@ function mockClient({ rpc = {}, files = [], failRemove = false, failUpload = fal
 	return client
 }
 
-const OLD_FUNCTION_ERROR = { code: '42501', message: 'Direct deletion from storage tables is not allowed. Use the Storage API instead.' }
+const REFUSED = { code: 'P0002', message: 'The uploaded replacement file could not be found in Storage.' }
 
 test('delete removes the row first, then the file', async () => {
 	const client = mockClient({
@@ -98,12 +98,15 @@ test('when the file cannot be removed after the row is gone, it is reported as a
 	assert.deepEqual(result, { ok: true, orphan: { bucket: BUCKET, path: 'library/2026/10/a.png', reason: 'Storage is unavailable' } })
 })
 
-test('the old database functions are explained, not shown as a raw Postgres error', async () => {
-	const client = mockClient({ rpc: { delete_media_asset: () => ({ data: null, error: OLD_FUNCTION_ERROR }) } })
+test('a response without a file location removes nothing and reports it', async () => {
+	const client = mockClient({
+		files: [{ path: 'library/2026/10/a.png' }],
+		rpc: { delete_media_asset: () => ({ data: { deleted_media_asset_id: ASSET, object_path: 42 }, error: null }) },
+	})
 	const result = await deleteMediaAsset(client, ASSET)
-	assert.equal(result.ok, false)
-	assert.match(result.message, /old media functions/)
-	assert.match(result.message, /20261020180000_media_storage_api_operations\.sql/)
+	assert.equal(result.ok, true)
+	assert.equal(result.orphan.path, null)
+	assert.equal(client.log.some(([kind]) => kind === 'remove'), false)
 })
 
 test('replace uploads the new file, switches the row, then removes the old file', async () => {
@@ -124,7 +127,7 @@ test('replace uploads the new file, switches the row, then removes the old file'
 test('a refused replace removes the uploaded replacement and keeps the old file', async () => {
 	const client = mockClient({
 		files: [{ path: 'library/2026/10/old.png' }],
-		rpc: { replace_media_asset: () => ({ data: null, error: OLD_FUNCTION_ERROR }) },
+		rpc: { replace_media_asset: () => ({ data: null, error: REFUSED }) },
 	})
 	const file = { bytes: new Uint8Array([1]), mimeType: 'image/png', originalFilename: 'new.png', fileSizeBytes: 1, width: null, height: null }
 	const result = await replaceMediaAsset(client, { assetId: ASSET, bucket: BUCKET, path: 'library/2026/10/new.png', file })

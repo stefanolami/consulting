@@ -1,101 +1,13 @@
-import {
-	BookOpenText,
-	Layers3,
-	Globe2,
-	HeartHandshake,
-	ImageIcon,
-	LayoutDashboard,
-	LogOut,
-	Scale,
-	Route,
-	Settings,
-	UsersRound,
-} from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 import { signOutAction } from '@/app/(admin)/admin/actions'
+import { AdminNavigation } from '@/components/admin/admin-navigation'
 import { SignOutForm, UnsavedChangesProvider } from '@/components/admin/form/unsaved-changes'
 import { Button } from '@/components/ui/button'
 import type { StaffProfile } from '@/lib/auth/authorization'
-import { cn } from '@/lib/utils'
-
-const navigation = [
-	{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard, enabled: true },
-	{ label: 'People', href: '/admin/people', icon: UsersRound, enabled: true },
-	{ label: 'Catalogue', href: '/admin/catalogue', icon: Layers3, enabled: true },
-	{
-		label: 'Newsroom',
-		href: '/admin/newsroom',
-		icon: BookOpenText,
-		enabled: true,
-	},
-	{
-		label: 'Our Outreach',
-		href: '/admin/outreach',
-		icon: Globe2,
-		enabled: true,
-	},
-	{ label: 'Media', href: '/admin/media', icon: ImageIcon, enabled: true },
-	{ label: 'Partners', href: '/admin/partners', icon: HeartHandshake, enabled: true },
-	{ label: 'Legal pages', href: '/admin/legal', icon: Scale, enabled: true },
-	{ label: 'Site settings', href: '/admin/settings', icon: Settings, enabled: true },
-	{ label: 'Redirects', href: '/admin/redirects', icon: Route, enabled: true },
-]
-
-function Navigation({ compact = false }: { compact?: boolean }) {
-	return (
-		<nav
-			aria-label="Admin navigation"
-			className={cn(
-				compact
-					? 'flex min-w-max gap-2'
-					: 'flex flex-1 flex-col gap-1',
-			)}
-		>
-			{navigation.map((item) => {
-				const Icon = item.icon
-				const className = cn(
-					'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium',
-					item.enabled
-						? 'bg-white/10 text-white'
-						: 'cursor-not-allowed text-blue-100/45',
-					compact &&
-						(item.enabled
-							? 'bg-[#27335a] text-white'
-							: 'bg-white text-slate-400'),
-				)
-
-				if (!item.enabled) {
-					return (
-						<span
-							aria-disabled="true"
-							className={className}
-							key={item.label}
-							title="Coming in a later phase"
-						>
-							<Icon aria-hidden="true" className="size-4" />
-							{item.label}
-						</span>
-					)
-				}
-
-				return (
-					<Link
-						aria-current="page"
-						className={className}
-						href={item.href}
-						key={item.label}
-					>
-						<Icon aria-hidden="true" className="size-4" />
-						{item.label}
-					</Link>
-				)
-			})}
-		</nav>
-	)
-}
 
 export function AdminShell({
 	children,
@@ -109,37 +21,41 @@ export function AdminShell({
 
 	return (
 		<UnsavedChangesProvider>
-			<div className="min-h-screen bg-[#f4f6fa] text-slate-950">
-				<aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#27335a] px-5 py-6 text-white lg:flex">
-					<Link className="px-2" href="/admin">
+			<div className="admin-ui min-h-screen bg-[#f4f6fa] text-slate-950">
+				{/* The links scroll inside the sidebar and the account block stays at
+				    the bottom, so Sign out is reachable on short screens (NAV-02). */}
+				<aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#27335a] pt-5 pb-3 text-white [--admin-focus:#ffffff] lg:flex">
+					<Link className="mx-5 shrink-0 self-start rounded-md px-2" href="/admin">
 						<Image
 							alt="Time&Place Consulting"
-							className="h-auto w-52 object-contain"
+							className="h-auto w-44 object-contain"
 							height={182}
 							priority
 							src="/logos/consulting-white.png"
 							width={694}
 						/>
 					</Link>
-					<div className="mt-8" />
-					<Navigation />
-					<div className="mt-6 border-t border-white/10 pt-5">
-						<div className="mb-4 flex items-center gap-3 px-2">
-							<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-semibold uppercase">
+					{/* A thin, dark scrollbar that only matters on short screens. */}
+					<div className="mt-4 min-h-0 flex-1 overflow-y-auto px-5 py-2 [scrollbar-color:rgb(255_255_255/0.2)_transparent] scrollbar-thin">
+						<AdminNavigation />
+					</div>
+					<div className="mx-5 mt-2 shrink-0 border-t border-white/10 pt-3">
+						<div className="mb-1.5 flex items-center gap-3 px-2">
+							<div aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold uppercase">
 								{displayName.slice(0, 2)}
 							</div>
 							<div className="min-w-0">
-								<p className="truncate text-sm font-medium">
+								<p className="truncate text-sm font-medium leading-5">
 									{displayName}
 								</p>
-								<p className="truncate text-xs capitalize text-blue-100/60">
+								<p className="truncate text-xs capitalize leading-4 text-blue-100/60">
 									{profile.role}
 								</p>
 							</div>
 						</div>
 						<SignOutForm action={signOutAction}>
 							<Button
-								className="w-full justify-start text-blue-100 hover:bg-white/10 hover:text-white"
+								className="h-8 w-full justify-start text-blue-100 hover:bg-white/10 hover:text-white"
 								type="submit"
 								variant="ghost"
 							>
@@ -172,8 +88,8 @@ export function AdminShell({
 								</Button>
 							</SignOutForm>
 						</div>
-						<div className="overflow-x-auto px-5 pb-4">
-							<Navigation compact />
+						<div className="overflow-x-auto px-5 pt-1 pb-4">
+							<AdminNavigation compact />
 						</div>
 					</header>
 

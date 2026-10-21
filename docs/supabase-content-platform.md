@@ -1,11 +1,9 @@
 # Supabase Content Platform
 
-Last updated: 2026-10-20
+Last updated: 2026-10-21
 
 Status: Schema and security design. All listed migrations are applied to the
-hosted project except `20261020120000_retire_scheduled_status.sql` and
-`20261020180000_media_storage_api_operations.sql`, which are written and
-awaiting review (section 8)
+hosted project (section 8).
 
 Related migrations:
 
@@ -17,8 +15,8 @@ Related migrations:
 - `supabase/migrations/20260903120000_article_inline_media_guard.sql`
 - `supabase/migrations/20261005120000_legal_pages.sql`
 - `supabase/migrations/20261008120000_legal_pages_policy_recursion_fix.sql`
-- `supabase/migrations/20261020120000_retire_scheduled_status.sql` (not applied yet)
-- `supabase/migrations/20261020180000_media_storage_api_operations.sql` (not applied yet)
+- `supabase/migrations/20261020120000_retire_scheduled_status.sql`
+- `supabase/migrations/20261020180000_media_storage_api_operations.sql`
 
 ## 1. Purpose
 
@@ -561,9 +559,9 @@ edited manually.
   converted row. Updates the comments on `content_status`,
   `article_translations.published_at` and
   `legal_page_translations.last_updated_on`.
-- Not applied yet; the Supabase GitHub integration applies it on push. On
-  2026-10-20 the development database had no row left with status
-  `scheduled` (the two test rows were saved in the new form during the slice
+- Applied to the hosted project by the Supabase GitHub integration
+  (`supabase migration list`, 2026-10-21). On 2026-10-20 the development
+  database had no row left with status `scheduled` (the two test rows were saved in the new form during the slice
   3 checks), so it changes nothing there.
 
 ### `20261020180000_media_storage_api_operations.sql`
@@ -582,10 +580,16 @@ edited manually.
   files through the Storage API afterwards. `delete_media_asset` no longer
   reads the storage schema, so its `search_path` drops `storage`.
 - No table, policy, bucket, data or other function changes.
-- Not applied yet; the Supabase GitHub integration applies it on push. Until
-  then replace and delete are refused with a message that names this
-  migration, and nothing changes (verified on 2026-10-20). Rollback: re-run
-  the function bodies from the two earlier media migrations.
+- Applied to the hosted project by the Supabase GitHub integration
+  (`supabase migration list`, 2026-10-21). Verified on 2026-10-21: a replace
+  switched the row and removed the old file; a delete removed the row, its
+  alt text rows and the file; an asset used only by an inline article image
+  was refused (the deployed function's predicate matched the stored article,
+  and the Media library listed the use and disabled delete); "Check Storage"
+  reported 35 files for 35 assets and no orphan. The regenerated types still
+  give both functions a `Json` return, so `src/lib/media-operations.mjs`
+  reads the returned paths from it. Rollback: re-run the function bodies
+  from the two earlier media migrations.
 
 ## 9. Deliberately deferred work
 

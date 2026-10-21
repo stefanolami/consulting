@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Languages } from 'lucide-react'
 
 import { PeoplePreview } from '@/components/admin/people-preview'
+import { LIST_LOCALES as LOCALES } from '@/lib/admin-list-query.mjs'
+import { localeStates } from '@/lib/admin-locale-states'
 import { editorialState } from '@/lib/publication.mjs'
 import { createClient } from '@/lib/supabase/server'
 
@@ -42,20 +44,23 @@ export default async function PeoplePage() {
 		)
 
 		const englishRole = (roles ?? []).find((role) => role.person_id === person.id && role.locale === 'en')
+		const states = localeStates(personTranslations)
 		return {
 			id: person.id,
 			name: person.display_name,
 			cardName: english?.card_name ?? null,
 			role: englishRole?.card_label ?? englishRole?.title ?? 'No English card role yet',
-			locales: personTranslations.map((translation) => translation.locale),
+			states,
 			status: english ? editorialState(english).status : 'draft',
 			isActive: person.is_active,
 			displayOrder: person.display_order,
 			teamGroup: person.team_group,
 		}
 	})
-	const publishedCount = profiles.filter((profile) => profile.status === 'published').length
-	const translatedCount = profiles.filter((profile) => profile.locales.length === 5).length
+	// Counted over active profiles, by published translations (audit PPL-15).
+	const active = profiles.filter((profile) => profile.isActive)
+	const publishedCount = active.filter((profile) => profile.status === 'published').length
+	const everyLanguageCount = active.filter((profile) => LOCALES.every((locale) => profile.states[locale] === 'published')).length
 
 	return (
 		<div className="mx-auto max-w-6xl">
@@ -75,9 +80,9 @@ export default async function PeoplePage() {
 			</div>
 
 			<div className="mt-9 grid gap-4 sm:grid-cols-3">
-				<SummaryCard label="Team profiles" value={String(profiles.length)} />
-				<SummaryCard label="Published in English" value={String(publishedCount)} tone="success" />
-				<SummaryCard label="Fully translated" value={`${translatedCount}/${profiles.length}`} icon />
+				<SummaryCard label="Active team profiles" value={String(active.length)} />
+				<SummaryCard label="Live in English" value={String(publishedCount)} tone="success" />
+				<SummaryCard label="Live in every language" value={`${everyLanguageCount}/${active.length}`} icon />
 			</div>
 
 			<section className="mt-10" aria-labelledby="profiles-heading">
