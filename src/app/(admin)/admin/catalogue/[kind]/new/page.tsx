@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -6,6 +7,10 @@ import { loadMediaChoices } from '@/lib/media-choices'
 import { createClient } from '@/lib/supabase/server'
 
 type NewPageProps = { params: Promise<{ kind: string }> }
+
+export async function generateMetadata({ params }: NewPageProps): Promise<Metadata> {
+	return { title: (await params).kind === 'sectors' ? 'New sector' : 'New service' }
+}
 
 export default async function NewCataloguePage({ params }: NewPageProps) {
 	const { kind } = await params

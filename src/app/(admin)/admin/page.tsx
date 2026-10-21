@@ -8,8 +8,10 @@ import { LocalDateTime } from '@/components/admin/local-date-time'
 import { loadAltGaps, loadAreaCounts, loadDrafts, loadRecent, loadScheduled, loadTranslationGaps, type AreaCounts, type DashboardItem } from '@/lib/admin-dashboard'
 import { DASHBOARD_LIST_LIMIT, SCHEDULE_WINDOW_DAYS } from '@/lib/admin-dashboard-rules.mjs'
 
+// The admin layout's title template applies to the pages below it, not to
+// this page in its own segment, so the suffix is written out (audit X-14).
 export const metadata: Metadata = {
-	title: 'Dashboard',
+	title: { absolute: 'Dashboard | Time&Place Admin' },
 }
 
 type DashboardPageProps = {

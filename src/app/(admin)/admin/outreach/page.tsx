@@ -36,7 +36,7 @@ export default async function OutreachPage({ searchParams }: OutreachPageProps) 
 			<div className="mt-2 flex flex-wrap items-end justify-between gap-4">
 				<div>
 					<h1 className="font-robo text-4xl tracking-tight text-slate-950 sm:text-5xl">Countries and coverage</h1>
-					<p className="mt-3 max-w-3xl leading-7 text-slate-600">Maintain ISO country identity, coverage, localized editorial content, ordered services and experts, country statistics, offices, and only the existing map focus configuration. Public map and country templates remain deferred.</p>
+					<p className="mt-3 max-w-3xl leading-7 text-slate-600">Maintain ISO country identity, coverage, localized editorial content, ordered services and experts, country statistics, offices, and only the existing map focus configuration.</p>
 				</div>
 				<Button asChild><Link href="/admin/outreach/new">New country</Link></Button>
 			</div>

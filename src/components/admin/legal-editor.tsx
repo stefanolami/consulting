@@ -5,6 +5,7 @@ import { useId, useState } from 'react'
 
 import { deleteLegalTranslationAction, saveLegalTranslationAction } from '@/app/(admin)/admin/legal/actions'
 import { AdminForm, CommandButton, CommandNotice, Field, FieldGroup, FormActions, useAdminCommand, useAdminForm } from '@/components/admin/form/admin-form'
+import { SEO_TITLE_HINT } from '@/components/admin/form/editor-section'
 import { useConfirm } from '@/components/admin/form/confirm-dialog'
 import { LOCALE_NAMES, LocaleTabs, useLocaleStatuses } from '@/components/admin/form/locale-tabs'
 import { PublicationFields, type PublicationState } from '@/components/admin/form/publication-fields'
@@ -152,7 +153,7 @@ function TranslationForm({ canDelete, locale, onDeleted, onSaved, scope, stableK
 					<Input className="flex-1" name="lastUpdatedOn" onChange={(event) => setLastUpdatedOn(event.target.value)} type="date" value={lastUpdatedOn} />
 				</Field>
 				<div aria-hidden="true" className="hidden md:block" />
-				<Field hint="Optional. The page title is used when empty." label="SEO title" name="seoTitle">
+				<Field hint={SEO_TITLE_HINT} label="SEO title" name="seoTitle">
 					<Input maxLength={160} name="seoTitle" onChange={(event) => setSeoTitle(event.target.value)} value={seoTitle} />
 				</Field>
 				<Field hint="Optional, up to 320 characters." label="SEO description" name="seoDescription">

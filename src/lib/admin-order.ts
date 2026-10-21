@@ -11,7 +11,7 @@ import { moveInDisplayOrder, nextDisplayOrder } from '@/lib/display-order.mjs'
  * orders by.
  */
 
-type OrderedTable = 'people' | 'services' | 'sectors' | 'partners' | 'endorsements' | 'regions' | 'offices'
+type OrderedTable = 'people' | 'services' | 'sectors' | 'partners' | 'endorsements' | 'regions' | 'offices' | 'tags'
 type ListOptions = { table: OrderedTable; tieBreak: string; scope?: Record<string, unknown> }
 
 /** The order for a new record: after the last one in its list. */

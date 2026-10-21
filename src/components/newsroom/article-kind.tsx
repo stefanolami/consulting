@@ -1,13 +1,16 @@
 import { BookOpen, CalendarDays, type LucideIcon, Megaphone, Newspaper, PenTool, Share2, Video } from 'lucide-react'
 
+import { isArticleKind, type ArticleKind } from '@/lib/article-kinds.mjs'
 import { cn } from '@/lib/utils'
 
-// Kind keys with an interface label (`Newsroom.kinds.*`) and an icon. The
-// admin stores `articles.kind` as a free controlled key; an unknown key shows
-// no label and is not offered as a filter. The Figma "Newletter Icons" set is
-// not in the repository yet, so Lucide icons stand in for it
-// (docs/figma-asset-needs.md).
-const KIND_ICONS = {
+export { isArticleKind, type ArticleKind }
+
+// One icon per kind of the fixed vocabulary (src/lib/article-kinds.mjs), which
+// also has an interface label (`Newsroom.kinds.*`). A stored key outside the
+// vocabulary shows no label and is not offered as a filter. The Figma
+// "Newletter Icons" set is not in the repository yet, so Lucide icons stand in
+// for it (docs/figma-asset-needs.md).
+const KIND_ICONS: Record<ArticleKind, LucideIcon> = {
 	article: PenTool,
 	newsletter: Newspaper,
 	announcement: Megaphone,
@@ -17,12 +20,6 @@ const KIND_ICONS = {
 	podcast: Video,
 	book: BookOpen,
 	media: Share2,
-} satisfies Record<string, LucideIcon>
-
-export type ArticleKind = keyof typeof KIND_ICONS
-
-export function isArticleKind(value: string): value is ArticleKind {
-	return Object.hasOwn(KIND_ICONS, value)
 }
 
 /** Decorative kind icon; the label next to it names the kind. */

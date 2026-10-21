@@ -1267,7 +1267,9 @@ Implemented on 2026-09-28 against Figma `5408:334` (desktop Publications),
   (`article`, `newsletter`, `announcement`, `event`, `video`, `vodcast`,
   `podcast`, `book`, `media`) get a localized label (`Newsroom.kinds`) and an
   icon; an unknown key shows neither and is not offered as a filter. Every
-  seeded article is `article`. No schema or admin change.
+  seeded article is `article`. No schema or admin change. Since admin audit
+  slice 5b these nine keys are the only kinds the admin accepts (open
+  decision 23.11).
 - Pagination keeps crawlable URL pages (previous, "Page x of y", next) in the
   Figma "LOAD MORE" button style instead of a load-more control.
 - Detail (`src/components/newsroom/newsroom-article.tsx`): Figma leaves the top
@@ -2825,9 +2827,19 @@ These decisions should be resolved before the affected implementation begins:
     omitted from the implemented services page until this is decided
     (section 15.5).
 11. Whether the newsroom gets a newsletter subscription (Figma `5408:334`
-    "Subscribe to Newsletter") and with which provider, and the approved
-    vocabulary of article kinds (`articles.kind` is free text; section 15.7
-    labels nine keys). The Subscribe button is omitted until this is decided.
+    "Subscribe to Newsletter") and with which provider. The Subscribe button
+    is omitted until this is decided. The vocabulary of article kinds was
+    settled by the product owner on 2026-10-21 (admin audit NEWS-11, slice
+    5b): `articles.kind` is one of the nine keys section 15.7 labels
+    (`article`, `newsletter`, `announcement`, `event`, `video`, `vodcast`,
+    `podcast`, `book`, `media`), kept in `src/lib/article-kinds.mjs`, chosen
+    from a select in the article editor and enforced by its server schema.
+    Every stored article already used a listed key. Migration
+    `20261021150000_article_kind_vocabulary.sql` adds the same list as a
+    database check constraint; it is written but not applied, pending review.
+    A new kind needs that list, a label in every `messages/*.json`, an icon
+    in `src/components/newsroom/article-kind.tsx` and a migration that
+    replaces the constraint.
 12. The Why Us figures ("Our services are provided in XX languages across XX
     countries in XX continents", Figma `5408:311`), and whether the hero gets
     an introduction (Figma shows placeholder text). The page shows provisional
@@ -2906,8 +2918,8 @@ The rebuild is complete when:
 	 endorsements and the partners whose logos they show (logo, alt text, website and a
 	 published translation) in each locale through the admin (only the English
 	 EFFA endorsement and partner exist), upload white line icons for the services and sectors through the
-	 admin media library, and decide open decision 11 (newsletter subscription
-	 and the article-kind vocabulary). The 16 `placeholder-*` newsroom articles
+	 admin media library, and decide open decision 11 (newsletter subscription;
+	 the article-kind vocabulary is settled and its migration awaits review). The 16 `placeholder-*` newsroom articles
 	 (section 13.5, version 4) are test content and must be deleted before
 	 launch.
 3. In parallel, colleagues use the admin to add reviewed English summaries and

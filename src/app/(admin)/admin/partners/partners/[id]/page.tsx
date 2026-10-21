@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+import { adminRecordTitle } from '@/lib/admin-titles'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -6,5 +8,10 @@ import { requireActiveStaff } from '@/lib/auth/authorization'
 import { loadMediaChoices } from '@/lib/media-choices'
 import { editorialState } from '@/lib/publication.mjs'
 import { createClient } from '@/lib/supabase/server'
+
+export async function generateMetadata({ params }: { params: Promise<Record<string, string>> }): Promise<Metadata> {
+	const values = await params
+	return { title: await adminRecordTitle('partner', values.id) }
+}
 
 export default async function EditPartnerPage({ params }: { params: Promise<{ id: string }> }) { await requireActiveStaff(); const { id } = await params; const supabase = await createClient(); const [{ data: entry, error: entryError }, { data: translations, error: translationError }, media] = await Promise.all([supabase.from('partners').select('id, stable_key, name, website_url, display_order, logo_media_id, is_active').eq('id', id).maybeSingle(), supabase.from('partner_translations').select('locale, alt_text, description, status, published_at, scheduled_for').eq('partner_id', id), loadMediaChoices()]); if (entryError || translationError) throw new Error(`Unable to load partner: ${entryError?.message ?? translationError?.message}`); if (!entry) notFound(); return <div className="mx-auto max-w-5xl"><Link className="text-sm font-semibold text-[#53617f] hover:underline" href="/admin/partners">← Partners and endorsements</Link><p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-[#53617f]">Relationship content</p><h1 className="mt-2 font-robo text-4xl tracking-tight">{entry.name}</h1><PartnerEditor entry={{ id: entry.id, stableKey: entry.stable_key, name: entry.name, websiteUrl: entry.website_url, displayOrder: entry.display_order, logoMediaId: entry.logo_media_id, isActive: entry.is_active }} media={media} translations={(translations ?? []).map((item) => ({ locale: item.locale as 'en' | 'de' | 'it' | 'pt-BR' | 'pt-PT', altText: item.alt_text, description: item.description, status: editorialState(item).status, publication: editorialState(item) }))} /></div> }

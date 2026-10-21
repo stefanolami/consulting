@@ -67,3 +67,24 @@ test('an asset belongs to the kinds of its uses and of its upload path', () => {
 	assert.deepEqual(mediaKinds({ objectPath: 'visual-test/x.png', references: [{ type: 'Country outline' }, { type: 'Article inline image' }] }), ['cover', 'flag'])
 	assert.deepEqual(mediaKinds({ objectPath: 'library/2026/10/u.png' }), [])
 })
+
+test('oversize JPEG, PNG and WebP files are reduced in the browser; other types are not (PPL-12)', async () => {
+	const { needsBrowserResize, resizedDimensions, resizedFileName, resizedType, resizeNotice, RESIZE_LONG_SIDE } = await import('../src/lib/media-rules.mjs')
+	const big = MAX_MEDIA_FILE_BYTES + 1
+	assert.equal(needsBrowserResize({ type: 'image/png', size: 20_000_000 }), true)
+	assert.equal(needsBrowserResize({ type: 'image/jpeg', size: big }), true)
+	assert.equal(needsBrowserResize({ type: 'image/webp', size: big }), true)
+	assert.equal(needsBrowserResize({ type: 'image/png', size: MAX_MEDIA_FILE_BYTES }), false)
+	for (const type of ['image/gif', 'image/svg+xml', 'application/pdf']) assert.equal(needsBrowserResize({ type, size: big }), false, type)
+	// The legacy portraits are 6055 × 8910 px.
+	assert.deepEqual(resizedDimensions(6055, 8910), { width: 1631, height: RESIZE_LONG_SIDE })
+	assert.deepEqual(resizedDimensions(8000, 2000), { width: 2400, height: 600 })
+	assert.deepEqual(resizedDimensions(1200, 800), { width: 1200, height: 800 })
+	assert.equal(resizedType('image/jpeg'), 'image/jpeg')
+	assert.equal(resizedType('image/png'), 'image/webp')
+	assert.equal(resizedType('image/webp'), 'image/webp')
+	assert.equal(resizedFileName('team-alberto.png', 'image/webp'), 'team-alberto.webp')
+	assert.equal(resizedFileName('Portrait.JPG', 'image/jpeg'), 'Portrait.jpg')
+	assert.equal(resizedFileName('', 'image/webp'), 'image.webp')
+	assert.equal(resizeNotice('a.png', { width: 6055, height: 8910, size: 20 * 1024 * 1024 }, { width: 1631, height: 2400, size: 512 * 1024 }), '“a.png” was 6055 × 8910 px and 20.0 MiB, over the 15 MiB limit, so it was reduced to 1631 × 2400 px and 512.0 KiB before upload.')
+})

@@ -33,5 +33,11 @@ export declare const countryServiceCopySchema: z.ZodType<CountryServiceCopy, unk
 export type CountryStatisticLabel = { statisticId: string; label: string; displayValue: string | null }
 export declare const countryStatisticLabelSchema: z.ZodType<CountryStatisticLabel, unknown>
 
-export type CallToAction = { key: string; href: string; labels: { en: string; de: string | null; it: string | null; 'pt-BR': string | null; 'pt-PT': string | null } }
+export type SocialPlatform = 'linkedin' | 'instagram' | 'facebook' | 'youtube' | 'x'
+export declare const SOCIAL_PLATFORMS: readonly SocialPlatform[]
+export type SocialLink = { platform: SocialPlatform; url: string }
+export declare const socialLinkSchema: z.ZodType<SocialLink, unknown>
+export declare function unusedSocialPlatform(used: Iterable<string>): SocialPlatform | null
+
+export type CallToAction ={ key: string; href: string; labels: { en: string; de: string | null; it: string | null; 'pt-BR': string | null; 'pt-PT': string | null } }
 export declare const callToActionSchema: z.ZodType<CallToAction, unknown>

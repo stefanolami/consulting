@@ -4,6 +4,7 @@ import Link from 'next/link'
 
 import { FilterSelect, ListPending, ListToolbar, SearchField, useListQuery } from '@/components/admin/list-controls'
 import { COUNTRY_LIST, hasListFilters, NEWSROOM_LIST } from '@/lib/admin-list-query.mjs'
+import { articleKindLabel } from '@/lib/article-kinds.mjs'
 
 const LANGUAGES = [
 	{ value: '', label: 'Any language' },
@@ -41,7 +42,7 @@ export function NewsroomFilters({ kinds }: { kinds: readonly string[] }) {
 			<SearchField className="min-w-64" label="Search articles by title or URL slug, in any language" onSearch={(q, options) => update({ q }, options)} placeholder="Search titles and slugs" value={state.q} />
 			<FilterSelect label="Language" onChange={(locale) => update({ locale: locale as typeof state.locale })} options={LANGUAGES} value={state.locale} />
 			<FilterSelect label="State" onChange={(status) => update({ status: status as typeof state.status })} options={stateOptions(state.locale)} value={state.status} />
-			<FilterSelect label="Kind" onChange={(kind) => update({ kind })} options={[{ value: '', label: 'Any kind' }, ...kinds.map((kind) => ({ value: kind, label: kind.charAt(0).toUpperCase() + kind.slice(1) }))]} value={state.kind} />
+			<FilterSelect label="Kind" onChange={(kind) => update({ kind })} options={[{ value: '', label: 'Any kind' }, ...kinds.map((kind) => ({ value: kind, label: articleKindLabel(kind) }))]} value={state.kind} />
 			<ClearFilters href={hrefFor({ q: '', status: '', locale: '', kind: '' })} show={hasListFilters(NEWSROOM_LIST, state)} />
 			<ListPending pending={pending} />
 		</ListToolbar>

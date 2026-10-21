@@ -19,14 +19,10 @@ const PAGE = 500
  */
 export async function loadMediaChoices(): Promise<MediaPickerAsset[]> {
 	const supabase = await createClient()
-	const assets: Array<{ id: string; bucket_id: string; object_path: string; original_filename: string | null; mime_type: string | null; width: number | null; height: number | null; created_at: string }> = []
-	for (let offset = 0; ; offset += PAGE) {
-		const { data, error } = await supabase.from('media_assets').select('id, bucket_id, object_path, original_filename, mime_type, width, height, created_at').order('created_at', { ascending: false }).range(offset, offset + PAGE - 1)
-		if (error) throw new Error(`Could not load the media library: ${error.message}`)
-		assets.push(...(data ?? []))
-		if ((data ?? []).length < PAGE) break
-	}
-	const [alts, references] = await Promise.all([loadAllAltRows(supabase), mediaReferencesByAssetId()])
+	// The assets, their alt text and their uses are read side by side: none
+	// depends on another, and reading them one after the other was the
+	// slowest part of the editor pages (audit OUT-14).
+	const [assets, alts, references] = await Promise.all([loadAllAssets(supabase), loadAllAltRows(supabase), mediaReferencesByAssetId()])
 	return assets.map((asset) => ({
 		id: asset.id,
 		filename: asset.original_filename ?? asset.object_path.split('/').at(-1) ?? asset.id,
@@ -39,6 +35,16 @@ export async function loadMediaChoices(): Promise<MediaPickerAsset[]> {
 		uses: (references.get(asset.id) ?? []).length,
 		alts: Object.fromEntries(alts.filter((row) => row.media_asset_id === asset.id && cleanAlt(row.alt_text)).map((row) => [row.locale, row.alt_text.trim()])),
 	}))
+}
+
+async function loadAllAssets(supabase: Client) {
+	const assets: Array<{ id: string; bucket_id: string; object_path: string; original_filename: string | null; mime_type: string | null; width: number | null; height: number | null; created_at: string }> = []
+	for (let offset = 0; ; offset += PAGE) {
+		const { data, error } = await supabase.from('media_assets').select('id, bucket_id, object_path, original_filename, mime_type, width, height, created_at').order('created_at', { ascending: false }).range(offset, offset + PAGE - 1)
+		if (error) throw new Error(`Could not load the media library: ${error.message}`)
+		assets.push(...(data ?? []))
+		if ((data ?? []).length < PAGE) return assets
+	}
 }
 
 async function loadAllAltRows(supabase: Client) {

@@ -9,6 +9,7 @@ import { adminAction, failed, FieldError, succeeded, type AdminActionResult } fr
 import { PUBLICATION_COLUMNS, publicationColumns, publishedNotice, type SavedPublication } from '@/lib/admin-publication'
 import { optionalHttpUrl, optionalText, optionalUuid, requiredKey } from '@/lib/admin-schema.mjs'
 import { endOfListOrder, moveRecord } from '@/lib/admin-order'
+import { completeCreate, requireUnused } from '@/lib/admin-writes'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { libraryAltText, requireImageAsset, requireLibraryAlt } from '@/lib/media-choices'
 import { PUBLIC_GLOBAL_CACHE_TAG } from '@/lib/cache-tags'
@@ -107,11 +108,14 @@ export async function createPartnerAction(formData: FormData): Promise<AdminActi
 		if (goesPublic && !details.logoMediaId) throw new FieldError('logoMediaId', 'Published partner content needs a logo.')
 		const { profile } = await requireActiveStaff(); const supabase = await createClient(); await requireImageAsset(supabase, details.logoMediaId, 'logoMediaId', 'logo')
 		if (goesPublic && details.logoMediaId) await requireLogoAlt(supabase, details.logoMediaId, 'en', translation.altText)
+		await requireUnused(supabase, { column: 'stable_key', field: 'stableKey', label: 'stable key', table: 'partners', value: details.stableKey })
 		const id = randomUUID()
 		const { error: recordError } = await supabase.from('partners').insert({ id, stable_key: details.stableKey, name: details.name, website_url: details.websiteUrl, display_order: await endOfListOrder({ table: 'partners' }), logo_media_id: details.logoMediaId, created_by: profile.id, updated_by: profile.id })
 		if (recordError) return failed(`Could not create the partner: ${recordError.message}`)
-		const { error: translationError } = await supabase.from('partner_translations').insert({ partner_id: id, locale: 'en', alt_text: translation.altText ?? '', description: translation.description, ...publication })
-		if (translationError) return failed(`The partner was created, but its English content could not be saved: ${translationError.message}`)
+		await completeCreate(supabase, { table: 'partners', id, what: 'partner' }, async () => {
+			const { error: translationError } = await supabase.from('partner_translations').insert({ partner_id: id, locale: 'en', alt_text: translation.altText ?? '', description: translation.description, ...publication })
+			if (translationError) throw new Error(`The English content could not be saved: ${translationError.message}.`)
+		})
 		refreshPartners(); return succeeded('Partner created.', undefined, { redirectTo: `/admin/partners/partners/${id}` })
 	})
 }
@@ -150,11 +154,14 @@ export async function createEndorsementAction(formData: FormData): Promise<Admin
 		const { goesPublic, row: publication } = publicationColumns({ existing: null, publishAt: translation.publishAt, status: translation.status })
 		const { profile } = await requireActiveStaff(); const supabase = await createClient(); await requireImageAsset(supabase, details.portraitMediaId, 'portraitMediaId', 'portrait')
 		if (goesPublic && details.portraitMediaId) await requireLibraryAlt(supabase, { field: 'portraitAlt', label: 'portrait', locale: 'en', mediaId: details.portraitMediaId })
+		await requireUnused(supabase, { column: 'stable_key', field: 'stableKey', label: 'stable key', table: 'endorsements', value: details.stableKey })
 		const id = randomUUID()
 		const { error: recordError } = await supabase.from('endorsements').insert({ id, stable_key: details.stableKey, partner_id: details.partnerId, portrait_media_id: details.portraitMediaId, attribution_name: details.attributionName, display_order: await endOfListOrder({ table: 'endorsements' }), created_by: profile.id, updated_by: profile.id })
 		if (recordError) return failed(`Could not create the endorsement: ${recordError.message}`)
-		const { error: translationError } = await supabase.from('endorsement_translations').insert({ endorsement_id: id, locale: 'en', quote: translation.quote, attribution_title: translation.attributionTitle, ...publication })
-		if (translationError) return failed(`The endorsement was created, but its English content could not be saved: ${translationError.message}`)
+		await completeCreate(supabase, { table: 'endorsements', id, what: 'endorsement' }, async () => {
+			const { error: translationError } = await supabase.from('endorsement_translations').insert({ endorsement_id: id, locale: 'en', quote: translation.quote, attribution_title: translation.attributionTitle, ...publication })
+			if (translationError) throw new Error(`The English content could not be saved: ${translationError.message}.`)
+		})
 		refreshPartners(); return succeeded('Endorsement created.', undefined, { redirectTo: `/admin/partners/endorsements/${id}` })
 	})
 }

@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { CountryEditor } from '@/components/admin/country-editor'
 import { loadMediaChoices } from '@/lib/media-choices'
 import { createClient } from '@/lib/supabase/server'
+
+export const metadata: Metadata = { title: 'New country' }
 
 export default async function NewCountryPage() {
 	const supabase = await createClient()

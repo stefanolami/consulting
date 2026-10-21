@@ -1,7 +1,14 @@
+import type { Metadata } from 'next'
+import { adminRecordTitle } from '@/lib/admin-titles'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { RegionEditor } from '@/components/admin/outreach-record-editors'
 import { editorialState } from '@/lib/publication.mjs'
 import { createClient } from '@/lib/supabase/server'
 import type { Json } from '@/types/database.generated'
+export async function generateMetadata({ params }: { params: Promise<Record<string, string>> }): Promise<Metadata> {
+	const values = await params
+	return { title: await adminRecordTitle('region', values.id) }
+}
+
 export default async function RegionPage({ params }: { params: Promise<{ id: string }> }) { const { id } = await params; const supabase = await createClient(); const [{ data: region, error: regionError }, { data: translations, error: translationError }] = await Promise.all([supabase.from('regions').select('id, stable_key, display_order, is_active, map_config').eq('id', id).maybeSingle(), supabase.from('region_translations').select('locale, slug, name, status, published_at, scheduled_for').eq('region_id', id)]); if (regionError || translationError) throw new Error(`Unable to load region: ${regionError?.message ?? translationError?.message}`); if (!region) notFound(); return <div className="mx-auto max-w-4xl"><Link className="text-sm font-semibold text-[#53617f] underline-offset-4 hover:underline" href="/admin/outreach/regions">← Regions</Link><p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-[#53617f]">Our Outreach administration</p><h1 className="mt-2 font-robo text-4xl tracking-tight text-slate-950">{(translations ?? []).find((item) => item.locale === 'en')?.name ?? region.stable_key}</h1><RegionEditor region={{ id: region.id, stableKey: region.stable_key, displayOrder: region.display_order, isActive: region.is_active, mapConfig: region.map_config as Json }} translations={(translations ?? []).map((item) => ({ locale: item.locale as 'en' | 'de' | 'it' | 'pt-BR' | 'pt-PT', slug: item.slug, name: item.name, status: editorialState(item).status, publication: editorialState(item) }))} /></div> }

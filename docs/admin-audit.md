@@ -1,5 +1,13 @@
 # Admin dashboard audit
 
+**Status after slice 5b (2026-10-21):** of the 104 findings, 100 are fixed;
+2 are partly fixed with the rest deferred (X-13: the multi-step saves that
+remain non-atomic need database functions; NEWS-12: clicking into an image
+block's fields); 1 is left as a decision (RED-05: the redirect registry is
+not executed, kept as is); 1 needed no change (SET-06). Migration
+`20261021150000_article_kind_vocabulary.sql` (slice 5b) is written but not
+applied: review it before it is pushed.
+
 Audit of the v2 admin (`/admin`) on 2026-10-19, against `next dev` on
 `http://localhost:3000` (Next.js 16.2.12, React 19.2.8, TipTap 3.20) and the
 hosted development Supabase project. No application code was changed.
@@ -339,7 +347,48 @@ office tabs are plain buttons without `role`. Several inputs rely on
 placeholders as labels (tag creator, redirect search, country "Coverage level",
 which shares one `aria-label` across every row).
 
-### X-13 Partial writes are not transactional (minor, bug, code)
+### X-13 Partial writes are not transactional (minor, bug, code) — Partly fixed in slice 5b
+
+*Slice 5b (no migration):* PostgREST runs each request in its own
+transaction, so the saves are ordered to fail safely instead
+(`src/lib/admin-writes.ts`, plans in `src/lib/relation-writes.mjs` with
+unit tests):
+- Every create checks its stable key and English slug (and the country code)
+  before the first write and reports a clash on the field, so the common
+  failure no longer leaves anything behind (verified: a tag with a used slug
+  was refused and no row was written). When a later step still fails, the
+  new canonical row is deleted again, which takes its translation and
+  relations with it, and the message says "Nothing was created". Deleting
+  needs the admin role (RLS); for an editor the row stays and the message
+  says so and how to finish it. The rollback path is code only (no failure
+  could be forced in the browser).
+- Relation lists (catalogue contacts; article authors, tags, services,
+  sectors and related articles; country services, experts and offices;
+  country service copy) upsert the chosen rows first and delete the others
+  last, so a failure leaves the old and new choices merged, never an empty
+  list.
+- Profile roles cannot be upserted row by row (unique order and one card role
+  per language); the previous roles are put back when the new ones cannot be
+  written.
+- Country statistics keep their ids (OUT-10).
+- Site settings: each of the four settings is one upsert (SET-05), so each
+  save is atomic.
+
+Still not atomic, and how each fails (deferred: needs database functions):
+- *Shared details, then relations* (people, catalogue, articles, countries):
+  if the relation step fails, the details are saved and the message names the
+  relation list; the list keeps its old rows plus the new ones; save again.
+- *Translation, then its side rows* (people roles; country service copy and
+  statistic labels): the translation is saved; the message says the roles,
+  copy or labels were not; save again.
+- *Reordering* writes each changed row separately: a failure part-way leaves
+  two rows sharing an order, which the next move renumbers (PAR-06 rules).
+- *Archiving an article* updates its translations in parallel: a failure can
+  archive some languages and not others; the message names the step; archive
+  or restore again.
+- *Media replace and delete*: unchanged from slice 4 (an interruption leaves an
+  orphaned file, never a row without its file).
+
 
 Create flows insert the canonical row, then the translation, then relations,
 then alt text, as separate requests. A failure part-way leaves an orphan (for
@@ -349,7 +398,19 @@ catalogue, partners) rewrites `display_order` and `updated_by` on every row in
 the list (verified: moving one sector touched all seven). **Fix:** Postgres
 functions for create, replace-relations and reorder.
 
-### X-14 Stale and inconsistent copy (polish, UX)
+### X-14 Stale and inconsistent copy (polish, UX) — Fixed in slice 5b
+
+*Slice 5b:* the "deferred", "later public rendering" and "data-only" texts
+are gone (the redirect banner stays, RED-05). One editor layout
+(`EditorSection` and `ArchivePanel` in
+`src/components/admin/form/editor-section.tsx`): Roboto Serif section titles
+with a short description, each save button at the bottom of its section,
+and archiving in an amber panel at the end; Outreach countries, regions and
+offices, Partners, Settings and Tags now follow it. Every admin page has a
+title "… | Time&Place Admin": record pages use the record's English name
+(`src/lib/admin-titles.ts`), and the dashboard, which the layout's template
+does not reach, writes the suffix out. Verified on 16 pages.
+
 
 The Catalogue, Newsroom and Outreach intros say "Public … templates remain
 deferred", and the Catalogue restore panel says "eligible for later public
@@ -446,13 +507,13 @@ actual and fix where it is not obvious from the title.
   alt text for a new portrait comes from a separate field above the button
   (pre-filled "Portrait of …"), and the size limit is stated only after an
   error. The error text is styled like ordinary help text.
-- **PPL-12: Production portraits exceed the limits** (minor, UX, verified).
+- **PPL-12: Production portraits exceed the limits** **Fixed in slice 5b (resize, recommended over a message).** A JPEG, PNG or WebP over 15 MiB is reduced in the browser before upload to 2,400 px on its long side (JPEG stays JPEG; PNG and WebP become WebP, which keeps transparency), with a note naming both sizes; GIF, SVG and PDF are still refused with the guided message (`src/lib/media-rules.mjs`, unit tests). Verified with a 62.6 MiB 3600 × 5300 PNG: reduced to a 1630 × 2400 WebP of 2.1 MiB, Upload disabled while reducing (not uploaded). (minor, UX, verified).
   `main:public/team/*` includes 19–25 MB PNGs (alberto, christoph, cristiane,
   liga, sebastiano, at 6055×8910) against a 15 MiB client limit and a 16 MB
   Server Action body limit. *Fix:* resize on upload, or document an export size.
 - **PPL-13: "Scheduled" maps to Draft** **Fixed in slice 3.** People offer Scheduled like every other translation. (minor, bug, code). The translation
   status select offers no Scheduled, and a scheduled row is rendered as Draft.
-- **PPL-14: Archive has no confirmation and no message** (minor, UX, verified).
+- **PPL-14: Archive has no confirmation and no message** **Fixed in slice 5b.** Archiving asks first in the in-page dialog (focus on Cancel, Escape cancels) and says what happens; the result notice is next to the button (slice 1). The same panel is used for catalogue entries, articles, regions, offices, partners, endorsements and tags. (minor, UX, verified).
   The restore copy is accurate; feedback is only the panel changing at the
   bottom of the page.
 - **PPL-15: Dashboard-style counters only count locales** **Fixed in slice 5a.** The counters are active profiles, live in English, and live in every language (published translations). (polish, UX, code).
@@ -486,7 +547,7 @@ actual and fix where it is not obvious from the title.
   verified).
 - **CAT-09: The Services/Sectors tab is not in the URL** **Fixed in slice 5a.** `?kind=sectors` selects Sectors; the switch is a pair of links with `aria-current`, and the search is in the URL too. (polish, UX, verified).
   Returning from an editor always lands on Services.
-- **CAT-10: Two editors write the same relation** (minor, bug, code). The
+- **CAT-10: Two editors write the same relation** **Fixed in slice 5b.** The article editor owns `article_services` and `article_sectors`; the catalogue editor lists the linked articles read-only, each linking to its article, and its save no longer touches them. (minor, bug, code). The
   catalogue "Related articles" and the article "Related services/sectors" both
   replace rows in `article_services` and `article_sectors`, with no
   concurrency check; the last save wins.
@@ -520,10 +581,10 @@ actual and fix where it is not obvious from the title.
   create a draft, upload the cover, then publish.
 - **NEWS-09: No search, filter or pagination; titles are not links** **Fixed in slice 5a.** Search (titles and slugs in any language), filters for state, language and kind, 20 per page; the state is in the URL; titles are links. (minor,
   UX, verified). 18 articles in one table; only an "Edit" button opens a row.
-- **NEWS-10: Tags are English-only and cannot be edited or archived** (minor,
+- **NEWS-10: Tags are English-only and cannot be edited or archived** **Fixed in slice 5b.** Newsroom → Manage tags lists every tag with its languages and uses; each tag has a page (shared form layer) for its key and order, a label, URL slug and publication per language, and archiving (in-page confirmation). Verified: a German label made the tag appear in the German newsroom filter; archiving removed it there and from the article editor. (minor,
   UX, code). The tag form uses placeholders as labels. Non-English newsroom
   pages therefore show no tag filter.
-- **NEWS-11: Article kind is free text** (minor, UX, verified). It says "a
+- **NEWS-11: Article kind is free text** **Fixed in slice 5b (decided by the product owner).** Kind is one of the nine keys the public newsroom labels, chosen from a select; the server schema refuses anything else (verified with a forged value); `src/lib/article-kinds.mjs` is the one list, used by the admin, the list filter and the public kind icons. All 21 stored articles already use a listed kind, so no mapping was needed. Migration `20261021150000_article_kind_vocabulary.sql` adds a matching check constraint (not applied). (minor, UX, verified). It says "a
   controlled key for the approved newsroom format" but accepts any slug.
 - **NEWS-12: The inline image block lacks guidance** **Fixed in slice 4, except the click target.** The block uses the picker (thumbnail, upload), plain layout names ("Text width", "Wide", "Full width") and one short help line, and can be added before the library has an image. Clicking into its fields inside the editable surface is unchanged (slice 5). (minor, UX, verified). No
   thumbnail; raw preset names ("fullBleed"); clicking into a block's fields is
@@ -556,22 +617,23 @@ actual and fix where it is not obvious from the title.
   no filter by covered, region or status, no pagination; the order column is 0
   everywhere.
 - **OUT-09: Statistic labels need a reload; the display override is ignored
-  without a label** (minor, bug, code). New statistic rows have no id until a
+  without a label** **Fixed in slice 5b.** The shared-details save returns the stored statistics with their ids, so a new statistic gets its label fields at once; a display value typed before a label is kept and the save asks for the label. Clearing a label now removes it. Verified on Sweden, including the public page showing the override. (minor, bug, code). New statistic rows have no id until a
   reload, so their localized label fields do not appear. "Display value
   override" only updates an existing label row, so typing it first does
   nothing.
 - **OUT-10: Renaming a metric key deletes the statistic and its labels**
+  **Fixed in slice 5b.** Statistics are written by id; a rename updates the row and keeps its labels, and swaps or chains of renames are ordered to keep the unique key valid (`statisticWritePlan`, unit tests). Verified: renamed and back, same id, label kept.
   (minor, bug, code). `replaceCountryRelations` deletes by missing
   `metric_key`.
 - **OUT-11: Offices are listed by stable key** **Fixed in slice 5a.** The country editor lists offices by their English name. (minor, UX, verified). The
   country editor shows `romania-bucharest`, not "Time&Place Bucharest".
-- **OUT-12: The new-office form mixes shared and English fields** (minor, UX,
+- **OUT-12: The new-office form mixes shared and English fields** **Fixed in slice 5b.** New offices and regions show "Shared … details" and "English content" as separate sections; archiving moved out of the save row into the archive panel with an in-page confirmation. (minor, UX,
   verified). One grid with no grouping. "Archive office" and "Archive region"
   sit next to "Save shared details" as neutral buttons, with no confirmation.
 - **OUT-13: Country service copy appears only for services saved before the
-  tab opened** (minor, bug, code). Services added in the same session do not
+  tab opened** **Fixed in slice 5b.** The language form lists the services as last saved, updated by each shared-details save; a service chosen but not saved yet is named with "Save the shared details to write copy for …". Verified without a reload. (minor, bug, code). Services added in the same session do not
   appear until a reload.
-- **OUT-14: The country page loads slowly** (polish, verified). It runs 14
+- **OUT-14: The country page loads slowly** **Fixed in slice 5b.** Profiled: each query costs one round trip (about 80–100 ms to the hosted project) and the page waited for three in a row: the media picker read its assets before their alt text and uses, and the statistic labels were read after everything else. Both now load with the rest (`loadMediaChoices`, labels embedded in the statistics query). The 5 s seen in the audit was mostly the dev compile (9–12 s on a cold route). Production build: the page is served in about 0.5–0.65 s, as the other editors; occasional slower loads follow the hosted database. (polish, verified). It runs 14
   parallel queries; it rendered after about 5 s in dev.
 
 ### Media
@@ -602,7 +664,7 @@ actual and fix where it is not obvious from the title.
   inspector. A single `busy` flag disables the whole page.
 - **MED-06: One file at a time; no type filter** **Fixed in slice 4.** Several files at once, each checked in the browser before sending (type and size, with a sentence that names the file) and shown with its own status; filters by kind, "Unused" and file type (verified). (minor, UX, verified).
 - **MED-07: The preview keeps the previous image until the next one loads**
-  **Fixed in slice 4 (code only).** The preview image is keyed by its file URL, so another selection or a replaced file starts a new image; not re-checked visually. (polish, UI, verified).
+  **Fixed in slice 4 (code only); verified in slice 5b.** The preview image is keyed by its file URL; slice 5b hides it until it has loaded and shows "Loading preview…", so the previous image never stays on screen (checked frame by frame after selecting another asset). (polish, UI, verified).
 - **MED-08: The reference scan does not scale** **Fixed in slice 4.** Each table is read once for its rows that have a media id (no `in.(…)` list of every asset id), and only article translations that contain an inline image are loaded. (minor, bug, code).
   `mediaReferencesByAssetId` passes every asset id in one `in.(…)` filter and
   loads all `article_translations` on every Media page load; the URL will
@@ -620,7 +682,7 @@ actual and fix where it is not obvious from the title.
   pattern as OUT-03. See X-06.
 - **PAR-04: Status and media selects revert after save** **Fixed in slice 1.** (blocker, bug, code,
   same mechanism as X-01).
-- **PAR-05: Partners have no public consumer** (minor, UX, verified). The
+- **PAR-05: Partners have no public consumer** **Fixed in slice 5b (decided: keep the area).** The partner list and every partner page say "Not shown on the site on their own" and explain that a partner appears only through an endorsement that names it, with its logo on Why Us. (minor, UX, verified). The
   partners band was removed from Home, so published partners appear nowhere;
   only endorsements show (Why Us). The editor should say where the content
   appears.
@@ -641,7 +703,7 @@ date, styled editing, and the status kept after save (all verified).
   separate field.
 - **LEG-02: Delete translation uses `window.confirm`** **Fixed in slice 4.** The shared in-page dialog (verified, cancelled). (minor, UX, code;
   `legal-editor.tsx:226`). Not clicked.
-- **LEG-03: SEO title help omits the site-name suffix** (minor, UX, verified).
+- **LEG-03: SEO title help omits the site-name suffix** **Fixed in slice 5b.** Every SEO title field (People, Catalogue, Newsroom, Our Outreach, Legal) says to leave out the site name, which is added automatically. (minor, UX, verified).
   Entering "Privacy Policy | Time&Place Consulting" produced the page title
   "Privacy Policy | Time&Place Consulting | Time&Place Consulting". The same
   applies to every SEO title field. *Fix:* "The site name is added
@@ -656,19 +718,19 @@ date, styled editing, and the status kept after save (all verified).
   verified). See X-03.
 - **SET-02: A failed save reverts edits; the social platform select desyncs** **Fixed in slice 1.**
   (major, bug, verified). See X-01.
-- **SET-03: "Footer note" and calls to action have no public effect** (major,
+- **SET-03: "Footer note" and calls to action have no public effect** **Fixed in slice 5b (labelled).** Neither has an obvious place in the public shell: the footer already prints a translated copyright line, and every button has its own translated label in code. Both are labelled "Not shown on the site yet" with the reason. The contact details are described as shown in the footer and on Contact. (major,
   UX, verified and code). The footer prints code-owned copy
   ("© 2026 Time&Place Consulting. All rights reserved."), not `footerNote`.
   `approved_calls_to_action` is not read by `public-global-content.ts`. Editors
   change these with no visible result. *Fix:* wire them up, or label them "not
   used yet".
-- **SET-04: A new social row defaults to a platform already in use** (minor,
+- **SET-04: A new social row defaults to a platform already in use** **Fixed in slice 5b.** A new row starts with the first unused platform, each select disables the platforms other rows use, and "Add social link" is disabled when all five have a link. (minor,
   UX, verified). It defaults to "linkedin"; the select does not exclude used
   platforms, so the save fails on duplicates.
-- **SET-05: One save button for four independent settings** (minor, UX,
+- **SET-05: One save button for four independent settings** **Fixed in slice 5b.** Four forms and four actions: an error in one (verified: an empty social URL) leaves the others free to save (the POE link saved meanwhile). (minor, UX,
   verified). An error in any section blocks all four and resets the whole page.
   Removing a social link or CTA has no undo (recoverable only by not saving).
-- **SET-06: The POE link works** (verified): the header POE link points to
+- **SET-06: The POE link works** **No change needed.** (verified): the header POE link points to
   `poeontap.com`. The footer contact details and social icons update after a
   reload (X-07).
 
@@ -677,15 +739,15 @@ date, styled editing, and the status kept after save (all verified).
 - **RED-01: Raw JSON errors and a reset form** **Fixed in slice 1.** (major, UX, verified). For
   example "The source must be a single-leading-slash site path." arrives inside
   a JSON array. See X-01 and X-02.
-- **RED-02: Empty registry says "No redirects match this view"** (polish, UX,
+- **RED-02: Empty registry says "No redirects match this view"** **Fixed in slice 5b.** An empty registry explains what redirects are for and offers "Add the first redirect"; a search without results names the search. The empty state is code only: the registry holds one redirect, which was not deleted. (polish, UX,
   verified). It should be an empty state that explains what redirects are for.
 - **RED-03: The search input has no label; notices stack** **Fixed in slice 1.** The search input has a label, each row shows one notice (the last action), the edit form closes after a save, and the create notice clears on the next edit. (minor, a11y and UX,
   verified). The create notice stays after later edits; the edit form stays
   open after "Save redirect".
-- **RED-04: Dates use US format** (polish, UI, verified). "10/19/2026,
+- **RED-04: Dates use US format** **Fixed in slice 5b.** "Updated 19 Oct 2026, 17:39" (en-GB, in the editor's time zone, `LocalDateTime`). (polish, UI, verified). "10/19/2026,
   5:39:07 PM" (`toLocaleString()` with no locale) while the rest of the admin
   uses en-GB.
-- **RED-05: The registry is not executed** (info). This is clearly explained by
+- **RED-05: The registry is not executed** (info) **Decision, kept (slice 5b):** no change; the banner stays. This is clearly explained by
   the banner and matches §20 Phase 4. Enable and disable work without
   confirmation, which is fine for a reversible toggle (verified).
 
@@ -843,6 +905,29 @@ data.
 ADV was not written (its order did not change); the other four rows have a
 new `updated_at` and `updated_by`. Partners have no public page (PAR-05).
 
+### Slice 5b test content (2026-10-21)
+
+Written through the admin by the staff account `stefano` at 14:35–14:49 UTC
+(17:35–17:49 in the browser), during the slice 5b browser checks. Every
+other check only read data or was cancelled.
+
+| Record | Change | Before → after |
+| --- | --- | --- |
+| Site settings `poe_external_link` | Saved unchanged (SET-05 check) | value unchanged; new `updated_at` |
+| Tag "Slice 5b check" (`slice-5b-check`, `ffc0b870-864d-4eaf-bef3-0a6f73c51977`) | Created (en "Slice 5b check", published); de "Slice-5b-Prüfung" (`slice-5b-pruefung`) added and published; display order 2 → 9; archived | new; archived, used by no article. Remove or keep as test content |
+| Sector Circular Economy contacts (`aa0e911f-…`) | Order swapped and saved, then swapped back | Flávia 0, Georgios 1 → same |
+| Country SE statistic `slice-2-check` (`08095e46-…`) | Renamed to `slice-5b-renamed` and back; same id, en label kept | unchanged |
+| Country SE statistic `slice-5b-new` (`110c531d-7559-4167-b7a6-ae6e3d7a565d`) | Added (value 5) with en label "Slice 5b test value" and display value "about five", then removed | gone, with its label |
+| Country SE service Government Relations | Assigned twice (with an empty en service copy row) and removed twice | gone, with its copy row |
+| Country SE, en | Saved twice without text changes (a third save was refused: label missing) | `published_at` unchanged (2026-10-20T18:10:00Z); new `updated_at` |
+| Country SE, en service copy (Association Management, Market Research) | Re-saved unchanged by the en saves | unchanged |
+
+Not written: the refused tag (used slug), the article saved with a forged kind
+(refused), the oversize image (reduced, not uploaded), every cancelled archive
+(article, office, profile). Sweden's `country_services` and
+`country_statistics` were read back after the checks and match the "before"
+state apart from `updated_at`.
+
 ---
 
 ## 5. Proposed fix plan
@@ -948,6 +1033,16 @@ OUT-09, OUT-10, OUT-12 to OUT-14, CAT-10, PPL-12, PPL-14 and MED-07. Open
 decisions, not implemented: NEWS-11 (article kinds), PAR-05 (partners have
 no public page) and RED-05 (the registry is not applied).
 
+*Slice 5b done on 2026-10-21.* Closed: X-14, LEG-03, SET-03 to SET-05,
+RED-02, RED-04, NEWS-10, NEWS-11, OUT-09, OUT-10, OUT-12 to OUT-14, CAT-10,
+PPL-12, PPL-14, PAR-05 and MED-07 (verified); X-13 partly (the rest needs
+database functions). Decided: NEWS-11 (a fixed list of nine kinds), PAR-05
+(keep the admin area with a notice), RED-05 (no change). One migration,
+`20261021150000_article_kind_vocabulary.sql` (a check constraint), not
+applied. New unit tests: `scripts/article-kinds.test.mjs`,
+`scripts/relation-writes.test.mjs`, and additions to
+`scripts/admin-schema.test.mjs` and `scripts/media-rules.test.mjs`.
+
 - Active navigation with a single `aria-current`; scrollable sidebar; pointer
   cursor and stronger focus rings; tab semantics from Legal everywhere; labels
   for placeholder-only inputs.
@@ -992,7 +1087,9 @@ RED-04, X-11 to X-14.
 - **Region editor, endorsement and partner language tabs:** findings come from
   the code (identical to the verified office pattern), not from the browser.
 - **Concurrency (two editors on the same record):** not tested; CAT-10 and
-  X-13 come from the code.
+  X-13 come from the code. *Slice 5b:* CAT-10 is removed by design (one
+  owner); the create rollback of X-13 could not be forced in the browser
+  and is checked in code only.
 - **Scheduled publishing after the job exists:** there is no job to test
   against. *Slice 3:* no job is needed; scheduling was tested end to end in
   the browser (§4, slice 3 test content).

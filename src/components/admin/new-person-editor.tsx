@@ -7,6 +7,7 @@ import { useState } from 'react'
 
 import { createPersonAction } from '@/app/(admin)/admin/actions'
 import { AdminForm, Field, FieldSlot, FormActions, useAdminForm } from '@/components/admin/form/admin-form'
+import { SEO_TITLE_HINT } from '@/components/admin/form/editor-section'
 import { StatusSelect } from '@/components/admin/form/controls'
 import { MediaPicker, useMediaUploads, type MediaPickerAsset } from '@/components/admin/form/media-picker'
 import { ProfileDocumentEditor } from '@/components/admin/profile-document-editor'
@@ -63,7 +64,7 @@ export function NewPersonEditor({ media }: { media: MediaPickerAsset[] }) {
 				<FieldSlot className="md:col-span-2" name="profileDocument"><ProfileDocumentEditor initialValue={emptyProfileDocument()} /></FieldSlot>
 				<Field label="Publication status" name="status"><StatusSelect defaultValue="draft" options={['draft', 'published']} /></Field>
 				<div aria-hidden="true" />
-				<Field label="SEO title" name="seoTitle"><Input name="seoTitle" /></Field>
+				<Field hint={SEO_TITLE_HINT} label="SEO title" name="seoTitle"><Input name="seoTitle" /></Field>
 				<Field label="SEO description" name="seoDescription"><textarea className="min-h-20 w-full rounded-md border border-input px-3 py-2 text-sm shadow-xs" name="seoDescription" /></Field>
 			</div>
 		</section>

@@ -4,7 +4,8 @@ import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { useId, useState } from 'react'
 
 import { savePersonTranslationAction, setPersonArchivedAction, updatePersonAction } from '@/app/(admin)/admin/actions'
-import { AdminForm, CommandButton, CommandNotice, Field, FieldSlot, FormActions, useAdminCommand, useAdminForm } from '@/components/admin/form/admin-form'
+import { AdminForm, Field, FieldSlot, FormActions, useAdminCommand, useAdminForm } from '@/components/admin/form/admin-form'
+import { ArchivePanel, SEO_TITLE_HINT } from '@/components/admin/form/editor-section'
 import { LOCALE_NAMES, LocaleTabs, useLocaleStatuses } from '@/components/admin/form/locale-tabs'
 import { LibraryAltNote, MediaPicker, useMediaUploads, type MediaPickerAsset } from '@/components/admin/form/media-picker'
 import { PublicationFields, type PublicationState } from '@/components/admin/form/publication-fields'
@@ -63,7 +64,7 @@ export function PersonEditor({ media, person, translations }: { media: MediaPick
 			</LocaleTabs>
 		</section>
 
-		<section className="grid gap-3"><div className="flex flex-col justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center"><div><h2 className="font-semibold text-amber-950">{person.isActive ? 'Archive this profile' : 'Restore this profile'}</h2><p className="mt-1 text-sm text-amber-900">{person.isActive ? 'Archived profiles are hidden from every public locale; their translations, roles, and media text are retained.' : 'Restoring makes already-published translations visible again.'}</p></div><CommandButton onClick={() => archive.run({ isArchived: person.isActive ? 'true' : 'false', personId: person.id })} pending={archive.pending} variant={person.isActive ? 'destructive' : 'default'}>{person.isActive ? 'Archive profile' : 'Restore profile'}</CommandButton></div><CommandNotice command={archive} /></section>
+		<ArchivePanel archived={!person.isActive} archiveLabel="Archive profile" command={archive} description={{ archive: 'The profile is hidden from Who We Are in every language, and from contact, expert and author lists. Its translations, roles and portrait are kept.', restore: 'Restoring makes its published translations visible again.' }} name={person.displayName} onArchive={() => archive.run({ isArchived: 'true', personId: person.id })} onRestore={() => archive.run({ isArchived: 'false', personId: person.id })} restoreLabel="Restore profile" title={{ archive: 'Archive this profile', restore: 'Restore this profile' }} />
 	</div>
 }
 
@@ -84,7 +85,7 @@ function LocalizedProfileForm({ locale, onSaved, person, portrait, portraitId, s
 		{portraitId ? <LibraryAltNote asset={portrait} assetId={portraitId} field="portraitAlt" label="Portrait alt text" locale={locale} whenMissing={`The website uses the English text, or “Portrait of ${person.displayName}” without one.`} /> : <div aria-hidden="true" className="hidden md:block" />}
 		<PublicationFields initial={translation?.publication} options={translation ? undefined : ['draft', 'scheduled', 'published']} />
 		<div aria-hidden="true" className="hidden md:block" />
-		<Field label="SEO title" name="seoTitle"><Input defaultValue={translation?.seoTitle ?? ''} name="seoTitle" /></Field>
+		<Field hint={SEO_TITLE_HINT} label="SEO title" name="seoTitle"><Input defaultValue={translation?.seoTitle ?? ''} name="seoTitle" /></Field>
 		<Field label="SEO description" name="seoDescription"><textarea className="min-h-20 w-full rounded-md border border-input px-3 py-2 text-sm shadow-xs" defaultValue={translation?.seoDescription ?? ''} name="seoDescription" /></Field>
 		<FormActions className="md:col-span-2" form={form} label={`Save ${locale} translation`} />
 	</AdminForm>

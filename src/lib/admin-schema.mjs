@@ -84,7 +84,19 @@ export const countryStatisticSchema = z.object({
 export const countryServiceCopySchema = z.object({ serviceId: z.string().uuid(), summary: optionalText(2_000), content: z.unknown() }).strict()
 
 /** A localized statistic label (`statisticLabels`). */
-export const countryStatisticLabelSchema = z.object({ statisticId: z.string().uuid(), label: z.string().trim().min(1).max(160), displayValue: optionalText(320) }).strict()
+export const countryStatisticLabelSchema = z.object({ statisticId: z.string().uuid(), label: z.string().trim().min(1, 'Add a label: a statistic is shown only with one, and the display value replaces only its number.').max(160), displayValue: optionalText(320) }).strict()
+
+/** The social platforms the footer has icons for, in the order the admin offers them. */
+export const SOCIAL_PLATFORMS = Object.freeze(['linkedin', 'instagram', 'facebook', 'youtube', 'x'])
+
+/** A social link (`socialLinks`): one per platform. */
+export const socialLinkSchema = z.object({ platform: z.enum(SOCIAL_PLATFORMS), url: httpUrl() }).strict()
+
+/** The platform a new social row starts with: the first one not used yet, or null when all are (audit SET-04). */
+export function unusedSocialPlatform(used) {
+	const taken = new Set(used)
+	return SOCIAL_PLATFORMS.find((platform) => !taken.has(platform)) ?? null
+}
 
 /** A call to action (`callsToAction`): English is required, every other label is optional. */
 export const callToActionSchema = z.object({

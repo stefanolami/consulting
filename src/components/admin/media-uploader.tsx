@@ -6,11 +6,37 @@ import { useId, useRef, useState } from 'react'
 import { uploadMediaAssetAction, type UploadedMedia } from '@/app/(admin)/admin/media/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { acceptAttribute, acceptedTypeNames, formatBytes, MAX_MEDIA_FILE_BYTES, MEDIA_KINDS, mediaFileProblem, type MediaKind } from '@/lib/media-rules.mjs'
+import { acceptAttribute, acceptedTypeNames, formatBytes, IMAGE_MEDIA_TYPES, MAX_MEDIA_FILE_BYTES, MEDIA_KINDS, mediaFileProblem, needsBrowserResize, resizedDimensions, resizedFileName, resizedType, resizeNotice, type MediaKind } from '@/lib/media-rules.mjs'
 
-type Item = { key: string; file: File; problem: string | null; state: 'waiting' | 'uploading' | 'done' | 'failed'; message: string | null }
+type Item = { key: string; file: File; problem: string | null; state: 'preparing' | 'waiting' | 'uploading' | 'done' | 'failed'; message: string | null; note: string | null }
 
 const NETWORK_ERROR = 'The upload did not reach the server. Check the connection and try again.'
+/**
+ * Reduces an oversize JPEG, PNG or WebP to 2,400 px on its long side (audit
+ * PPL-12; the rules are in media-rules.mjs). A browser that cannot encode the
+ * preferred type gives another; any accepted image type within the limit is
+ * used.
+ */
+async function reduceImage(file: File) {
+	const bitmap = await createImageBitmap(file)
+	try {
+		const target = resizedDimensions(bitmap.width, bitmap.height)
+		const canvas = document.createElement('canvas')
+		canvas.width = target.width
+		canvas.height = target.height
+		const context = canvas.getContext('2d')
+		if (!context) throw new Error('This browser cannot resize images.')
+		context.imageSmoothingQuality = 'high'
+		context.drawImage(bitmap, 0, 0, target.width, target.height)
+		const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, resizedType(file.type), 0.9))
+		if (!blob || !(IMAGE_MEDIA_TYPES as readonly string[]).includes(blob.type) || blob.size > MAX_MEDIA_FILE_BYTES) throw new Error('The reduced image is still too large.')
+		const reduced = new File([blob], resizedFileName(file.name, blob.type), { type: blob.type, lastModified: Date.now() })
+		return { file: reduced, note: resizeNotice(file.name, { width: bitmap.width, height: bitmap.height, size: file.size }, { ...target, size: reduced.size }) }
+	} finally {
+		bitmap.close()
+	}
+}
+
 const KIND_SINGULAR: Record<MediaKind, string> = { portrait: 'Portrait', icon: 'Icon', cover: 'Cover or article image', logo: 'Logo', flag: 'Flag or outline' }
 
 /**
@@ -38,13 +64,25 @@ export function MediaUploader({ imagesOnly = false, kind = null, kindChoice = fa
 	const [caption, setCaption] = useState('')
 	const [chosenKind, setChosenKind] = useState<MediaKind | ''>(kind ?? '')
 	const [busy, setBusy] = useState(false)
-	const valid = items.filter((item) => !item.problem && item.state !== 'done')
+	const valid = items.filter((item) => !item.problem && item.state !== 'done' && item.state !== 'preparing')
+	const preparing = items.some((item) => item.state === 'preparing')
 	const single = items.length <= 1
 	const sendable = items.filter((item) => !item.problem)
 	const uploadingIndex = sendable.findIndex((item) => item.state === 'uploading')
 
 	function choose(files: FileList | null) {
-		setItems([...(files ?? [])].map((file, index) => ({ key: `${file.name}-${file.size}-${index}`, file, problem: mediaFileProblem(file, { imagesOnly }), state: 'waiting', message: null })))
+		const chosen = [...(files ?? [])].map((file, index): Item => {
+			const resize = needsBrowserResize(file) && (!imagesOnly || file.type.startsWith('image/'))
+			return { key: `${file.name}-${file.size}-${index}`, file, problem: resize ? null : mediaFileProblem(file, { imagesOnly }), state: resize ? 'preparing' : 'waiting', message: null, note: null }
+		})
+		setItems(chosen)
+		// Oversize photos are reduced here instead of refused (audit PPL-12).
+		for (const item of chosen.filter((entry) => entry.state === 'preparing')) {
+			reduceImage(item.file).then(
+				({ file, note }) => update(item.key, { file, note, problem: mediaFileProblem(file, { imagesOnly }), state: 'waiting' }),
+				() => update(item.key, { problem: `${mediaFileProblem(item.file, { imagesOnly })} This browser could not reduce it automatically.`, state: 'waiting' }),
+			)
+		}
 	}
 
 	function update(key: string, change: Partial<Item>) {
@@ -52,7 +90,7 @@ export function MediaUploader({ imagesOnly = false, kind = null, kindChoice = fa
 	}
 
 	async function upload() {
-		if (busy || !valid.length) return
+		if (busy || preparing || !valid.length) return
 		setBusy(true)
 		const queue = valid
 		let succeeded = 0
@@ -93,14 +131,14 @@ export function MediaUploader({ imagesOnly = false, kind = null, kindChoice = fa
 			<div className="grid gap-1.5 text-sm">
 				<label className="font-medium text-slate-700" htmlFor={`${id}-file`}>{multiple ? 'Files' : 'File'}</label>
 				<Input accept={acceptAttribute(imagesOnly)} aria-describedby={`${id}-rules`} disabled={busy} id={`${id}-file`} multiple={multiple} onChange={(event) => choose(event.target.files)} ref={fileInput} type="file" />
-				<span className="text-xs text-slate-500" id={`${id}-rules`}>{acceptedTypeNames(imagesOnly)}, up to {MAX_MEDIA_FILE_BYTES / (1024 * 1024)} MiB each.{multiple ? ' You can choose several files.' : ''}</span>
+				<span className="text-xs text-slate-500" id={`${id}-rules`}>{acceptedTypeNames(imagesOnly)}, up to {MAX_MEDIA_FILE_BYTES / (1024 * 1024)} MiB each. Larger JPEG, PNG or WebP photos are reduced to 2,400 px on the long side before upload.{multiple ? ' You can choose several files.' : ''}</span>
 			</div>
 			{items.length ? (
 				<ul aria-live="polite" className="grid gap-2 text-sm">
 					{items.map((item) => (
 						<li className={`flex items-start gap-2 rounded-md border px-3 py-2 ${item.problem || item.state === 'failed' ? 'border-red-200 bg-red-50 text-red-800' : item.state === 'done' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-slate-50 text-slate-700'}`} key={item.key}>
-							{item.state === 'uploading' ? <LoaderCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 animate-spin" /> : item.state === 'done' ? <CheckCircle2 aria-hidden="true" className="mt-0.5 size-4 shrink-0" /> : item.problem || item.state === 'failed' ? <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" /> : <Upload aria-hidden="true" className="mt-0.5 size-4 shrink-0" />}
-							<span className="min-w-0 wrap-break-word">{item.problem ?? item.message ?? `${item.file.name} · ${formatBytes(item.file.size)} · ${item.state === 'uploading' ? 'uploading…' : 'ready'}`}</span>
+							{item.state === 'uploading' || item.state === 'preparing' ? <LoaderCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 animate-spin" /> : item.state === 'done' ? <CheckCircle2 aria-hidden="true" className="mt-0.5 size-4 shrink-0" /> : item.problem || item.state === 'failed' ? <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" /> : <Upload aria-hidden="true" className="mt-0.5 size-4 shrink-0" />}
+							<span className="min-w-0 wrap-break-word">{item.problem ?? item.message ?? (item.state === 'preparing' ? `“${item.file.name}” is over the size limit; reducing it to ${formatBytes(MAX_MEDIA_FILE_BYTES)} or less…` : `${item.file.name} · ${formatBytes(item.file.size)} · ${item.state === 'uploading' ? 'uploading…' : 'ready'}`)}{item.note && !item.problem ? <span className="mt-1 block text-xs text-slate-600">{item.note}</span> : null}</span>
 						</li>
 					))}
 				</ul>
@@ -127,7 +165,7 @@ export function MediaUploader({ imagesOnly = false, kind = null, kindChoice = fa
 				</div>
 			) : null}
 			<div className="flex flex-wrap items-center gap-3">
-				<Button disabled={busy || !valid.length} onClick={() => void upload()} type="button">
+				<Button disabled={busy || preparing || !valid.length} onClick={() => void upload()} type="button">
 					{busy ? <><LoaderCircle aria-hidden="true" className="animate-spin" />{sendable.length > 1 ? `Uploading ${uploadingIndex + 1} of ${sendable.length}…` : 'Uploading…'}</> : <><Upload />{submitLabel}</>}
 				</Button>
 				{!busy && items.some((item) => item.problem) ? <span className="text-sm text-red-700">{valid.length ? 'Files marked in red will be skipped.' : 'Choose another file.'}</span> : null}

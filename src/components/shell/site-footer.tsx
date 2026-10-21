@@ -76,8 +76,10 @@ async function FooterSocials({ locale }: SiteFooterProps) {
 
 async function FooterContact({ locale }: SiteFooterProps) {
 	const [{ contact }, t] = await Promise.all([getPublishedGlobalContent(locale), getTranslations({ locale, namespace: 'Shell.footer' })])
-	// The settings footer note currently holds the legacy copyright line, which
-	// the Figma copyright already covers, so only address, email and phone show.
+	// The settings footer note holds the legacy copyright line, which the
+	// translated Figma copyright already covers, so only address, email and
+	// phone show; the admin labels the note "Not shown on the site yet"
+	// (audit SET-03).
 	if (!contact || (!contact.address && !contact.email && !contact.phone)) return null
 	const address = contact.address?.split(/\s*\n\s*/).filter(Boolean).join(', ')
 

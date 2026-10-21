@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+import { adminRecordTitle } from '@/lib/admin-titles'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -8,6 +10,11 @@ import { createClient } from '@/lib/supabase/server'
 import type { Json } from '@/types/database.generated'
 
 type EntryPageProps = { params: Promise<{ kind: string; id: string }> }
+
+export async function generateMetadata({ params }: { params: Promise<Record<string, string>> }): Promise<Metadata> {
+	const values = await params
+	return { title: await adminRecordTitle(values.kind === 'sectors' ? 'sector' : 'service', values.id) }
+}
 
 export default async function CatalogueEntryPage({ params }: EntryPageProps) {
 	const { kind, id } = await params

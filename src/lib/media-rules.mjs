@@ -83,6 +83,45 @@ export function mediaFileProblem(file, { imagesOnly = false } = {}) {
 	return null
 }
 
+/*
+ * Oversize photos (audit PPL-12, slice 5b): a JPEG, PNG or WebP over the
+ * size limit is reduced in the browser before it is sent, to 2,400 px on its
+ * long side, instead of being refused. JPEG stays JPEG; PNG and WebP become
+ * WebP, which keeps transparency at a fraction of a PNG's size. The server
+ * checks the reduced file like any other. GIF, SVG and PDF are never resized.
+ */
+export const RESIZE_LONG_SIDE = 2400
+const RESIZABLE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+/** Whether the browser should reduce this file instead of refusing it. */
+export function needsBrowserResize(file) {
+	return RESIZABLE_TYPES.includes(file?.type) && file.size > MAX_MEDIA_FILE_BYTES
+}
+
+/** The size a `width` × `height` image is reduced to: its long side becomes `longSide`; it is never enlarged. */
+export function resizedDimensions(width, height, longSide = RESIZE_LONG_SIDE) {
+	const long = Math.max(width, height)
+	if (!(long > longSide)) return { width, height }
+	const scale = longSide / long
+	return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) }
+}
+
+/** The type a resized image is encoded as. */
+export function resizedType(type) {
+	return type === 'image/jpeg' ? 'image/jpeg' : 'image/webp'
+}
+
+/** The resized file's name: the same name with the new type's extension. */
+export function resizedFileName(name, type) {
+	const base = String(name ?? '').replace(/\.[a-z0-9]{1,8}$/i, '') || 'image'
+	return `${base}.${mediaExtension(type)}`
+}
+
+/** What the uploader says about a file it reduced. */
+export function resizeNotice(name, from, to) {
+	return `“${name}” was ${from.width} × ${from.height} px and ${formatBytes(from.size)}, over the ${MAX_MEDIA_FILE_BYTES / (1024 * 1024)} MiB limit, so it was reduced to ${to.width} × ${to.height} px and ${formatBytes(to.size)} before upload.`
+}
+
 export function mediaExtension(type) {
 	return EXTENSIONS[type] ?? null
 }

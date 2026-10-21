@@ -17,6 +17,9 @@ import {
 	optionalText,
 	optionalUuid,
 	profileRoleSchema,
+	SOCIAL_PLATFORMS,
+	socialLinkSchema,
+	unusedSocialPlatform,
 } from '../src/lib/admin-schema.mjs'
 
 const EMPTY_INPUTS = [undefined, null, '', '   ', '\n\t']
@@ -94,4 +97,17 @@ test('a call to action needs only its English label', () => {
 	assert.deepEqual(cta.labels, { en: 'Slice 2 check', de: null, it: null, 'pt-BR': null, 'pt-PT': null })
 	assert.ok(!callToActionSchema.safeParse({ key: 'contact-us', href: '/contact', labels: { en: '', de: null, it: null, 'pt-BR': null, 'pt-PT': null } }).success)
 	assert.ok(!callToActionSchema.safeParse({ key: 'contact-us', href: 'contact', labels: { en: 'Contact', de: null, it: null, 'pt-BR': null, 'pt-PT': null } }).success)
+})
+
+test('a new social row starts with a platform that is not used yet (SET-04)', () => {
+	assert.equal(unusedSocialPlatform([]), 'linkedin')
+	assert.equal(unusedSocialPlatform(['facebook', 'instagram', 'linkedin']), 'youtube')
+	assert.equal(unusedSocialPlatform(['linkedin', 'youtube']), 'instagram')
+	assert.equal(unusedSocialPlatform(SOCIAL_PLATFORMS), null)
+})
+
+test('a social link needs a listed platform and a complete web URL', () => {
+	assert.deepEqual(socialLinkSchema.parse({ platform: 'x', url: ' https://x.com/timeandplace ' }), { platform: 'x', url: 'https://x.com/timeandplace' })
+	assert.equal(socialLinkSchema.safeParse({ platform: 'tiktok', url: 'https://tiktok.com' }).success, false)
+	assert.equal(socialLinkSchema.safeParse({ platform: 'x', url: 'javascript:alert(1)' }).success, false)
 })
