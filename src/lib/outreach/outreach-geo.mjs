@@ -7,7 +7,7 @@
 // geographic `center` drawn at the screen point `anchor`. Frames interpolate
 // smoothly, so the map can move between views by re-projecting.
 
-import { geoArea, geoBounds, geoCentroid, geoDistance, geoNaturalEarth1, geoPath } from 'd3-geo'
+import { geoArea, geoBounds, geoCentroid, geoCircle, geoDistance, geoNaturalEarth1, geoPath } from 'd3-geo'
 
 /** Polygons further than this from a country's largest polygon are left out of its shape. */
 export const PRINCIPAL_RADIUS_DEGREES = 12
@@ -228,4 +228,118 @@ export function outlinePath(feature, size = 100) {
 	const [[x0, y0], [x1, y1]] = path.bounds(shape)
 	const round = (value) => Math.round(value * 10) / 10
 	return { d: path(shape), viewBox: [round(x0), round(y0), round(x1 - x0), round(y1 - y0)] }
+}
+
+/**
+ * A country whose principal shape is shorter than this (degrees, longer side)
+ * gets a locator in the detail hero: the 110m topology draws Belgium, the
+ * Netherlands, Ireland, Denmark or Taiwan with 9 to 24 points, which no longer
+ * read as the country once smoothed to hero size.
+ */
+export const HERO_MIN_SPAN_DEGREES = 5
+/** How far (degrees) around a small or missing country its locator drawing reaches, at least. */
+export const LOCATOR_RADIUS_DEGREES = 4
+/** Width of a locator drawing for a height of 1: the hero frames are wider than tall. */
+export const LOCATOR_ASPECT = 1.6
+
+// The longer side of a feature's longitude/latitude box in degrees, with
+// longitudes shortened by the cosine of the middle latitude, so that it
+// compares sizes on the ground.
+export function angularSpan(feature) {
+	const [[west, south], [east, north]] = geoBounds(feature)
+	const width = (east >= west ? east - west : east + 360 - west) * Math.cos(((south + north) / 2) * RADIANS)
+	return Math.max(width, north - south)
+}
+
+const round1 = (value) => Math.round(value * 10) / 10
+const formatPoint = ([x, y]) => `${round1(x)},${round1(y)}`
+
+// Centripetal Catmull-Rom control points for the segment p1 → p2 (as in
+// d3-shape's curveCatmullRomClosed with alpha 0.5, which never overshoots
+// into loops or cusps).
+function catmullRomControls(p0, p1, p2, p3) {
+	const distance = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1])
+	const l01 = Math.sqrt(distance(p0, p1))
+	const l12 = Math.sqrt(distance(p1, p2))
+	const l23 = Math.sqrt(distance(p2, p3))
+	let c1 = p1
+	let c2 = p2
+	if (l01 > 1e-6) {
+		const a = 2 * l01 ** 2 + 3 * l01 * l12 + l12 ** 2
+		const n = 3 * l01 * (l01 + l12)
+		c1 = [(p1[0] * a - p0[0] * l12 ** 2 + p2[0] * l01 ** 2) / n, (p1[1] * a - p0[1] * l12 ** 2 + p2[1] * l01 ** 2) / n]
+	}
+	if (l23 > 1e-6) {
+		const b = 2 * l23 ** 2 + 3 * l23 * l12 + l12 ** 2
+		const m = 3 * l23 * (l23 + l12)
+		c2 = [(p2[0] * b + p1[0] * l23 ** 2 - p3[0] * l12 ** 2) / m, (p2[1] * b + p1[1] * l23 ** 2 - p3[1] * l12 ** 2) / m]
+	}
+	return [c1, c2]
+}
+
+// A closed ring of screen points as a smooth SVG path through every point.
+export function smoothRingPath(points) {
+	const ring = points.filter((point, index) => index === 0 || formatPoint(point) !== formatPoint(points[index - 1]))
+	if (ring.length > 1 && formatPoint(ring[0]) === formatPoint(ring[ring.length - 1])) ring.pop()
+	if (ring.length < 3) return ''
+	const at = (index) => ring[(index + ring.length) % ring.length]
+	let d = `M${formatPoint(ring[0])}`
+	for (let index = 0; index < ring.length; index += 1) {
+		const [c1, c2] = catmullRomControls(at(index - 1), at(index), at(index + 1), at(index + 2))
+		d += `C${formatPoint(c1)},${formatPoint(c2)},${formatPoint(at(index + 1))}`
+	}
+	return `${d}Z`
+}
+
+// The country's principal shape as smooth white line art, like the
+// designer's hand-drawn outlines (Figma 5741:293), fitted to a `size` square
+// with the projection centred on it and trimmed to its points.
+function outlineDrawing(shape, size) {
+	const [longitude, latitude] = geoCentroid(shape)
+	const projection = geoNaturalEarth1().rotate([-longitude, -latitude]).fitSize([size, size], shape)
+	const rings = polygonsOf(shape.geometry).flatMap((polygon) => polygon.map((ring) => ring.map((point) => projection(point))))
+	const points = rings.flat()
+	const xs = points.map(([x]) => x)
+	const ys = points.map(([, y]) => y)
+	const [x0, y0] = [Math.min(...xs), Math.min(...ys)]
+	return {
+		marker: null,
+		paths: [{ d: rings.map(smoothRingPath).join(''), tone: 'primary' }],
+		viewBox: [round1(x0), round1(y0), round1(Math.max(...xs) - x0), round1(Math.max(...ys) - y0)],
+	}
+}
+
+// A small country (or one the topology lacks) in its neighbourhood: the
+// countries within LOCATOR_RADIUS_DEGREES (or the country's own span, when
+// larger) as faint context, the country's own
+// shape when there is one, and a marker at its centre, the same point the
+// overview map marks (markerPoint, map_config coordinates).
+function locatorDrawing(center, shape, others, size) {
+	const width = round1(size * LOCATOR_ASPECT)
+	const radius = Math.max(LOCATOR_RADIUS_DEGREES, shape ? angularSpan(shape) : 0)
+	const projection = geoNaturalEarth1()
+		.rotate([-center[0], -center[1]])
+		.fitExtent([[0, 0], [width, size]], geoCircle().center(center).radius(radius)())
+		.clipExtent([[0, 0], [width, size]])
+	const path = geoPath(projection).digits(1)
+	const context = others.map((item) => path(item)).filter(Boolean).join('')
+	const own = shape ? path(shape) : null
+	return {
+		marker: projection(center).map(round1),
+		paths: [...(context ? [{ d: context, tone: 'context' }] : []), ...(own ? [{ d: own, tone: 'primary' }] : [])],
+		viewBox: [0, 0, width, size],
+	}
+}
+
+// The detail hero's line drawing (control tower §15.12.5): the country's
+// outline when the topology draws it large enough to read, otherwise a
+// locator around its marker point; null when there is neither a shape nor a
+// `point` (map_config coordinates). `features` are all topology features,
+// for the locator's context.
+export function heroDrawing({ feature = null, features = [], point = null, size = 100 }) {
+	const shape = principalShape(feature)
+	if (shape && angularSpan(shape) >= HERO_MIN_SPAN_DEGREES) return outlineDrawing(shape, size)
+	const center = shape ? geoCentroid(shape) : point
+	if (!center) return null
+	return locatorDrawing(center, shape, features.filter((item) => item !== feature), size)
 }

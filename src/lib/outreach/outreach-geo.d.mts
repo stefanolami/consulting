@@ -35,3 +35,11 @@ export declare function mayBeVisible(projection: GeoProjection, reach: FeatureRe
 export declare function isSmallBounds(bounds: [[number, number], [number, number]], threshold?: number): boolean
 export declare function markerPoint(feature: CountryFeature): Point | null
 export declare function outlinePath(feature: CountryFeature, size?: number): OutlinePath | null
+export declare const HERO_MIN_SPAN_DEGREES: number
+export declare const LOCATOR_RADIUS_DEGREES: number
+export declare const LOCATOR_ASPECT: number
+export type HeroDrawingPath = { d: string; tone: 'context' | 'primary' }
+export type HeroDrawing = { marker: Point | null; paths: HeroDrawingPath[]; viewBox: [number, number, number, number] }
+export declare function angularSpan(feature: Feature<Geometry | null>): number
+export declare function smoothRingPath(points: readonly Point[]): string
+export declare function heroDrawing(options: { feature?: CountryFeature | null; features?: readonly CountryFeature[]; point?: Point | null; size?: number }): HeroDrawing | null

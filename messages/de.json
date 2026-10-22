@@ -46,7 +46,8 @@
 			"Endorsements",
 			"Contact",
 			"Legal",
-			"Outreach.overview"
+			"Outreach.overview",
+			"Outreach.detail"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -171,14 +172,6 @@
 		"metaDescription": "Entdecken Sie die veröffentlichten Länderpräsenzen und lokalen Kompetenzen von Time&Place Consulting.",
 		"mapError": "Die Karte konnte nicht geladen werden. Alle veröffentlichten Länder sind weiterhin in der Liste verfügbar.",
 		"closeSummary": "Länderzusammenfassung schließen",
-		"backToList": "Unsere Reichweite",
-		"region": "Region",
-		"services": "Leistungen",
-		"statistics": "Statistiken",
-		"offices": "Büros",
-		"experts": "Expertinnen, Experten und Kontakte",
-		"contentLabel": "Länderinhalt",
-		"source": "Quelle",
 		"emptyTitle": "Noch keine Länder auf Deutsch veröffentlicht",
 		"emptyDescription": "Abgedeckte Länder erscheinen hier, sobald deutsche Inhalte veröffentlicht sind.",
 		"loading": "Unsere Reichweite wird geladen…",
@@ -201,6 +194,20 @@
 			"legendSelected": "Ausgewähltes Land",
 			"mapHint": "Für Details auswählen",
 			"recenterMap": "Karte zentrieren"
+		},
+		"detail": {
+			"loading": "Länderseite wird geladen…",
+			"backToOverview": "Zurück zu Unsere Reichweite",
+			"keyFigures": "Kennzahlen",
+			"source": "Quelle:",
+			"lastUpdated": "Zuletzt aktualisiert am {date}",
+			"servicesProvided": "Angebotene Leistungen",
+			"coverage": "Unsere Abdeckung",
+			"serviceDetails": "Unsere Leistungen in {country}",
+			"contactExperts": "{count, plural, one {Kontakt zu unserem Experten} other {Kontakt zu unseren Experten}}",
+			"offices": "Unsere Büros",
+			"email": "E-Mail",
+			"phone": "Telefon"
 		}
 	},
 	"Team": {

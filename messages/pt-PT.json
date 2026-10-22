@@ -46,7 +46,8 @@
 			"Endorsements",
 			"Contact",
 			"Legal",
-			"Outreach.overview"
+			"Outreach.overview",
+			"Outreach.detail"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -171,14 +172,6 @@
 		"metaDescription": "Explore a cobertura geográfica e a experiência local publicadas pela Time&Place Consulting.",
 		"mapError": "Não foi possível carregar o mapa. Todos os países publicados continuam disponíveis na lista abaixo.",
 		"closeSummary": "Fechar o resumo do país",
-		"backToList": "A nossa presença",
-		"region": "Região",
-		"services": "Serviços",
-		"statistics": "Estatísticas",
-		"offices": "Escritórios",
-		"experts": "Especialistas e pessoas",
-		"contentLabel": "Conteúdo do país",
-		"source": "Fonte",
 		"emptyTitle": "Ainda não existem países publicados em português europeu",
 		"emptyDescription": "Os países abrangidos aparecerão aqui quando existir conteúdo publicado em português europeu.",
 		"loading": "A carregar a nossa presença…",
@@ -201,6 +194,20 @@
 			"legendSelected": "País selecionado",
 			"mapHint": "Selecione para ver detalhes",
 			"recenterMap": "Centrar o mapa"
+		},
+		"detail": {
+			"loading": "A carregar a página do país…",
+			"backToOverview": "Voltar a A nossa presença",
+			"keyFigures": "Principais dados",
+			"source": "Fonte:",
+			"lastUpdated": "Última atualização: {date}",
+			"servicesProvided": "Serviços prestados",
+			"coverage": "A nossa cobertura",
+			"serviceDetails": "Os nossos serviços em {country}",
+			"contactExperts": "{count, plural, one {Contacte o nosso especialista} other {Contacte os nossos especialistas}}",
+			"offices": "Os nossos escritórios",
+			"email": "E-mail",
+			"phone": "Telefone"
 		}
 	},
 	"Team": {

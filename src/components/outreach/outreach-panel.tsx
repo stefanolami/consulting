@@ -6,10 +6,11 @@ import { useTranslations } from 'next-intl'
 import type { KeyboardEvent, RefObject } from 'react'
 
 import { Link } from '@/i18n/navigation'
-import type { OutreachOverviewCountry, OutreachOverviewService } from '@/lib/outreach/outreach-overview'
+import type { OutreachOverviewCountry } from '@/lib/outreach/outreach-overview'
 import { cn } from '@/lib/utils'
 
 import { PANEL_AREA_CLASS } from './outreach-layout'
+import { ServiceBadge } from './outreach-service-badge'
 
 const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark'
 
@@ -61,7 +62,7 @@ export function OutreachPanel({ country, headingRef, onClose }: { country: Outre
 				<div className="mt-5 border-t border-on-brand/60 pt-4">
 					<h3 className="font-label text-body">{t('overview.providedServices')}</h3>
 					<ul className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(5.75rem,1fr))] gap-3">
-						{country.services.map((service) => <li key={service.id}><ServiceBadge service={service} /></li>)}
+						{country.services.map((service) => <li key={service.id}><ServiceBadge service={service} tone="light" /></li>)}
 					</ul>
 				</div>
 			) : null}
@@ -108,21 +109,4 @@ function CountryImage({ country }: { country: OutreachOverviewCountry }) {
 	}
 	// PLACEHOLDER: neither a drawable shape nor a flag (docs/figma-asset-needs.md).
 	return <div aria-hidden="true" className={cn(frame, 'max-w-[10.5rem] rounded-control border-2 border-dashed border-on-brand/40')} data-placeholder-asset={`outreach-country-flag-${country.code.toLowerCase()}`} />
-}
-
-// A white service circle (Figma "Artboard … copy" icons) linking to the
-// service page: the CMS icon faintly behind the name, or a dashed placeholder.
-function ServiceBadge({ service }: { service: OutreachOverviewService }) {
-	return (
-		<Link className={cn('relative grid aspect-square place-items-center overflow-hidden rounded-full bg-white text-center text-tp-blue hover:underline hover:underline-offset-2', focusRing)} href={`/services/${service.slug}`}>
-			{service.icon ? (
-				<span aria-hidden="true" className="absolute inset-[12%] opacity-25">
-					<Image alt="" className="object-contain" fill sizes="6.5rem" src={service.icon.url} />
-				</span>
-			) : (
-				<span aria-hidden="true" className="absolute inset-[12%] rounded-full border-2 border-dashed border-tp-blue/30" data-placeholder-asset={`service-icon-${service.slug}`} />
-			)}
-			<span className="relative px-2 font-label text-label leading-tight font-bold wrap-anywhere [hyphens:auto]">{service.name}</span>
-		</Link>
-	)
 }

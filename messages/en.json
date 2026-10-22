@@ -120,14 +120,6 @@
 		"metaDescription": "Explore Time&Place Consulting's published country coverage and local expertise.",
 		"mapError": "The map could not be loaded. All published countries remain available in the list below.",
 		"closeSummary": "Close country summary",
-		"backToList": "Our Outreach",
-		"region": "Region",
-		"services": "Services",
-		"statistics": "Statistics",
-		"offices": "Offices",
-		"experts": "Experts and people",
-		"contentLabel": "Country content",
-		"source": "Source",
 		"emptyTitle": "No countries are published in English yet",
 		"emptyDescription": "Covered countries will appear here when English content is published.",
 		"loading": "Loading Our Outreach content…",
@@ -150,6 +142,20 @@
 			"legendSelected": "Selected country",
 			"mapHint": "Select for details",
 			"recenterMap": "Re-centre map"
+		},
+		"detail": {
+			"loading": "Loading the country page…",
+			"backToOverview": "Back to Our Outreach",
+			"keyFigures": "Key figures",
+			"source": "Source:",
+			"lastUpdated": "Last updated {date}",
+			"servicesProvided": "Services provided",
+			"coverage": "Our coverage",
+			"serviceDetails": "Our services in {country}",
+			"contactExperts": "{count, plural, one {Contact our expert} other {Contact our experts}}",
+			"offices": "Our offices",
+			"email": "Email",
+			"phone": "Phone"
 		}
 	},
 	"Team": {

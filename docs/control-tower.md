@@ -1221,8 +1221,8 @@ same pattern:
   CLS 0 on the team listing, profile and service and sector details, and
   skeleton heroes within about 15 px of the loaded heroes.
 - Our Outreach: the overview has a template skeleton since 2026-10-16
-  (section 15.12.9); the country page keeps the pre-Figma placeholder until
-  slice (b). The newsroom received its skeletons in section 15.7.
+  (section 15.12.9) and the country page since 2026-10-21 (section
+  15.12.10). The newsroom received its skeletons in section 15.7.
 
 ### 15.7 Newsroom listing and article detail
 
@@ -1820,8 +1820,8 @@ the contact form notice already linked to them.
 ### 15.12 Our Outreach (plan)
 
 Status: approved by the product owner on 2026-10-16, with Natural Earth
-instead of Mercator. Slice (a) is implemented (15.12.9); slices (b) and (c)
-are not. Questions 2–4 in 15.12.8 are still open. Figma: `5741:2` (world), `5741:51`
+instead of Mercator. Slices (a) and (b) are implemented (15.12.9, 15.12.10);
+slice (c) is not. Questions 1–4 in 15.12.8 are answered (2026-10-21). Figma: `5741:2` (world), `5741:51`
 (region), `5741:100` (country), `5741:156` (summary panel), `5741:293` (detail)
 (inventory section 3.2).
 
@@ -2090,8 +2090,8 @@ Gaps in the design, and how each is handled without a schema change:
   placeholder for any other key. The contract has no source name ("World
   Bank"), so a "Source" link shows the host name of `source_url`.
 - Expert address: not in the people contract, so it is omitted (as in 15.4).
-- Supranational: it can be created in the admin as a region with no geography;
-  it would then appear in the list only, with the world frame.
+- Supranational: there is no such region in the data or the legacy sources,
+  so none is added (product owner, 2026-10-21; 15.12.8, question 4).
 - Offices and per-country service copy: the data exists but Figma does not
   show it. On the detail page each renders below the services or the expert,
   and only when present.
@@ -2164,12 +2164,19 @@ the end of section 15.6. Nothing else outside `src/components/outreach/`,
 
 #### 15.12.8 Questions for the product owner
 
+All four were answered by the product owner on 2026-10-21.
+
 1. Is coverage highlighting on the map (a deviation from Figma's all-grey map)
-   accepted?
-2. Is the mobile proposal (15.12.2) accepted?
+   accepted? **Answered: yes**, accepted with the plan.
+2. Is the mobile proposal (15.12.2) accepted? **Answered: yes.** It is slice
+   (c); until then the country page only has to work, unbroken, at 375 and
+   768 px.
 3. What does the detail page's "Our coverage" graphic (POE wordmark and
-   institution drawing) mean? It is omitted until that is known.
+   institution drawing) mean? **Answered: omit it.** The "Our coverage"
+   heading keeps the `coverageSummary` text.
 4. Should "Supranational" be a region (shown in the list only), or be dropped?
+   **Resolved, not applicable:** there is no such region in the data or the
+   legacy sources, and none is added.
 
 #### 15.12.9 Slice (a): overview, implemented
 
@@ -2298,6 +2305,128 @@ Notes for the next slices and for content:
   of China", "Taiwan, Province of China", "United States of America"); editors
   may want shorter names. Region `display_order` is 0 everywhere, so regions
   are alphabetical.
+
+#### 15.12.10 Slice (b): country detail, implemented
+
+Implemented on 2026-10-21 against `5741:293`, with the service circles of
+`5741:156`. No schema migration, no new dependency, and no change to the
+loaders, the publication rules or the metadata (canonical, and hreflang only
+for published locales).
+
+- Hero: `PageHero` has a `lines` illustration kind (white line art from SVG
+  paths in viewBox units, sized like a drawing of those proportions under the
+  hero height model of 15.3) and a `navigation` slot above the art. The
+  drawing is decorative (`aria-hidden`); the country name is the `h1`.
+- Drawing (`heroDrawing` in `src/lib/outreach/outreach-geo.mjs`, served by
+  `countryHeroDrawing` in `country-geometry.ts`, computed on the server and
+  cached per country, so the page loads no map JavaScript):
+  - The principal shape (15.12.3) as smooth curves (centripetal Catmull-Rom
+    through every 110m point), close to the designer's hand-drawn outline.
+    Smoothing removes the angular look of 110m, so Natural Earth 50m was not
+    needed.
+  - Countries whose principal shape is under 5° on its longer side get a
+    locator: the neighbouring borders within 4° (or the country's span),
+    faint and fading out towards the edges, the country's own shape, and a
+    ring at the slice-a marker point. At 110m Belgium, the Netherlands,
+    Ireland, Denmark, the Dominican Republic and Taiwan have 9 to 26 points
+    and read as blobs once smoothed; Luxembourg has 7.
+  - A country the topology lacks gets the same locator at its `map_config`
+    coordinates (Malta: Sicily and Tunisia, with a dot in the ring), and
+    without coordinates a labelled placeholder
+    (`outreach-country-outline-<code>`). None of the 41 covered countries is
+    in either case today.
+- Content (`src/components/outreach/outreach-detail.tsx`): the flag (with
+  its localized alt text, or the `outreach-country-flag-<code>` placeholder);
+  statistics as a `dl` under a visually hidden "Key figures" heading, with
+  an icon by `metric_key`, the label, the value and a "Source" link showing
+  the host name; the summary (centred, as in Figma), the rich-text body
+  (left-aligned) and "Last updated"; "Services provided" and "Our coverage"
+  side by side from `md`; "Our services in {country}" with the per-country
+  service copy; "Contact our expert(s)" with the name linking to the
+  localized team profile, the portrait, role, phone and email; "Our offices".
+- Block visibility and statistic text are pure and tested
+  (`src/lib/outreach/outreach-detail.mjs`, `scripts/outreach-detail.test.mjs`):
+  a block renders only with published content; a statistic needs a label and
+  a value; the display value replaces the number and unit and keeps the year
+  ("about 19 million (2024)"); a person with two relationships is listed
+  once; service copy shows only when the country has its own; the review date
+  is a calendar date formatted in UTC.
+- Back link: "Back to Our Outreach" at the top of the hero links to
+  `/our-outreach?country=XX` (`outreachSearch`), which reopens the summary
+  with the region expanded.
+- Loading: `OutreachDetailSkeleton` (route `loading.tsx` and the page
+  Suspense fallback). The harness `OutreachLoading` was removed.
+- The service circle moved from the panel to
+  `src/components/outreach/outreach-service-badge.tsx` with a `light` (panel)
+  and a `brand` (country page) tone; the panel renders as before.
+- `Outreach.detail` messages in all five locales (provisional outside
+  English); the harness-only detail keys were removed.
+- `PageHero` fix: the box of a drawing's proportions used by
+  `PageHeroSkeleton` and the drawing `placeholder` kind was sized with
+  `100cqh`, which resolves to 0 inside the stretched flex frame, so it never
+  showed (no page used it before). It is now an SVG rectangle in a viewBox of
+  the drawing's size.
+
+Deviations from Figma:
+
+- The hero drawing is generated from the topology, without the designer's
+  flourish (the line that runs across the hero); small countries show a
+  locator instead of an outline. `outline` media is not used in the hero: the
+  only one stored (Brazil's visual-test file) is a navy filled shape, which
+  would not show on the navy hero, and the panel already uses that media.
+- "Back to Our Outreach" is added; Figma has no way back to the map.
+- The "Our coverage" graphic is omitted (15.12.8, question 3).
+- Statistic icons are Lucide placeholders; the source shows the host name
+  instead of a source name ("World Bank"), which the contract lacks.
+- Headings have no trailing colon ("Services provided" for "Services
+  Provided:", "Contact our expert" for "Contact our expert:"), and the
+  statistic label has none either.
+- Service circles are blue with white names at 14 px (Figma's artwork about
+  11 px). All circles on a page share one size, at least Figma's 108 px and
+  large enough for the longest word of any service name (up to 10rem), so no
+  word breaks inside a circle; at 14 px "Communications" did not fit 108 px,
+  and Chromium does not hyphenate without a dictionary.
+- The expert block adds the role and drops the address (not in the people
+  contract, as in 15.4). Offices, the rich-text body and the per-country
+  service copy are not in Figma and follow its styles.
+- The body text is left-aligned, as on the other pages; the summary stays
+  centred as in Figma.
+
+Checks:
+
+- `npm run lint`, `npm run typecheck`, `npm test` (201 tests) and
+  `npm run build` pass.
+- Playwright at 375, 768, 1024, 1440 and 1920 px for Brazil (statistic,
+  services with copy, expert, three offices), Romania (two experts, flag),
+  Argentina (sparse: hero and flag placeholder only) and Luxembourg (small:
+  locator): HTTP 200, one `h1`, no horizontal overflow, no text under 14 px
+  in `main`, hero heights 737, 900, 693, 800 and 750 px as in 15.3.
+- German: nothing is published in German, so every country URL returns the
+  localized not-found page with `noindex`, as before. With a temporary
+  override (removed) that served the English record to German pages, the
+  German strings fit at all five widths and the date reads "3. September
+  2026".
+- Keyboard and names: overview → region → Brazil → "Read more about Brazil"
+  → country page by keyboard; Tab reaches the back link, the service links,
+  the profile link and the e-mail links, each with a visible focus ring; the
+  page exposes one `h1`, the flag image "Flag of Brazil.", and the regions
+  "Key figures", "Services provided", "Our coverage", "Our services in
+  Brazil", "Contact our expert" and "Our offices". "Back to Our Outreach"
+  returns to `/our-outreach?country=BR` with "Latin America & Caribbean"
+  expanded, Brazil `aria-current` and the summary open.
+- Skeleton: with a temporary 6 s delay (removed), one polite status in
+  English and German ("Länderseite wird geladen…"), on direct loads and on
+  client navigation from the overview; the skeleton hero and the flag have
+  exactly the loaded boxes at 375 and 1440 px. A temporary override (removed)
+  that dropped Argentina's geometry showed the labelled placeholder.
+
+Notes for slice (c) and for content:
+
+- Phones and tablets work and do not overflow, but are not designed: the
+  page stacks in one column, and the service circles wrap.
+- Brazil's SEO title already ends in "| Time&Place Consulting", so its page
+  title repeats the brand. The Romania and Sweden `population` statistics
+  have no English label, so they do not show.
 
 ## 16. Public routes and legacy parity
 

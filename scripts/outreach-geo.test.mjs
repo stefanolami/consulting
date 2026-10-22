@@ -6,6 +6,7 @@ import test from 'node:test'
 import { geoBounds, geoPath } from 'd3-geo'
 
 import {
+	angularSpan,
 	boundsFeature,
 	centerLongitude,
 	clampPan,
@@ -13,6 +14,8 @@ import {
 	featureNumericCode,
 	featureReach,
 	fitFrame,
+	HERO_MIN_SPAN_DEGREES,
+	heroDrawing,
 	interpolateFrame,
 	isSmallBounds,
 	markerPoint,
@@ -24,6 +27,7 @@ import {
 	projectFrame,
 	REGION_CONTEXT,
 	regionFrame,
+	smoothRingPath,
 } from '../src/lib/outreach/outreach-geo.mjs'
 
 const require = createRequire(import.meta.url)
@@ -207,4 +211,51 @@ test('dragging is limited so part of the globe stays in the box', () => {
 	assert.deepEqual(clampPan(bounds, [5000, 0], size), [700, 0])
 	assert.deepEqual(clampPan(bounds, [-5000, -5000], size), [-700, -355])
 	assert.deepEqual(panFrame({ anchor: [1, 2], center: [0, 0], rotation: 0, scale: 1 }, [3, 4]).anchor, [4, 6])
+})
+
+test('hero drawings outline countries the topology draws large enough to read', () => {
+	for (const code of ['RO', 'BR', 'CL', 'US', 'PT']) {
+		const drawing = heroDrawing({ feature: byAlpha2(code), features })
+		assert.equal(drawing.marker, null, code)
+		assert.deepEqual(drawing.paths.map((path) => path.tone), ['primary'], code)
+		assert.match(drawing.paths[0].d, /^M[-\d.]+,[-\d.]+C/, `${code} is drawn as smooth curves`)
+		const [, , width, height] = drawing.viewBox
+		assert.ok(Math.max(width, height) > 99 && Math.max(width, height) <= 100.1, `${code} ${drawing.viewBox.join(' ')}`)
+	}
+	const [, , width, height] = heroDrawing({ feature: byAlpha2('CL'), features }).viewBox
+	assert.ok(height / width > 4, 'Chile keeps its proportions')
+	assert.equal(heroDrawing({ feature: byAlpha2('US'), features }).paths[0].d.split('M').length - 1, 1, 'Alaska and Hawaii are not part of the outline')
+})
+
+test('small countries get a locator around their marker point', () => {
+	assert.ok(angularSpan(principalShape(byAlpha2('LU'))) < 1)
+	assert.ok(angularSpan(principalShape(byAlpha2('RO'))) > HERO_MIN_SPAN_DEGREES)
+	for (const code of ['LU', 'BE', 'NL', 'IE', 'DK', 'TW']) {
+		const drawing = heroDrawing({ feature: byAlpha2(code), features })
+		const [x, y, width, height] = drawing.viewBox
+		assert.deepEqual([x, y], [0, 0], code)
+		assert.ok(width > height, `${code}: locators are wider than tall`)
+		assert.deepEqual(drawing.paths.map((path) => path.tone), ['context', 'primary'], code)
+		const [mx, my] = drawing.marker
+		assert.ok(Math.abs(mx - width / 2) < 1 && Math.abs(my - height / 2) < 1, `${code} is centred on its marker point`)
+	}
+	const luxembourg = heroDrawing({ feature: byAlpha2('LU'), features })
+	assert.ok(luxembourg.paths[0].d.split('M').length > 3, 'the neighbours are drawn around Luxembourg')
+})
+
+test('countries missing from the topology use their map_config point, or nothing', () => {
+	assert.equal(byAlpha2('MT'), undefined)
+	const malta = heroDrawing({ feature: byAlpha2('MT'), features, point: [14.4, 35.9] })
+	assert.deepEqual(malta.paths.map((path) => path.tone), ['context'], 'Sicily and Tunisia, with no shape of its own')
+	assert.deepEqual(malta.marker, [80, 50])
+	assert.equal(heroDrawing({ feature: byAlpha2('SG'), features }), null)
+	assert.equal(heroDrawing({ features: [] }), null)
+})
+
+test('smooth outlines pass through every point of a ring', () => {
+	const d = smoothRingPath([[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]])
+	assert.equal(d.match(/C/g).length, 4)
+	for (const point of ['10,0', '10,10', '0,10']) assert.ok(d.includes(`,${point}C`), point)
+	assert.ok(d.endsWith(',0,0Z'))
+	assert.equal(smoothRingPath([[0, 0], [1, 1], [0, 0]]), '', 'a degenerate ring draws nothing')
 })

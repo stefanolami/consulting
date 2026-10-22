@@ -1,6 +1,6 @@
-import { OutreachLoading } from '@/components/outreach/outreach-loading'
+import { LoadingMessage } from '@/components/loading/loading-message'
+import { OutreachDetailSkeleton } from '@/components/outreach/outreach-detail'
 
-// The country page keeps the harness skeleton until it gets its design (control tower §15.12.7, slice b).
 export default function OutreachCountryLoading() {
-	return <OutreachLoading />
+	return <OutreachDetailSkeleton label={<LoadingMessage messageKey="Outreach.detail.loading" />} />
 }
