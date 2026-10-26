@@ -636,7 +636,7 @@ export const trainingCourses = [
 	},
 	{
 		id: 'social-media-political-affairs',
-		title: 'Social Media in Political Affairs',
+		title: 'Digital Communications at EU Level',
 		content: [
 			'In this training course, Time&Place Consulting provides unique insights into the practical use of social media in Political Affairs, i.e. the communication with regulators and government bodies by businesses and institutions, such as industry associations, NGOs or other governments.',
 			'This 4-hour workshop enables you to formulate a viable social media strategy, develop prioritized messaging, policy milestones and stakeholder mapping, engage in effective, on-brand delivery and measure the contribution to public affairs objectives to refine the approach. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
