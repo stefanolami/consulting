@@ -305,6 +305,14 @@ export const services = [
 		text: '',
 	},
 	{
+		id: 'training-education',
+		title: 'Training & Education',
+		excerpt:
+			'Built around the knowledge and experience of our team across the globe, get on-premise, on-site or online trainings, fully tailored to your needs.',
+		text: '',
+		href: '/services/training',
+	},
+	{
 		id: 'visibility-communications',
 		title: 'Visibility & Communications',
 		excerpt:
@@ -591,5 +599,55 @@ export const publicFundsPolicyServices = [
 		title: 'External Communication, Profiling & Dissemination',
 		content:
 			'Politically motivated subsidy, funding or purchase programs find their ultimate purpose in promoting a political agenda, mostly far more wide-reaching than the actual scope of an individual program. While project deliverables will focus entirely on the actual tendered specifications, it falls back on the tendering parties to continuously multiply results and successes to promote the actual, underlying intent and address the relevant stakeholders and target groups effectively. Our Public Opportunity Publicity services are highly experienced in creating adequate visibility and productive interaction, from organizing public events, ongoing personal interactions, media material and content, channel management and interaction with direct and indirect multipliers. Ultimately, the success of a project lies not only in the technical deliverables, but also to a large extent in its public and political perception – our team is deeply versed in both environments and therefore provides most effective publicity for publicly-funded projects and opportunities.',
+	},
+]
+
+export const trainingCourses = [
+	{
+		id: 'ai-human-judgement',
+		title: 'AI & Human Judgement: Strengthening Critical Thinking in AI-Assisted Work',
+		content: [
+			'Time&Place Consulting offers a practical training for professionals in businesses and institutions who use Artificial Intelligence in their daily work and need to know when to trust its answers, when to question them and what to verify.',
+			'This 4-hour workshop addresses a capability that is sometimes overlooked in conventional AI training: the ability to assess the reliability, reasoning and professional suitability of AI-generated information, results and recommendations. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
+			'Your trainer Arnis Vērzemnieks is a seasoned business executive, public affairs and strategic communications consultant with more than 20 years of professional experience. Arnis also is the founder and developer of ZEVON AI Reputation Intelligence.',
+		],
+		languages: ['English', 'Latvian'],
+		trainer: {
+			name: 'Arnis Vērzemnieks',
+			role: 'VP, Global Development',
+			img: '/team/arnis.png',
+		},
+	},
+	{
+		id: 'business-intelligence-analytics',
+		title: 'Business Intelligence and Analytics',
+		content: [
+			'This Time&Place Consulting training offers indispensable insight and practical advice for professionals who collect, use and distribute any kind of structured or unstructured data in their business or institution for analytical, benchmarking, operational or strategic insights, decision making and actions.',
+			'This 4-hour interactive training addresses the fundamental processes and structures required to handle data in a sustainable, responsible and reliable way – especially as AI creates the impression of unlimited accessibility and availability of information and insight. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
+			'Your trainer Cristiane Mancini has over 10 years of experience leading complex, data-driven projects and products. Cristiane is a professor and speaker at events and universities in Italy, France, the United Kingdom, Turkey, Paraguay, Uruguay, Brazil and Colombia.',
+		],
+		languages: ['English', 'Spanish', 'Portuguese'],
+		trainer: {
+			name: 'Cristiane Mancini',
+			role: 'Senior director',
+			img: '/team/cristiane.png',
+			href: '/who-we-are/cristiane-mancini',
+		},
+	},
+	{
+		id: 'social-media-political-affairs',
+		title: 'Social Media in Political Affairs',
+		content: [
+			'In this training course, Time&Place Consulting provides unique insights into the practical use of social media in Political Affairs, i.e. the communication with regulators and government bodies by businesses and institutions, such as industry associations, NGOs or other governments.',
+			'This 4-hour workshop enables you to formulate a viable social media strategy, develop prioritized messaging, policy milestones and stakeholder mapping, engage in effective, on-brand delivery and measure the contribution to public affairs objectives to refine the approach. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
+			'Your trainer Markus Poole is a public affairs and policy professional with more than a decade of experience helping companies, associations and institutions navigate the European political and regulatory landscape. Based in Brussels since 2013, he specialises in energy, industrial competitiveness, sustainability and international affairs.',
+		],
+		languages: ['English', 'German'],
+		trainer: {
+			name: 'Markus Poole',
+			role: 'Head of Office – Brussels',
+			img: '/team/markus.jpg',
+			href: '/who-we-are/markus-poole',
+		},
 	},
 ]
