@@ -36,11 +36,11 @@ function ContactRow({ icon, alt, children }) {
 	)
 }
 
-export default function Contact() {
+export default function Contact({ defaultValues }) {
 	return (
 		<div className="w-[90%] lg:w-[75%] max-w-[1100px] mx-auto pt-8 lg:pt-20 pb-16 lg:pb-32 ">
 			<div className="w-full lg:flex flex-row items-start justify-center gap-32 mb-12 lg:mb-24">
-				<ContactForm />
+				<ContactForm defaultValues={defaultValues} />
 				<div className="w-full lg:w-[45%] mt-10 flex flex-col gap-10 sm:flex-row sm:items-start sm:gap-6 lg:flex-col lg:gap-12">
 					{offices.map((office, i) => (
 						<div

@@ -5,13 +5,13 @@ import { sendEmail } from '@/lib/utils/send-email'
 import { toast } from 'sonner'
 import { useState } from 'react'
 
-export default function ContactForm() {
+export default function ContactForm({ defaultValues }) {
 	const {
 		register,
 		handleSubmit,
 		reset,
 		formState: { isSubmitting },
-	} = useForm()
+	} = useForm({ defaultValues })
 	const [isLoading, setIsLoading] = useState(false)
 
 	const onSubmit = async (data) => {
@@ -24,7 +24,13 @@ export default function ContactForm() {
 				toast.success('Message sent successfully!', {
 					description: "We'll get back to you soon.",
 				})
-				reset()
+				reset({
+					name: '',
+					email: '',
+					phone: '',
+					subject: '',
+					message: '',
+				})
 			} else {
 				toast.error('Failed to send message', {
 					description: result.error || 'Please try again later.',
@@ -56,12 +62,19 @@ export default function ContactForm() {
 						{...register('name', { required: true })}
 					/>
 					<input
-						type="email"
-						placeholder="Email"
+						type="tel"
+						placeholder="Phone (optional)"
+						autoComplete="tel"
 						className="w-full font-jose text-primary border-2 mb-3 border-primary-light focus:border-primary bg-grey p-2 outline-none shadow-sm focus:shadow-md"
-						{...register('email', { required: true })}
+						{...register('phone')}
 					/>
 				</div>
+				<input
+					type="email"
+					placeholder="Email"
+					className="w-full font-jose text-primary border-2 mb-3 border-primary-light focus:border-primary bg-grey p-2 outline-none shadow-sm focus:shadow-md"
+					{...register('email', { required: true })}
+				/>
 				<input
 					type="subject"
 					placeholder="Subject"
