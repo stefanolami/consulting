@@ -18,9 +18,12 @@ export async function POST(request) {
 		},
 	})
 
+	// MY_EMAIL logs in to SMTP; CONTACT_EMAIL (e.g. an alias of that account) sends and receives
+	const contactEmail = process.env.CONTACT_EMAIL || process.env.MY_EMAIL
+
 	const mailOptions = {
-		from: process.env.MY_EMAIL,
-		to: process.env.MY_EMAIL,
+		from: contactEmail,
+		to: contactEmail,
 		// cc: email, (uncomment this line if you want to send a copy to the sender)
 		subject: `Consulting Contact Form - ${subject} - from ${name} (${email})`,
 		text: `Message from ${name} (${email}${phone ? `, ${phone}` : ''}) with subject - ${subject}:\n\n${message}`,
