@@ -9,6 +9,14 @@ import {
 	AccordionContent,
 } from '@/components/ui/accordion'
 
+const languageFlags = {
+	English: 'gb',
+	German: 'de',
+	Latvian: 'lv',
+	Portuguese: 'pt',
+	Spanish: 'es',
+}
+
 function TrainerCard({ trainer }) {
 	const card = (
 		<>
@@ -79,7 +87,27 @@ export default function TrainingPage({ title, subtitle, courses }) {
 										<span className="font-semibold">
 											Course available in:
 										</span>{' '}
-										{course.languages}.
+										{course.languages.map(
+											(language, index, languages) => (
+												<span key={language}>
+													{index > 0 &&
+														(index < languages.length - 1
+															? ', '
+															: ' or ')}
+													<span className="inline-flex items-center gap-1.5 align-middle">
+														<Image
+															alt=""
+															src={`/flags/${languageFlags[language]}.svg`}
+															width={20}
+															height={20}
+															className="w-4 h-4 lg:w-5 lg:h-5 rounded-full ring-1 ring-primary/20 -translate-y-0.5"
+														/>
+														{language}
+													</span>
+												</span>
+											)
+										)}
+										.
 									</p>
 									<p>
 										<Link

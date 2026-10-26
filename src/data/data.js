@@ -611,7 +611,7 @@ export const trainingCourses = [
 			'This 4-hour workshop addresses a capability that is sometimes overlooked in conventional AI training: the ability to assess the reliability, reasoning and professional suitability of AI-generated information, results and recommendations. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
 			'Your trainer Arnis Vērzemnieks is a seasoned business executive, public affairs and strategic communications consultant with more than 20 years of professional experience. Arnis also is the founder and developer of ZEVON AI Reputation Intelligence.',
 		],
-		languages: 'English or Latvian',
+		languages: ['English', 'Latvian'],
 		trainer: {
 			name: 'Arnis Vērzemnieks',
 			role: 'VP, Global Development',
@@ -626,7 +626,7 @@ export const trainingCourses = [
 			'This 4-hour interactive training addresses the fundamental processes and structures required to handle data in a sustainable, responsible and reliable way – especially as AI creates the impression of unlimited accessibility and availability of information and insight. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
 			'Your trainer Cristiane Mancini has over 10 years of experience leading complex, data-driven projects and products. Cristiane is a professor and speaker at events and universities in Italy, France, the United Kingdom, Turkey, Paraguay, Uruguay, Brazil and Colombia.',
 		],
-		languages: 'English, Spanish or Portuguese',
+		languages: ['English', 'Spanish', 'Portuguese'],
 		trainer: {
 			name: 'Cristiane Mancini',
 			role: 'Senior director',
@@ -642,7 +642,7 @@ export const trainingCourses = [
 			'This 4-hour workshop enables you to formulate a viable social media strategy, develop prioritized messaging, policy milestones and stakeholder mapping, engage in effective, on-brand delivery and measure the contribution to public affairs objectives to refine the approach. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
 			'Your trainer Markus Poole is a public affairs and policy professional with more than a decade of experience helping companies, associations and institutions navigate the European political and regulatory landscape. Based in Brussels since 2013, he specialises in energy, industrial competitiveness, sustainability and international affairs.',
 		],
-		languages: 'English or German',
+		languages: ['English', 'German'],
 		trainer: {
 			name: 'Markus Poole',
 			role: 'Head of Office – Brussels',

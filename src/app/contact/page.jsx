@@ -10,9 +10,13 @@ function getDefaultValues(trainingId) {
 	const course = trainingCourses.find((course) => course.id === trainingId)
 	if (!course) return undefined
 
+	const languages = new Intl.ListFormat('en', {
+		type: 'disjunction',
+	}).format(course.languages)
+
 	return {
 		subject: `Personalised offer – ${course.title}`,
-		message: `Hello,\n\nI would like to receive a personalised offer for the training "${course.title}" with ${course.trainer.name}.\n\nPreferred language (${course.languages}):\nPreferred format (on our premises, in a Time&Place office or online):\nNumber of participants:\n`,
+		message: `Hello,\n\nI would like to receive a personalised offer for the training "${course.title}" with ${course.trainer.name}.\n\nPreferred language (${languages}):\nPreferred format (on our premises, in a Time&Place office or online):\nNumber of participants:\n`,
 	}
 }
 
