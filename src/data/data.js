@@ -611,6 +611,50 @@ export const trainingCourses = [
 			'This 4-hour workshop addresses a capability that is sometimes overlooked in conventional AI training: the ability to assess the reliability, reasoning and professional suitability of AI-generated information, results and recommendations. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
 			'Your trainer Arnis Vērzemnieks is a seasoned business executive, public affairs and strategic communications consultant with more than 20 years of professional experience. Arnis also is the founder and developer of ZEVON AI Reputation Intelligence.',
 		],
+		outline: {
+			intro: [
+				'Our courses come with full documentation, practical exercises and up-to-date application examples. See below for a content sample.',
+				'Here is a table of contents to guide your request for a customised course for your needs, no matter if you are a business, academia or government institution:',
+			],
+			items: [
+				{
+					title: 'The Growing Importance of AI Skills',
+					text: 'Examining why AI literacy is transitioning from a niche IT skill into an everyday workplace competency.',
+				},
+				{
+					title: 'Regulatory Landscape (EU AI Act)',
+					text: 'Reviewing mandatory transparency, AI literacy requirements, and compliance milestones for organisations.',
+				},
+				{
+					title: 'Business Value Creation',
+					text: 'Understanding the three levels of AI business outcomes: Defend, Extend, and Upend (Gartner framework).',
+				},
+				{
+					title: 'AI Adoption and Attitudes',
+					text: 'Analysing regional data on everyday AI use, workplace integration, and public attitudes using SKDS survey insights.',
+				},
+				{
+					title: 'Understanding AI Errors and Risks',
+					text: 'Exploring the "illusion of credibility", common error mechanisms, and major psychological risks like cognitive offloading, overreliance, and automation bias.',
+				},
+				{
+					title: 'Criteria for Evaluating AI Responses',
+					text: 'Establishing structured frameworks and professional audit checklists (inspired by Paul & Elder) to assess AI outputs.',
+				},
+				{
+					title: 'Organisational Discipline and Principles',
+					text: 'Developing minimum operational principles, planning structures (Plan–Do–Review), and human oversight for responsible AI use.',
+				},
+				{
+					title: 'Actionable Habits and Closing Reflections',
+					text: 'Shifting habits from task execution to oversight, stopping uncritical reliance, and using "Rose, Thorn, Bud" reflections.',
+				},
+			],
+			pdf: {
+				label: 'View the course overview (PDF)',
+				href: '/training/ai-human-judgement-overview.pdf',
+			},
+		},
 		languages: ['English', 'Latvian'],
 		trainer: {
 			name: 'Arnis Vērzemnieks',

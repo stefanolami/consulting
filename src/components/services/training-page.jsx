@@ -83,6 +83,37 @@ export default function TrainingPage({ title, subtitle, courses }) {
 									{course.content.map((paragraph, index) => (
 										<p key={index}>{paragraph}</p>
 									))}
+									{course.outline && (
+										<>
+											{course.outline.intro.map(
+												(paragraph, index) => (
+													<p key={index}>{paragraph}</p>
+												)
+											)}
+											<ol className="list-decimal pl-5 lg:pl-6 space-y-2 text-left">
+												{course.outline.items.map(
+													(item) => (
+														<li key={item.title}>
+															<span className="font-semibold">
+																{item.title}:
+															</span>{' '}
+															{item.text}
+														</li>
+													)
+												)}
+											</ol>
+											<p>
+												<a
+													href={course.outline.pdf.href}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="text-primary-light underline hover:text-primary transition-colors"
+												>
+													{course.outline.pdf.label}
+												</a>
+											</p>
+										</>
+									)}
 									<p>
 										<span className="font-semibold">
 											Course available in:
