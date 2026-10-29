@@ -218,6 +218,11 @@ function useFieldError(name: string | undefined) {
 	return name ? context?.fieldErrors[name] : undefined
 }
 
+/** The field errors of the enclosing form's last save, or undefined outside a form. */
+export function useFormFieldErrors() {
+	return useContext(AdminFormContext)?.fieldErrors
+}
+
 function RequiredMark() {
 	return <><span aria-hidden="true" className="text-red-700"> *</span><span className="sr-only"> (required)</span></>
 }

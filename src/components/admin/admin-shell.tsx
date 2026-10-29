@@ -37,7 +37,7 @@ export function AdminShell({
 					</Link>
 					{/* A thin, dark scrollbar that only matters on short screens. */}
 					<div className="mt-4 min-h-0 flex-1 overflow-y-auto px-5 py-2 [scrollbar-color:rgb(255_255_255/0.2)_transparent] scrollbar-thin">
-						<AdminNavigation />
+						<AdminNavigation role={profile.role} />
 					</div>
 					<div className="mx-5 mt-2 shrink-0 border-t border-white/10 pt-3">
 						<div className="mb-1.5 flex items-center gap-3 px-2">
@@ -89,7 +89,7 @@ export function AdminShell({
 							</SignOutForm>
 						</div>
 						<div className="overflow-x-auto px-5 pt-1 pb-4">
-							<AdminNavigation compact />
+							<AdminNavigation compact role={profile.role} />
 						</div>
 					</header>
 

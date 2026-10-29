@@ -24,7 +24,7 @@ export declare const NEWSROOM_LIST: {
 }
 export declare const COUNTRY_LIST: {
 	q: SearchParam
-	coverage: EnumParam<'covered' | 'not-covered'>
+	coverage: EnumParam<'covered' | 'not-covered' | 'all'>
 	region: IdParam
 	status: EnumParam<TranslationState>
 	locale: EnumParam<ListLocale>

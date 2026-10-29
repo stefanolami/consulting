@@ -40,7 +40,7 @@ export const NEWSROOM_LIST = {
 
 export const COUNTRY_LIST = {
 	q: { type: 'search' },
-	coverage: { type: 'enum', values: ['covered', 'not-covered'] },
+	coverage: { type: 'enum', values: ['covered', 'not-covered', 'all'], default: 'covered' },
 	region: { type: 'id', also: ['none'] },
 	status: { type: 'enum', values: TRANSLATION_STATES },
 	locale: { type: 'enum', values: LIST_LOCALES },

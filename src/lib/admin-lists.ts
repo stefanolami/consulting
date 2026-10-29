@@ -107,7 +107,7 @@ export async function loadCountryList(state: ListState<typeof COUNTRY_LIST>): Pr
 	const select = `code, region_id, is_covered, display_order, last_reviewed_on, translations:country_translations(locale, name, status, published_at, scheduled_for)${filterEmbeds('country_translations', state)}`
 	const build = () => {
 		let query = filtered(supabase.from('countries').select(select, { count: 'exact' }), 'country_translations', 'name', state, nowText)
-		if (state.coverage) query = query.eq('is_covered', state.coverage === 'covered')
+		if (state.coverage !== 'all') query = query.eq('is_covered', state.coverage === 'covered')
 		if (state.region === 'none') query = query.is('region_id', null)
 		else if (state.region) query = query.eq('region_id', state.region)
 		return query.order('display_order').order('code')

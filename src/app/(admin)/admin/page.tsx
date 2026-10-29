@@ -3,10 +3,11 @@ import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense, type ReactNode } from 'react'
 
-import { ADMIN_AREAS } from '@/components/admin/admin-areas'
+import { areasFor } from '@/components/admin/admin-areas'
 import { LocalDateTime } from '@/components/admin/local-date-time'
 import { loadAltGaps, loadAreaCounts, loadDrafts, loadRecent, loadScheduled, loadTranslationGaps, type AreaCounts, type DashboardItem } from '@/lib/admin-dashboard'
 import { DASHBOARD_LIST_LIMIT, SCHEDULE_WINDOW_DAYS } from '@/lib/admin-dashboard-rules.mjs'
+import { requireActiveStaff } from '@/lib/auth/authorization'
 
 // The admin layout's title template applies to the pages below it, not to
 // this page in its own segment, so the suffix is written out (audit X-14).
@@ -116,10 +117,10 @@ function areaFacts(href: string, counts: AreaCounts): string[] {
 }
 
 async function AreaCards() {
-	const counts = await loadAreaCounts()
+	const [counts, { profile }] = await Promise.all([loadAreaCounts(), requireActiveStaff()])
 	return (
 		<ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-			{ADMIN_AREAS.filter((area) => area.href !== '/admin').map((area) => {
+			{areasFor(profile.role).filter((area) => area.href !== '/admin').map((area) => {
 				const Icon = area.icon
 				const facts = areaFacts(area.href, counts)
 				return (
@@ -292,7 +293,9 @@ async function AltTextPanel() {
 // Recently updated ----------------------------------------------------------------
 
 async function RecentPanel() {
-	const items = await loadRecent()
+	const [recent, { profile }] = await Promise.all([loadRecent(), requireActiveStaff()])
+	// Editors do not see Redirects (editorial simplification §3.4).
+	const items = profile.role === 'admin' ? recent : recent.filter((item) => item.source !== 'redirects')
 	return (
 		<div className="rounded-xl border border-slate-200 bg-white px-5 py-2">
 			{items.length ? <ItemList items={items} time="updated" /> : <div className="py-3"><Empty>Nothing has been edited yet.</Empty></div>}

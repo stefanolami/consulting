@@ -7,9 +7,11 @@ import { useState } from 'react'
 
 import { createPersonAction } from '@/app/(admin)/admin/actions'
 import { AdminForm, Field, FieldSlot, FormActions, useAdminForm } from '@/components/admin/form/admin-form'
+import { AdvancedSection } from '@/components/admin/form/advanced-section'
 import { SEO_TITLE_HINT } from '@/components/admin/form/editor-section'
 import { StatusSelect } from '@/components/admin/form/controls'
 import { MediaPicker, useMediaUploads, type MediaPickerAsset } from '@/components/admin/form/media-picker'
+import { useSlugPrefill } from '@/components/admin/form/slug-prefill'
 import { ProfileDocumentEditor } from '@/components/admin/profile-document-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +24,8 @@ export function NewPersonEditor({ media }: { media: MediaPickerAsset[] }) {
 	const [portraitId, setPortraitId] = useState<string | null>(null)
 	const uploads = useMediaUploads()
 	const [roles, setRoles] = useState<Role[]>([{ title: '', cardLabel: null, isCardRole: true }])
+	// The key and the English slug follow the name.
+	const prefill = useSlugPrefill()
 	const form = useAdminForm({ action: createPersonAction, label: 'the new profile', onSuccess: ({ redirectTo }) => { if (redirectTo) router.push(redirectTo) } })
 	function moveRole(index: number, direction: -1 | 1) {
 		setRoles((current) => {
@@ -38,10 +42,10 @@ export function NewPersonEditor({ media }: { media: MediaPickerAsset[] }) {
 			<h2 className="font-robo text-2xl text-slate-950">Profile details</h2>
 			<p className="mt-1 text-sm text-slate-600">Shared identity, contact details, placement, and portrait.</p>
 			<div className="mt-6 grid gap-5 md:grid-cols-2">
-				<Field label="Display name" name="displayName" required><Input autoFocus name="displayName" required /></Field>
-				<Field label="Stable key" name="stableKey" required><Input name="stableKey" placeholder="e.g. jane-doe" required /></Field>
-				<Field label="Public email" name="email"><Input name="email" type="email" /></Field>
-				<Field label="Public phone" name="phone"><Input name="phone" /></Field>
+				<Field label="Name" name="displayName" required><Input autoFocus name="displayName" required {...prefill.source} /></Field>
+				<div aria-hidden="true" className="hidden md:block" />
+				<Field label="Email (shown on the website)" name="email"><Input name="email" type="email" /></Field>
+				<Field label="Phone (shown on the website)" name="phone"><Input name="phone" /></Field>
 				<Field label="Team group" name="teamGroup"><select className="input-select" defaultValue="team" name="teamGroup"><option value="managing_team">Managing team</option><option value="team">Team</option></select></Field>
 				<p className="self-end text-sm text-slate-500">New profiles go to the end of their group. Change the order in the team directory.</p>
 				<label className="flex items-center gap-3 text-sm font-medium text-slate-700"><input defaultChecked name="isTeamMember" type="checkbox" />Show as a team member</label>
@@ -55,7 +59,7 @@ export function NewPersonEditor({ media }: { media: MediaPickerAsset[] }) {
 			<p className="mt-1 text-sm text-slate-600">Author the complete profile now. Additional language versions use the same structured editor after this first save.</p>
 			<div className="mt-6 grid gap-5 md:grid-cols-2">
 				<input name="roles" type="hidden" value={JSON.stringify(roles)} />
-				<Field label="English URL slug" name="slug" required><Input name="slug" placeholder="e.g. jane-doe" required /></Field>
+				<Field label="Page address (slug)" name="slug" required><Input {...prefill.target('slug')} name="slug" placeholder="e.g. jane-doe" required /></Field>
 				<Field label="Card name (optional)" name="cardName"><Input name="cardName" placeholder="Use only when the card name differs" /></Field>
 				<FieldSlot className="md:col-span-2 rounded-lg border border-slate-200 p-4" name="roles">
 					<div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-semibold text-slate-900">Localized roles</h3><p className="mt-1 text-sm text-slate-600">Add all roles in display order. Select the one shown on the team card and enter a shorter card label only when needed.</p></div><Button onClick={() => setRoles((current) => [...current, { title: '', cardLabel: null, isCardRole: false }])} type="button" variant="outline"><Plus />Add role</Button></div>
@@ -68,6 +72,8 @@ export function NewPersonEditor({ media }: { media: MediaPickerAsset[] }) {
 				<Field label="SEO description" name="seoDescription"><textarea className="min-h-20 w-full rounded-md border border-input px-3 py-2 text-sm shadow-xs" name="seoDescription" /></Field>
 			</div>
 		</section>
+
+		<AdvancedSection><Field label="Stable key" name="stableKey" required><Input {...prefill.target('stableKey')} name="stableKey" placeholder="e.g. jane-doe" required /></Field></AdvancedSection>
 
 		<FormActions form={form} label="Create profile"><Button asChild variant="outline"><Link href="/admin/people">Cancel</Link></Button></FormActions>
 	</AdminForm>

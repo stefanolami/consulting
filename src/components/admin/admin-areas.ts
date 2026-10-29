@@ -12,7 +12,9 @@ import {
 	type LucideIcon,
 } from 'lucide-react'
 
-export type AdminArea = { label: string; href: string; icon: LucideIcon; description: string }
+import type { AppRole } from '@/lib/auth/authorization'
+
+export type AdminArea = { label: string; href: string; icon: LucideIcon; description: string; adminOnly?: boolean }
 
 /** The admin areas, in navigation order; the dashboard links to all but itself. */
 export const ADMIN_AREAS: readonly AdminArea[] = [
@@ -25,5 +27,10 @@ export const ADMIN_AREAS: readonly AdminArea[] = [
 	{ label: 'Partners', href: '/admin/partners', icon: HeartHandshake, description: 'Partner and client logos, and endorsements.' },
 	{ label: 'Legal pages', href: '/admin/legal', icon: Scale, description: 'Privacy policy, terms and conditions, cookie use.' },
 	{ label: 'Site settings', href: '/admin/settings', icon: Settings, description: 'Contact details, social links, the POE link and calls to action.' },
-	{ label: 'Redirects', href: '/admin/redirects', icon: Route, description: 'The registry of moved addresses (not applied to the site yet).' },
+	{ label: 'Redirects', href: '/admin/redirects', icon: Route, description: 'The registry of moved addresses (not applied to the site yet).', adminOnly: true },
 ]
+
+/** The areas `role` sees: Redirects is for administrators only (editorial simplification §3.4), and its route checks it too. */
+export function areasFor(role: AppRole) {
+	return ADMIN_AREAS.filter((area) => !area.adminOnly || role === 'admin')
+}

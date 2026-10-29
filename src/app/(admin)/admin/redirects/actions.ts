@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { adminAction, failed, FieldError, succeeded, type AdminActionResult } from '@/lib/admin-action'
 import { optional, optionalUuid } from '@/lib/admin-schema.mjs'
-import { requireActiveStaff } from '@/lib/auth/authorization'
+import { requireAdmin } from '@/lib/auth/authorization'
 import { createClient } from '@/lib/supabase/server'
 
 const locales = ['en', 'de', 'it', 'pt-BR', 'pt-PT'] as const
@@ -56,7 +56,7 @@ function refreshRedirects() { revalidatePath('/admin/redirects'); revalidatePath
 export async function createRedirectAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not create the redirect.', async () => {
 		const parsed = fromForm(formData, false); const enabled = formData.get('enabled') === 'on'
-		const { profile } = await requireActiveStaff(); const supabase = await createClient()
+		const { profile } = await requireAdmin(); const supabase = await createClient()
 		await validateNoLoop(supabase, { locale: parsed.locale, sourcePath: parsed.sourcePath, destinationPath: parsed.destinationPath, isActive: enabled })
 		const { error } = await supabase.from('redirects').insert({ locale: parsed.locale, source_path: parsed.sourcePath, destination_path: parsed.destinationPath, status_code: parsed.statusCode, is_active: enabled, created_by: profile.id, updated_by: profile.id })
 		if (error) return failed(`Could not create the redirect: ${error.message}`)
@@ -67,7 +67,7 @@ export async function createRedirectAction(formData: FormData): Promise<AdminAct
 export async function updateRedirectAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not save the redirect.', async () => {
 		const parsed = fromForm(formData); if (!parsed.id) return failed('Invalid redirect.')
-		const { profile } = await requireActiveStaff(); const supabase = await createClient()
+		const { profile } = await requireAdmin(); const supabase = await createClient()
 		const { data: current, error: currentError } = await supabase.from('redirects').select('is_active').eq('id', parsed.id).maybeSingle()
 		if (currentError || !current) return failed(`Could not load the redirect: ${currentError?.message ?? 'Redirect not found.'}`)
 		await validateNoLoop(supabase, { id: parsed.id, locale: parsed.locale, sourcePath: parsed.sourcePath, destinationPath: parsed.destinationPath, isActive: current.is_active })
@@ -80,7 +80,7 @@ export async function updateRedirectAction(formData: FormData): Promise<AdminAct
 export async function setRedirectEnabledAction(formData: FormData): Promise<AdminActionResult> {
 	return adminAction('Could not update the redirect.', async () => {
 		const id = z.string().uuid().parse(formData.get('id')); const enabled = z.enum(['true', 'false']).parse(formData.get('enabled')) === 'true'
-		const { profile } = await requireActiveStaff(); const supabase = await createClient()
+		const { profile } = await requireAdmin(); const supabase = await createClient()
 		const { data: current, error: currentError } = await supabase.from('redirects').select('locale, source_path, destination_path').eq('id', id).maybeSingle()
 		if (currentError || !current) return failed(`Could not load the redirect: ${currentError?.message ?? 'Redirect not found.'}`)
 		await validateNoLoop(supabase, { id, locale: current.locale, sourcePath: current.source_path, destinationPath: current.destination_path, isActive: enabled })

@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { ADMIN_AREAS } from '@/components/admin/admin-areas'
+import { ADMIN_AREAS, areasFor } from '@/components/admin/admin-areas'
+import type { AppRole } from '@/lib/auth/authorization'
 import { cn } from '@/lib/utils'
 
 /**
@@ -23,12 +24,12 @@ function activeHref(pathname: string) {
  * sidebar, navy in the compact bar) so it reads as active without colour
  * alone.
  */
-export function AdminNavigation({ compact = false }: { compact?: boolean }) {
+export function AdminNavigation({ compact = false, role }: { compact?: boolean; role: AppRole }) {
 	const active = activeHref(usePathname() ?? '')
 
 	return (
 		<nav aria-label="Admin navigation" className={compact ? 'flex min-w-max gap-2' : 'flex flex-col gap-0.5'}>
-			{ADMIN_AREAS.map((item) => {
+			{areasFor(role).map((item) => {
 				const Icon = item.icon
 				const current = item.href === active
 				return (

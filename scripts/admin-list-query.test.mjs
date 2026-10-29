@@ -6,7 +6,18 @@ import { CATALOGUE_LIST, changeListQuery, containsPattern, COUNTRY_LIST, hasList
 test('an empty URL gives every default', () => {
 	assert.deepEqual(parseListQuery(NEWSROOM_LIST, new URLSearchParams()), { q: '', status: '', locale: '', kind: '', page: 1 })
 	assert.deepEqual(parseListQuery(CATALOGUE_LIST, {}), { kind: 'services', q: '' })
-	assert.deepEqual(parseListQuery(COUNTRY_LIST, undefined), { q: '', coverage: '', region: '', status: '', locale: '', page: 1 })
+	assert.deepEqual(parseListQuery(COUNTRY_LIST, undefined), { q: '', coverage: 'covered', region: '', status: '', locale: '', page: 1 })
+})
+
+test('the country list starts on covered countries; “all” is a filter of its own', () => {
+	assert.equal(listQueryString(COUNTRY_LIST, parseListQuery(COUNTRY_LIST, {})), '')
+	assert.equal(parseListQuery(COUNTRY_LIST, { coverage: 'all' }).coverage, 'all')
+	assert.equal(parseListQuery(COUNTRY_LIST, { coverage: 'everything' }).coverage, 'covered')
+	const all = changeListQuery(COUNTRY_LIST, parseListQuery(COUNTRY_LIST, {}), { coverage: 'all' })
+	assert.equal(listQueryString(COUNTRY_LIST, all), '?coverage=all')
+	assert.equal(hasListFilters(COUNTRY_LIST, all), true)
+	// Clearing the filters returns to the covered countries.
+	assert.equal(changeListQuery(COUNTRY_LIST, all, { coverage: '' }).coverage, 'covered')
 })
 
 test('valid values are read from URLSearchParams and from a Next.js searchParams object', () => {

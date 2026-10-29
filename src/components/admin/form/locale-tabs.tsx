@@ -73,7 +73,7 @@ export function LocaleTabs({ active, children, label = 'Languages', locales = ro
 							tabIndex={selected ? 0 : -1}
 							type="button"
 						>
-							{locale}
+							{LOCALE_NAMES[locale] ?? locale}
 							{status === undefined ? null : <LegalStatusBadge status={status} />}
 						</button>
 					)

@@ -16,6 +16,14 @@ import { cn } from '@/lib/utils'
 /** Hint for every SEO title field (audit LEG-03): the public layout adds the site name. */
 export const SEO_TITLE_HINT = 'Optional. Leave out the site name: “ | Time&Place Consulting” is added automatically. The page title is used when empty.'
 
+/** Hint under the slug of a published translation (editorial simplification §3.2); redirects are not applied to the site. */
+export const SLUG_CHANGE_HINT = 'Changing this changes the page address; old links will stop working.'
+
+/** The slug hint for a translation in `status`: only a published page has links to break. */
+export function slugHint(status: string | undefined) {
+	return status === 'published' ? SLUG_CHANGE_HINT : undefined
+}
+
 export function EditorSection({ action, children, className, description, title }: { action?: ReactNode; children: ReactNode; className?: string; description?: ReactNode; title: ReactNode }) {
 	return (
 		<section className={cn('rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7', className)}>
