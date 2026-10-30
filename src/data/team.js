@@ -622,7 +622,7 @@ export const team = {
 		path: 'cristiane-mancini',
 		img: '/team/cristiane.png',
 		imgName: 'Cristiane Mancini',
-		imgTitle: 'Senior director',
+		imgTitle: 'Senior Director',
 		titles: [
 			'Senior director, global business & market intelligence - Time&Place Consulting',
 		],
