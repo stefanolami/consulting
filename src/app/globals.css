@@ -244,6 +244,29 @@ input[type='checkbox'] {
 	body {
 		@apply bg-background text-foreground;
 	}
+	/*
+	  --page-hero-height: heroes fill the viewport below the header, capped at
+	  900px, 800px from xl and 750px from 2xl (same caps as the v2 page heroes).
+	*/
+	:root {
+		--header-height: 4rem;
+		--page-hero-height: min(100svh - var(--header-height), 900px);
+	}
+	@media (width >= 64rem) {
+		:root {
+			--header-height: 6rem;
+		}
+	}
+	@media (width >= 80rem) {
+		:root {
+			--page-hero-height: min(100svh - var(--header-height), 800px);
+		}
+	}
+	@media (width >= 96rem) {
+		:root {
+			--page-hero-height: min(100svh - var(--header-height), 750px);
+		}
+	}
 }
 
 /* TOAST */

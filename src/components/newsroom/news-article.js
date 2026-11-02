@@ -135,19 +135,40 @@ const NewsArticle = ({ article }) => {
 					className="object-cover object"
 				/>
 			</div> */}
-			<div className="relative w-full aspect-video md:aspect-[16/7] lg:aspect-[16/6] xl:aspect-[16/5]">
-				<Image
-					src={`/newsroom/${article.image}`}
-					alt={article.title}
-					fill
-					className="object-cover object-[50%_10%]"
-				/>
-			</div>
+			{article.imageHero ? (
+				<div className="bg-primary">
+					<div className="relative mx-auto w-full max-w-[90rem] aspect-[1200/630] max-h-(--page-hero-height)">
+						<Image
+							src={`/newsroom/${article.image}`}
+							alt={article.title}
+							fill
+							priority
+							sizes="(min-width: 90rem) 90rem, 100vw"
+							className="object-cover object-[50%_30%]"
+						/>
+					</div>
+				</div>
+			) : (
+				<div className="relative w-full aspect-video md:aspect-[16/7] lg:aspect-[16/6] xl:aspect-[16/5]">
+					<Image
+						src={`/newsroom/${article.image}`}
+						alt={article.title}
+						fill
+						className="object-cover object-[50%_10%]"
+					/>
+				</div>
+			)}
 			<article className="w-[90%] md:w-3/4 max-w-[800px] mx-auto bg-white text-justify">
 				{/* Article Content */}
 				<div className="px-3 py-6 md:p-8">
 					{/* Title */}
-					<h1 className="font-unna font-bold text-2xl md:text-4xl text-primary mb-4 leading-tight text-left">
+					<h1
+						className={
+							article.imageHero
+								? 'sr-only'
+								: 'font-unna font-bold text-2xl md:text-4xl text-primary mb-4 leading-tight text-left'
+						}
+					>
 						{article.title}
 					</h1>
 
@@ -193,9 +214,11 @@ const NewsArticle = ({ article }) => {
 										/>
 									</div>
 								)}
-								<h2 className="font-unna font-bold text-xl md:text-2xl text-primary mb-4">
-									{section.title}
-								</h2>
+								{section.title && (
+									<h2 className="font-unna font-bold text-xl md:text-2xl text-primary mb-4">
+										{section.title}
+									</h2>
+								)}
 								<div className="space-y-4 font-jose text-base lg:text-lg">
 									{renderContentWithReferences(
 										section.content,
@@ -241,6 +264,15 @@ const NewsArticle = ({ article }) => {
 										)}
 									</div>
 								)}
+						</div>
+					)}
+
+					{/* Author Bio */}
+					{article.authorBio && (
+						<div className="mt-8 pt-8 border-t">
+							<p className="font-jose text-base lg:text-lg text-primary">
+								{article.authorBio}
+							</p>
 						</div>
 					)}
 

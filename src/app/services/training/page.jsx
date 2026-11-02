@@ -5,12 +5,15 @@ export const metadata = {
 	title: 'Training & Education',
 }
 
-const TrainingEducationPage = () => {
+const TrainingEducationPage = async ({ searchParams }) => {
+	const { course } = await searchParams
+
 	return (
 		<TrainingPage
 			title="Training and Education"
 			subtitle="for Individuals, Businesses and Institutions"
 			courses={trainingCourses}
+			openCourse={course}
 		/>
 	)
 }
