@@ -1,5 +1,84 @@
 const NEWS = [
 	{
+		author: 'Arnis Vērzemnieks, Vice President Global Development and Head of Baltics Office, Time&Place Consulting',
+		date: '2 November 2026',
+		title: 'AI Can Write the Report. Who Will Stand Behind It?',
+		subTitle:
+			'Artificial intelligence is making professional work faster and more accessible. But the pressure to produce more is raising an uncomfortable question about the standards by which that work is judged.',
+		intro: 'Artificial intelligence is making professional work faster and more accessible. But the pressure to produce more is raising an uncomfortable question about the standards by which that work is judged.',
+		image: 'ai-report-preview.png',
+		imageHero: true,
+		slug: 'ai-can-write-the-report-who-will-stand-behind-it',
+		path: '/newsroom/ai-can-write-the-report-who-will-stand-behind-it',
+		tag: 'AI',
+		paragraphs: [
+			{
+				content: [
+					'In October 2025, Deloitte Australia found itself at the centre of an uncomfortable controversy. A 237-page report prepared for the Australian government contained references to academic publications that did not exist and a fabricated quotation attributed to a federal court judge. The report was subsequently revised, its use of generative AI was disclosed, and Deloitte agreed to refund part of its fee. Although the precise role of AI in producing the errors was never publicly established, the incident raised serious questions about professional responsibility. How could information that would not withstand basic verification make its way into a document intended to inform government decisions?',
+					'The report had passed through a professional process in which someone was responsible for checking its accuracy before publication. The errors were discovered only after an external researcher questioned its references. For an organisation selling specialist expertise, this represents a failure with implications well beyond the cost of correcting a document.',
+					'Businesses and public institutions increasingly use AI to prepare management reports, regulatory briefings, strategic recommendations and external communications. Documents that previously required hours of research can now be produced in minutes, often with impressive detail and sophistication. Consider a company using AI to assess the implications of proposed legislation. The analysis may accurately summarise the main provisions while overlooking an exemption that fundamentally changes the consequences for that particular business. Management receives a polished document, discusses the recommendation and may never realise that the most important qualification is missing.',
+					'Such mistakes are familiar in strategic communications, public affairs and business advisory work. An argument can be factually correct yet strategically misguided. A policy recommendation may contain convincing economic evidence but fail because it ignores the interests of affected stakeholders or misunderstands where political decisions are actually made. Generative AI has dramatically increased the speed at which such arguments can be produced and circulated, while the responsibility for identifying their weaknesses remains with the professionals using them.',
+				],
+			},
+			{
+				title: 'The productivity trap',
+				content: [
+					`According to <a href="https://hai.stanford.edu/ai-index/2026-ai-index-report" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Stanford University's 2026 AI Index Report</a>, drawing on McKinsey's 2025 organisational survey, 88% of respondents reported that their organisations used AI in at least one business function. The commercial appeal is clear. Research, document preparation and preliminary analysis can be completed faster, and smaller companies gain access to capabilities that previously required additional specialists.`,
+					`A study involving 758 management consultants, <a href="https://doi.org/10.1287/orsc.2025.21838" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">published in <em>Organization Science</em> in March 2026</a>, examined this problem. AI assistance significantly improved performance on tasks within the technology's capabilities. On a complex managerial task beyond those capabilities, however, consultants using AI were 19% less likely to produce correct solutions than those working without it.`,
+					'The researchers call this uneven performance the jagged technological frontier. An AI system may produce an excellent strategic summary while generating unreliable conclusions about a regulatory issue or investment decision. The user cannot reliably identify that boundary from the apparent sophistication of the response.',
+					'For managers, this creates a responsibility that cannot simply be delegated to employees. If a company reduces the time allocated to preparing reports because AI can produce a draft almost instantly, it must still account for the time required to verify the information and evaluate the conclusions. The time needed for professional scrutiny does not necessarily fall at the same rate as the time needed to generate content.',
+					"Executives who demand ever-faster AI-assisted work while cutting the time available for verification are making a deliberate management choice. When an error eventually reaches a client or influences a decision, it is unreasonable to place the entire responsibility on the employee who prepared the document. The organisation's productivity expectations helped create the conditions in which the mistake occurred.",
+					'The same principle applies to crisis communications. Imagine a company responding to a product safety incident. AI can prepare a reassuring public statement within seconds, but the technical team may still be investigating whether customers are at risk. Publishing an apparently authoritative explanation before those facts are established could turn an operational problem into a much more damaging reputational crisis. The quality of the wording offers no protection against an unsupported claim.',
+				],
+			},
+			{
+				title: 'Producing sophisticated work without understanding it',
+				content: [
+					'AI increasingly enables professionals to undertake tasks beyond their established expertise. A <a href="https://www.nature.com/articles/s41562-026-02566-6" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">study published in <em>Nature Human Behaviour</em> on 26 October 2026</a> examined 487 management consultants using ChatGPT to perform data science tasks outside their existing skill sets. Participants assisted by AI achieved better results than those without assistance, yet subsequent testing found no evidence that they had acquired the underlying technical knowledge.',
+					'Junior professionals face a related challenge. Researching unfamiliar subjects, analysing evidence, developing arguments and having those arguments challenged by experienced colleagues have traditionally been important parts of professional development. These activities teach people to recognise unreliable information and understand why apparently reasonable conclusions sometimes fail.',
+					'If AI performs most of that work, employers need to provide other opportunities for employees to develop those abilities. The time saved through automation should partly be reinvested in deeper analysis, verification and professional learning. Increasing production targets without addressing how employees acquire expertise is a short-sighted approach to workforce development.',
+				],
+			},
+			{
+				title: 'When the facts are correct but the recommendation is wrong',
+				content: [
+					'An AI-generated market assessment may contain accurate economic indicators, credible information about competitors and a reasonable description of the regulatory environment. Yet its recommendation to enter that market may still be poorly founded because it underestimates compliance costs, overlooks a politically sensitive barrier or relies on an unrealistic assumption about customer demand.',
+					'Checking the individual figures will not necessarily reveal the problem. The weakness lies in how the evidence has been interpreted.',
+					'In public affairs, a similar problem arises when an organisation prepares a position on proposed legislation. An AI-generated paper may quote the correct legal provisions and present valid arguments about the consequences for businesses. But an argument directed at an institution that lacks the authority to make the proposed change will achieve little, however persuasive its wording. Understanding the decision-making process matters as much as understanding the legislation itself.',
+					'These weaknesses become harder to recognise when AI-generated analysis confirms what management already believes. A team convinced that a strategy is promising may accept supporting arguments too readily, particularly when they arrive in a professionally structured report.',
+					'A <a href="https://doi.org/10.1177/14761270261457350" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">2026 study published in <em>Strategic Organization</em></a>, involving 273 business professionals, found that intermediate levels of generative AI use were associated with stronger cognitive processing and lower bias than either low or high levels of use. The findings also emphasised the importance of actively examining AI-generated alternatives.',
+					"A more demanding use of AI would involve asking it to identify weaknesses in a proposed strategy, examine evidence that contradicts management's assumptions and explain which circumstances would make a recommendation inappropriate. Such questions can improve the quality of discussion. Important claims must still be checked against independent sources, and the final judgement must remain with people who understand the consequences of the decision.",
+				],
+			},
+			{
+				title: 'Critical thinking is a skill that must be practised',
+				content: [
+					'Many organisations have introduced AI training focused on software capabilities, prompting techniques and automation. These are useful skills, but they do not establish whether employees can identify unsupported conclusions, recognise misleading arguments or determine when specialist verification is necessary.',
+					'Critical thinking needs to become a practical part of professional training. Employees should learn to check whether an AI-generated response addresses the actual problem, whether its important facts and sources are reliable, whether the conclusions follow from the evidence and which relevant perspectives may have been overlooked. They must also understand when the result is suitable for professional use and who remains accountable for it.',
+					'These skills cannot be developed through theoretical presentations alone. Employees need to work with realistic documents containing plausible but incorrect information, questionable references and weak arguments. They need to practise checking evidence, challenging conclusions and correcting material before it reaches a client or influences a management decision.',
+					'Organisations should also introduce clear verification standards that reflect the consequences of potential errors. A brainstorming note for an internal meeting does not require the same scrutiny as a financial recommendation, regulatory submission or public statement.',
+					'For example, a consulting team preparing a regulatory briefing could establish a simple requirement: every material legal claim must be checked against the current official text, every important conclusion must be supported by evidence, and a designated professional must approve the final recommendation. Such a procedure takes time, but considerably less than correcting a faulty recommendation after a client has acted on it.',
+				],
+			},
+			{
+				title: 'The responsibility belongs in the management process',
+				content: [
+					'The first practical step for an organisation is to identify where AI-generated information can influence consequential decisions. Management should then establish who verifies the underlying evidence, who challenges the conclusions and who has authority to approve the result. These responsibilities should be clear before AI-assisted work becomes part of routine decision-making.',
+					'Employees also need regular opportunities to practise these checks. A single training session may introduce the principles, but professional judgement develops through application, feedback and the examination of mistakes. Teams should periodically review examples of AI-assisted work, discuss where verification failed and adjust their procedures accordingly.',
+					'This is the reasoning behind AI & Human Judgement, a professional training programme developed by Arnis Vērzemnieks for Time&Place Consulting. The programme focuses on a capability that is frequently overlooked in technical AI training: recognising unreliable information, challenging unsupported reasoning and applying structured quality checks to AI-assisted professional work. Participants practise these skills using realistic business situations and learn how to translate them into everyday working standards.',
+					'For executives, the immediate test is straightforward. Before approving the next AI-assisted report or recommendation, they should be able to establish who checked its sources, who examined the assumptions and who is prepared to defend its conclusions. If those questions cannot be answered, the organisation has a serious weakness in its decision-making process. No productivity gain justifies leaving it unresolved.',
+				],
+			},
+		],
+		conclusion: {
+			content:
+				'<a href="/services/training?course=ai-human-judgement" class="text-blue-600 hover:underline">Click here</a> for more information on the course or reach out directly to <a href="mailto:verzemnieks@timeandplace.consulting" class="text-blue-600 hover:underline">verzemnieks@timeandplace.consulting</a>. We are happy to hear from you and support you in your journey through the AI transformation!',
+		},
+		authorBio:
+			'Arnis Vērzemnieks is a business strategist and strategic communications and public affairs consultant with more than 20 years of professional experience. He works with organisations on AI-assisted information analysis, critical thinking and professional decision-making. He is the developer and trainer of the “AI & Human Judgement” programme, offered through Time&Place Consulting.',
+		sources: [],
+	},
+	{
 		author: 'Time&Place Consulting',
 		date: '24 June 2026',
 		title: 'We are hiring an Advocacy & Communication Intern!',

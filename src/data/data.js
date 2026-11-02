@@ -661,6 +661,11 @@ export const trainingCourses = [
 			role: 'VP, Global Development',
 			img: '/team/arnis.png',
 		},
+		publication: {
+			label: 'Relevant publication by Arnis:',
+			title: 'AI Can Write the Report. Who Will Stand Behind It?',
+			href: '/newsroom/ai-can-write-the-report-who-will-stand-behind-it',
+		},
 	},
 	{
 		id: 'business-intelligence-analytics',

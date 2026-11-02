@@ -50,7 +50,12 @@ function TrainerCard({ trainer }) {
 	return <div className={className}>{card}</div>
 }
 
-export default function TrainingPage({ title, subtitle, courses }) {
+export default function TrainingPage({
+	title,
+	subtitle,
+	courses,
+	openCourse,
+}) {
 	return (
 		<div className="pt-8 xl:pt-20 pb-16 xl:pb-32 w-[90%] xl:w-[75%] max-w-[1200px] mx-auto">
 			<div className="text-center text-primary mb-10 lg:mb-16">
@@ -66,6 +71,7 @@ export default function TrainingPage({ title, subtitle, courses }) {
 			<Accordion
 				type="single"
 				collapsible
+				defaultValue={openCourse}
 				className="w-full"
 			>
 				{courses.map((course) => (
@@ -149,6 +155,17 @@ export default function TrainingPage({ title, subtitle, courses }) {
 											personalised offer
 										</Link>
 									</p>
+									{course.publication && (
+										<p>
+											{course.publication.label}{' '}
+											<Link
+												href={course.publication.href}
+												className="text-primary-light underline hover:text-primary transition-colors"
+											>
+												{course.publication.title}
+											</Link>
+										</p>
+									)}
 								</div>
 								<TrainerCard trainer={course.trainer} />
 							</div>

@@ -27,6 +27,10 @@ export default function sitemap() {
 			priority: 0.8,
 		},
 		{
+			url: `${baseUrl}/newsroom/ai-can-write-the-report-who-will-stand-behind-it`,
+			priority: 0.6,
+		},
+		{
 			url: `${baseUrl}/privacy-policy`,
 			priority: 0.3,
 		},
