@@ -675,10 +675,54 @@ export const trainingCourses = [
 			'This 4-hour interactive training addresses the fundamental processes and structures required to handle data in a sustainable, responsible and reliable way – especially as AI creates the impression of unlimited accessibility and availability of information and insight. The workshop can be delivered in-person on your premises, in a Time&Place office or online through videoconference.',
 			'Your trainer Cristiane Mancini has over 10 years of experience leading complex, data-driven projects and products. Cristiane is a professor and speaker at events and universities in Italy, France, the United Kingdom, Turkey, Paraguay, Uruguay, Brazil and Colombia.',
 		],
+		outline: {
+			intro: [
+				'Our courses come with full documentation, practical exercises and up-to-date application examples. See below for a content sample.',
+				'Here is a table of contents to guide your request for a customised course for your needs, no matter if you are a business, academia or government institution:',
+			],
+			items: [
+				{
+					title: 'The "Data Product" Mindset & Data Literacy',
+					text: 'Exploring data as a product, the Value Mapping Framework, and the core pillars of data literacy.',
+				},
+				{
+					title: 'Avoiding Vanity Metrics',
+					text: 'Distinguishing superficial metrics from actionable metrics using the "Actionable, Accessible, Auditable" framework.',
+				},
+				{
+					title: 'Fundamentals and Data Culture',
+					text: 'Introduction to data analytics, the data analysis lifecycle, and information management.',
+				},
+				{
+					title: 'Data-Mining and Data Preparation',
+					text: 'Examining data quality, the consequences of poor data, and data cleaning workflows.',
+				},
+				{
+					title: 'Mapping Macro and Sector Indicators',
+					text: 'Analyzing economic indicators, market share, operational benchmarks, and regulatory shifts.',
+				},
+				{
+					title: 'Analytical Methodology',
+					text: 'Understanding the four pillars of data analysis and translating business pain points into data problems.',
+				},
+				{
+					title: 'Data Visualization',
+					text: 'Exploring visualization tools, chart types, and simple management reports.',
+				},
+				{
+					title: 'Decision-Making Using AI & Data Storytelling',
+					text: 'Business model innovation, AI validation, data storytelling pillars, and narrative techniques.',
+				},
+			],
+			pdf: {
+				label: 'View the course overview (PDF)',
+				href: '/training/business-intelligence-analytics-overview.pdf',
+			},
+		},
 		languages: ['English', 'Spanish', 'Portuguese'],
 		trainer: {
 			name: 'Cristiane Mancini',
-			role: 'Senior director',
+			role: 'Senior Director',
 			img: '/team/cristiane.png',
 			href: '/who-we-are/cristiane-mancini',
 		},
