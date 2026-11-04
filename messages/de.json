@@ -212,7 +212,7 @@
 	},
 	"Team": {
 		"title": "Wer wir sind",
-		"metaDescription": "Lernen Sie das Team von Time&Place Consulting kennen: 2016 in Brüssel gegründet, im Dialog mit politischen Entscheidungsträgern in der EU und auf nationaler Ebene.",
+		"metaDescription": "Lernen Sie das Team von Time&Place Consulting kennen: 2016 in Brüssel gegründet, im Dialog mit politischen Entscheidungsträgern in der EU und auf nationaler Ebene. Erfahren Sie, warum Organisationen mit uns zusammenarbeiten: unser Ruf, unsere Sprachen, Integrität, geografische Präsenz, Expertise, Erfahrung und unser Kunden-Kodex.",
 		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"ourTeam": "Unser Team",
 		"groups": {
@@ -237,9 +237,7 @@
 		}
 	},
 	"WhyUs": {
-		"title": "Warum wir",
-		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
-		"metaDescription": "Warum Organisationen mit Time&Place Consulting zusammenarbeiten: unser Ruf, unsere Sprachen, Integrität, geografische Präsenz, Expertise und Erfahrung sowie der Kunden-Kodex, nach dem wir arbeiten.",
+		"title": "Warum Time&Place",
 		"figures": "Unsere Leistungen werden in <languages>{languageCount}</languages> Sprachen in <countries>{countryCount}</countries> Ländern auf <continents>{continentCount}</continents> Kontinenten erbracht",
 		"overview": {
 			"reputation": {
@@ -371,7 +369,6 @@
 			"ourOutreach": "Unsere Reichweite",
 			"services": "Leistungen",
 			"sectors": "Sektoren",
-			"whyUs": "Warum wir",
 			"publications": "Publikationen",
 			"contact": "Kontakt"
 		},

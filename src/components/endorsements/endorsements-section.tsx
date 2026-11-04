@@ -28,7 +28,7 @@ const staticListClass = 'flex flex-wrap items-stretch justify-center gap-[var(--
 
 type EndorsementsProps = { className?: string; locale: AppLocale }
 
-// Reusable endorsements band (Why Us; the homepage will reuse it). The heading
+// Reusable endorsements band (Who We Are; the homepage will reuse it). The heading
 // is static, the cards stream: the skeleton holds the place while they load,
 // and when the locale has no published endorsement the whole section,
 // heading included, is omitted.

@@ -65,7 +65,7 @@ They must not become separate hard-coded page implementations.
 | Services | `5408:128` | `/services` |
 | Services (revised, all 12 services) | `6393:6` | `/services` |
 | Sectors | `5408:187` | `/sectors` |
-| Why Us | `5408:311` | `/why-us` |
+| Why Us | `5408:311` | `/who-we-are#why-us` (merged into Who We Are on 2026-11-04; `/why-us` redirects) |
 | Publications | `5408:334` | `/newsroom` |
 | Contact | `5408:348` | `/contact` |
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { ChartPie, Cog, ExternalLink, FileText, Map as MapIcon, MessageCircleQuestion, Phone, Users, type LucideIcon } from 'lucide-react'
+import { ChartPie, Cog, ExternalLink, FileText, Map as MapIcon, Phone, Users, type LucideIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useId, useRef, useState } from 'react'
 
@@ -16,7 +16,6 @@ const ICONS: Record<NavKey, LucideIcon> = {
 	ourOutreach: MapIcon,
 	services: Cog,
 	sectors: ChartPie,
-	whyUs: MessageCircleQuestion,
 	publications: FileText,
 	contact: Phone,
 }

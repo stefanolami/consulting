@@ -160,7 +160,7 @@
 	},
 	"Team": {
 		"title": "Who we are",
-		"metaDescription": "Meet the Time&Place Consulting team: founded in Brussels in 2016, working with EU and national policy decision-makers.",
+		"metaDescription": "Meet the Time&Place Consulting team: founded in Brussels in 2016, working with EU and national policy decision-makers. See why organisations work with us: our reputation, languages, integrity, geographic presence, expertise, experience and client codex.",
 		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"ourTeam": "Our team",
 		"groups": {
@@ -185,9 +185,7 @@
 		}
 	},
 	"WhyUs": {
-		"title": "Why us",
-		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
-		"metaDescription": "Why organisations work with Time&Place Consulting: our reputation, languages, integrity, geographic presence, expertise and experience, and the client codex we work by.",
+		"title": "Why Time&Place",
 		"figures": "Our services are provided in <languages>{languageCount}</languages> languages across <countries>{countryCount}</countries> countries in <continents>{continentCount}</continents> continents",
 		"overview": {
 			"reputation": {
@@ -319,7 +317,6 @@
 			"ourOutreach": "Our outreach",
 			"services": "Services",
 			"sectors": "Sectors",
-			"whyUs": "Why us",
 			"publications": "Publications",
 			"contact": "Contact"
 		},

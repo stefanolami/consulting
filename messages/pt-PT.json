@@ -212,7 +212,7 @@
 	},
 	"Team": {
 		"title": "Quem somos",
-		"metaDescription": "Conheça a equipa da Time&Place Consulting: fundada em Bruxelas em 2016, em diálogo com decisores políticos europeus e nacionais.",
+		"metaDescription": "Conheça a equipa da Time&Place Consulting: fundada em Bruxelas em 2016, em diálogo com decisores políticos europeus e nacionais. Veja porque é que as organizações trabalham connosco: a nossa reputação, idiomas, integridade, presença geográfica, especialização, experiência e código do cliente.",
 		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
 		"ourTeam": "A nossa equipa",
 		"groups": {
@@ -237,9 +237,7 @@
 		}
 	},
 	"WhyUs": {
-		"title": "Porquê nós",
-		"introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ad dolor ea do reprehenderit deserunt nulla. Cillum quis magna exercitation voluptate non, consequat minim esse nostrud. Consequat, duis ea nostrud ex commodo ipsum duis culpa proident.",
-		"metaDescription": "Porque é que as organizações trabalham com a Time&Place Consulting: a nossa reputação, idiomas, integridade, presença geográfica, especialização e experiência, e o código do cliente que seguimos.",
+		"title": "Porquê a Time&Place",
 		"figures": "Os nossos serviços são prestados em <languages>{languageCount}</languages> idiomas, em <countries>{countryCount}</countries> países de <continents>{continentCount}</continents> continentes",
 		"overview": {
 			"reputation": {
@@ -371,7 +369,6 @@
 			"ourOutreach": "A nossa presença",
 			"services": "Serviços",
 			"sectors": "Setores",
-			"whyUs": "Porquê nós",
 			"publications": "Publicações",
 			"contact": "Contacto"
 		},

@@ -1,8 +1,11 @@
 import { FileDown } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
+
 import { SNAPSHOT_PDF_HREF } from './navigation'
 
 type SnapshotCtaProps = {
+	className?: string
 	fileHint: string
 	label: string
 }
@@ -10,9 +13,9 @@ type SnapshotCtaProps = {
 // Full-width "download a snapshot" band above the footer (Figma 5550:192 on
 // Who We Are). One link: the underlined sentence and the round icon below it.
 // PLACEHOLDER icon and PDF: see docs/figma-asset-needs.md.
-export function SnapshotCta({ fileHint, label }: SnapshotCtaProps) {
+export function SnapshotCta({ className, fileHint, label }: SnapshotCtaProps) {
 	return (
-		<section className="bg-tp-blue-muted px-gutter py-[clamp(3rem,2rem+4vw,5.5rem)] text-on-brand">
+		<section className={cn('bg-tp-blue-muted px-gutter py-[clamp(3rem,2rem+4vw,5.5rem)] text-on-brand', className)}>
 			<a
 				className="group mx-auto flex max-w-[71rem] flex-col items-center gap-[clamp(1.25rem,1rem+1vw,2rem)] rounded-control text-center focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-focus-on-dark"
 				download

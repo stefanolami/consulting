@@ -15,9 +15,12 @@ import { PRIMARY_NAV } from './navigation'
 import { PoeLink } from './poe-link'
 
 // Legacy desktop link treatment: full-height links, brand-blue hover, and a
-// white bar under the current page.
+// white bar under the current page. Labels are lighter than text-label so the
+// row keeps room for the audience button and globe (control tower §15.3):
+// 12px with 14px between labels up to 90rem, where the row reaches its full
+// width, then 13px with 24px between labels.
 const desktopLink = [
-	'relative flex items-center px-2 min-[87.5rem]:px-3.5 font-serif text-label font-medium uppercase whitespace-nowrap',
+	'relative flex items-center px-1.75 min-[90rem]:px-3 font-serif text-[0.75rem] min-[90rem]:text-[0.8125rem] font-medium uppercase whitespace-nowrap',
 	'transition-[background-color,box-shadow,scale] duration-200 hover:z-10 hover:bg-brand-strong hover:shadow-xl motion-safe:hover:scale-110 motion-reduce:transition-none',
 	'focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-focus-on-dark',
 ].join(' ')
@@ -89,9 +92,16 @@ async function DesktopPoe({ locale }: SiteHeaderProps) {
 	const [{ poeUrl }, t] = await Promise.all([getPublishedGlobalContent(locale), getTranslations({ locale, namespace: 'Shell.nav' })])
 	if (!poeUrl) return null
 	return (
-		// First header item, as on the production site: the graphic is as tall as
-		// the header and takes the same hover and focus treatment as the links.
-		<PoeLink className={cn(desktopLink, 'h-(--header-height) px-0 min-[87.5rem]:px-1')} externalHint={t('externalHint')} href={poeUrl} label={t('poe')} />
+		// First header item, as on the production site. The link is as tall as
+		// the header and takes the same hover and focus treatment as the links;
+		// the graphic is 64px tall, 72px from 90rem (Figma 6633:100: 75px).
+		<PoeLink
+			className={cn(desktopLink, 'h-(--header-height) shrink-0 px-0 min-[90rem]:px-0')}
+			externalHint={t('externalHint')}
+			href={poeUrl}
+			imageClassName="h-16 min-[90rem]:h-18"
+			label={t('poe')}
+		/>
 	)
 }
 

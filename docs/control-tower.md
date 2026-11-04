@@ -1023,15 +1023,16 @@ Implemented on 2026-09-28:
   `DownloadSnapshotLink`, `PoeLink`, `PageHero`, `SkipLink`. Navigation
   labels follow Figma (`Publications` links to `/newsroom`; `Who we are`
   links to `/team` for now). Links to the legal pages target the
-  pages built in section 15.11 (Why us exists since section 15.8, Contact
-  since section 15.10).
+  pages built in section 15.11 (Why us existed from section 15.8 until its
+  merge into Who We Are on 2026-11-04, Contact since section 15.10).
 - POE (2026-10-13). The link reads the existing public `poe_external_link`
   site setting, and nothing renders while the setting is empty. On desktop it
   is the first header item, as on the production site, and shows the
   production graphic: `public/brand/poe-highlight.png`, from
   `main:public/poe-highlight.png`. The 1851 × 1390 original (687 KB) was
   resized to 400 × 300 (13 KB) with its aspect ratio and transparency kept.
-  The graphic is as tall as the header, its alt text is "POE", a visually
+  The link is as tall as the header (the graphic inside it was too, until
+  2026-11-04; see the desktop header sizing below), its alt text is "POE", a visually
   hidden "(opens in a new tab)" follows it, and it has the same hover and
   focus treatment as the links. The CSS glow and its `--color-glow` token are
   gone. In the mobile pages menu POE is the first row, shown as text in the
@@ -1039,6 +1040,34 @@ Implemented on 2026-09-28:
   white lettering on a glow made for the navy header, so on the light mist
   panel it would need its own navy chip and would break the icon-and-label
   rhythm. Figma's menu has no POE row.
+- Desktop header sizing (2026-11-04). The product owner asked for a lighter
+  menu with the same items: POE, Who we are, Our outreach, Services, Sectors,
+  Publications, Contact and the language toggle. The header row stays 96px
+  (`--header-height` is unchanged); only the menu shrank, using Figma
+  `6633:100` (header groups `6648:4` and `6648:14`) for proportions:
+
+  | From | Labels | Padding per side (gap between labels) | POE graphic |
+  | --- | --- | --- | --- |
+  | before, 1280 / 1400 | 14px | 8px (16px) / 14px (28px) | 128 × 96 |
+  | 1280 (`xl`) | 12px | 7px (14px) | 85 × 64 |
+  | 1440 (`90rem`) | 13px | 12px (24px) | 96 × 72 |
+
+  Labels stay Roboto Serif Medium, uppercase, with no letter spacing (as in
+  Figma, so tracking could not shrink further). The `90rem` step is where
+  the header container reaches its full width. Each link, including POE,
+  still fills the 96px row (hit area, brand-blue hover, white
+  current-page bar, inset white focus ring), and the POE link does not
+  shrink, so a crowded row overflows instead of squashing the graphic.
+  The mobile header and pages menu are unchanged.
+- Space reserved for the audience button and globe (Figma `6648:12`,
+  "gov. ins.", 129 × 45; `6648:14`, a 64px globe that replaces the language
+  toggle; not built yet). With a temporary 130 × 45 box and 64px circle 16px
+  apart after the menu, in place of the toggle, German (the longest labels)
+  leaves 33px free at 1280 and 56px at 1440, beyond the row's 24px gaps;
+  English leaves 114px and 145px. Nothing wraps, overflows or overlaps.
+  Keeping the current 52px toggle as well as both new controls does not fit
+  in German at 1280, so the globe must replace the toggle rather than sit
+  beside it.
 - Interface strings live in the `Shell` message namespace. Non-English
   strings are provisional and marked with `_meta.provisionalNamespaces` in
   each locale file; `scripts/messages.test.mjs` checks key parity.
@@ -1058,9 +1087,9 @@ Implemented on 2026-09-28:
     equals the token at 375, 768, 1024, 1279, 1280 and 1536 px (75, 75, 75,
     77.2, 96 and 96 px).
   - Every `PageHero` with a line drawing (Home, Who We Are, Services, Sectors,
-    Why Us, Publications, Contact) is at least `--page-hero-height` tall: that
-    is `100svh - --header-height`, capped at 900px, 800px from `xl` and 750px
-    from `2xl`. `svh` keeps phones from jumping when the address bar moves.
+    Publications, Contact; Why Us until its merge on 2026-11-04) is at least
+    `--page-hero-height` tall: that is `100svh - --header-height`, capped at
+    900px, 800px from `xl` and 750px from `2xl`. `svh` keeps phones from jumping when the address bar moves.
     The hero sits below the sticky header and never under it (product
     owner's decision): the header covers no part of a drawing.
   - The height is a minimum, not a fixed height. The drawing takes the space
@@ -1082,6 +1111,8 @@ Implemented on 2026-09-28:
     tablets its drawing gets more room, because the other heroes' paragraph
     runs to four to nine lines there. Real copy replaces the lorem paragraphs
     later; any copy of a different length changes that hero's proportions.
+    Why Us's hero and its `WhyUs.introduction` paragraph were removed when it
+    merged into Who We Are on 2026-11-04 (section 15.4).
   - Emblem heroes (service and sector details) and heroes without artwork
     (legal pages) keep their content height. `PageHeroSkeleton` takes a
     drawing's `{ width, height }` and reproduces the same frame, so a drawing
@@ -1111,6 +1142,42 @@ and `5494:972`:
   band with circular `TeamPortrait`/`TeamCard` items (managing team as a row
   of two, then rows of three, last row centred; two columns on mobile), and the
   shared `SnapshotCta` band.
+- Why Us merged in (product owner, 2026-11-04). The former Why Us page
+  (section 15.8) is now part of this page, after the team. Order and heading
+  outline:
+  1. `PageHero`: the page's only `h1` ("Who we are") and intro, unchanged.
+  2. `#team`, soft grey: `h2` "Our team" and the team grid, which keeps its
+     own Suspense boundary and `TeamGridSkeleton`.
+  3. `#why-us`, white (`WhyUsSection` in
+     `src/components/who-we-are/why-us-section.tsx`): `h2` "Why Time&Place",
+     then the count-up figures statement (`CountUp`, moved to
+     `src/components/who-we-are/count-up.tsx`, unchanged behaviour: the server
+     renders the final figures, reduced motion never animates, the sentence is
+     provided once as text), then the six topics (reputation, languages,
+     integrity, geographic presence, expertise, experience) as `h3`s. From
+     `lg` (1024 px) the topics form a two-column grid (about 450–525 px per
+     column); below it they are one column of at most 38rem.
+  4. `#client-codex`, blue-muted (`ClientCodex`, same file): `h2` "Client
+     codex", introduction and the five principles as `h3`s.
+  5. `Endorsements` (`h2`), the reusable component unchanged, with its own
+     Suspense boundary and skeleton. A locale without published endorsements
+     renders no section.
+  6. `SnapshotCta`, moved from after the team to the end of the page. It now
+     takes an optional `className`; Who We Are gives it a hairline top border
+     because it shares the client codex's colour and touches it when the
+     locale has no endorsements.
+  The strings stay in the `WhyUs` namespace, which only this page reads now:
+  `title` is the section heading ("Why Time&Place"), and the unused
+  `introduction` and `metaDescription` keys were removed in all five locales,
+  as was `Shell.nav.whyUs`. The page title is unchanged; `Team.metaDescription`
+  was extended to cover the Why Us content (provisional outside English).
+  `/why-us` and `/{locale}/why-us` permanently redirect (308) to
+  `/who-we-are#why-us` and `/{locale}/who-we-are#why-us` in `next.config.ts`,
+  and the fragment survives (the `Location` header carries it). The global
+  `scroll-padding-top` (section 15.3) lands the section 1rem below the sticky
+  header. "Why us" left the header and the mobile menu; the
+  `HERO_ART.whyUs` drawing and `public/hero/hero-why-us-laptop.png` were
+  removed.
 - Profile: one template. Navy header with name (new `tp-silver` token, about
   5.2:1 on navy), ordered roles, introduction and a portrait-format photo;
   profiles without a portrait use the full width. Body sections, endorsement
@@ -1324,6 +1391,13 @@ Implemented on 2026-09-28 against Figma `5408:334` (desktop Publications),
   "Similar articles") are provisional in the non-English locales.
 
 ### 15.8 Why Us
+
+**Merged into Who We Are on 2026-11-04 (product owner).** The page and its
+route are gone; `/why-us` redirects to `/who-we-are#why-us`, and its content
+follows the team on Who We Are. The current structure is in section 15.4. The
+record below describes the page as built and still documents the count-up,
+the endorsements component and the copy deviations, which carried over; its
+hero (laptop drawing, `WhyUs.introduction`) and page metadata did not.
 
 Implemented on 2026-10-05 against Figma `5408:311` (desktop) and `5651:450`
 (mobile), with the copy and endorsement behaviour of the legacy
@@ -2439,7 +2513,9 @@ legacy scope includes:
 - Services.
 - Service details where required.
 - Sectors.
-- Why us.
+- Why us: merged into Who we are on 2026-11-04 (section 15.4). `/why-us` and
+  `/{locale}/why-us` permanently redirect (308, `next.config.ts`) to
+  `/who-we-are#why-us` and `/{locale}/who-we-are#why-us`.
 - Contact.
 - Newsroom listing.
 - Article details.
@@ -2907,6 +2983,9 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
   labels, menu structure, and the language toggle from Figma.
 - Serve team pages at the legacy `/who-we-are` and `/who-we-are/[slug]` paths,
   because printed business-card QR codes link to them (section 15.4).
+- Merge Why Us into Who We Are, after the team (product owner, 2026-11-04):
+  no separate Why Us page or navigation item; `/why-us` permanently redirects
+  to `/who-we-are#why-us` (sections 15.4 and 16).
 - Omit the services audience selector until decision 23.10 is made; use the
   designer's page-hero line drawings (supplied 2026-10-13); show visible placeholders for missing
   service and sector icons; read catalogue related articles through the

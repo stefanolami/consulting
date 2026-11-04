@@ -5,11 +5,13 @@ import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
+import { Endorsements } from '@/components/endorsements/endorsements-section'
 import { LoadingRegion } from '@/components/loading/loading-region'
 import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero } from '@/components/shell/page-hero'
 import { SnapshotCta } from '@/components/shell/snapshot-cta'
 import { TeamCard, TeamGridSkeleton, teamGridClass, teamItemClass } from '@/components/team/team-card'
+import { ClientCodex, WhyUsSection } from '@/components/who-we-are/why-us-section'
 import { routing, type AppLocale } from '@/i18n/routing'
 import { getPublishedTeamListing, TEAM_GROUP_ORDER, type TeamCard as TeamCardData } from '@/lib/public-team'
 import { teamPath } from '@/lib/team-paths'
@@ -25,7 +27,9 @@ export async function generateMetadata({ params }: WhoWeArePageProps): Promise<M
 	return { alternates: { canonical, languages }, description: t('metaDescription'), openGraph: { description: t('metaDescription'), title: t('title'), url: canonical }, title: t('title') }
 }
 
-// Figma 5408:15 (desktop) and 5651:258 (mobile).
+// Figma 5408:15 (desktop) and 5651:258 (mobile). Since 2026-11-04 the former
+// Why Us page follows the team (control tower §15.4): why-us section, client
+// codex and endorsements, then the snapshot band closes the page.
 export default async function WhoWeArePage({ params }: WhoWeArePageProps) {
 	const { locale } = await params
 	if (!hasLocale(routing.locales, locale)) notFound()
@@ -40,7 +44,7 @@ export default async function WhoWeArePage({ params }: WhoWeArePageProps) {
 			>
 				<p>{t('introduction')}</p>
 			</PageHero>
-			<section aria-labelledby="our-team-heading" className="bg-surface-soft px-gutter py-section">
+			<section aria-labelledby="our-team-heading" className="bg-surface-soft px-gutter py-section" id="team">
 				<div className="mx-auto max-w-content">
 					<h2 className="text-center font-serif text-heading-2 font-bold uppercase text-tp-blue-muted" id="our-team-heading">{t('ourTeam')}</h2>
 					<Suspense fallback={<LoadingRegion className={gridWrapperClass} label={t('loading')}><TeamGridSkeleton /></LoadingRegion>}>
@@ -48,7 +52,11 @@ export default async function WhoWeArePage({ params }: WhoWeArePageProps) {
 					</Suspense>
 				</div>
 			</section>
-			<SnapshotCta fileHint={t('snapshot.fileHint')} label={t('snapshot.label')} />
+			<WhyUsSection locale={locale} />
+			<ClientCodex locale={locale} />
+			<Endorsements locale={locale} />
+			{/* A hairline keeps the band apart from the client codex, which shares its colour when the locale has no endorsements. */}
+			<SnapshotCta className="border-t border-on-brand/25" fileHint={t('snapshot.fileHint')} label={t('snapshot.label')} />
 		</main>
 	)
 }

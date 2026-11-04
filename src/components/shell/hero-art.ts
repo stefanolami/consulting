@@ -12,5 +12,4 @@ export const HERO_ART = {
 	sectors: heroImage('hero-sectors-industry', 844),
 	services: heroImage('hero-services-gears', 750),
 	whoWeAre: heroImage('hero-who-we-are-team', 881),
-	whyUs: heroImage('hero-why-us-laptop', 784),
 } as const satisfies Record<string, HeroIllustration>
