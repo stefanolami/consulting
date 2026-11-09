@@ -1,5 +1,61 @@
 const NEWS = [
 	{
+		author: 'Cristiane Mancini, Senior Director, Global Business & Market Intelligence, Time&Place Consulting',
+		date: '9 November 2026',
+		title: 'Data Gain Their Biggest Impact Through Confidence, not Insight',
+		subTitle:
+			'Through more than 15 years of practicing data collection and analysis—as well as leading, mentoring, interviewing clients, and teaching audiences from various sectors across different countries—I have observed that a data-driven culture has taken root and become a competitive advantage in many companies and institutions. Yet, many still remain unsure of what to do with the vast number of metrics at their disposal, whether generated internally or sourced from external providers, amplified by the apparent ease of data retrieval with AI.',
+		intro: 'Through more than 15 years of practicing data collection and analysis—as well as leading, mentoring, interviewing clients, and teaching audiences from various sectors across different countries—I have observed that a data-driven culture has taken root and become a competitive advantage in many companies and institutions. Yet, many still remain unsure of what to do with the vast number of metrics at their disposal, whether generated internally or sourced from external providers, amplified by the apparent ease of data retrieval with AI.',
+		image: 'data-confidence-preview.png',
+		imageHero: true,
+		slug: 'data-gain-their-biggest-impact-through-confidence-not-insight',
+		path: '/newsroom/data-gain-their-biggest-impact-through-confidence-not-insight',
+		tag: 'DATA',
+		paragraphs: [
+			{
+				content: [
+					'The questions are varied: Where does a piece of information—this report, this chart—actually come from? Will it make a difference in my day-to-day work? If I already possess so much knowledge and experience, why would I need so many indicators? Or, for that matter, why should I invest in a data subscription or commercial platform?',
+					'Recent academic research—including studies from <a href="https://online.hbs.edu/blog/post/data-driven-decision-making" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Harvard Business School</a>—shows that companies that consider themselves "data-driven" are measurably more profitable than those that do not. However, becoming data-driven is no simple task. Despite all the attention this topic receives, I have yet to see any clear criteria by which leaders can evaluate their organizations to determine where they need to look. And, in truth, does such a set of criteria even exist? Not necessarily. Every country, every sector, and every company has its own unique dynamics, which means that the indicators will not always be the same.',
+					'Organizations, much like me, appreciate data: numbers, reports, trend lines, charts, tables—the more, the better. Consequently, many organizations have a substantial internal "factory" that regularly produces and updates data, alongside external resources—such as digital platforms—that provide data for analysis and generate ready-made insights. But what evidence is there that all this data is worth the cost and, in fact, leads to the best business decisions?',
+					'Or, alternatively, is there a particular amount of data or a number of sources that is unnecessary—perhaps even harmful, by creating complexity and confusion?',
+					'Data is a powerful tool that is available to organizations at a staggering scale. When harnessed correctly, it has the potential to drive **decision-making**, impact **strategy formulation**, and improve overall performance.',
+					'According to the research company <a href="https://medium.com/@muhammedturabisancak/microstrategy-not-just-a-dashboard-a-strategy-tool-815d1d02a7ad" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">MicroStrategy</a> and <a href="https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">McKinsey & Company</a>, 56 percent of companies mentioned data analytics led to “faster, more effective decision-making”. Other effects mentioned are (not mutually exclusive):',
+					{
+						type: 'unordered-list',
+						items: [
+							'Improved efficiency and productivity (64%)',
+							'Better financial performance (51%)',
+							'Identification and creation of new product and service revenue (46%)',
+							'Improved customer acquisition and retention rate (46%)',
+							'Offer a better customer experience (44%)',
+							'Competitive Advantage and challenges (43%)',
+						],
+					},
+					'One thing is also certain: insights are only good as the data informs them, not simple numbers. This means it is always necessary to shape raw data into usable information to gain valuable insights. This is where data wrangling comes into play.',
+					'Any business or institution professional who makes decisions needs foundational knowledge of data analytics. Access to data is more common than ever. If you formulate strategies and make decisions without considering the data you have access to, your organisation could miss major opportunities to leverage or red flags that risk to make it irrelevant.',
+					'Instead of relying on gut feelings or guesswork, organizations use data analysis to back their actions with historical evidence, peak points, and seasonal patterns and behaviour.',
+					'In this sense, data literacy is indispensable. Data literacy is the ability to read, recognize context, write, analyze, and communicate data effectively within the organization, be it a business or institution (private, public or mixed).',
+					'This appeal is not about becoming a data scientist or learning how to code; rather, it is about building the critical thinking needed to interpret information and make smart, evidence-based decisions, translating complex numbers into narratives and consequently, decisions, plans and actions.',
+					'Many businesses fall into the trap of tracking vanity metrics - numbers – indicators – variables - data that look great on paper but do not actually drive business growth or resilience.',
+					'To build a sustainable data strategy, you must shift your focus toward **actionable metrics. Also accessible:** Everyone on the team should understand what the data means or translate. The format you use to share the information—such as a written report or electronic file—will depend on available data and the organization’s goals. The data must be reliable and verifiable, but also vetted for compliance.',
+					'**With all these challenges, came AI readiness**. As Artificial Intelligence tools generate massive amounts of insights, even more than in earlier “big data” times, data literacy becomes even more essential to verify, ask, and use those outputs responsibly.',
+					'Data wrangling can be a manual or automated process. In scenarios where datasets are exceptionally large, automated data cleaning need to be considered. In organizations that employ a full data team, a data scientist or other team member is typically responsible for data wrangling. In smaller organizations, non-data professionals are often responsible for cleaning their data before using them.',
+					'You can use tools, frameworks, and softwares to analyze data, such as Microsoft Excel and Power BI, Google Charts, Data Wrapper, Infogram, Tableau, and Zoho Analytics (some examples). These can help you examine data from different angles, develop meaningful segmentations and analytical dimensions, and **create visualizations** that illuminate the story you’re trying to tell.',
+					'Algorithms and machine learning also fall into the data analytics field and can be used to gather, sort, and analyze data at a higher volume and faster pace than humans can. Writing algorithms is a more advanced data analytics skill, but you don’t need deep knowledge of coding prompts and statistical modeling or econometrics to experience the benefits of data-driven decision-making.',
+					'Once you understand your existing data and have transformed them into a more usable state, you must determine whether you have all of the data necessary for the project at hand. If not, you may choose to enrich or augment your data by incorporating values from other datasets. For this reason, it’s important to understand what other data is available for use (also periodicity). If you decide that enrichment is necessary, you need to repeat the steps above for any new data. However, we must always be careful not to violate the fundamental rule of Data Entropy: we can never get more information out of a dataset than we have put into it – that holds for simple things such as decimals of numerical values, but also correlations and time periods.',
+					'When we translate complex numbers into engaging narratives we increase the confidence they can be communicated and used with. The “Trust Economy” is a concept that views reputation and credibility as more strategically important than a company’s mere ability to attract customers. Customers can be internal, your team, or your leads and future clients. After all, the products and services are for your client needs, not for yourself.',
+					'This is the reasoning behind the professional training programme **Business Intelligence and Analytics**, developed by Cristiane Mancini for Time&Place Consulting.',
+					'The 4-hour programme focuses on the “Data Product” mindset and how to develop a consistent data culture. Information management is the lifecycle process of collecting, storing, organizing, securing, and distributing information across an organization to ensure it remains accurate, accessible, and compliant.',
+				],
+			},
+		],
+		conclusion: {
+			content:
+				'<a href="/services/training?course=business-intelligence-analytics" class="text-blue-600 hover:underline">Click here</a> for more information on the course or reach out directly to <a href="mailto:mancini@timeandplace.consulting" class="text-blue-600 hover:underline">mancini@timeandplace.consulting</a>. We are happy to hear from you and offer a personalized training course to you, your business or institution.',
+		},
+		sources: [],
+	},
+	{
 		author: 'Arnis Vērzemnieks, Vice President Global Development and Head of Baltics Office, Time&Place Consulting',
 		date: '2 November 2026',
 		title: 'AI Can Write the Report. Who Will Stand Behind It?',

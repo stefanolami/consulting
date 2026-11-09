@@ -726,6 +726,11 @@ export const trainingCourses = [
 			img: '/team/cristiane.png',
 			href: '/who-we-are/cristiane-mancini',
 		},
+		publication: {
+			label: 'Relevant publication by Cristiane:',
+			title: 'Data Gain Their Biggest Impact Through Confidence, not Insight',
+			href: '/newsroom/data-gain-their-biggest-impact-through-confidence-not-insight',
+		},
 	},
 	{
 		id: 'social-media-political-affairs',
