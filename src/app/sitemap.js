@@ -31,6 +31,10 @@ export default function sitemap() {
 			priority: 0.6,
 		},
 		{
+			url: `${baseUrl}/newsroom/data-gain-their-biggest-impact-through-confidence-not-insight`,
+			priority: 0.6,
+		},
+		{
 			url: `${baseUrl}/privacy-policy`,
 			priority: 0.3,
 		},
