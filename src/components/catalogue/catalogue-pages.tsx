@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
+import { AudienceSelector } from '@/components/audience/audience-selector'
 import { CatalogueArticles } from '@/components/catalogue/catalogue-articles'
 import { CatalogueContacts } from '@/components/catalogue/catalogue-contacts'
 import { CatalogueDetailSkeleton, CatalogueGridSkeleton } from '@/components/catalogue/catalogue-loading'
@@ -15,6 +16,7 @@ import { ArticleSummarySectionSkeleton } from '@/components/newsroom/article-sum
 import { HERO_ART } from '@/components/shell/hero-art'
 import { PageHero, type HeroIllustration } from '@/components/shell/page-hero'
 import { routing, type AppLocale } from '@/i18n/routing'
+import { AUDIENCES, type Audience } from '@/lib/audiences.mjs'
 import { hasCatalogueContent } from '@/lib/catalogue-document'
 import {
 	getPublishedCatalogueDetail,
@@ -84,8 +86,9 @@ function listingIllustration(kind: PublicCatalogueKind): HeroIllustration {
 }
 
 // The hero and intro are static and render immediately; the tiles stream in.
-// The Business / Government Institute / Academia audience selector on 6393:6 is
-// deliberately omitted until open decision §23.10 is resolved.
+// Services stream the Business / Government Institute / Academia selector
+// (6393:6, §23.10) with their tiles, because it announces how many services it
+// highlights.
 export async function CatalogueListingPage({
 	kind,
 	locale,
@@ -115,9 +118,10 @@ export async function CatalogueListingPage({
 // it they are simply there.
 async function CatalogueGrid({ kind, locale }: { kind: PublicCatalogueKind; locale: AppLocale }) {
 	await connection()
-	const [items, t] = await Promise.all([
+	const [items, t, tAudience] = await Promise.all([
 		getPublishedCatalogueList(kind, locale),
 		getTranslations({ locale, namespace: 'Catalogue' }),
+		getTranslations({ locale, namespace: 'Audience' }),
 	])
 	if (!items.length) {
 		return (
@@ -127,14 +131,20 @@ async function CatalogueGrid({ kind, locale }: { kind: PublicCatalogueKind; loca
 			</div>
 		)
 	}
+	const audienceNotes = kind === 'service'
+		? Object.fromEntries(AUDIENCES.map((audience) => [audience, tAudience('tileNote', { audience: tAudience(`options.${audience}.label`) })])) as Record<Audience, string>
+		: undefined
 	return (
-		<ul className={catalogueGridClass}>
-			{items.map((item, index) => (
-				<li className={`${catalogueItemClass} motion-safe:animate-tile-in`} key={item.id} style={{ animationDelay: `${Math.min(index, 11) * 70}ms` }}>
-					<CatalogueTile index={index} item={item} kind={kind} locale={locale} />
-				</li>
-			))}
-		</ul>
+		<>
+			{kind === 'service' ? <AudienceSelector serviceAudiences={items.map((item) => item.audiences)} /> : null}
+			<ul className={catalogueGridClass}>
+				{items.map((item, index) => (
+					<li className={`${catalogueItemClass} motion-safe:animate-tile-in`} key={item.id} style={{ animationDelay: `${Math.min(index, 11) * 70}ms` }}>
+						<CatalogueTile audienceNotes={audienceNotes} index={index} item={item} kind={kind} locale={locale} />
+					</li>
+				))}
+			</ul>
+		</>
 	)
 }
 

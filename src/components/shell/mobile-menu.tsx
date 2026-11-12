@@ -4,6 +4,8 @@ import { ChartPie, Cog, ExternalLink, FileText, Map as MapIcon, Phone, Users, ty
 import { useTranslations } from 'next-intl'
 import { useEffect, useId, useRef, useState } from 'react'
 
+import { setAudience, useAudience } from '@/components/audience/audience-store'
+import { useAudienceOptions } from '@/components/audience/audience-switch'
 import { cn } from '@/lib/utils'
 
 import { NavLink } from './nav-link'
@@ -28,9 +30,14 @@ type MobileMenuProps = {
 
 // Disclosure navigation: a toggle button controls the "pages" panel from the
 // Figma mobile header. Escape and outside clicks close it; focus returns to
-// the toggle after Escape.
+// the toggle after Escape. Below the pages, the audience choice of the
+// desktop header switch, as radio buttons (control tower §15.3); choosing
+// one themes the site at once and keeps the panel open.
 export function MobileMenu({ poeUrl }: MobileMenuProps) {
 	const t = useTranslations('Shell')
+	const tAudience = useTranslations('Audience')
+	const audience = useAudience()
+	const audienceOptions = useAudienceOptions()
 	const [open, setOpen] = useState(false)
 	const panelId = useId()
 	const rootRef = useRef<HTMLDivElement>(null)
@@ -54,7 +61,7 @@ export function MobileMenu({ poeUrl }: MobileMenuProps) {
 		}
 	}, [open])
 
-	const bar = 'absolute left-1/2 h-[0.1875rem] w-7 -translate-x-1/2 rounded-full bg-action transition-transform duration-300 motion-reduce:transition-none'
+	const bar = 'absolute left-1/2 h-[0.1875rem] w-7 -translate-x-1/2 rounded-full bg-header-bars transition-transform duration-300 motion-reduce:transition-none'
 
 	return (
 		<div className="relative" ref={rootRef}>
@@ -71,46 +78,67 @@ export function MobileMenu({ poeUrl }: MobileMenuProps) {
 				<span aria-hidden="true" className={cn(bar, 'top-1/2 -translate-y-1/2', open && 'scale-x-0')} />
 				<span aria-hidden="true" className={cn(bar, 'top-[70%] -translate-y-full', open && 'top-1/2 -translate-y-1/2 -rotate-45')} />
 			</button>
-			<nav
-				aria-label={t('menu.label')}
+			<div
 				className={cn(
 					'absolute right-0 top-full mt-3 w-[min(19rem,calc(100vw_-_2*var(--spacing-gutter)))] rounded-panel bg-surface-tint px-6 py-7 text-brand shadow-2xl',
 					!open && 'hidden',
 				)}
 				id={panelId}
 			>
-				<ul className="flex flex-col gap-5">
-					{/* POE stays first, as in the desktop header. The header graphic is
-					    white on a glow made for navy, so this light panel shows the
-					    name as text in the same row style as the pages. */}
-					{poeUrl ? (
-						<li>
-							<a className={rowClass} href={poeUrl} onClick={() => setOpen(false)} rel="noopener" target="_blank">
-								<ExternalLink aria-hidden="true" className="size-8 shrink-0" strokeWidth={1.75} />
-								{t('nav.poe')}
-								<span className="sr-only"> ({t('nav.externalHint')})</span>
-							</a>
-						</li>
-					) : null}
-					{PRIMARY_NAV.map((item) => {
-						const Icon = ICONS[item.key]
-						return (
-							<li key={item.key}>
-								<NavLink
-									className={rowClass}
-									currentClassName="underline decoration-2"
-									href={item.href}
-									matchNested={item.matchNested}
-									onClick={() => setOpen(false)}
-								>
-									<Icon aria-hidden="true" className="size-8 shrink-0" strokeWidth={1.75} />
-									{t(`nav.${item.key}`)}
-								</NavLink>
+				<nav aria-label={t('menu.label')}>
+					<ul className="flex flex-col gap-5">
+						{/* POE stays first, as in the desktop header. The header graphic is
+						    white on a glow made for navy, so this light panel shows the
+						    name as text in the same row style as the pages. */}
+						{poeUrl ? (
+							<li>
+								<a className={rowClass} href={poeUrl} onClick={() => setOpen(false)} rel="noopener" target="_blank">
+									<ExternalLink aria-hidden="true" className="size-8 shrink-0" strokeWidth={1.75} />
+									{t('nav.poe')}
+									<span className="sr-only"> ({t('nav.externalHint')})</span>
+								</a>
 							</li>
-						)
-					})}
-				</ul>
-			</nav>
+						) : null}
+						{PRIMARY_NAV.map((item) => {
+							const Icon = ICONS[item.key]
+							return (
+								<li key={item.key}>
+									<NavLink
+										className={rowClass}
+										currentClassName="underline decoration-2"
+										href={item.href}
+										matchNested={item.matchNested}
+										onClick={() => setOpen(false)}
+									>
+										<Icon aria-hidden="true" className="size-8 shrink-0" strokeWidth={1.75} />
+										{t(`nav.${item.key}`)}
+									</NavLink>
+								</li>
+							)
+						})}
+					</ul>
+				</nav>
+				<fieldset className="mt-6 border-t border-brand/25 pt-5">
+					<legend className="float-left mb-3 w-full font-label text-label font-bold uppercase">{tAudience('menuLabel')}</legend>
+					<ul className="clear-left flex flex-col gap-1">
+						{audienceOptions.map((option) => (
+							<li key={option.value ?? 'all'}>
+								<label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-control font-serif text-body font-bold has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus">
+									<input
+										checked={audience === option.value}
+										className="size-4 shrink-0 accent-tp-navy focus-visible:outline-none"
+										name={`${panelId}-audience`}
+										onChange={() => setAudience(option.value)}
+										type="radio"
+									/>
+									{option.value ? <span aria-hidden="true" className="size-3 shrink-0 rounded-pill" data-audience-swatch={option.value} /> : <span aria-hidden="true" className="size-3 shrink-0 rounded-pill border border-brand/50" />}
+									{option.label}
+								</label>
+							</li>
+						))}
+					</ul>
+				</fieldset>
+			</div>
 		</div>
 	)
 }

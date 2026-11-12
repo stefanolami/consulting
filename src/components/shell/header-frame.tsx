@@ -39,7 +39,7 @@ export function HeaderFrame({ children }: { children: ReactNode }) {
 			ref={ref}
 			onFocus={() => setHidden(false)}
 			className={cn(
-				'sticky top-0 z-50 bg-brand text-on-brand transition-transform duration-300 ease-in-out motion-reduce:transition-none',
+				'sticky top-0 z-50 bg-audience text-on-brand transition-transform duration-300 ease-in-out motion-reduce:transition-none',
 				hidden && '-translate-y-full',
 			)}
 		>

@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 import { Suspense } from 'react'
 
+import { AudienceSwitch } from '@/components/audience/audience-switch'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import { getPublishedGlobalContent } from '@/lib/public-global-content'
@@ -63,7 +64,10 @@ export async function SiteHeader({ locale }: SiteHeaderProps) {
 				</div>
 			</div>
 
-			{/* Wide screens: logo, POE and pages inline, language toggle (Figma 6393:6). */}
+			{/* Wide screens: logo, POE and pages inline, audience switch and language
+			    toggle (Figma 6393:6, 6648:12). The audience switch sits in the space
+			    kept for it (control tower §15.3); the mobile menu lists the same
+			    choice. */}
 			<div className="mx-auto hidden min-h-(--header-height) max-w-[90rem] items-stretch gap-6 px-gutter xl:flex">
 				<div className="flex items-center">{logo}</div>
 				<nav aria-label={t('nav.label')} className="ml-auto flex items-stretch">
@@ -80,7 +84,8 @@ export async function SiteHeader({ locale }: SiteHeaderProps) {
 						))}
 					</ul>
 				</nav>
-				<div className="flex items-center">
+				<div className="flex items-center gap-4">
+					<AudienceSwitch />
 					<LocaleSwitcher />
 				</div>
 			</div>

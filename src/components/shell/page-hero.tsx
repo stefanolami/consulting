@@ -58,7 +58,7 @@ const isDrawing = (illustration: HeroIllustration | undefined) =>
 // (Figma 5408:616 homepage, 6393:6 services, 5488:464 service detail).
 export function PageHero({ children, className, illustration, navigation, title, titleVariant = 'page' }: PageHeroProps) {
 	return (
-		<section className={cn('overflow-hidden bg-brand text-on-brand', isDrawing(illustration) && drawingHeroClass, className)}>
+		<section className={cn('overflow-hidden bg-audience text-on-brand', isDrawing(illustration) && drawingHeroClass, className)}>
 			{navigation ? <div className={navigationClass}>{navigation}</div> : null}
 			{illustration ? <HeroArt illustration={illustration} /> : null}
 			<div className={cn(bodyClass, bodyTopClass(Boolean(illustration)))}>
@@ -74,7 +74,7 @@ export function PageHero({ children, className, illustration, navigation, title,
 export function PageHeroSkeleton({ illustration, introLines = 2, navigation = false }: { illustration: 'emblem' | 'none' | DrawingSize; introLines?: number; navigation?: boolean }) {
 	const drawing = typeof illustration === 'object' ? illustration : null
 	return (
-		<section className={cn('overflow-hidden bg-brand', drawing && drawingHeroClass)}>
+		<section className={cn('overflow-hidden bg-audience', drawing && drawingHeroClass)}>
 			{navigation ? <SkeletonText className={cn(navigationClass, '[&>span]:w-[min(12rem,60%)]')} lastLineWidth="w-full" tone="brand" /> : null}
 			{drawing ? (
 				<DrawingFrame size={drawing}>

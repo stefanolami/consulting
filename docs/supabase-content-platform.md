@@ -194,6 +194,30 @@ The schema does not seed the provisional catalogue found in Figma. Publication
 state and display order will be managed through the admin panel after the
 catalogue is confirmed.
 
+Service audiences (control tower section 23.10, settled 2026-11-12):
+`services.audiences` is a `text[]`, `not null default '{}'`, holding any of
+`business`, `government` and `academia` (check constraint
+`services_audiences_vocabulary`). It lists the audiences whose visitors see
+the service highlighted on the public Services page; empty means it is
+highlighted for none. Editors set it with the "Show for" checkboxes in the
+service editor; sectors have no audiences. The keys, their labels and
+themes live in `src/lib/audiences.mjs` and the `Audience` messages.
+
+- Why a column rather than a `service_audiences` join table: the vocabulary
+  is three fixed keys owned by code, with no data or translations of their
+  own, so a lookup table would hold nothing. The column is saved in the
+  same row update as the other shared details (no delete-and-insert
+  relation write that can half-fail), is read with the service row, and
+  needs no new policy or grant. A check constraint gives the same integrity
+  a foreign key would. A join table becomes worthwhile only if audiences
+  turn into editorial records (labels, order or colours edited in the
+  admin).
+- Security: the column follows the existing services rules (section 5.2).
+  Grants are table-level, so `anon` and `authenticated` can read it exactly
+  where they can read the row (the public: an active service with a
+  published translation; active staff: every row), and staff write it
+  under the existing staff update policy.
+
 ### 3.6 Our Outreach
 
 - `regions` and `region_translations`
@@ -590,6 +614,35 @@ edited manually.
   give both functions a `Json` return, so `src/lib/media-operations.mjs`
   reads the returned paths from it. Rollback: re-run the function bodies
   from the two earlier media migrations.
+
+### `20261112120000_service_audiences.sql`
+
+- Adds `services.audiences` (`text[] not null default '{}'`, checked against
+  `business`, `government`, `academia`) with a column comment (section 3.5).
+  No policy, grant, function or other table changes.
+- Seeds the Figma mapping by stable key: business: business &
+  strategy development, event organisation, project management,
+  reputation management; government: association management, government
+  relations, public funds, finance & procurement, reputation management;
+  academia: compliance & certification, engineering & technical
+  consulting, market research, stakeholder management. On 2026-11-12 the
+  development project had seven of these services
+  (`association-management`, `government-relations`, `market-research`,
+  `project-management`, `public-funds-finance-procurement`,
+  `event-organisation`; `visibility-communications` is in no audience).
+  The other five keys (`business-strategy-development`,
+  `compliance-certification`, `engineering-technical-consulting`,
+  `reputation-management`, `stakeholder-management`, the keys the admin
+  would suggest from their names) match nothing yet and change nothing.
+- Written on 2026-11-12, not applied: pending review. After the push,
+  regenerate `src/types/database.generated.ts` and remove the three
+  "PENDING TYPES" casts (`src/lib/public-catalogue.ts`,
+  `src/app/(admin)/admin/actions.ts`,
+  `src/app/(admin)/admin/catalogue/[kind]/[id]/page.tsx`). Until it is
+  applied, the Services page and the service editor fail to load, because
+  they select the new column.
+- Rollback: `alter table public.services drop column audiences;` (the
+  constraint goes with it).
 
 ## 9. Deliberately deferred work
 

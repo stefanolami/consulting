@@ -47,7 +47,8 @@
 			"Contact",
 			"Legal",
 			"Outreach.overview",
-			"Outreach.detail"
+			"Outreach.detail",
+			"Audience"
 		],
 		"note": "Provisional translations drafted during the Phase 6 frontend work; review with a native speaker before launch."
 	},
@@ -404,6 +405,30 @@
 		},
 		"loading": {
 			"articles": "Carregando artigos"
+		}
+	},
+	"Audience": {
+		"label": "Público",
+		"menuLabel": "Escolha o seu público",
+		"noneShort": "Público",
+		"all": "Todos",
+		"selectorLabel": "Destacar os serviços para",
+		"highlighted": "{count, plural, one {# serviço está destacado} other {# serviços estão destacados}} para {audience}.",
+		"cleared": "Todos os serviços são exibidos.",
+		"tileNote": "Para {audience}",
+		"options": {
+			"business": {
+				"label": "Empresas",
+				"short": "Empresas"
+			},
+			"government": {
+				"label": "Instituições governamentais",
+				"short": "Inst. gov."
+			},
+			"academia": {
+				"label": "Academia",
+				"short": "Academia"
+			}
 		}
 	}
 }

@@ -75,6 +75,29 @@
 	--color-error: #a3112b;
 	--color-error-on-brand: #ffd2d2;
 
+	/*
+	  Audience theme (control tower §15.3, §23.10). `audience` is the header,
+	  body band and page-hero surface; `audience-tile` and `audience-ring` are
+	  a highlighted service tile and its ring; `tile-muted` is a service tile
+	  that is not for the chosen audience. With no audience they are today's
+	  navy theme. `:root[data-audience]` below switches them.
+	*/
+	--color-audience: var(--color-tp-navy);
+	--color-audience-tile: var(--color-tp-blue);
+	--color-audience-ring: var(--color-tp-blue);
+	--color-tile-muted: #c3cbd9;
+	/*
+	  Header accents: the language toggle and the mobile menu bars. Azure by
+	  default. On an audience colour the bars turn white (at least 4.5:1); on
+	  business, where azure is 1.02:1 against the header, the toggle turns navy.
+	*/
+	--color-header-action: var(--color-action);
+	--color-header-bars: var(--color-action);
+	/* Audience colours (Figma 6393:6, 6633:100, 6633:32), white text AA. */
+	--color-audience-business: #0a7fab;
+	--color-audience-government: #095273;
+	--color-audience-academia: #081528;
+
 	/* Type scale: fluid between ~390px and ~1440px viewports */
 	--text-display: clamp(2.5rem, 1.75rem + 3vw, 4.5rem);
 	--text-display--line-height: 1.1;
@@ -282,6 +305,66 @@
 			--page-hero-height: min(100svh - var(--header-height), 750px);
 		}
 	}
+	/*
+	  Audience themes, applied by `data-audience` on <html> (set before the
+	  first paint by the inline script in the locale layout; src/lib/
+	  audiences.mjs). Surfaces carry white text, so each surface colour is at
+	  least 4.5:1 against white:
+	  - business: Figma #0b8fc0 is 3.68:1, so its lightness drops from 39.8%
+	    to 35.4% (same hue and saturation): #0a7fab, 4.53:1. Tile #1c649b
+	    (6.28:1); the ring keeps the Figma colour (decorative).
+	  - government: #095273 (8.52:1); tile #1b4c7c (8.86:1).
+	  - academia: #081528 (18.29:1); tile #1b335e (12.49:1).
+	*/
+	:root[data-audience] {
+		--color-header-bars: var(--color-on-brand);
+	}
+	:root[data-audience='business'] {
+		--color-header-action: var(--color-tp-navy);
+		--color-audience: var(--color-audience-business);
+		--color-audience-tile: #1c649b;
+		--color-audience-ring: #0b8fc0;
+	}
+	:root[data-audience='government'] {
+		--color-audience: var(--color-audience-government);
+		--color-audience-tile: #1b4c7c;
+		--color-audience-ring: var(--color-audience-government);
+	}
+	:root[data-audience='academia'] {
+		--color-audience: var(--color-audience-academia);
+		--color-audience-tile: #1b335e;
+		--color-audience-ring: var(--color-audience-academia);
+	}
+	/*
+	  Service tiles (CatalogueTile with `audiences`): the cell colours come from
+	  these variables. With an audience chosen, a tile for it takes the
+	  audience colours and a ring; any other tile is muted: pale with navy text
+	  (7.5:1), instead of Figma's faded white text, so it stays readable.
+	*/
+	[data-service-audiences] {
+		--tile-title: var(--color-brand-strong);
+		--tile-summary: var(--color-brand);
+		--tile-text: var(--color-on-brand);
+		--tile-ring: transparent;
+	}
+	:root[data-audience] [data-service-audiences] {
+		--tile-title: var(--color-tile-muted);
+		--tile-summary: var(--color-tp-mist);
+		--tile-text: var(--color-tp-navy);
+	}
+	:root[data-audience='business'] [data-service-audiences~='business'],
+	:root[data-audience='government'] [data-service-audiences~='government'],
+	:root[data-audience='academia'] [data-service-audiences~='academia'] {
+		--tile-title: var(--color-audience-tile);
+		--tile-summary: var(--color-brand);
+		--tile-text: var(--color-on-brand);
+		--tile-ring: var(--color-audience-ring);
+	}
+	/* Selector buttons and menu swatches use each audience's own colour. */
+	[data-audience-swatch='business'] { background-color: var(--color-audience-business); }
+	[data-audience-swatch='government'] { background-color: var(--color-audience-government); }
+	[data-audience-swatch='academia'] { background-color: var(--color-audience-academia); }
+
 	html {
 		/* Keep in-page targets clear of the sticky site header. */
 		scroll-padding-top: calc(var(--header-height) + 1rem);
@@ -301,4 +384,28 @@
 	.input-textarea {
 		@apply w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-xs;
 	}
+}
+
+/*
+  Content that differs per audience (the header label, a tile's "For …" note)
+  is rendered once per state with `data-audience-show="none|business|…"`;
+  these rules hide every state but the applied one, so it is right before
+  hydration. Unlayered, so they win over display utilities.
+*/
+:root[data-audience] [data-audience-show='none'],
+:root:not([data-audience='business']) [data-audience-show='business'],
+:root:not([data-audience='government']) [data-audience-show='government'],
+:root:not([data-audience='academia']) [data-audience-show='academia'] {
+	display: none;
+}
+
+/*
+  The chosen selector button on the Services page (Figma 6646:347: a soft
+  tp-blue edge). Driven by the attribute, like the tiles, so it never flashes;
+  aria-pressed carries the same state for assistive technology.
+*/
+:root[data-audience='business'] [data-audience-option='business'],
+:root[data-audience='government'] [data-audience-option='government'],
+:root[data-audience='academia'] [data-audience-option='academia'] {
+	box-shadow: 0 0 0 4px var(--color-tp-blue), 0 0 6px 5px color-mix(in srgb, var(--color-tp-blue) 55%, transparent);
 }

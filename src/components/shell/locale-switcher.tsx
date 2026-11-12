@@ -61,7 +61,7 @@ export function LocaleSwitcher({ className }: LocaleSwitcherProps) {
 			<DropdownMenu.Trigger
 				aria-label={`${t('label')}. ${t('current', { language: t(`names.${locale}`) })}`}
 				className={cn(
-					'inline-flex min-h-10 items-center justify-center rounded-control bg-action px-4 py-2 font-serif text-label font-medium uppercase text-on-action transition-colors hover:bg-brand-strong',
+					'inline-flex min-h-10 items-center justify-center rounded-control bg-header-action px-4 py-2 font-serif text-label font-medium uppercase text-on-action transition-colors hover:bg-brand-strong',
 					'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-dark data-[state=open]:bg-brand-strong',
 					className,
 				)}

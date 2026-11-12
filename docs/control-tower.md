@@ -1061,13 +1061,58 @@ Implemented on 2026-09-28:
   The mobile header and pages menu are unchanged.
 - Space reserved for the audience button and globe (Figma `6648:12`,
   "gov. ins.", 129 × 45; `6648:14`, a 64px globe that replaces the language
-  toggle; not built yet). With a temporary 130 × 45 box and 64px circle 16px
+  toggle; the globe is not built yet). With a temporary 130 × 45 box and 64px circle 16px
   apart after the menu, in place of the toggle, German (the longest labels)
   leaves 33px free at 1280 and 56px at 1440, beyond the row's 24px gaps;
   English leaves 114px and 145px. Nothing wraps, overflows or overlaps.
   Keeping the current 52px toggle as well as both new controls does not fit
   in German at 1280, so the globe must replace the toggle rather than sit
   beside it.
+- Audience switch (2026-11-12, decision 23.10). The audience button now fills
+  the reserved space, 16px before the language toggle
+  (`src/components/audience/audience-switch.tsx`). It is navy with a white
+  edge (Figma `6648:12`, `6648:2`), 40px tall, with 12px labels (13px from
+  `90rem`) like the menu, and shows the current audience in short
+  ("Business", "Gov. ins.", "Academia", or "Audience" for none). Its
+  accessible name is "Audience: " followed by the full label ("Government
+  Institute", "All audiences"). It opens a Radix menu, like the language
+  toggle, with the three audiences and "All" as radio items: arrow keys,
+  Enter and Space, Escape, and the checked item is announced. Choosing one
+  themes the site at once and stays on the page. The mobile pages menu
+  lists the same choice under the pages, as radio buttons in a fieldset
+  ("Choose your audience"); the panel stays open after a choice. Strings
+  are in the new `Audience` message namespace (provisional outside
+  English).
+- Audience theme. The choice is `data-audience` on `<html>` (`business`,
+  `government`, `academia`, or absent for none). `globals.css` maps it to
+  `--color-audience` (the header, the band behind it, and every `PageHero`
+  and its skeleton) and to the service-tile variables (section 15.5). With
+  no audience these are today's navy. Colours (Figma `6393:6`, `6633:100`,
+  `6633:32`) and their contrast with white text: business `#0a7fab`, 4.53:1
+  (Figma's `#0b8fc0` is 3.68:1, so its HSL lightness drops from 39.8% to
+  35.4%, with hue and saturation unchanged); government `#095273`, 8.52:1;
+  academia `#081528`, 18.29:1. The footer stays navy, as in Figma. The team
+  profile header (silver names, 5.2:1 only on navy) and the newsroom article
+  header stay navy. Header accents follow too (`--color-header-bars`,
+  `--color-header-action`): with any audience the mobile menu bars are
+  white (azure was 1.02:1 against the business colour), and on business the
+  language toggle is navy instead of azure. Check the globe that replaces
+  the toggle on all four colours. In German the longest short label
+  ("Wissenschaft") makes the button 127px wide at 1280 and 143px at 1440;
+  nothing overflows, and the row keeps its 24px gaps.
+- Remembering the choice without dynamic rendering. Nothing on the server
+  reads it. The choice is kept in `localStorage` (`tp-audience`), and an
+  inline script in the locale layout's `<head>` (`audienceBootScript` in
+  `src/lib/audiences.mjs`) sets the attribute before the first paint, as
+  theme scripts do, so a stored audience never flashes the navy theme.
+  `<html>` has `suppressHydrationWarning` because of that attribute.
+  Everything that only looks different per audience is CSS on the attribute
+  (the theme, the tiles, the header label and the pressed selector button).
+  Components read the value through `useSyncExternalStore`
+  (`src/components/audience/audience-store.ts`), which also follows other
+  tabs. Storage access is guarded: with storage blocked, the choice lasts
+  for the page. Every public route is still `◐` (partial prerender) in the
+  build output.
 - Interface strings live in the `Shell` message namespace. Non-English
   strings are provisional and marked with `_meta.provisionalNamespaces` in
   each locale file; `scripts/messages.test.mjs` checks key parity.
@@ -1236,9 +1281,36 @@ and `5480:511`, and the mobile details `5695:437` and `5695:370`:
   are shown, newest first, with a "View all" link to the filtered newsroom when
   there are more. The link is omitted for slugs that the newsroom filters reject
   (for example the legacy `culture-&-creativity` style).
-- The Business / Government Institute / Academia audience selector on `6393:6`
-  is omitted until open decision 23.10 is resolved; all tiles are shown at full
-  strength.
+- Audience selector (2026-11-12, decision 23.10; Figma `6393:6` Business,
+  `6633:100` Government Institute, `6633:32` Academia). A row of three
+  toggle buttons (`aria-pressed`) above the service tiles, grouped as
+  "Highlight the services for"
+  (`src/components/audience/audience-selector.tsx`). It streams with the
+  tiles, because a choice is announced with the number of services it
+  highlights ("4 services are highlighted for Business", a polite status).
+  Pressing the chosen button again returns to none, as does "All" in the
+  header switch (section 15.3). With no audience every tile is at full
+  strength. With one, its services take the audience tile colour (business
+  `#1c649b`, government `#1b4c7c`, academia `#1b335e`) and a 6px ring in the
+  audience colour, and the others are muted. Muted tiles are pale
+  (`#c3cbd9`) with navy text (7.5:1) rather than Figma's faded white text,
+  so they stay readable. A highlighted tile also gets "(For Business)" in
+  its link name for screen readers, so the state is not shown by colour
+  alone. All of this is CSS on `data-service-audiences` and
+  `<html data-audience>` (`globals.css`), so nothing flashes before
+  hydration. Sector tiles do not follow it.
+- The Services page reads `?audience=`. On a full load the inline script
+  applies it in preference to the stored value, and stores it; after
+  client-side navigation the selector does this. From then on the address
+  follows the choice wherever it is made (`history.replaceState`, other
+  parameters kept, removed for none), so a filtered view can be shared.
+  Other pages ignore the parameter.
+- Data: `services.audiences` (platform doc section 3.5), edited in the
+  service editor as "Show for: Business / Government Institute / Academia"
+  in the shared details, after the icon. Saving expires the public
+  catalogue cache, as the other catalogue saves do.
+- Placeholder: Figma's selector buttons are patterned artwork; solid
+  audience colours stand in (`docs/figma-asset-needs.md`).
 - Placeholders: every missing CMS icon (dashed outline in tiles, labelled
   emblem box on details; none of the seeded services has an icon). The
   services and sectors heroes use the designer's line drawings (2026-10-13,
@@ -2986,7 +3058,10 @@ Phase 6 started on 2026-09-28 (see the sequencing update above).
 - Merge Why Us into Who We Are, after the team (product owner, 2026-11-04):
   no separate Why Us page or navigation item; `/why-us` permanently redirects
   to `/who-we-are#why-us` (sections 15.4 and 16).
-- Omit the services audience selector until decision 23.10 is made; use the
+- Settle the services audience selector (decision 23.10, product owner,
+  2026-11-12): the audience-to-service mapping is admin-managed, and the
+  header audience button is a site-wide switch that themes the site and
+  pre-selects the audience on Services (sections 15.3 and 15.5). Use the
   designer's page-hero line drawings (supplied 2026-10-13); show visible placeholders for missing
   service and sector icons; read catalogue related articles through the
   newsroom listing; label them "Articles for {name}" for both services and
@@ -3029,11 +3104,25 @@ These decisions should be resolved before the affected implementation begins:
    instance).
 8. Post-launch Git and persistent Supabase development branch naming.
 9. Final published service catalogue and ordering after stakeholder review.
-10. Whether the `Business` / `Government Institute` / `Academia` audience
-    selector on the revised Services page (`6393:6`) is editorial data managed
-    in the admin, and which services belong to each audience. The selector is
-    omitted from the implemented services page until this is decided
-    (section 15.5).
+10. ~~Whether the `Business` / `Government Institute` / `Academia` audience
+    selector on the revised Services page (`6393:6`) is editorial data
+    managed in the admin, and which services belong to each audience.~~
+    Settled by the product owner on 2026-11-12: the mapping is editable in
+    the admin (`services.audiences`, the "Show for" checkboxes; migration
+    `20261112120000_service_audiences.sql` seeds the Figma mapping by stable
+    key), and the header "gov. ins." button is a site-wide audience switch.
+    It shows the current audience, applies its theme and pre-selects it on
+    Services. The default is none (navy, with every service at full
+    strength). Implemented in sections 15.3 and 15.5. The migration is
+    written but not applied, pending review. Still open: the patterned
+    button artwork (`docs/figma-asset-needs.md`), and five Figma services
+    that are not in the catalogue yet (business & strategy development,
+    compliance & certification, engineering & technical consulting,
+    reputation management, stakeholder management); they get their
+    audiences in the admin when they are created, unless they are created
+    under the keys the migration expects before it is applied. Not part of
+    this decision: renaming "Our outreach" to "Our presence", the globe
+    language control and the new homepage hero text.
 11. Whether the newsroom gets a newsletter subscription (Figma `5408:334`
     "Subscribe to Newsletter") and with which provider. The Subscribe button
     is omitted until this is decided. The vocabulary of article kinds was

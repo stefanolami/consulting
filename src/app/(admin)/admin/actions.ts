@@ -12,6 +12,7 @@ import { countryServiceAssignmentSchema, countryServiceCopySchema, countryStatis
 import { endOfListOrder, moveRecord } from '@/lib/admin-order'
 import { completeCreate, replaceRelation, requireUnused } from '@/lib/admin-writes'
 import { articleKindSchema } from '@/lib/article-kinds.mjs'
+import { AUDIENCES, parseAudienceList } from '@/lib/audiences.mjs'
 import { requireActiveStaff } from '@/lib/auth/authorization'
 import { parkedMetricKey, statisticWritePlan } from '@/lib/relation-writes.mjs'
 import { validationMessage } from '@/lib/rich-text-rules.mjs'
@@ -266,6 +267,8 @@ const catalogueDetailsSchema = z.object({
 	displayOrder: z.coerce.number().int().min(0).max(100_000),
 	iconMediaId: optionalUuid,
 	contactIds: z.array(z.string().uuid()).max(30),
+	// Services only: the "Show for" checkboxes (§23.10). Any order, no duplicates kept.
+	audiences: z.array(z.enum(AUDIENCES, { message: 'Choose Business, Government Institute or Academia.' })).max(AUDIENCES.length * 2).transform(parseAudienceList),
 })
 const catalogueTranslationSchema = z.object({
 	kind: z.enum(catalogueKinds),
@@ -287,7 +290,16 @@ function detailsFromForm(formData: FormData, includeEntryId = true) {
 		displayOrder: formData.get('displayOrder'),
 		iconMediaId: formData.get('iconMediaId'),
 		contactIds: jsonField(formData, 'contactIds', 'Contacts'),
+		audiences: formData.getAll('audiences'),
 	})
+}
+
+// The audience column exists on services only. PENDING TYPES: the generated
+// services row has no `audiences` until the types are regenerated after
+// migration 20261112120000, and the client rejects unknown columns, so the
+// return type hides it. After regenerating, declare `{ audiences?: Audience[] }`.
+function catalogueAudienceColumns(details: z.infer<typeof catalogueDetailsSchema>): Record<never, never> {
+	return details.kind === 'services' ? { audiences: details.audiences } : {}
 }
 
 function translationFromForm(formData: FormData) {
@@ -367,7 +379,7 @@ export async function createCatalogueAction(formData: FormData): Promise<AdminAc
 		await requireImageAsset(supabase, details.iconMediaId, 'iconMediaId', 'icon')
 		if (goesPublic && details.iconMediaId) await requireLibraryAlt(supabase, { field: 'iconAlt', label: 'icon', locale: 'en', mediaId: details.iconMediaId })
 		const entryId = randomUUID()
-		const { data: entry, error: createError } = await supabase.from(table).insert({ id: entryId, stable_key: details.stableKey, display_order: await endOfListOrder({ table }), icon_media_id: details.iconMediaId, created_by: profile.id, updated_by: profile.id }).select('id').single()
+		const { data: entry, error: createError } = await supabase.from(table).insert({ id: entryId, stable_key: details.stableKey, display_order: await endOfListOrder({ table }), icon_media_id: details.iconMediaId, ...catalogueAudienceColumns(details), created_by: profile.id, updated_by: profile.id }).select('id').single()
 		if (createError) return failed(`Could not create the ${details.kind.slice(0, -1)}: ${createError.message}`)
 		await completeCreate(supabase, { table, id: entry.id, what: details.kind.slice(0, -1) }, async () => {
 			const { error: translationError } = details.kind === 'services'
@@ -389,7 +401,7 @@ export async function saveCatalogueDetailsAction(formData: FormData): Promise<Ad
 		const supabase = await createClient()
 		await requireImageAsset(supabase, details.iconMediaId, 'iconMediaId', 'icon')
 		await validateCatalogueContacts(supabase, details.contactIds)
-		const { error } = await supabase.from(details.kind).update({ stable_key: details.stableKey, display_order: details.displayOrder, icon_media_id: details.iconMediaId, updated_by: profile.id }).eq('id', details.entryId)
+		const { error } = await supabase.from(details.kind).update({ stable_key: details.stableKey, display_order: details.displayOrder, icon_media_id: details.iconMediaId, ...catalogueAudienceColumns(details), updated_by: profile.id }).eq('id', details.entryId)
 		if (error) return failed(`Could not save catalogue details: ${error.message}`)
 		await replaceCatalogueContacts(supabase, details.kind, details.entryId, details.contactIds)
 		await refreshCataloguePaths(supabase, details.kind, details.entryId)

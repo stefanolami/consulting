@@ -2,6 +2,7 @@ import Image from 'next/image'
 
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
+import type { Audience } from '@/lib/audiences.mjs'
 import type { CatalogueCard, PublicCatalogueKind } from '@/lib/public-catalogue'
 import { cn } from '@/lib/utils'
 
@@ -13,6 +14,8 @@ export const catalogueGridClass = 'mx-auto flex max-w-[34rem] flex-col gap-y-4 l
 export const catalogueItemClass = 'lg:w-[calc((100%-2*var(--tile-gap))/3)]'
 
 type CatalogueTileProps = {
+	/** Services: the screen-reader note per audience ("For Business"), shown while that audience is chosen. */
+	audienceNotes?: Record<Audience, string>
 	index: number
 	item: CatalogueCard
 	kind: PublicCatalogueKind
@@ -27,19 +30,29 @@ type CatalogueTileProps = {
 //   keyboard focus ("Slide when hovered"), instantly under reduced motion.
 // The title names the link and the summary describes it, so screen readers
 // get both at every width.
-export function CatalogueTile({ index, item, kind, locale }: CatalogueTileProps) {
+//
+// Services follow the chosen audience (control tower §15.5, Figma 6393:6,
+// 6633:100, 6633:32): `data-service-audiences` lets the CSS in globals.css
+// colour the tile through --tile-* variables, so the state is right before
+// hydration. A tile for the audience gets its colours and a ring, and its
+// name gains "For {audience}" for screen readers; the others are muted.
+// Sectors keep the fixed colours.
+export function CatalogueTile({ audienceNotes, index, item, kind, locale }: CatalogueTileProps) {
 	const titleId = `${kind}-${item.id}-title`
 	const summaryId = `${kind}-${item.id}-summary`
 	const round = kind === 'service'
+	const followsAudience = kind === 'service'
 	return (
 		<Link
 			aria-describedby={item.summary ? summaryId : undefined}
 			aria-labelledby={titleId}
 			className={cn(
-				'group relative grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] text-on-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus',
+				'group relative grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus',
 				'lg:block lg:aspect-square lg:overflow-hidden',
+				followsAudience ? 'text-(--tile-text) shadow-[0_0_0_6px_var(--tile-ring)] motion-safe:transition-[color,box-shadow] motion-safe:duration-300' : 'text-on-brand',
 				round && 'lg:rounded-pill',
 			)}
+			data-service-audiences={followsAudience ? item.audiences.join(' ') : undefined}
 			href={`/${CATALOGUE_SEGMENT[kind]}/${item.slug}`}
 			locale={locale}
 		>
@@ -48,7 +61,8 @@ export function CatalogueTile({ index, item, kind, locale }: CatalogueTileProps)
 					// The ::before spacer keeps the cell at least square (half-height when
 					// it spans the row) while letting a long summary make the row taller;
 					// an aspect-ratio would widen the cell instead.
-					'relative grid grid-cols-[minmax(0,1fr)] place-items-center self-stretch overflow-hidden bg-brand-strong text-center',
+					'relative grid grid-cols-[minmax(0,1fr)] place-items-center self-stretch overflow-hidden text-center',
+					followsAudience ? 'bg-(--tile-title) motion-safe:transition-[background-color] motion-safe:duration-300' : 'bg-brand-strong',
 					"before:col-start-1 before:row-start-1 before:content-['']",
 					item.summary ? 'before:pb-[100%]' : 'col-span-2 before:pb-[50%]',
 					index % 2 === 1 && item.summary && 'order-2',
@@ -58,12 +72,16 @@ export function CatalogueTile({ index, item, kind, locale }: CatalogueTileProps)
 				<TileIcon icon={item.icon} name={`${kind}-icon-${item.slug}`} round={round} />
 				<span className={cn('relative col-start-1 row-start-1 mx-[8%] my-6 font-label wrap-anywhere text-[clamp(1.0625rem,0.8rem+1.1vw,1.75rem)] font-bold leading-[1.15] [hyphens:auto] group-hover:underline group-hover:underline-offset-4 lg:group-hover:no-underline', round && 'lg:mx-[14%]')} id={titleId}>
 					{item.name}
+					{followsAudience && audienceNotes ? item.audiences.map((audience) => (
+						<span className="sr-only" data-audience-show={audience} key={audience}> ({audienceNotes[audience]})</span>
+					)) : null}
 				</span>
 			</span>
 			{item.summary ? (
 				<span
 					className={cn(
-						'grid grid-cols-[minmax(0,1fr)] place-items-center self-stretch bg-brand px-[7%] py-4 text-center',
+						'grid grid-cols-[minmax(0,1fr)] place-items-center self-stretch px-[7%] py-4 text-center',
+						followsAudience ? 'bg-(--tile-summary)' : 'bg-brand',
 						'lg:invisible lg:absolute lg:inset-0 lg:translate-y-full lg:px-[9%] lg:transition-[translate,visibility] lg:duration-400 lg:ease-in-out lg:group-hover:visible lg:group-hover:translate-y-0 lg:group-focus-visible:visible lg:group-focus-visible:translate-y-0 lg:motion-reduce:transition-none',
 						round && 'lg:px-[17%]',
 					)}
@@ -86,5 +104,5 @@ function TileIcon({ icon, name, round }: { icon: CatalogueCard['icon']; name: st
 			</span>
 		)
 	}
-	return <span aria-hidden="true" className={cn('absolute inset-[18%] border-2 border-dashed border-on-brand/35', round ? 'rounded-pill' : 'rounded-control')} data-placeholder-asset={name} />
+	return <span aria-hidden="true" className={cn('absolute inset-[18%] border-2 border-dashed border-current opacity-35', round ? 'rounded-pill' : 'rounded-control')} data-placeholder-asset={name} />
 }

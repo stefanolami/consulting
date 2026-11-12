@@ -353,5 +353,29 @@
 		"loading": {
 			"articles": "Loading articles"
 		}
+	},
+	"Audience": {
+		"label": "Audience",
+		"menuLabel": "Choose your audience",
+		"noneShort": "Audience",
+		"all": "All audiences",
+		"selectorLabel": "Highlight the services for",
+		"highlighted": "{count, plural, one {# service is} other {# services are}} highlighted for {audience}.",
+		"cleared": "All services are shown.",
+		"tileNote": "For {audience}",
+		"options": {
+			"business": {
+				"label": "Business",
+				"short": "Business"
+			},
+			"government": {
+				"label": "Government Institute",
+				"short": "Gov. ins."
+			},
+			"academia": {
+				"label": "Academia",
+				"short": "Academia"
+			}
+		}
 	}
 }

@@ -3,12 +3,15 @@ import { cache } from 'react'
 
 import { PUBLIC_CACHE_REVALIDATE_SECONDS, PUBLIC_CATALOGUE_CACHE_TAG } from '@/lib/cache-tags'
 import type { AppLocale } from '@/i18n/routing'
+import { parseAudienceList, type Audience } from '@/lib/audiences.mjs'
 import { createPublicClient } from '@/lib/supabase/public'
 import type { Json } from '@/types/database.generated'
 
 export type PublicCatalogueKind = 'service' | 'sector'
 
 export type CatalogueCard = {
+	/** The audiences a service is highlighted for (empty for sectors). */
+	audiences: Audience[]
 	id: string
 	icon: PublicMedia | null
 	name: string
@@ -26,7 +29,7 @@ export type CatalogueContact = {
 	slug: string
 }
 
-export type CatalogueDetail = CatalogueCard & {
+export type CatalogueDetail = Omit<CatalogueCard, 'audiences'> & {
 	alternates: Array<{ locale: AppLocale; slug: string }>
 	contacts: CatalogueContact[]
 	content: Json
@@ -147,6 +150,19 @@ async function localizedMedia(
 	}))
 }
 
+// Services only (migration 20261112120000). PENDING TYPES: until
+// src/types/database.generated.ts is regenerated after that migration, the
+// generated services row has no `audiences`, so the select names it through a
+// cast and the rows are read untyped; afterwards both casts can go.
+async function loadServiceAudiences(ids: string[]): Promise<Map<string, Audience[]>> {
+	if (!ids.length) return new Map()
+	const supabase = createPublicClient()
+	const { data, error } = await supabase.from('services').select('id, audiences' as 'id').in('id', ids)
+	if (error) throw new Error(`Unable to load service audiences: ${error.message}`)
+	const rows = (data ?? []) as unknown as Array<{ audiences: unknown; id: string }>
+	return new Map(rows.map((row) => [row.id, parseAudienceList(row.audiences)]))
+}
+
 async function loadCatalogueList(
 	kind: PublicCatalogueKind,
 	locale: AppLocale,
@@ -164,15 +180,19 @@ async function loadCatalogueList(
 		.order('display_order')
 		.order('stable_key')
 	if (error) throw new Error(`Unable to load the published ${kind} catalogue: ${error.message}`)
-	const media = await localizedMedia(
-		(canonicalRows ?? []).flatMap((row) => row.icon_media_id ? [row.icon_media_id] : []),
-		locale,
-	)
+	const [media, audiences] = await Promise.all([
+		localizedMedia(
+			(canonicalRows ?? []).flatMap((row) => row.icon_media_id ? [row.icon_media_id] : []),
+			locale,
+		),
+		kind === 'service' ? loadServiceAudiences((canonicalRows ?? []).map((row) => row.id)) : Promise.resolve(new Map<string, Audience[]>()),
+	])
 	const translationById = new Map(translations.map((translation) => [translation.entityId, translation]))
 	return (canonicalRows ?? []).flatMap((row) => {
 		const translation = translationById.get(row.id)
 		if (!translation) return []
 		return [{
+			audiences: audiences.get(row.id) ?? [],
 			id: row.id,
 			icon: row.icon_media_id ? media.get(row.icon_media_id) ?? null : null,
 			name: translation.name,
