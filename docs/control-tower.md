@@ -1309,8 +1309,26 @@ and `5480:511`, and the mobile details `5695:437` and `5695:370`:
   service editor as "Show for: Business / Government Institute / Academia"
   in the shared details, after the icon. Saving expires the public
   catalogue cache, as the other catalogue saves do.
-- Placeholder: Figma's selector buttons are patterned artwork; solid
-  audience colours stand in (`docs/figma-asset-needs.md`).
+- Audience pattern (2026-11-16). Each audience colour carries Figma's
+  figure-eight pattern on the header, every `PageHero` and the selector
+  buttons (Figma `6676:35`, `6677:63`, `6677:57`; buttons `6676:7`,
+  `6677:65`, `6677:61`). The product owner allowed an exception to the
+  no-export rule for it. One white tile,
+  `public/brand/audience-pattern.webp` (33 KB), was cut from the Figma
+  business export: 4 × 4 repeats of about 68 CSS px (Figma's displayed
+  size), stored at 2× with 16 alpha levels. The `.audience-pattern` class in
+  `globals.css` masks the audience's line colour through it, so one file
+  serves every audience; the hero's pattern is shifted up by the header
+  height so the two join, as in Figma. With no audience there is no
+  pattern, and the tile is not downloaded except on Services, where the
+  buttons always show it. Line colours: government `#0a587c` and academia
+  `#082137` are Figma's (white text over a line stays 7.78:1 and 16.37:1).
+  Business lines are darker than the surface (`#09759d`, 5.19:1) where
+  Figma's are lighter, because a lighter shade of the same strength
+  (`#1e89b2`) leaves white text at 3.98:1 where it crosses a line. Not
+  done: the very faint large grey pattern on the pale band behind the
+  tiles and above the footer (Figma `6648:59` "01 1", 2% opacity), which is
+  the same for every audience.
 - Placeholders: every missing CMS icon (dashed outline in tiles, labelled
   emblem box on details; none of the seeded services has an icon). The
   services and sectors heroes use the designer's line drawings (2026-10-13,
@@ -3113,9 +3131,11 @@ These decisions should be resolved before the affected implementation begins:
     key), and the header "gov. ins." button is a site-wide audience switch.
     It shows the current audience, applies its theme and pre-selects it on
     Services. The default is none (navy, with every service at full
-    strength). Implemented in sections 15.3 and 15.5. The migration is
-    written but not applied, pending review. Still open: the patterned
-    button artwork (`docs/figma-asset-needs.md`), and five Figma services
+    strength). Implemented in sections 15.3 and 15.5. The migration was
+    applied by the Supabase GitHub integration (the seeded audiences were in
+    the development project on 2026-11-16). The audience
+    pattern was added on 2026-11-16 (section 15.5). Still open: five Figma
+    services
     that are not in the catalogue yet (business & strategy development,
     compliance & certification, engineering & technical consulting,
     reputation management, stakeholder management); they get their

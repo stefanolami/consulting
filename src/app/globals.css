@@ -365,6 +365,55 @@
 	[data-audience-swatch='government'] { background-color: var(--color-audience-government); }
 	[data-audience-swatch='academia'] { background-color: var(--color-audience-academia); }
 
+	/*
+	  Audience pattern (Figma 6676:35 business, 6677:63 government, 6677:57
+	  academia; the selector buttons 6676:7, 6677:65, 6677:61): the figure-eight
+	  motif drawn in a shade of the surface. One white tile,
+	  public/brand/audience-pattern.webp (4 x 4 repeats, 2x), was cut from the
+	  Figma business export (exception granted by the product owner on
+	  2026-11-16); CSS masks a colour through it, so one file serves every
+	  audience. With no audience there is no pattern, and the tile is not
+	  loaded.
+	  Line colours, and the contrast of white text where it crosses a line:
+	  government #0a587c (7.78:1) and academia #082137 (16.37:1) are Figma's.
+	  Business lines are darker than the surface rather than lighter, as in
+	  Figma: the lighter shade at the same strength (#1e89b2) gives white text
+	  only 3.98:1, while #09759d gives 5.19:1.
+	*/
+	:root[data-audience='business'],
+	[data-audience-swatch='business'] { --audience-pattern-color: #09759d; }
+	:root[data-audience='government'],
+	[data-audience-swatch='government'] { --audience-pattern-color: #0a587c; }
+	:root[data-audience='academia'],
+	[data-audience-swatch='academia'] { --audience-pattern-color: #082137; }
+}
+
+@layer components {
+	/*
+	  Surfaces that carry the pattern: the header, page heroes (offset by the
+	  header height so the two join up, as in Figma) and the selector buttons
+	  (always patterned, in their own colour). The element must be positioned.
+	  The tile is 4 x 4 repeats of about 68 CSS px, Figma's displayed size.
+	*/
+	.audience-pattern {
+		isolation: isolate;
+	}
+	:root[data-audience] .audience-pattern::before,
+	.audience-pattern[data-audience-swatch]::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		pointer-events: none;
+		background-color: var(--audience-pattern-color);
+		-webkit-mask: url('/brand/audience-pattern.webp') 0 var(--audience-pattern-y, 0) / 272px 274px repeat;
+		mask: url('/brand/audience-pattern.webp') 0 var(--audience-pattern-y, 0) / 272px 274px repeat;
+	}
+}
+
+@layer base {
+
 	html {
 		/* Keep in-page targets clear of the sticky site header. */
 		scroll-padding-top: calc(var(--header-height) + 1rem);

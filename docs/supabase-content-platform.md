@@ -634,13 +634,12 @@ edited manually.
   `compliance-certification`, `engineering-technical-consulting`,
   `reputation-management`, `stakeholder-management`, the keys the admin
   would suggest from their names) match nothing yet and change nothing.
-- Written on 2026-11-12, not applied: pending review. After the push,
-  regenerate `src/types/database.generated.ts` and remove the three
-  "PENDING TYPES" casts (`src/lib/public-catalogue.ts`,
-  `src/app/(admin)/admin/actions.ts`,
-  `src/app/(admin)/admin/catalogue/[kind]/[id]/page.tsx`). Until it is
-  applied, the Services page and the service editor fail to load, because
-  they select the new column.
+- Written on 2026-11-12 and applied by the Supabase GitHub integration: on
+  2026-11-16 the development project had the column and the seeded
+  audiences. Still to do: regenerate `src/types/database.generated.ts` (it
+  has no `audiences` yet) and remove the three "PENDING TYPES" casts
+  (`src/lib/public-catalogue.ts`, `src/app/(admin)/admin/actions.ts`,
+  `src/app/(admin)/admin/catalogue/[kind]/[id]/page.tsx`).
 - Rollback: `alter table public.services drop column audiences;` (the
   constraint goes with it).
 

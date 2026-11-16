@@ -49,6 +49,10 @@ const drawingHeroClass = 'flex min-h-(--page-hero-height) flex-col'
 // the viewport, whichever is smallest, so long intros cannot squeeze it away.
 const drawingFrameClass = 'relative mx-auto mt-[clamp(1rem,0.5rem+1.5vw,2rem)] grid place-items-center [container-type:size] min-h-[min(min(100vw,90rem)/var(--hero-art-aspect),15rem,40svh)] w-full max-w-[90rem] flex-1'
 
+// The audience surface and pattern (globals.css), shifted up by the header
+// height so the hero's pattern continues the header's.
+const surfaceClass = 'audience-pattern relative overflow-hidden bg-audience [--audience-pattern-y:calc(-1*var(--header-height))]'
+
 const navigationClass = 'mx-auto w-full max-w-[90rem] px-gutter pt-4 font-label text-body'
 
 const isDrawing = (illustration: HeroIllustration | undefined) =>
@@ -58,7 +62,7 @@ const isDrawing = (illustration: HeroIllustration | undefined) =>
 // (Figma 5408:616 homepage, 6393:6 services, 5488:464 service detail).
 export function PageHero({ children, className, illustration, navigation, title, titleVariant = 'page' }: PageHeroProps) {
 	return (
-		<section className={cn('overflow-hidden bg-audience text-on-brand', isDrawing(illustration) && drawingHeroClass, className)}>
+		<section className={cn(surfaceClass, 'text-on-brand', isDrawing(illustration) && drawingHeroClass, className)}>
 			{navigation ? <div className={navigationClass}>{navigation}</div> : null}
 			{illustration ? <HeroArt illustration={illustration} /> : null}
 			<div className={cn(bodyClass, bodyTopClass(Boolean(illustration)))}>
@@ -74,7 +78,7 @@ export function PageHero({ children, className, illustration, navigation, title,
 export function PageHeroSkeleton({ illustration, introLines = 2, navigation = false }: { illustration: 'emblem' | 'none' | DrawingSize; introLines?: number; navigation?: boolean }) {
 	const drawing = typeof illustration === 'object' ? illustration : null
 	return (
-		<section className={cn('overflow-hidden bg-audience', drawing && drawingHeroClass)}>
+		<section className={cn(surfaceClass, drawing && drawingHeroClass)}>
 			{navigation ? <SkeletonText className={cn(navigationClass, '[&>span]:w-[min(12rem,60%)]')} lastLineWidth="w-full" tone="brand" /> : null}
 			{drawing ? (
 				<DrawingFrame size={drawing}>

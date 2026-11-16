@@ -31,8 +31,8 @@ function syncAddress() {
 // in its own colour. Pressing the chosen one again shows all services. The
 // tiles follow through CSS (catalogue-tile.tsx); the pressed look also comes
 // from CSS on <html data-audience>, so neither flashes before hydration.
-// PLACEHOLDER: Figma's buttons are patterned artwork (6676:7, 6677:65,
-// 6677:61); solid audience colours stand in (docs/figma-asset-needs.md).
+// Each button carries the audience pattern in its own colour (Figma 6676:7,
+// 6677:65, 6677:61; globals.css).
 export function AudienceSelector({ serviceAudiences }: { serviceAudiences: Audience[][] }) {
 	const t = useTranslations('Audience')
 	const audience = useAudience()
@@ -67,12 +67,11 @@ export function AudienceSelector({ serviceAudiences }: { serviceAudiences: Audie
 					<button
 						aria-pressed={audience === option}
 						className={cn(
-							'min-h-12 rounded-[1.25rem] px-[clamp(1.25rem,0.75rem+1.5vw,2.25rem)] py-[clamp(0.5rem,0.3rem+0.6vw,1rem)] font-serif text-[clamp(1.0625rem,0.75rem+1.1vw,1.75rem)] leading-tight font-medium uppercase text-on-brand',
+							'audience-pattern relative min-h-12 rounded-[1.25rem] px-[clamp(1.25rem,0.75rem+1.5vw,2.25rem)] py-[clamp(0.5rem,0.3rem+0.6vw,1rem)] font-serif text-[clamp(1.0625rem,0.75rem+1.1vw,1.75rem)] leading-tight font-medium uppercase text-on-brand',
 							'decoration-2 underline-offset-6 transition-shadow duration-200 hover:underline focus-visible:outline-3 focus-visible:outline-offset-6 focus-visible:outline-focus motion-reduce:transition-none',
 						)}
 						data-audience-option={option}
 						data-audience-swatch={option}
-						data-placeholder-asset={`audience-button-${option}`}
 						key={option}
 						onClick={() => choose(option)}
 						type="button"
